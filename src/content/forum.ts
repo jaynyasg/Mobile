@@ -1,0 +1,130 @@
+import type { Forum } from "./types";
+
+export const forum: Forum = {
+  id: "portico-assembly-2026",
+  name: "Portico",
+  edition: "Assembly",
+  tagline: "Three days for people building companies that intend to last.",
+  organizer: "Portico",
+  dateLabel: "November 10–12, 2026",
+  startDate: "2026-11-10",
+  endDate: "2026-11-12",
+  timezone: "America/Los_Angeles",
+  venue: {
+    name: "Harbor Hall",
+    addressLine: "18 Lantern Steps",
+    locality: "Seattle, WA 98104",
+    summary:
+      "A fictional hall for this demo, set on the Seattle waterfront. Two floors, seven rooms, and stairs that are part of the day.",
+    pinNote: "The map pin is a sample placed on the waterfront. It is not a real venue.",
+    latitude: 47.6056,
+    longitude: -122.3401,
+    rooms: [
+      {
+        id: "lobby",
+        name: "Lobby",
+        floor: "Floor 1",
+        summary: "Badge pickup, coffee, and the Harbor Press desk.",
+      },
+      {
+        id: "main-hall",
+        name: "Main Hall",
+        floor: "Floor 1",
+        summary: "Keynotes and the conversations that need a crowd.",
+      },
+      {
+        id: "reading-room",
+        name: "Reading Room",
+        floor: "Floor 1",
+        summary: "Eighty seats, a window on the alley, and no slides unless someone asks.",
+      },
+      {
+        id: "map-room",
+        name: "Map Room",
+        floor: "Floor 1",
+        summary: "Workshops and the talks that want a table in the middle.",
+      },
+      {
+        id: "courtyard",
+        name: "Courtyard",
+        floor: "Floor 1",
+        summary: "Lunch and the opening reception. Covered if it rains.",
+      },
+      {
+        id: "arcade",
+        name: "Arcade",
+        floor: "Floor 2",
+        summary: "Studio Walk tables. Brick, a loud floor, and good light.",
+      },
+      {
+        id: "cloister",
+        name: "Cloister",
+        floor: "Floor 2",
+        summary: "Talent Market. Quieter, with a bench down the middle.",
+      },
+    ],
+  },
+  days: [
+    { id: "tue", weekday: "Tuesday", shortWeekday: "Tue", month: "Nov", dayNumber: "10", date: "2026-11-10" },
+    { id: "wed", weekday: "Wednesday", shortWeekday: "Wed", month: "Nov", dayNumber: "11", date: "2026-11-11" },
+    { id: "thu", weekday: "Thursday", shortWeekday: "Thu", month: "Nov", dayNumber: "12", date: "2026-11-12" },
+  ],
+  tracks: [
+    {
+      id: "build",
+      name: "Build",
+      description: "Product, pricing, and the systems under the work.",
+      color: "#1B3330",
+    },
+    {
+      id: "capital",
+      name: "Capital",
+      description: "Raising, deciding, and staying after the round.",
+      color: "#6E4E2E",
+    },
+    {
+      id: "climate",
+      name: "Climate",
+      description: "Factories, grids, and the rooms the hardware lives in.",
+      color: "#3E5C4E",
+    },
+    {
+      id: "design",
+      name: "Design",
+      description: "Studios, brands, and the hire that changes a company's voice.",
+      color: "#6B4558",
+    },
+    {
+      id: "policy",
+      name: "Policy",
+      description: "Cities, rules, and writing you can stand behind.",
+      color: "#3D4F66",
+    },
+    {
+      id: "assembly",
+      name: "Assembly",
+      description: "Keynotes, meals, and the two side gatherings.",
+      color: "#1C1915",
+    },
+  ],
+  conduct: [
+    "No recording in the Reading Room or the Map Room.",
+    "Question lines are for questions.",
+    "Sponsors may host a table. They do not host the program.",
+    "If you need a quieter room, ask the desk in the Lobby.",
+  ],
+  releaseNotes: {
+    version: "1.0.0",
+    date: "October 24, 2026",
+    items: [
+      "Agenda with day tabs, track filters, search, favorites, and seat holds that respect capacity.",
+      "Session times in Pacific time and on this phone's clock.",
+      "My Schedule gathers favorites and saved seats.",
+      "Opt-in directory, on-device messages, and meeting requests that refuse keynote hours.",
+      "Sponsors and deals, the Studio Walk, and the Talent Market.",
+      "A sample badge with a QR code, a schematic of Harbor Hall, and a notifications inbox.",
+      "An on-device guide that answers only from the program.",
+      "Delete my data, in Settings, clears everything this phone has saved.",
+    ],
+  },
+};
