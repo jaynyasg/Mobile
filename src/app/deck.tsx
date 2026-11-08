@@ -1,0 +1,35 @@
+import { Image, StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Screen } from "@/components/Screen";
+import { StackHeader } from "@/components/StackHeader";
+import { T } from "@/components/Text";
+import { Chip } from "@/components/ui";
+import { ilmaPages } from "@/images";
+import { pad } from "@/theme";
+
+export default function DeckScreen() {
+  const [page, setPage] = useState(0);
+  return (
+    <Screen edge="none">
+      <StackHeader title="Ilma deck plans" />
+      <View style={styles.pad}>
+        <T variant="eyebrow">The Ritz-Carlton, St. Thomas</T>
+        <T variant="small">
+          These are the supplied page images. The original PDF was omitted from the export, so this preview shows the pages that were included.
+        </T>
+      </View>
+      <View style={styles.pages}>
+        {ilmaPages.map((_, index) => (
+          <Chip key={index} label={String(index + 1)} selected={page === index} onPress={() => setPage(index)} />
+        ))}
+      </View>
+      <Image source={ilmaPages[page]} style={styles.image} resizeMode="contain" accessibilityLabel={`Deck plan page ${page + 1}`} />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  pad: { padding: pad, gap: 8 },
+  pages: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingHorizontal: pad },
+  image: { width: "100%", height: 520, marginTop: 12 },
+});

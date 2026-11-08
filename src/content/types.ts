@@ -1,163 +1,181 @@
-export type TrackId = "build" | "capital" | "climate" | "design" | "policy" | "assembly";
-
-export type SessionFormat =
-  | "keynote"
-  | "talk"
-  | "panel"
-  | "workshop"
-  | "conversation"
-  | "social"
-  | "gathering";
-
 export interface Day {
   id: string;
+  date: string;
+  label: string;
+  phase: string;
   weekday: string;
   shortWeekday: string;
-  month: string;
   dayNumber: string;
-  date: string;
 }
 
-export interface Track {
-  id: TrackId;
-  name: string;
-  description: string;
-  color: string;
-}
-
-export interface Room {
+export interface Pillar {
   id: string;
   name: string;
-  floor: string;
-  summary: string;
-}
-
-export interface Venue {
-  name: string;
-  addressLine: string;
-  locality: string;
-  summary: string;
-  pinNote: string;
-  latitude: number;
-  longitude: number;
-  rooms: Room[];
-}
-
-export interface ReleaseNotes {
-  version: string;
-  date: string;
-  items: string[];
+  island: string;
+  region: string;
 }
 
 export interface Forum {
   id: string;
   name: string;
   edition: string;
-  tagline: string;
-  organizer: string;
+  kicker: string;
   dateLabel: string;
+  placeLabel: string;
   startDate: string;
   endDate: string;
   timezone: string;
-  venue: Venue;
+  timezoneLabel: string;
+  draftNotice: string;
+  featuredStaffing: string;
+  participation: {
+    featured: string;
+    lead: string;
+    contributor: string;
+  };
+  closing: string;
   days: Day[];
-  tracks: Track[];
-  conduct: string[];
-  releaseNotes: ReleaseNotes;
+  pillars: Pillar[];
 }
 
-export interface Speaker {
+export interface Panelist {
   id: string;
   name: string;
-  title: string;
   company: string;
-  bio: string;
+  title: string;
+  photo: string;
+  proposedPillarId: string;
+  proposedIsland: string;
 }
 
 export interface Session {
   id: string;
   title: string;
-  summary: string;
+  description: string;
+  outcome: string;
   dayId: string;
   start: string;
   end: string;
-  trackId: TrackId;
-  roomId: string;
+  pillarId: string;
+  island: string;
+  region: string;
+  phase: string;
+  format: string;
+  featured: boolean;
+  featureRole: string | null;
   speakerIds: string[];
-  format: SessionFormat;
-  capacity: number;
-  seatsHeld: number;
-  reservable: boolean;
-  isKeynote: boolean;
+  candidateIds: string[];
+  specialists: string;
+  status: string;
+  venue: string | null;
+  sourcePage: number | null;
+  sourceUrl: string;
+  workstream: string;
 }
 
-export interface Attendee {
+export type SessionKind = "all" | "featured" | "circuit" | "regular";
+
+export interface Scene {
+  id: number;
+  name: string;
+  image: string;
+  source: string;
+  sha256: string;
+}
+
+export interface StayProvider {
+  name: string;
+  href: string | null;
+  localDeck: boolean;
+}
+
+export interface StaySection {
+  heading: string;
+  providers: StayProvider[];
+  notes: string[];
+}
+
+export interface StayIsland {
+  id: string;
+  island: string;
+  route: string;
+  dock: string;
+  image: string;
+  imageAlt: string;
+  sections: StaySection[];
+}
+
+export interface StayGroup {
+  heading: string;
+  routeLabel: string | null;
+  intro: string | null;
+  islands: StayIsland[];
+}
+
+export interface Pass {
   id: string;
   name: string;
-  title: string;
-  company: string;
-  bio: string;
-  interests: string[];
-  openToMeetings: boolean;
-  networkingOptIn: boolean;
-  reply: string;
+  price: string;
+  unit: string;
+  minimum: string | null;
+  paragraphs: string[];
+  bullets: string[];
 }
 
-export interface MeetingSlot {
-  id: string;
-  weekday: string;
-  start: string;
-  end: string;
+export interface TransportSessionStop {
+  kind: "session";
+  sessionId: string;
 }
 
-export interface Deal {
-  id: string;
+export interface TransportLeg {
+  kind: "leg";
+  time: string;
   title: string;
   detail: string;
-  code?: string;
+  caution: boolean;
 }
 
-export type SponsorTier = "host" | "patron" | "partner";
+export type TransportItem = TransportSessionStop | TransportLeg;
 
-export interface Sponsor {
-  id: string;
-  name: string;
-  tier: SponsorTier;
-  summary: string;
-  deals: Deal[];
-}
-
-export interface SubEvent {
-  id: "studio-walk" | "talent-market";
-  name: string;
-  summary: string;
-  whenLabel: string;
-  where: string;
+export interface TransportDay {
+  date: string;
   start: string;
-  end: string;
+  overnight: string;
+  map: string;
+  mapDescription: string;
+  items: TransportItem[];
 }
 
-export interface Exhibitor {
+export interface TransportMode {
   id: string;
-  subEventId: SubEvent["id"];
   name: string;
-  table: string;
   summary: string;
-  category: string;
-  roles?: string[];
+  description: string;
+  warning: string;
+  days: TransportDay[];
 }
 
-export interface ForumNotification {
+export interface SourceLink {
+  title: string;
+  url: string;
+}
+
+export interface Notice {
   id: string;
   title: string;
   body: string;
   sentAt: string;
-  kind: "desk" | "schedule" | "deal" | "gathering" | "reminder";
 }
 
-export interface Poll {
-  id: string;
-  sessionId: string;
-  question: string;
-  options: { id: string; label: string }[];
+export interface Credits {
+  sentinel: string;
+  sentinelLicense: string;
+  sentinelDocumentation: string;
+  sentinelPeriod: string;
+  sentinelNote: string;
+  coastline: string;
+  portraits: string;
+  logo: string;
+  scenes: string;
+  presentedBy: string;
 }

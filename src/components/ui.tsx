@@ -1,7 +1,5 @@
 import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
-import type { Session } from "@/content/types";
-import { seatsRemaining } from "@/logic/seats";
 import { colors, fonts, pad } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
@@ -92,31 +90,6 @@ export function EmptyState({ title, body }: { title: string; body: string }) {
         {title}
       </T>
       <T variant="meta">{body}</T>
-    </View>
-  );
-}
-
-export function CapacityMeter({ session, held }: { session: Session; held: boolean }) {
-  if (!session.reservable) return null;
-  const remaining = seatsRemaining(session, held);
-  const used = session.capacity - remaining;
-  const ratio = Math.min(1, used / session.capacity);
-  const full = !held && remaining === 0;
-  const tight = remaining > 0 && remaining <= 5;
-  const label = held
-    ? `Seat saved · ${remaining} still open`
-    : full
-      ? "This room is full"
-      : `${remaining} of ${session.capacity} seats open`;
-  const fill = full ? colors.clay : tight ? colors.brass : colors.pine;
-  return (
-    <View style={styles.meterBlock}>
-      <T variant="meta" color={full ? colors.clay : colors.ink}>
-        {label}
-      </T>
-      <View style={styles.meterTrack}>
-        <View style={[styles.meterFill, { width: `${ratio * 100}%`, backgroundColor: fill }]} />
-      </View>
     </View>
   );
 }

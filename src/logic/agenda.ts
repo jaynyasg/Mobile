@@ -1,45 +1,49 @@
-import type { Room, Session, Speaker, TrackId } from "../content/types";
-
-export type AgendaLens = "all" | "favorites" | "seats";
+import type { Panelist, Session, SessionKind } from "../content/types";
 
 export function filterAgenda(input: {
   sessions: Session[];
-  speakers: Speaker[];
-  rooms: Room[];
+  panelists: Panelist[];
   dayId: string | "all";
-  trackId: TrackId | "all";
-  lens: AgendaLens;
+  pillarId: string | "all";
+  island: string | "all";
+  kind: SessionKind;
+  panelistId: string | "all";
   query: string;
   favoriteIds: string[];
-  heldSeatIds: string[];
+  favoritesOnly: boolean;
 }): Session[] {
   const needle = input.query.trim().toLowerCase();
-  const speakerName = new Map(input.speakers.map((speaker) => [speaker.id, speaker.name.toLowerCase()]));
-  const roomName = new Map(input.rooms.map((room) => [room.id, room.name.toLowerCase()]));
+  const names = new Map(input.panelists.map((person) => [person.id, person.name.toLowerCase()]));
 
   return input.sessions
     .filter((session) => {
       if (input.dayId !== "all" && session.dayId !== input.dayId) return false;
-      if (input.trackId !== "all" && session.trackId !== input.trackId) return false;
-      if (input.lens === "favorites" && !input.favoriteIds.includes(session.id)) return false;
-      if (input.lens === "seats" && !input.heldSeatIds.includes(session.id)) return false;
+      if (input.pillarId !== "all" && session.pillarId !== input.pillarId) return false;
+      if (input.island !== "all" && session.island !== input.island) return false;
+      if (input.kind === "featured" && !session.featured) return false;
+      if (input.kind === "regular" && session.featured) return false;
+      if (input.kind === "circuit" && session.featureRole !== "Circuit feature") return false;
+      if (input.favoritesOnly && !input.favoriteIds.includes(session.id)) return false;
+      if (input.panelistId !== "all") {
+        const involved = session.speakerIds.includes(input.panelistId) || session.candidateIds.includes(input.panelistId);
+        if (!involved) return false;
+      }
       if (!needle) return true;
-      const names = session.speakerIds.map((id) => speakerName.get(id) ?? "").join(" ");
-      const haystack = `${session.title} ${session.summary} ${names} ${roomName.get(session.roomId) ?? ""}`.toLowerCase();
+      const people = [...session.speakerIds, ...session.candidateIds].map((id) => names.get(id) ?? "").join(" ");
+      const haystack = `${session.title} ${session.description} ${session.outcome} ${session.island} ${session.format} ${people}`.toLowerCase();
       return haystack.includes(needle);
     })
     .slice()
-    .sort((a, b) => a.start.localeCompare(b.start) || a.title.localeCompare(b.title));
+    .sort((a, b) => a.start.localeCompare(b.start) || Number(b.featured) - Number(a.featured) || a.title.localeCompare(b.title));
 }
 
-export function mySchedule(sessions: Session[], favoriteIds: string[], heldSeatIds: string[]): Session[] {
-  const ids = new Set([...favoriteIds, ...heldSeatIds]);
+export function mySchedule(sessions: Session[], favoriteIds: string[]): Session[] {
+  const ids = new Set(favoriteIds);
   return sessions.filter((session) => ids.has(session.id)).sort((a, b) => a.start.localeCompare(b.start));
 }
 
 export function upcomingSessions(sessions: Session[], now: Date, limit: number): Session[] {
-  const visible = sessions.filter((session) => session.format !== "social");
-  const future = visible.filter((session) => Date.parse(session.end) > now.getTime());
-  const source = future.length > 0 ? future : visible;
+  const future = sessions.filter((session) => Date.parse(session.end) > now.getTime());
+  const source = future.length > 0 ? future : sessions;
   return source.slice(0, limit);
 }

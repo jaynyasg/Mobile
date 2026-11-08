@@ -1,24 +1,25 @@
 export const colors = {
-  paper: "#F3EEE4",
-  paperRaised: "#FBF8F2",
-  ink: "#1C1915",
-  inkSoft: "#5E574C",
-  line: "#E2D9CB",
-  pine: "#1B3330",
-  pineDeep: "#122421",
-  ivory: "#F6F1E6",
-  brass: "#6E4E2E",
-  brassSoft: "#D7B98A",
-  clay: "#8E4034",
-  stage: "#E4DCCF",
+  paper: "#F6F0E5",
+  paperRaised: "#FBF7F0",
+  ink: "#071B2A",
+  inkSoft: "#3C5360",
+  line: "#D5DDDF",
+  pine: "#071B2A",
+  pineDeep: "#041018",
+  ivory: "#F6F0E5",
+  brass: "#8A6A1E",
+  brassSoft: "#EDC96D",
+  clay: "#8C2F2F",
+  stage: "#071B2A",
+  muted: "#BCC7CB",
 };
 
 export const fonts = {
-  display: "Fraunces_600SemiBold",
-  displayMedium: "Fraunces_500Medium",
-  body: "Outfit_400Regular",
-  medium: "Outfit_500Medium",
-  semibold: "Outfit_600SemiBold",
+  display: "BodoniModa-SemiBold",
+  displayMedium: "BodoniModa-Medium",
+  body: "Manrope-Regular",
+  medium: "Manrope-Medium",
+  semibold: "Manrope-SemiBold",
 };
 
 export const pad = 20;

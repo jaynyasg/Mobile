@@ -2,21 +2,21 @@ import { describe, expect, it } from "vitest";
 import { answerQuestion } from "./assistant";
 
 describe("on-device guide", () => {
-  it("answers from the program instead of a general model", () => {
-    const mira = answerQuestion("When does Mira Chen speak?");
-    expect(mira.text).toContain("A longer attention");
-    expect(mira.text).toContain("PST");
-    expect(mira.citations.some((citation) => citation.id === "mira-chen")).toBe(true);
+  it("answers from the TATEL draft instead of a general model", () => {
+    const malik = answerQuestion("When does Malik Elizee appear?");
+    expect(malik.text).toContain("Malik Elizee");
+    expect(malik.text).toContain("AST");
+    expect(malik.citations.some((citation) => citation.id === "malik-elizee")).toBe(true);
 
-    const hall = answerQuestion("Where is Harbor Hall?");
-    expect(hall.text).toContain("Lantern Steps");
+    const island = answerQuestion("Where is the Tech pillar?");
+    expect(island.text).toContain("St. Thomas");
 
-    const walk = answerQuestion("What is the Studio Walk?");
-    expect(walk.text).toContain("Arcade");
+    const boat = answerQuestion("What is the conference powerboat?");
+    expect(boat.text.toLowerCase()).toContain("unconfirmed");
 
     const deletion = answerQuestion("How do I delete my data?");
     expect(deletion.text).toContain("Settings");
 
-    expect(answerQuestion("asdfghjkl").text).toContain("I only know the Portico program");
+    expect(answerQuestion("asdfghjkl").text).toContain("TATEL Conversations");
   });
 });

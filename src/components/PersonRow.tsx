@@ -1,23 +1,25 @@
 import { Href, Link } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
+import type { ImageSourcePropType } from "react-native";
 import { colors, pad } from "@/theme";
 import { Icon } from "./Icon";
-import { Monogram } from "./Monogram";
 import { T } from "./Text";
 
 export function PersonRow({
   name,
   meta,
   href,
+  photo,
 }: {
   name: string;
   meta: string;
   href: Href;
+  photo?: ImageSourcePropType;
 }) {
   return (
     <Link href={href} asChild>
       <Pressable accessibilityRole="button" style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-        <Monogram name={name} />
+        {photo ? <Image source={photo} style={styles.photo} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
         <View style={styles.copy}>
           <T variant="rowTitle">{name}</T>
           <T variant="meta">{meta}</T>
@@ -38,6 +40,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.line,
   },
+  photo: { width: 52, height: 64, backgroundColor: colors.muted },
   copy: { flex: 1, gap: 2 },
   pressed: { opacity: 0.72 },
 });

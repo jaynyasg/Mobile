@@ -17,11 +17,11 @@ export function forumPhase(now: Date, timeZone = forum.timezone): ForumPhase {
 }
 
 export function phaseLabel(phase: ForumPhase): string {
-  if (phase.phase === "ended") return "The forum has closed";
-  if (phase.phase === "live") return "The forum is open";
-  if (phase.daysUntil <= 0) return "Doors open today";
-  if (phase.daysUntil === 1) return "Doors open tomorrow";
-  return `Doors open in ${phase.daysUntil} days`;
+  if (phase.phase === "ended") return "The summit has closed";
+  if (phase.phase === "live") return "The summit is open";
+  if (phase.daysUntil <= 0) return "The summit opens today";
+  if (phase.daysUntil === 1) return "The summit opens tomorrow";
+  return `The summit opens in ${phase.daysUntil} days`;
 }
 
 export function suggestedDayId(now: Date, timeZone = forum.timezone): string {

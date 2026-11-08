@@ -1,153 +1,112 @@
-import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { forum, sessions, speakers } from "@/content";
-import type { TrackId } from "@/content/types";
+import { useLocalSearchParams } from "expo-router";
+import { useMemo, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { forum, panelists, panelistById, sessions } from "@/content";
+import type { SessionKind } from "@/content/types";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { SessionRow } from "@/components/SessionRow";
 import { T } from "@/components/Text";
 import { Chip, EmptyState, PageHeader } from "@/components/ui";
-import { AgendaLens, filterAgenda } from "@/logic/agenda";
+import { filterAgenda } from "@/logic/agenda";
 import { suggestedDayId } from "@/logic/phase";
 import { useApp } from "@/store";
-import { colors, fonts, pad } from "@/theme";
+import { colors, pad } from "@/theme";
 
-const lenses: { id: AgendaLens; label: string }[] = [
+const kinds: { id: SessionKind; label: string }[] = [
   { id: "all", label: "All" },
-  { id: "favorites", label: "Favorites" },
-  { id: "seats", label: "Seats" },
+  { id: "featured", label: "Featured" },
+  { id: "circuit", label: "Circuit" },
+  { id: "regular", label: "Regular" },
 ];
 
 export default function AgendaScreen() {
+  const params = useLocalSearchParams<{ day?: string; panelist?: string; pillar?: string }>();
   const { state } = useApp();
-  const [dayId, setDayId] = useState(() => suggestedDayId(new Date()));
-  const [trackId, setTrackId] = useState<TrackId | "all">("all");
-  const [lens, setLens] = useState<AgendaLens>("all");
+  const [dayId, setDayId] = useState(params.day || suggestedDayId(new Date()));
+  const [pillarId, setPillarId] = useState(params.pillar || "all");
+  const [island, setIsland] = useState("all");
+  const [kind, setKind] = useState<SessionKind>("all");
+  const [panelistId, setPanelistId] = useState(params.panelist || "all");
   const [query, setQuery] = useState("");
-  const searching = query.trim().length > 0;
 
-  const results = filterAgenda({
-    sessions,
-    speakers,
-    rooms: forum.venue.rooms,
-    dayId: searching ? "all" : dayId,
-    trackId,
-    lens,
-    query,
-    favoriteIds: state.favoriteIds,
-    heldSeatIds: state.heldSeatIds,
-  });
+  const visible = useMemo(
+    () =>
+      filterAgenda({
+        sessions,
+        panelists,
+        dayId,
+        pillarId,
+        island,
+        kind,
+        panelistId,
+        query,
+        favoriteIds: state.favoriteIds,
+        favoritesOnly: false,
+      }),
+    [dayId, pillarId, island, kind, panelistId, query, state.favoriteIds],
+  );
+  const selectedPerson = panelistId === "all" ? undefined : panelistById(panelistId);
 
   return (
     <Screen>
-      <PageHeader kicker="Program" title="Agenda" subtitle="Times in Pacific, and on this phone when they differ." />
-      <SearchField value={query} onChange={setQuery} placeholder="Search sessions, speakers, rooms" />
-      <View style={styles.days}>
-        {forum.days.map((day) => {
-          const selected = !searching && day.id === dayId;
-          return (
-            <Pressable
-              key={day.id}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => {
-                setDayId(day.id);
-                setQuery("");
-              }}
-              style={styles.day}
-            >
-              <T variant="eyebrow" color={selected ? colors.pine : colors.inkSoft}>
-                {day.shortWeekday}
-              </T>
-              <T variant="headline" color={selected ? colors.ink : colors.inkSoft} style={styles.dayNumber}>
-                {day.dayNumber}
-              </T>
-              <View style={[styles.dayRule, selected && styles.dayRuleOn]} />
-            </Pressable>
-          );
-        })}
+      <PageHeader kicker="Proposed · AST" title="Agenda" subtitle={forum.draftNotice} />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+        {forum.days.map((day) => (
+          <Chip key={day.id} label={`${day.shortWeekday} ${day.dayNumber}`} selected={dayId === day.id} onPress={() => setDayId(day.id)} />
+        ))}
+        <Chip label="All days" selected={dayId === "all"} onPress={() => setDayId("all")} />
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+        {kinds.map((item) => (
+          <Chip key={item.id} label={item.label} selected={kind === item.id} onPress={() => setKind(item.id)} />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+        <Chip label="All pillars" selected={pillarId === "all"} onPress={() => setPillarId("all")} />
+        {forum.pillars.map((pillar) => (
+          <Chip key={pillar.id} label={pillar.name} selected={pillarId === pillar.id} onPress={() => setPillarId(pillar.id)} />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+        <Chip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
+        {forum.pillars.map((pillar) => (
+          <Chip key={pillar.island} label={pillar.island} selected={island === pillar.island} onPress={() => setIsland(pillar.island)} />
+        ))}
+      </ScrollView>
+      <View style={styles.search}>
+        <SearchField value={query} onChange={setQuery} placeholder="Search titles or panelists" />
       </View>
-      {searching ? (
-        <T variant="meta" style={styles.note}>
-          Searching all three days.
-        </T>
-      ) : null}
-      <View style={styles.segment}>
-        {lenses.map((item) => {
-          const selected = lens === item.id;
-          return (
-            <Pressable
-              key={item.id}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => setLens(item.id)}
-              style={[styles.segmentItem, selected && styles.segmentOn]}
-            >
-              <T variant="small" color={selected ? colors.ivory : colors.ink} style={styles.segmentLabel}>
-                {item.label}
-              </T>
-            </Pressable>
-          );
-        })}
-      </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tracks}>
-        <Chip label="All tracks" selected={trackId === "all"} onPress={() => setTrackId("all")} />
-        {forum.tracks.map((track) => (
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+        <Chip label="Any panelist" selected={panelistId === "all"} onPress={() => setPanelistId("all")} />
+        {panelists.map((person) => (
           <Chip
-            key={track.id}
-            label={track.name}
-            swatch={track.color}
-            selected={trackId === track.id}
-            onPress={() => setTrackId(track.id)}
+            key={person.id}
+            label={person.name.split(" ")[0]}
+            selected={panelistId === person.id}
+            onPress={() => setPanelistId(person.id)}
           />
         ))}
       </ScrollView>
-      <T variant="meta" style={styles.count}>
-        {results.length === 1 ? "1 session" : `${results.length} sessions`}
+      {selectedPerson ? (
+        <T variant="meta" style={styles.note}>
+          Showing proposed links for {selectedPerson.name}. Featured names are potential contributors, not assigned speakers.
+        </T>
+      ) : null}
+      <T variant="meta" style={styles.note}>
+        {visible.length} proposed sessions
       </T>
-      {results.length === 0 ? (
-        <EmptyState title="Nothing on this cut" body="Try another day, another track, or a speaker's name." />
+      {visible.length === 0 ? (
+        <EmptyState title="Nothing in this cut" body="Clear a filter or search. The underlying draft still has 200 sessions." />
       ) : (
-        results.map((session, index) => {
-          const day = forum.days.find((item) => item.id === session.dayId);
-          const previous = results[index - 1];
-          const showDay = searching && previous?.dayId !== session.dayId;
-          return (
-            <View key={session.id}>
-              {showDay && day ? (
-                <T variant="eyebrow" style={styles.dayBreak}>
-                  {day.weekday}
-                </T>
-              ) : null}
-              <SessionRow session={session} />
-            </View>
-          );
-        })
+        visible.map((session) => <SessionRow key={session.id} session={session} />)
       )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  days: { flexDirection: "row", paddingHorizontal: pad, gap: 8, marginTop: 6 },
-  day: { flex: 1, alignItems: "center", paddingTop: 6, gap: 2 },
-  dayNumber: { fontSize: 26, lineHeight: 30 },
-  dayRule: { marginTop: 6, height: 2, width: "70%", backgroundColor: "transparent" },
-  dayRuleOn: { backgroundColor: colors.brass },
-  note: { paddingHorizontal: pad, marginTop: 8 },
-  segment: {
-    flexDirection: "row",
-    marginHorizontal: pad,
-    marginTop: 14,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  segmentItem: { flex: 1, minHeight: 40, alignItems: "center", justifyContent: "center" },
-  segmentOn: { backgroundColor: colors.pine },
-  segmentLabel: { fontFamily: fonts.medium },
-  tracks: { paddingHorizontal: pad, paddingVertical: 14, gap: 8 },
-  count: { paddingHorizontal: pad, marginBottom: 4 },
-  dayBreak: { paddingHorizontal: pad, marginTop: 16, marginBottom: 4 },
+  chips: { paddingHorizontal: pad, gap: 8, paddingBottom: 8 },
+  search: { paddingHorizontal: pad, paddingBottom: 8 },
+  note: { paddingHorizontal: pad, paddingBottom: 8, color: colors.inkSoft },
 });

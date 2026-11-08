@@ -1,13 +1,10 @@
-import type { Attendee } from "../content/types";
+import type { Panelist } from "../content/types";
 
-export function visibleAttendees(people: Attendee[], query: string): Attendee[] {
+export function searchPanelists(people: Panelist[], query: string): Panelist[] {
   const needle = query.trim().toLowerCase();
+  if (!needle) return people;
   return people.filter((person) => {
-    if (!person.networkingOptIn) return false;
-    if (!needle) return true;
-    const haystack = [person.name, person.title, person.company, person.bio, ...person.interests]
-      .join(" ")
-      .toLowerCase();
+    const haystack = `${person.name} ${person.title} ${person.company}`.toLowerCase();
     return haystack.includes(needle);
   });
 }

@@ -1,71 +1,70 @@
-import { Link } from "expo-router";
-import { StyleSheet, View } from "react-native";
-import { Image } from "expo-image";
-import { forum } from "@/content";
+import { useState } from "react";
+import { Linking, Pressable, StyleSheet, View } from "react-native";
+import { passes } from "@/content";
 import { QrMark } from "@/components/QrMark";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { PASS_ID, PASS_PAYLOAD } from "@/logic/state";
-import { useApp } from "@/store";
+import { passPayload } from "@/logic/state";
 import { colors, pad } from "@/theme";
 
 export default function TicketScreen() {
-  const { state } = useApp();
-  const name = state.profile.name.trim() || "Guest";
-  const line = [state.profile.title, state.profile.company].filter(Boolean).join(", ");
+  const [passId, setPassId] = useState(passes.items[0].id);
+  const pass = passes.items.find((item) => item.id === passId) ?? passes.items[0];
+
   return (
     <Screen edge="none">
-      <StackHeader title="Badge" />
-      <View style={styles.wrap}>
-        <View style={styles.card}>
-          <Image source={require("../../assets/images/icon.png")} style={styles.seal} />
-          <T variant="eyebrow">Portico</T>
-          <T variant="title">Assembly pass</T>
-          <T variant="headline" style={styles.name}>
-            {name}
-          </T>
-          {line ? <T variant="small">{line}</T> : null}
-          {!state.profile.name.trim() ? (
-            <Link href="/settings">
-              <T variant="small" color={colors.brass}>
-                Add your name in Settings
+      <StackHeader title="Pass preview" />
+      <View style={styles.pad}>
+        <T variant="eyebrow">{passes.previewLabel}</T>
+        <T variant="title">Find your passage</T>
+        <T variant="meta">{passes.legend}</T>
+        <T variant="small">{passes.sourceNote}</T>
+      </View>
+      {passes.items.map((item) => {
+        const selected = item.id === pass.id;
+        return (
+          <Pressable
+            key={item.id}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            onPress={() => setPassId(item.id)}
+            style={[styles.pass, selected && styles.passOn]}
+          >
+            <T variant="rowTitle">{item.name}</T>
+            <T variant="small">
+              {item.price} {item.unit}
+            </T>
+            {item.minimum ? <T variant="meta">{item.minimum}</T> : null}
+            {item.paragraphs.map((paragraph) => (
+              <T key={paragraph} variant="meta">
+                {paragraph}
               </T>
-            </Link>
-          ) : null}
-          <View style={styles.qr}>
-            <QrMark value={PASS_PAYLOAD} />
-          </View>
-          <T variant="eyebrow">{PASS_ID}</T>
-          <T variant="meta" style={styles.meta}>
-            {forum.venue.name}
-            {"\n"}
-            {forum.dateLabel}
-            {"\n"}
-            Admit one
+            ))}
+            {item.bullets.map((bullet) => (
+              <T key={bullet} variant="meta">
+                · {bullet}
+              </T>
+            ))}
+          </Pressable>
+        );
+      })}
+      <View style={styles.qr}>
+        <QrMark value={passPayload(pass.id)} />
+        <T variant="meta">This code marks a design preview. It is not a ticket and it does not reserve a place.</T>
+        <Pressable accessibilityRole="link" onPress={() => Linking.openURL(passes.sourceUrl).catch(() => undefined)}>
+          <T variant="small" color={colors.brass}>
+            View original pass information
           </T>
-        </View>
-        <T variant="meta" style={styles.note}>
-          Sample pass for this demo. The mark encodes {PASS_PAYLOAD}. Nothing is checked against a server.
-        </T>
+        </Pressable>
       </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { paddingHorizontal: pad, gap: 16 },
-  card: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
-    padding: 22,
-    alignItems: "center",
-    gap: 6,
-  },
-  seal: { width: 56, height: 56, borderRadius: 8, marginBottom: 8 },
-  name: { marginTop: 8, textAlign: "center" },
-  qr: { marginVertical: 12 },
-  meta: { textAlign: "center", marginTop: 8 },
-  note: { textAlign: "center" },
+  pad: { padding: pad, gap: 8 },
+  pass: { marginHorizontal: pad, marginBottom: 8, padding: 12, gap: 4, borderWidth: 1, borderColor: colors.line },
+  passOn: { borderColor: colors.brassSoft, backgroundColor: "#F8F1D8" },
+  qr: { alignItems: "center", gap: 12, padding: pad },
 });

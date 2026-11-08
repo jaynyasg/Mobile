@@ -14,11 +14,11 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.pine,
-        tabBarInactiveTintColor: colors.inkSoft,
+        tabBarActiveTintColor: colors.brassSoft,
+        tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          backgroundColor: colors.paperRaised,
-          borderTopColor: colors.line,
+          backgroundColor: colors.ink,
+          borderTopColor: colors.ink,
           borderTopWidth: 1,
           height: 58 + insets.bottom,
           paddingTop: 6,
@@ -48,7 +48,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="speakers"
         options={{
-          title: "Speakers",
+          title: "Panelists",
           tabBarIcon: ({ color, size }) => <TabIcon name="mic" color={color} size={size} />,
         }}
       />

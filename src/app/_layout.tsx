@@ -1,5 +1,3 @@
-import { Fraunces_500Medium, Fraunces_600SemiBold } from "@expo-google-fonts/fraunces";
-import { Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold } from "@expo-google-fonts/outfit";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -32,11 +30,11 @@ export default function RootLayout() {
 function Boot({ children }: { children: ReactNode }) {
   const { hydrated } = useApp();
   const [loaded, error] = useFonts({
-    Fraunces_500Medium,
-    Fraunces_600SemiBold,
-    Outfit_400Regular,
-    Outfit_500Medium,
-    Outfit_600SemiBold,
+    "BodoniModa-Medium": require("../../assets/fonts/BodoniModa-Medium.ttf"),
+    "BodoniModa-SemiBold": require("../../assets/fonts/BodoniModa-SemiBold.ttf"),
+    "Manrope-Regular": require("../../assets/fonts/Manrope-Regular.ttf"),
+    "Manrope-Medium": require("../../assets/fonts/Manrope-Medium.ttf"),
+    "Manrope-SemiBold": require("../../assets/fonts/Manrope-SemiBold.ttf"),
   });
 
   useEffect(() => {

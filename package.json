@@ -1,5 +1,5 @@
 {
-  "name": "portico",
+  "name": "tatel",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
@@ -45,7 +45,8 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "program": "vite-node scripts/print-program.ts"
+    "program": "node scripts/print-program.mjs",
+    "generate": "node scripts/generate-tatel-content.mjs"
   },
   "private": true
 }

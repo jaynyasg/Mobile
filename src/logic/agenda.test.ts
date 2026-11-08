@@ -1,33 +1,44 @@
 import { describe, expect, it } from "vitest";
-import { forum, sessions, speakers } from "../content";
+import { panelists, sessions } from "../content";
 import { filterAgenda, mySchedule } from "./agenda";
 
 const base = {
   sessions,
-  speakers,
-  rooms: forum.venue.rooms,
-  dayId: "tue" as const,
-  trackId: "all" as const,
-  lens: "all" as const,
+  panelists,
+  dayId: "2027-01-26" as const,
+  pillarId: "all" as const,
+  island: "all" as const,
+  kind: "all" as const,
+  panelistId: "all" as const,
   query: "",
   favoriteIds: [] as string[],
-  heldSeatIds: [] as string[],
+  favoritesOnly: false,
 };
 
 describe("agenda filters", () => {
-  it("filters by day, track, and a speaker name", () => {
+  it("filters by day, pillar, island, type, and panelist", () => {
     const tuesday = filterAgenda(base);
-    expect(tuesday.every((session) => session.dayId === "tue")).toBe(true);
-    const climate = filterAgenda({ ...base, trackId: "climate" });
-    expect(climate.map((session) => session.id)).toEqual(["grid-bottleneck"]);
-    const hugo = filterAgenda({ ...base, dayId: "all", query: "hugo" });
-    expect(hugo.map((session) => session.id)).toEqual(["pricing-unbundle"]);
+    expect(tuesday).toHaveLength(50);
+    expect(tuesday.every((session) => session.dayId === "2027-01-26")).toBe(true);
+
+    const tech = filterAgenda({ ...base, pillarId: "tech", island: "St. Thomas" });
+    expect(tech).toHaveLength(10);
+    expect(tech.every((session) => session.pillarId === "tech" && session.island === "St. Thomas")).toBe(true);
+
+    const circuit = filterAgenda({ ...base, dayId: "all", kind: "circuit" });
+    expect(circuit).toHaveLength(20);
+    expect(circuit.every((session) => session.featureRole === "Circuit feature")).toBe(true);
+
+    const malik = panelists.find((person) => person.name === "Malik Elizee");
+    expect(malik).toBeTruthy();
+    const theirs = filterAgenda({ ...base, dayId: "all", panelistId: malik?.id ?? "", query: "offline" });
+    expect(theirs.map((session) => session.id)).toContain("F-TECH-A-D1");
   });
 
-  it("keeps favorites and held seats on a personal schedule", () => {
-    const favorites = filterAgenda({ ...base, dayId: "all", lens: "favorites", favoriteIds: ["closing"] });
-    expect(favorites.map((session) => session.id)).toEqual(["closing"]);
-    const mine = mySchedule(sessions, ["studio-walk-session"], ["pricing-unbundle"]);
-    expect(mine.map((session) => session.id)).toEqual(["pricing-unbundle", "studio-walk-session"]);
+  it("keeps favorites on a personal schedule", () => {
+    const favorites = filterAgenda({ ...base, dayId: "all", favoritesOnly: true, favoriteIds: ["T1-D1"] });
+    expect(favorites.map((session) => session.id)).toEqual(["T1-D1"]);
+    const mine = mySchedule(sessions, ["F-TECH-A-D1", "T1-D1"]);
+    expect(mine.map((session) => session.id)).toEqual(["T1-D1", "F-TECH-A-D1"]);
   });
 });
