@@ -5,3 +5,17 @@ body,
   margin: 0;
   background: #071b2a;
 }
+
+@keyframes tatel-drift {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
+.tatel-drift {
+  animation: tatel-drift 28s ease-in-out infinite alternate;
+  transform-origin: center center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tatel-drift { animation: none; }
+}

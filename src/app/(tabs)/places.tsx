@@ -4,17 +4,19 @@ import { placesForIsland } from "@/content";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
-import { PageHeader } from "@/components/ui";
-import { colors, pad, scenePhotos } from "@/theme";
+import { colors, scenePhotos } from "@/theme";
 
 export default function VenuesTab() {
   const { program } = useContent();
   return (
     <Screen docked photo={scenePhotos.community}>
-      <PageHeader kicker="Daylight" title="Venues" subtitle="Candidate places on each island. A session’s specific venue is still to be confirmed." />
+      <View style={styles.header}>
+        <T variant="eyebrow" color={colors.gold}>Islands</T>
+        <T variant="title" color={colors.onDark}>Venues</T>
+      </View>
       {program.venues.map((venue) => (
-        <View key={venue.id} style={styles.group}>
-          <T variant="eyebrow" color={colors.turquoise} style={styles.island}>{venue.island}</T>
+        <View key={venue.id}>
+          <T variant="eyebrow" color={colors.gold} style={styles.island}>{venue.island}</T>
           {placesForIsland(venue.island).map((place) => {
             const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
             return (
@@ -22,8 +24,8 @@ export default function VenuesTab() {
                 <Pressable accessibilityRole="button" style={styles.card}>
                   {hero ? <Image source={{ uri: hero.webp640 }} style={styles.photo} accessibilityIgnoresInvertColors /> : null}
                   <View style={styles.copy}>
-                    <T variant="rowTitle">{place.name}</T>
-                    <T variant="meta">{place.photos.length} photos{place.models.length ? ` · ${place.models.length} 3D` : ""}</T>
+                    <T variant="rowTitle" color={colors.onDark}>{place.name}</T>
+                    <T variant="meta" color={colors.gold}>{place.photos.length} photos{place.models.length ? " · 3D" : ""}</T>
                   </View>
                 </Pressable>
               </Link>
@@ -36,17 +38,9 @@ export default function VenuesTab() {
 }
 
 const styles = StyleSheet.create({
-  group: { marginBottom: 8 },
-  island: { paddingHorizontal: pad, marginBottom: 8 },
-  card: {
-    marginHorizontal: pad,
-    marginBottom: 10,
-    borderRadius: 18,
-    overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.86)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.92)",
-  },
-  photo: { width: "100%", height: 140 },
-  copy: { padding: 12, gap: 2 },
+  header: { paddingHorizontal: 22, paddingTop: 8, paddingBottom: 12, gap: 4 },
+  island: { paddingHorizontal: 22, marginTop: 8, marginBottom: 8 },
+  card: { marginHorizontal: 22, marginBottom: 14, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  copy: { padding: 14, gap: 2, backgroundColor: "rgba(6,14,24,0.32)" },
 });

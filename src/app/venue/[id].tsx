@@ -2,9 +2,6 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { placeById, placesForIsland, venueById } from "@/content";
-import { useContent } from "@/content/provider";
-import { Glass } from "@/components/Glass";
-import { PlacePhoto } from "@/components/PlacePhoto";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -12,7 +9,6 @@ import { VenueModel } from "@/components/VenueModel";
 import { colors, pad, sceneForIsland } from "@/theme";
 
 export default function VenueScreen() {
-  const { program } = useContent();
   const { id } = useLocalSearchParams<{ id: string }>();
   const place = placeById(id ?? "");
   if (place) return <PlaceScreen placeId={place.id} />;
@@ -29,41 +25,36 @@ export default function VenueScreen() {
   return (
     <Screen edge="none" photo={sceneForIsland(venue.island)}>
       <StackHeader title={venue.island} />
-      <Glass style={styles.pad}>
-        <T variant="eyebrow" color={colors.turquoise}>{venue.route}</T>
-        <T variant="title">{venue.island}</T>
-        <T variant="small">Dock · {venue.dock}</T>
-        <T variant="meta">Specific session venue: to be confirmed. These are the candidate places on this island.</T>
-      </Glass>
+      <View style={styles.intro}>
+        <T variant="eyebrow" color={colors.gold}>{venue.route}</T>
+        <T variant="title" color={colors.onDark}>{venue.island}</T>
+        <T variant="meta" color={colors.onDarkSoft}>Dock · {venue.dock}</T>
+      </View>
       {places.map((item) => {
         const hero = item.photos.find((photo) => photo.hero) ?? item.photos[0];
         return (
           <Link key={item.id} href={{ pathname: "/venue/[id]", params: { id: item.id } }} asChild>
             <Pressable accessibilityRole="button" style={styles.card}>
-              {hero ? <PlacePhoto photo={hero} /> : null}
+              {hero ? <Image source={{ uri: hero.webp640 }} style={styles.photo} accessibilityIgnoresInvertColors /> : null}
               <View style={styles.copy}>
-                <T variant="eyebrow" color={colors.turquoise}>{item.source === "app-addition" ? "Added in the app" : "Accommodations"}</T>
-                <T variant="rowTitle">{item.name}</T>
-                <T variant="meta">{item.photos.length} photos{item.models.length ? ` · ${item.models.length} 3D models` : ""}</T>
+                <T variant="rowTitle" color={colors.onDark}>{item.name}</T>
+                <T variant="meta" color={colors.gold}>{item.photos.length} photos{item.models.length ? " · 3D" : ""}</T>
               </View>
             </Pressable>
           </Link>
         );
       })}
-      <Glass style={styles.pad}>
-        <T variant="meta">{venue.note}</T>
-      </Glass>
+      <T variant="meta" color={colors.onDarkSoft} style={styles.note}>{venue.note}</T>
       {[{ title: "On the boat", links: venue.boat }, { title: "On the beach or on land", links: venue.land }].map((section) => (
-        <Glass key={section.title} style={styles.pad}>
-          <T variant="eyebrow" color={colors.turquoise}>{section.title}</T>
+        <View key={section.title} style={styles.note}>
+          <T variant="eyebrow" color={colors.gold}>{section.title}</T>
           {section.links.map((link) => (
             <Pressable key={link.name} accessibilityRole="link" onPress={() => link.href && Linking.openURL(link.href).catch(() => undefined)}>
-              <T variant="small">{link.name}</T>
+              <T variant="small" color={colors.onDark}>{link.name}</T>
             </Pressable>
           ))}
-        </Glass>
+        </View>
       ))}
-      <T variant="meta" style={styles.note}>{program.forum.draftNotice}</T>
     </Screen>
   );
 }
@@ -77,17 +68,16 @@ function PlaceScreen({ placeId }: { placeId: string }) {
     <Screen edge="none" photo={hero?.webp1280 ?? sceneForIsland(place.island)} statusBar="light">
       <StackHeader title={place.name} />
       <View style={styles.heroSpace} />
-      <Glass style={styles.pad}>
-        <T variant="eyebrow" color={colors.turquoise}>{place.island}</T>
-        <T variant="title">{place.name}</T>
-        <T variant="small">{place.sourceNote}</T>
-        <T variant="meta">A candidate place. Sessions on this island are not assigned to it yet.</T>
+      <View style={styles.intro}>
+        <T variant="eyebrow" color={colors.gold}>{place.island}</T>
+        <T variant="title" color={colors.onDark}>{place.name}</T>
+        <T variant="meta" color={colors.onDarkSoft}>A candidate place. Not assigned to a session yet.</T>
         {place.models.length ? (
           <Pressable accessibilityRole="button" onPress={() => setShowModels((open) => !open)} style={styles.gold}>
             <T variant="button" color={colors.ink}>{showModels ? "Hide 3D" : "View in 3D"}</T>
           </Pressable>
         ) : null}
-      </Glass>
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
         {place.photos.map((photo) => (
           <Image key={photo.id} source={{ uri: photo.webp640 }} style={styles.thumb} accessibilityLabel={photo.alt} />
@@ -95,11 +85,11 @@ function PlaceScreen({ placeId }: { placeId: string }) {
       </ScrollView>
       {showModels
         ? place.models.map((model) => (
-            <Glass key={model.src} style={styles.pad}>
+            <View key={model.src} style={styles.model}>
               <T variant="eyebrow" color={colors.gold}>3D</T>
               <VenueModel src={model.src} label={model.label} />
-              <T variant="meta">{model.label}</T>
-            </Glass>
+              <T variant="meta" color={colors.onDarkSoft}>{model.label}</T>
+            </View>
           ))
         : null}
     </Screen>
@@ -107,11 +97,13 @@ function PlaceScreen({ placeId }: { placeId: string }) {
 }
 
 const styles = StyleSheet.create({
-  pad: { marginHorizontal: pad, marginBottom: 12, gap: 6 },
-  card: { marginHorizontal: pad, marginBottom: 12, borderRadius: 18, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,255,255,0.92)", backgroundColor: "rgba(255,255,255,0.86)" },
-  copy: { padding: 12, gap: 3 },
-  note: { paddingHorizontal: pad, paddingBottom: 12 },
-  heroSpace: { height: 180 },
+  intro: { paddingHorizontal: 22, paddingTop: 28, gap: 6, paddingBottom: 8 },
+  card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  copy: { padding: 12, gap: 2, backgroundColor: "rgba(6,14,24,0.32)" },
+  note: { paddingHorizontal: 22, paddingBottom: 12, gap: 6 },
+  heroSpace: { height: 280 },
+  model: { marginHorizontal: 22, marginBottom: 16, gap: 8 },
   strip: { paddingHorizontal: pad, gap: 8, paddingBottom: 16 },
   thumb: { width: 112, height: 76, borderRadius: 14, backgroundColor: colors.muted },
   gold: { marginTop: 8, minHeight: 48, borderRadius: 18, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center" },

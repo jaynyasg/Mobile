@@ -1,19 +1,18 @@
 import { Link } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BeaconBackground } from "@/components/BeaconBackground";
-import { Glass } from "@/components/Glass";
 import { InstallHint } from "@/components/InstallHint";
+import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
 import { useContent } from "@/content/provider";
-import { forumPhase, phaseLabel, suggestedDayId } from "@/logic/phase";
-import { sessionWhen } from "@/components/SessionRow";
-import { colors } from "@/theme";
+import { forumPhase, suggestedDayId } from "@/logic/phase";
+import { colors, sceneForIsland } from "@/theme";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const { forum, sessions, stays, venues } = program;
+  const { forum, sessions } = program;
   const phase = forumPhase(new Date());
   const dayId = suggestedDayId(new Date());
   const next = sessions
@@ -25,65 +24,55 @@ export default function HomeScreen() {
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 168, paddingBottom: insets.bottom + 120, paddingHorizontal: 12 }} keyboardShouldPersistTaps="handled">
-        <Glass tone="dark">
-          <T variant="eyebrow" color={colors.gold}>{forum.name}</T>
+      <View style={[styles.install, { top: insets.top + 12 }]}>
+        <InstallHint />
+      </View>
+      <View style={[styles.lower, { bottom: insets.bottom + 86 }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.islands}>
+          {forum.pillars.map((pillar) => (
+            <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
+              <Pressable accessibilityRole="button" style={styles.island}>
+                <Image source={{ uri: sceneForIsland(pillar.island).replace("-1280.webp", "-640.webp") }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
+                <View style={styles.islandCopy}>
+                  <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
+                  <T variant="meta" color={colors.gold}>{pillar.island}</T>
+                </View>
+              </Pressable>
+            </Link>
+          ))}
+        </ScrollView>
+        <View style={styles.copy}>
           <T variant="display" color={colors.gold}>{forum.edition}</T>
           <T variant="small" color={colors.onDark}>{forum.dateLabel}</T>
-          <T variant="meta" color={colors.onDarkSoft}>{forum.placeLabel}</T>
           <View style={styles.countRow}>
-            <T variant="display" color={colors.onDark}>{count}</T>
-            <T variant="small" color={colors.onDarkSoft}>{countCaption}</T>
+            <T variant="title" color={colors.onDark}>{count}</T>
+            <T variant="meta" color={colors.onDarkSoft}>{countCaption}</T>
           </View>
-          <T variant="meta" color={colors.gold}>{phaseLabel(phase)}</T>
           {next ? (
             <Link href={{ pathname: "/session/[id]", params: { id: next.id } }} asChild>
               <Pressable accessibilityRole="button" style={styles.next}>
-                <T variant="eyebrow" color={colors.gold}>Next session</T>
-                <T variant="rowTitle" color={colors.onDark}>{next.title}</T>
+                <T variant="eyebrow" color={colors.gold}>Next</T>
+                <T variant="small" color={colors.onDark} numberOfLines={1}>{next.title}</T>
                 <T variant="meta" color={colors.onDarkSoft}>{sessionWhen(next)} · {next.island}</T>
               </Pressable>
             </Link>
           ) : null}
-          <InstallHint tone="dark" />
-        </Glass>
-        <Glass tone="dark" style={styles.block}>
-          <T variant="eyebrow" color={colors.gold}>Five pillars</T>
-          {forum.pillars.map((pillar) => (
-            <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
-              <Pressable accessibilityRole="button" style={styles.link}>
-                <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
-                <T variant="meta" color={colors.onDarkSoft}>{pillar.island} · {pillar.region}</T>
-              </Pressable>
-            </Link>
-          ))}
-        </Glass>
-        <Glass tone="dark" style={styles.block}>
-          <HomeLink href={{ pathname: "/agenda", params: { day: dayId } }} label="Program" detail="Day, pillar, island, type" />
-          <HomeLink href="/transport" label="Sample transport" detail="Three unconfirmed routes" />
-          <HomeLink href="/stays" label="Accommodations" detail={stays.brochureNote} />
-          <HomeLink href={{ pathname: "/venue/[id]", params: { id: venues[0]?.id ?? "st-thomas" } }} label="Island stops" detail="Specific venue to be confirmed" />
-          <HomeLink href="/ticket" label="Pass preview" detail="No payment collected" />
-        </Glass>
-      </ScrollView>
+          <View style={styles.links}>
+            <HomeLink href="/transport" label="Transport" />
+            <HomeLink href="/stays" label="Stays" />
+            <HomeLink href="/ticket" label="Pass" />
+          </View>
+        </View>
+      </View>
     </View>
   );
 }
 
-function HomeLink({
-  href,
-  label,
-  detail,
-}: {
-  href: "/transport" | "/stays" | "/ticket" | { pathname: "/agenda"; params: { day: string } } | { pathname: "/venue/[id]"; params: { id: string } };
-  label: string;
-  detail: string;
-}) {
+function HomeLink({ href, label }: { href: "/transport" | "/stays" | "/ticket"; label: string }) {
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={styles.link}>
-        <T variant="rowTitle" color={colors.onDark}>{label}</T>
-        <T variant="meta" color={colors.onDarkSoft}>{detail}</T>
+      <Pressable accessibilityRole="button">
+        <T variant="meta" color={colors.gold}>{label}</T>
       </Pressable>
     </Link>
   );
@@ -91,8 +80,14 @@ function HomeLink({
 
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
-  countRow: { flexDirection: "row", alignItems: "flex-end", gap: 10, marginTop: 8 },
-  next: { marginTop: 12, padding: 12, borderRadius: 16, borderWidth: 1, borderColor: "rgba(201,162,74,0.45)", gap: 3 },
-  block: { marginTop: 12 },
-  link: { paddingVertical: 8, gap: 2 },
+  install: { position: "absolute", left: 16 },
+  lower: { position: "absolute", left: 0, right: 0 },
+  islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
+  island: { width: 132, height: 168, borderRadius: 14, overflow: "hidden", justifyContent: "flex-end" },
+  islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  islandCopy: { padding: 10, gap: 2, backgroundColor: "rgba(6,14,24,0.35)" },
+  copy: { paddingHorizontal: 22, gap: 2 },
+  countRow: { flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 4 },
+  next: { marginTop: 10, gap: 2, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(201,162,74,0.55)", paddingTop: 8 },
+  links: { flexDirection: "row", gap: 18, marginTop: 10 },
 });

@@ -14,12 +14,12 @@ export function SearchField({
 }) {
   return (
     <View style={styles.wrap}>
-      <Icon name="search" size={18} color={colors.inkSoft} />
+      <Icon name="search" size={18} color={colors.onDarkSoft} />
       <TextInput
         value={value}
         onChangeText={onChange}
         placeholder={placeholder}
-        placeholderTextColor={colors.inkSoft}
+        placeholderTextColor={colors.onDarkSoft}
         autoCorrect={false}
         autoCapitalize="none"
         style={[styles.input, Platform.OS === "web" ? styles.webInput : null]}
@@ -37,10 +37,9 @@ export function SearchField({
 const styles = StyleSheet.create({
   wrap: {
     minHeight: 44,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.92)",
-    backgroundColor: "rgba(255,255,255,0.82)",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(247,244,239,0.45)",
+    backgroundColor: "transparent",
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
@@ -50,7 +49,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: fonts.body,
     fontSize: 16,
-    color: colors.ink,
+    color: colors.onDark,
     paddingVertical: 10,
   },
   webInput: { outlineWidth: 0 },

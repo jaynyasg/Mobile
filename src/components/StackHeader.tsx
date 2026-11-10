@@ -18,11 +18,11 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
         style={styles.back}
       >
-        <Icon name="back" />
+        <Icon name="back" color={colors.onDark} />
       </Pressable>
       <View style={styles.title}>
         {title ? (
-          <T variant="small" numberOfLines={1}>
+          <T variant="small" color={colors.onDark} numberOfLines={1}>
             {title}
           </T>
         ) : null}
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(255,255,255,0.72)",
+    backgroundColor: "transparent",
   },
   back: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
   title: { flex: 1 },

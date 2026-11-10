@@ -11,12 +11,14 @@ export function SceneBackground({ uri = scenePhotos.day }: { uri?: string | null
       ) : (
         <View style={[fill, styles.fallback]} />
       )}
-      <View style={[fill, styles.scrim]} />
+      <View style={[fill, styles.top]} />
+      <View style={styles.bottom} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  fallback: { backgroundColor: "#E7F3F4" },
-  scrim: { backgroundColor: "rgba(255,255,255,0.14)" },
+  fallback: { backgroundColor: "#123044" },
+  top: { backgroundColor: "rgba(6,14,24,0.28)" },
+  bottom: { position: "absolute", left: 0, right: 0, bottom: 0, height: "42%", backgroundColor: "rgba(6,14,24,0.45)" },
 });

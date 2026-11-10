@@ -35,7 +35,7 @@ export const scenePhotos = {
   byIsland: {
     "St. Thomas": "/venues/ritz-carlton-st-thomas/img_2650-1280.webp",
     "St. John": "/venues/emerald-beach-resort/img_1438-1280.webp",
-    "Scrub Island": "/venues/scrub-island-resort/img_2705-1280.webp",
+    "Scrub Island": "/venues/scrub-island-resort/img_2710-1280.webp",
     "Jost Van Dyke": "/venues/hideout-white-bay/img_2673-1280.webp",
     Lovango: "/venues/lovango-resort-beach-club/img_2668-1280.webp",
   } as Record<string, string>,

@@ -36,9 +36,9 @@ export default function SignInScreen() {
     <Screen edge="none" photo={scenePhotos.community}>
       <StackHeader title="Sign in" />
       <View style={styles.pad}>
-        <T variant="title">Your email</T>
-        <T variant="small">We send a 6-digit code. It stays in this installed app. No link to tap.</T>
-        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Email" />
+        <T variant="title" color={colors.onDark}>Your email</T>
+        <T variant="small" color={colors.onDarkSoft}>A 6-digit code, kept in this app.</T>
+        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colors.onDarkSoft} style={styles.input} accessibilityLabel="Email" />
         <Pressable accessibilityRole="button" onPress={send} style={styles.button}>
           <T variant="button" color={colors.ink}>Send code</T>
         </Pressable>
@@ -58,7 +58,7 @@ export default function SignInScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { margin: pad, padding: 16, gap: 12, borderRadius: 22, backgroundColor: "rgba(255,255,255,0.86)", borderWidth: 1, borderColor: "rgba(255,255,255,0.92)" },
-  input: { borderWidth: 1, borderColor: colors.line, borderRadius: 14, backgroundColor: colors.ivory, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
+  pad: { marginTop: 72, marginHorizontal: 22, gap: 14 },
+  input: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(247,244,239,0.55)", color: colors.onDark, fontFamily: fonts.body, fontSize: 16, paddingVertical: 12 },
   button: { backgroundColor: colors.gold, minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 16 },
 });

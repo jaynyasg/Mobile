@@ -90,8 +90,8 @@ export default function CommunityScreen() {
   return (
     <Screen docked photo={scenePhotos.community}>
       <View style={styles.pad}>
-        <T variant="eyebrow" color={colors.turquoise}>TATEL</T>
-        <T variant="title">Community</T>
+        <T variant="eyebrow" color={colors.gold}>TATEL</T>
+        <T variant="title" color={colors.onDark}>Community</T>
         <View style={styles.row}>
           <Link href="/community-room" asChild>
             <Pressable accessibilityRole="button" style={styles.pill}>
@@ -105,13 +105,13 @@ export default function CommunityScreen() {
             </Pressable>
           </Link>
         </View>
-        {preview ? <T variant="meta">Preview data. The live tables are applied separately.</T> : null}
+        {preview ? <T variant="meta" color={colors.onDarkSoft}>Preview</T> : null}
       </View>
       {offline ? (
         <T variant="body" style={styles.pad}>Community is offline. The program is still available.</T>
       ) : !auth.ready ? null : !auth.userId ? (
         <View style={styles.pad}>
-          <T variant="small">Sign in to read and post. A code comes by email.</T>
+          <T variant="small" color={colors.onDark}>Sign in to read and post.</T>
           <Pressable accessibilityRole="button" onPress={() => router.push("/community-sign-in")} style={styles.button}>
             <T variant="button" color={colors.ink}>Sign in</T>
           </Pressable>
@@ -119,7 +119,7 @@ export default function CommunityScreen() {
       ) : (
         <>
           <View style={styles.pad}>
-            <TextInput value={draft} onChangeText={setDraft} placeholder="Share a note" placeholderTextColor={colors.inkSoft} style={styles.input} multiline accessibilityLabel="Post" />
+            <TextInput value={draft} onChangeText={setDraft} placeholder="Share a note" placeholderTextColor={colors.onDarkSoft} style={styles.input} multiline accessibilityLabel="Post" />
             <Pressable accessibilityRole="button" onPress={() => {
               pickCommunityPhoto().then((picked) => {
                 setPhotoFile(picked);
@@ -134,7 +134,7 @@ export default function CommunityScreen() {
             {error ? <T variant="meta">{error}</T> : null}
           </View>
           {posts.map((post) => (
-            <Glass key={post.id} blur={false} style={styles.card}>
+            <Glass key={post.id} style={styles.card}>
               <View style={styles.person}>
                 <View style={styles.avatar}><T variant="meta" color={colors.ivory}>{initials(post.author.displayName)}</T></View>
                 <View style={styles.copy}>
@@ -184,10 +184,10 @@ const styles = StyleSheet.create({
   pad: { paddingHorizontal: pad, paddingBottom: 12, gap: 8 },
   row: { flexDirection: "row", gap: 16, alignItems: "center" },
   link: { paddingVertical: 6 },
-  input: { minHeight: 72, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
+  input: { minHeight: 64, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(247,244,239,0.45)", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.28)", color: colors.onDark, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
   photo: { width: "100%", height: 180, borderRadius: 14, backgroundColor: colors.muted },
-  card: { marginHorizontal: pad, marginBottom: 10, gap: 6 },
+  card: { marginHorizontal: 22, marginBottom: 18, gap: 6, backgroundColor: "rgba(255,255,255,0.42)" },
   person: { flexDirection: "row", gap: 10, alignItems: "center" },
   copy: { flex: 1, gap: 2 },
   avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.turquoise, alignItems: "center", justifyContent: "center" },

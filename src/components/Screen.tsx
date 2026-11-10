@@ -9,7 +9,7 @@ export function Screen({
   children,
   scroll = true,
   edge = "top",
-  statusBar = "dark",
+  statusBar = "light",
   photo = scenePhotos.day,
   docked = false,
 }: {
