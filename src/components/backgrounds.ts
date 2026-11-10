@@ -20,14 +20,13 @@ function clip(name: string, focus = "center center", zoom = 1): SceneLoop {
   };
 }
 
-// Zoom anchors the phone on the water. Landscape files still cannot
-// invent a pool that only exists in a corner; Gallows and Hideout pool
-// stay provisional until the portrait replacements arrive.
+// Zoom anchors the remaining landscape files on the water. Hideout pool
+// and Gallows are 9:16, so they use a plain cover.
 const ritz = clip("ritz-terrace", "50% 46%", 1.5);
 const emerald = clip("emerald-path");
 const hideoutDeck = clip("hideout-deck", "22% 55%", 1.8);
-const hideoutPool = clip("hideout-pool-deck", "78% 88%", 2.1);
-const gallows = clip("gallows-terrace", "82% 100%", 2.2);
+const hideoutPool = clip("hideout-pool-deck");
+const gallows = clip("gallows-terrace");
 const lovango = clip("lovango-deck", "48% 42%", 1.55);
 const margaritaville = clip("margaritaville-balcony", "42% 55%", 1.35);
 const scrubPool = clip("scrub-villa-pool", "68% 58%", 1.45);
