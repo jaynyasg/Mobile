@@ -1,19 +1,19 @@
 import { createElement } from "react";
-import { StyleSheet, TextStyle, View } from "react-native";
-import { T } from "./Text";
-
-const shadow = {
-  textShadow: "0 2px 10px rgba(7,20,34,0.92), 0 0 2px rgba(7,20,34,0.95)",
-} as TextStyle;
+import { StyleSheet, View } from "react-native";
 
 export function CrystalMark({ size = "hero" }: { size?: "hero" | "mark" }) {
   const hero = size === "hero";
+  const face = hero ? "tatel-gold tatel-gold-hero" : "tatel-gold tatel-gold-mark";
+  const glow = hero ? "tatel-gold-glow tatel-gold-hero" : "tatel-gold-glow tatel-gold-mark";
   return (
     <View style={[styles.row, hero ? styles.hero : styles.mark]} accessibilityRole="header" accessibilityLabel="TATEL">
       {hero ? <Spark /> : null}
-      <T variant={hero ? "display" : "eyebrow"} foil style={hero ? [styles.heroText, shadow] : [styles.markText, shadow]}>
-        TATEL
-      </T>
+      {createElement(
+        "span",
+        { className: "tatel-gold-wrap" },
+        createElement("span", { className: glow, "aria-hidden": true }, "TATEL"),
+        createElement("span", { className: face }, "TATEL"),
+      )}
       {hero ? <Spark late /> : null}
     </View>
   );
@@ -24,20 +24,18 @@ function Spark({ late = false }: { late?: boolean }) {
     "aria-hidden": true,
     className: late ? "tatel-twinkle tatel-twinkle-late" : "tatel-twinkle",
     style: {
-      width: 8,
-      height: 8,
-      background: "#FFE08A",
+      width: 9,
+      height: 9,
+      background: "#F6E27A",
       transform: "rotate(45deg)",
-      boxShadow: "0 0 6px rgba(255,224,138,0.9)",
+      boxShadow: "0 0 8px rgba(246,226,122,0.95)",
       display: "inline-block",
     },
   });
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
   hero: { width: "100%" },
   mark: { alignSelf: "flex-start" },
-  heroText: { fontSize: 40, lineHeight: 48, letterSpacing: 10, textAlign: "center" },
-  markText: { letterSpacing: 3, color: "#FFE08A" },
 });

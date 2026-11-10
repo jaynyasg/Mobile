@@ -29,10 +29,10 @@ export default function HomeScreen() {
       <View style={[styles.install, { top: insets.top + 12 }]}>
         <InstallHint />
       </View>
-      <View pointerEvents="none" style={[styles.mark, { top: insets.top + 64 }]}>
-        <CrystalMark />
-      </View>
       <View style={[styles.lower, { bottom: insets.bottom + 86 }]}>
+        <View pointerEvents="none" style={styles.mark}>
+          <CrystalMark />
+        </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.islands}>
           {forum.pillars.map((pillar) => (
             <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
@@ -88,7 +88,7 @@ function HomeLink({ href, label }: { href: "/transport" | "/stays" | "/ticket"; 
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
   install: { position: "absolute", left: 16 },
-  mark: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  mark: { alignItems: "center", marginBottom: 12 },
   glint: { position: "absolute", top: 8, right: 8, width: 6, height: 6, backgroundColor: "#F4FBFF", transform: [{ rotate: "45deg" }] },
   countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1.5, borderColor: "rgba(255,255,255,0.85)", backgroundColor: "rgba(8,16,28,0.78)" },
   lower: { position: "absolute", left: 0, right: 0 },

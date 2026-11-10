@@ -48,9 +48,58 @@ body,
 .tatel-twinkle { animation: tatel-twinkle 3.6s ease-in-out infinite; }
 .tatel-twinkle-late { animation-delay: 1.4s; }
 
+.tatel-gold-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.tatel-gold,
+.tatel-gold-glow {
+  font-family: BodoniModa-SemiBold, "Bodoni Moda", serif;
+  font-weight: 600;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.tatel-gold-hero,
+.tatel-gold-hero.tatel-gold-glow {
+  font-size: 56px;
+  letter-spacing: 0.16em;
+}
+
+.tatel-gold-mark,
+.tatel-gold-mark.tatel-gold-glow {
+  font-size: 15px;
+  letter-spacing: 0.28em;
+}
+
+.tatel-gold-glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: transparent;
+  text-shadow: 0 0 14px rgba(7, 20, 34, 0.55), 0 2px 8px rgba(7, 20, 34, 0.4);
+  pointer-events: none;
+}
+
+.tatel-gold {
+  position: relative;
+  background-image: linear-gradient(100deg, #d4af37 0%, #f6e27a 32%, #fff8dc 48%, #d4af37 64%, #b8860b 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tatel-gold { animation: tatel-foil 7s ease-in-out infinite; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tatel-day { animation: none; opacity: 1; }
   .tatel-twinkle, .tatel-twinkle-late { animation: none; opacity: 0.8; }
+  .tatel-gold { animation: none; }
 }
 
 [data-gloss="foil"] {
