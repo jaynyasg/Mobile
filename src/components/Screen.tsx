@@ -38,7 +38,16 @@ export function Screen({
   );
   return (
     <View style={styles.fill}>
-      {photo ? <SceneBackground day={photo} night={night ?? photo} phase={phase ?? photo} video={loop.mp4} videoWebm={loop.webm} poster={loop.poster} /> : null}
+      {photo ? (
+        <SceneBackground
+          day={loop.poster || photo}
+          night={loop.posterNight || night || photo}
+          phase={phase ?? photo}
+          video={loop.mp4}
+          poster={loop.poster}
+          focus={loop.focus}
+        />
+      ) : null}
       <StatusBar style={statusBar === "light" ? "light" : "dark"} />
       {body}
     </View>

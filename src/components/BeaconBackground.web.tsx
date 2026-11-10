@@ -41,9 +41,9 @@ export function BeaconBackground() {
               const attempt = node.play();
               if (attempt) attempt.catch(() => setStill(true));
             },
+            preload: "metadata",
             style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" },
           },
-          createElement("source", { src: homeMedia.webm, type: "video/webm" }),
           createElement("source", { src: homeMedia.mp4, type: "video/mp4" }),
         )
       ) : null}

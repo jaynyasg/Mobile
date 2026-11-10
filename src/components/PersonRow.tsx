@@ -18,13 +18,15 @@ export function PersonRow({
 }) {
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-        {photo ? <Image source={photo} style={styles.photo} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
-        <View style={styles.copy}>
-          <T variant="rowTitle">{name}</T>
-          <T variant="meta">{meta}</T>
+      <Pressable accessibilityRole="button" style={({ pressed }) => pressed && styles.pressed}>
+        <View style={styles.row}>
+          {photo ? <Image source={photo} style={styles.photo} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
+          <View style={styles.copy}>
+            <T variant="rowTitle">{name}</T>
+            <T variant="meta">{meta}</T>
+          </View>
+          <Icon name="chevron" size={18} color={colors.inkSoft} />
         </View>
-        <Icon name="chevron" size={18} color={colors.inkSoft} />
       </Pressable>
     </Link>
   );

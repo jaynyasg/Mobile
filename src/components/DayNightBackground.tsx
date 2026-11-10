@@ -3,7 +3,7 @@ import { scenePhotos } from "@/theme";
 
 const fill = { position: "absolute" as const, top: 0, right: 0, bottom: 0, left: 0 };
 
-export function DayNightBackground({ day = scenePhotos.day }: { day?: string | null; night?: string | null; phase?: string; video?: string | null; videoWebm?: string | null; poster?: string | null }) {
+export function DayNightBackground({ day = scenePhotos.day }: { day?: string | null; night?: string | null; phase?: string; video?: string | null; videoWebm?: string | null; poster?: string | null; focus?: string }) {
   const uri = day || scenePhotos.day;
   return (
     <View pointerEvents="none" style={fill}>

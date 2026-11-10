@@ -110,19 +110,21 @@ export function LinkRow({
 }) {
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}>
-        <View style={styles.linkCopy}>
-          <T variant="rowTitle">{label}</T>
-          {detail ? <T variant="meta">{detail}</T> : null}
-        </View>
-        {badge ? (
-          <View style={styles.badge}>
-            <T variant="meta" color={colors.ivory} style={styles.badgeText}>
-              {badge}
-            </T>
+      <Pressable accessibilityRole="button" style={({ pressed }) => pressed && styles.pressed}>
+        <View style={styles.linkRow}>
+          <View style={styles.linkCopy}>
+            <T variant="rowTitle">{label}</T>
+            {detail ? <T variant="meta">{detail}</T> : null}
           </View>
-        ) : null}
-        <Icon name="chevron" size={18} color={colors.inkSoft} />
+          {badge ? (
+            <View style={styles.badge}>
+              <T variant="meta" color={colors.ivory} style={styles.badgeText}>
+                {badge}
+              </T>
+            </View>
+          ) : null}
+          <Icon name="chevron" size={18} color={colors.inkSoft} />
+        </View>
       </Pressable>
     </Link>
   );

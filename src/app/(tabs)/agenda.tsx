@@ -15,7 +15,7 @@ import { Chip, EmptyState } from "@/components/ui";
 import { filterAgenda } from "@/logic/agenda";
 import { suggestedDayId } from "@/logic/phase";
 import { useApp } from "@/store";
-import { plateForIsland, backgrounds } from "@/components/backgrounds";
+import { backgrounds } from "@/components/backgrounds";
 import { colors, sceneForIsland } from "@/theme";
 
 const kinds: { id: SessionKind; label: string }[] = [
@@ -61,7 +61,7 @@ export default function AgendaScreen() {
 
   return (
     <View style={styles.frame}>
-      <Screen docked photo={(island === "all" ? backgrounds.program : plateForIsland(island, "program")).day} night={(island === "all" ? backgrounds.program : plateForIsland(island, "program")).night} phase="program">
+      <Screen docked photo={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).day} night={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).night} phase={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).phase}>
         <Glass tone="dark" style={styles.titleRow}>
           <T variant="title" foil>Program</T>
           <Pressable accessibilityRole="button" accessibilityLabel="About this draft" onPress={() => setNote((open) => !open)} style={styles.info}>

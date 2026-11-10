@@ -26,8 +26,9 @@ export function DayNightBackground({
   night,
   phase,
   video = homeMedia.mp4,
-  videoWebm = homeMedia.webm,
+  videoWebm,
   poster = homeMedia.poster,
+  focus = "center center",
 }: {
   day?: string | null;
   night?: string | null;
@@ -35,6 +36,7 @@ export function DayNightBackground({
   video?: string | null;
   videoWebm?: string | null;
   poster?: string | null;
+  focus?: string;
 }) {
   const focused = useIsFocused();
   const dayUri = day || scenePhotos.day;
@@ -57,20 +59,21 @@ export function DayNightBackground({
 
   const playVideo = mode === "video" && focused && Boolean(video);
   const delay = `-${staggerSeconds(phase || dayUri)}s`;
+  const frame = { position: "absolute" as const, inset: 0, width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: focus };
 
   return (
     <View pointerEvents="none" style={fill}>
       {createElement("img", {
-        src: mode === "still" ? dayUri : posterUri,
+        src: mode === "still" ? dayUri : mode === "crossfade" ? nightUri : posterUri,
         alt: "",
-        style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" },
+        style: frame,
       })}
       {mode === "crossfade"
         ? createElement("img", {
             src: dayUri,
             alt: "",
             className: "tatel-day",
-            style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", animationDelay: delay },
+            style: { ...frame, animationDelay: delay },
           })
         : null}
       {playVideo
@@ -82,6 +85,7 @@ export function DayNightBackground({
               loop: true,
               playsInline: true,
               poster: posterUri,
+              preload: "metadata",
               onError: () => setMode("crossfade"),
               ref: (node: HTMLVideoElement | null) => {
                 if (!node) return;
@@ -95,7 +99,7 @@ export function DayNightBackground({
                 if (node.readyState >= 1) start();
                 else node.addEventListener("loadedmetadata", start, { once: true });
               },
-              style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" },
+              style: frame,
             },
             videoWebm ? createElement("source", { src: videoWebm, type: "video/webm" }) : null,
             createElement("source", { src: video, type: "video/mp4" }),

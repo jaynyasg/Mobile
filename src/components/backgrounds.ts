@@ -1,14 +1,57 @@
-import { scenePhotos } from "@/theme";
 import { homeMedia } from "./homeMedia";
 
-export type SceneLoop = { mp4: string; webm?: string; poster: string };
+export type SceneLoop = {
+  mp4: string;
+  webm?: string;
+  poster: string;
+  posterNight: string;
+  focus?: string;
+};
 
-// Per-screen loops. Missing keys use the Home day-night clip until the venue files arrive.
+function clip(name: string, focus = "center center"): SceneLoop {
+  const base = `/beacon/loops/${name}`;
+  return {
+    mp4: `${base}-loop.mp4`,
+    poster: `${base}-poster-day.jpg`,
+    posterNight: `${base}-poster-night.jpg`,
+    focus,
+  };
+}
+
+const ritz = clip("ritz-terrace");
+const emerald = clip("emerald-path");
+const hideoutDeck = clip("hideout-deck", "32% center");
+const hideoutPool = clip("hideout-pool-deck", "58% center");
+const gallows = clip("gallows-terrace", "68% center");
+const lovango = clip("lovango-deck");
+const margaritaville = clip("margaritaville-balcony");
+const scrubPool = clip("scrub-villa-pool", "62% center");
+const scrubBeach = clip("scrub-beach-club");
+
+function bind(loop: SceneLoop, phases: string[], into: Record<string, SceneLoop>) {
+  for (const phase of phases) into[phase] = loop;
+}
+
 export const screenLoops: Record<string, SceneLoop> = {};
+bind(ritz, ["program", "session-St. Thomas", "venue-st-thomas", "place-ritz-carlton-st-thomas"], screenLoops);
+bind(emerald, ["session-St. John", "venue-st-john", "place-emerald-beach-resort", "more", "panelists"], screenLoops);
+bind(scrubPool, ["session-Scrub Island", "venue-scrub-island"], screenLoops);
+bind(scrubBeach, ["place-scrub-island-resort"], screenLoops);
+bind(
+  hideoutDeck,
+  ["session-Jost Van Dyke", "venue-jost-van-dyke", "community", "comments", "chat", "sign-in", "profile", "network", "place-hideout-white-bay"],
+  screenLoops,
+);
+bind(hideoutPool, ["venues"], screenLoops);
+bind(lovango, ["session-Lovango", "venue-lovango", "place-lovango-resort-beach-club"], screenLoops);
+bind(margaritaville, ["place-margaritaville-vacation-club"], screenLoops);
+bind(gallows, ["place-gallows-point-resort"], screenLoops);
+
+const fallback = ritz;
 
 export function loopFor(phase?: string): SceneLoop {
   if (phase && screenLoops[phase]) return screenLoops[phase];
-  return { mp4: homeMedia.mp4, webm: homeMedia.webm, poster: homeMedia.poster };
+  return fallback;
 }
 
 export type ScenePlate = {
@@ -17,38 +60,39 @@ export type ScenePlate = {
   phase: string;
 };
 
-// Night matches day until the enhanced plates arrive.
-// Point `night` at the new file and drop it in public/.
-export function plate(day: string, phase: string, night = day): ScenePlate {
-  return { day, night, phase };
+function scene(loop: SceneLoop, phase: string): ScenePlate {
+  return { day: loop.poster, night: loop.posterNight, phase };
 }
 
-const islands = scenePhotos.byIsland;
-
 export const backgrounds = {
-  program: plate(scenePhotos.day, "program"),
+  program: scene(ritz, "program"),
   session: {
-    "St. Thomas": plate(islands["St. Thomas"], "session-st-thomas"),
-    "St. John": plate(islands["St. John"], "session-st-john"),
-    "Scrub Island": plate(islands["Scrub Island"], "session-scrub"),
-    "Jost Van Dyke": plate(islands["Jost Van Dyke"], "session-jost"),
-    Lovango: plate(islands.Lovango, "session-lovango"),
+    "St. Thomas": scene(ritz, "session-St. Thomas"),
+    "St. John": scene(emerald, "session-St. John"),
+    "Scrub Island": scene(scrubPool, "session-Scrub Island"),
+    "Jost Van Dyke": scene(hideoutDeck, "session-Jost Van Dyke"),
+    Lovango: scene(lovango, "session-Lovango"),
   } as Record<string, ScenePlate>,
-  venues: plate(scenePhotos.community, "venues"),
-  community: plate(scenePhotos.community, "community"),
-  comments: plate(scenePhotos.community, "comments"),
-  chat: plate(scenePhotos.community, "chat"),
-  signIn: plate(scenePhotos.community, "sign-in"),
-  more: plate(islands["St. John"], "more"),
-  panelists: plate(islands["St. John"], "panelists"),
-  network: plate(scenePhotos.community, "network"),
+  venues: scene(hideoutPool, "venues"),
+  community: scene(hideoutDeck, "community"),
+  comments: scene(hideoutDeck, "comments"),
+  chat: scene(hideoutDeck, "chat"),
+  signIn: scene(hideoutDeck, "sign-in"),
+  more: scene(emerald, "more"),
+  panelists: scene(emerald, "panelists"),
+  network: scene(hideoutDeck, "network"),
+  home: { day: homeMedia.poster, night: homeMedia.poster, phase: "home" },
 };
 
 export function plateForIsland(island?: string | null, phase?: string): ScenePlate {
-  const day = island && islands[island] ? islands[island] : scenePhotos.day;
-  return plate(day, phase ?? `island-${island ?? "day"}`);
+  if (island && backgrounds.session[island]) {
+    const match = backgrounds.session[island];
+    return phase ? { ...match, phase } : match;
+  }
+  return phase ? { ...backgrounds.program, phase } : backgrounds.program;
 }
 
 export function plateForPhoto(day: string, phase: string): ScenePlate {
-  return plate(day, phase);
+  const loop = loopFor(phase.startsWith("place-") ? phase : `place-${phase}`);
+  return { day: loop.poster || day, night: loop.posterNight, phase: phase.startsWith("place-") ? phase : `place-${phase}` };
 }

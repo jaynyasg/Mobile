@@ -33,8 +33,8 @@ export default function TabLayout() {
       <Tabs.Screen name="community" options={{ title: "Community" }} />
       <Tabs.Screen name="places" options={{ title: "Venues" }} />
       <Tabs.Screen name="more" options={{ title: "More" }} />
-      <Tabs.Screen name="speakers" options={{ href: null, title: "Panelists" }} />
-      <Tabs.Screen name="network" options={{ href: null, title: "Network" }} />
+      <Tabs.Screen name="speakers" options={{ title: "Panelists" }} />
+      <Tabs.Screen name="network" options={{ title: "Network" }} />
     </Tabs>
   );
 }
