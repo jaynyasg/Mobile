@@ -10,7 +10,7 @@ type Mode = "video" | "crossfade" | "still";
 function staggerSeconds(key: string): number {
   let hash = 0;
   for (let index = 0; index < key.length; index += 1) hash = (hash * 33 + key.charCodeAt(index)) >>> 0;
-  return (hash % 140) / 10;
+  return (hash % 580) / 10;
 }
 
 function mediaMode(): Mode {

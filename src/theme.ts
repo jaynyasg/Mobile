@@ -27,7 +27,7 @@ export const fonts = {
 };
 
 export const pad = 16;
-export const radius = 22;
+export const radius = 16;
 
 export const scenePhotos = {
   day: "/venues/ritz-carlton-st-thomas/img_2650-1280.webp",

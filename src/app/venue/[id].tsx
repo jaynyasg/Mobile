@@ -103,7 +103,7 @@ function PlaceScreen({ placeId }: { placeId: string }) {
 
 const styles = StyleSheet.create({
   intro: { paddingHorizontal: 22, paddingTop: 28, gap: 6, paddingBottom: 8 },
-  card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.9)" },
+  card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   copy: { padding: 12, gap: 2 },
   note: { paddingHorizontal: 22, paddingBottom: 12, gap: 6 },

@@ -39,7 +39,6 @@ export default function HomeScreen() {
               <Pressable accessibilityRole="button" style={styles.island}>
                 <Image source={{ uri: sceneForIsland(pillar.island) }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 <PhotoShade />
-                <View style={styles.glint} />
                 <View style={styles.islandCopy}>
                   <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
                   <T variant="meta" color={colors.gold}>{pillar.island}</T>
@@ -89,11 +88,10 @@ const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
   install: { position: "absolute", left: 16 },
   mark: { alignItems: "center", marginBottom: 12 },
-  glint: { position: "absolute", top: 8, right: 8, width: 6, height: 6, backgroundColor: "#F4FBFF", transform: [{ rotate: "45deg" }] },
-  countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1.5, borderColor: "rgba(255,255,255,0.85)", backgroundColor: "rgba(8,16,28,0.78)" },
+  countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)", backgroundColor: "rgba(8,16,28,0.72)" },
   lower: { position: "absolute", left: 0, right: 0 },
   islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
-  island: { width: 132, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.92)" },
+  island: { width: 132, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   islandCopy: { padding: 10, gap: 2 },
   copy: { paddingHorizontal: 22, gap: 2 },

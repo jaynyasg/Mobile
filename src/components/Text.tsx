@@ -1,5 +1,4 @@
 import { Text, TextProps, TextStyle } from "react-native";
-import { foilMotion } from "./gloss";
 import { colors, fonts } from "@/theme";
 
 type Variant = "display" | "title" | "headline" | "body" | "small" | "meta" | "eyebrow" | "button" | "rowTitle";
@@ -41,11 +40,7 @@ const variants: Record<Variant, TextStyle> = {
 };
 
 const foil = {
-  backgroundImage: "linear-gradient(105deg, #8d6a28 0%, #fff6d2 28%, #f0c85a 50%, #fffaf0 72%, #c4a15a 100%)",
-  backgroundSize: "220% 100%",
-  WebkitBackgroundClip: "text",
-  backgroundClip: "text",
-  color: "transparent",
+  color: "#E8B84A",
 } as TextStyle;
 
 export function T({
@@ -66,7 +61,6 @@ export function T({
           ? { textShadowColor: "rgba(6,14,24,0.9)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 8 }
           : null,
         gilded ? foil : null,
-        gilded ? foilMotion() : null,
         style,
       ]}
     />
