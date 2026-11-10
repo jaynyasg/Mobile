@@ -3,4 +3,9 @@ declare module "*.png" {
   export default value;
 }
 
+declare module "*.jpg" {
+  const value: number;
+  export default value;
+}
+
 declare module "*.css";

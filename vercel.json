@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm run export:web",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/((?!sw\\.js|manifest\\.webmanifest|icons/|beacon/|sample/|assets/).*)", "destination": "/index.html" }]
+}

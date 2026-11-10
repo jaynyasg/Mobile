@@ -1,137 +1,95 @@
 import { useState } from "react";
-import { Alert, Platform, Pressable, StyleSheet, Switch, TextInput, View } from "react-native";
-import { forum } from "@/content";
+import { Alert, Platform, StyleSheet, TextInput, View } from "react-native";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
 
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
-  const [notice, setNotice] = useState("");
+  const [confirming, setConfirming] = useState(false);
+  const [cleared, setCleared] = useState(false);
 
-  function confirmDelete() {
-    const run = () => {
-      dispatch({ type: "deleteAllData" });
-      setNotice("Personal data on this device was deleted.");
-    };
+  function erase() {
+    dispatch({ type: "deleteAllData" });
+    setConfirming(false);
+    setCleared(true);
+  }
+
+  function ask() {
+    const message = "Delete favorites, messages, guide history, notification reads, your opt-in, and your profile from this device?";
     if (Platform.OS === "web") {
-      if (typeof window !== "undefined" && window.confirm("Delete favorites, seats, messages, requests, votes, questions, and your profile from this device?")) {
-        run();
-      }
+      if (window.confirm(message)) erase();
       return;
     }
-    Alert.alert(
-      "Delete data on this device?",
-      "Favorites, seats, messages, meeting requests, votes, questions, your card, and your profile will be removed. The program stays.",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: run },
-      ],
-    );
+    Alert.alert("Delete my data", message, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: erase },
+    ]);
   }
 
   return (
     <Screen edge="none">
       <StackHeader title="Settings" />
-      <View style={styles.body}>
-        <T variant="eyebrow">Profile</T>
-        <Field label="Name" value={state.profile.name} onChange={(name) => dispatch({ type: "updateProfile", patch: { name } })} />
-        <Field label="Title" value={state.profile.title} onChange={(title) => dispatch({ type: "updateProfile", patch: { title } })} />
-        <Field label="Company" value={state.profile.company} onChange={(company) => dispatch({ type: "updateProfile", patch: { company } })} />
-        <Field
-          label="Note"
-          value={state.profile.bio}
-          onChange={(bio) => dispatch({ type: "updateProfile", patch: { bio } })}
-          multiline
-        />
-        <View style={styles.opt}>
-          <View style={styles.optCopy}>
-            <T variant="rowTitle">Networking</T>
-            <T variant="meta">Opt in to message people and request meetings. The directory itself only lists people who opted in.</T>
-          </View>
-          <Switch
-            accessibilityLabel="Opt in to networking"
-            value={state.networkingOptIn}
-            onValueChange={(value) => dispatch({ type: "setNetworkingOptIn", value })}
-            trackColor={{ false: colors.line, true: colors.pine }}
-            thumbColor={colors.ivory}
-          />
-        </View>
-        <T variant="eyebrow" style={styles.block}>
-          Release notes · {forum.releaseNotes.version}
-        </T>
-        <T variant="meta">{forum.releaseNotes.date}</T>
-        {forum.releaseNotes.items.map((item) => (
-          <T key={item} variant="small" style={styles.note}>
-            {item}
-          </T>
-        ))}
-        <T variant="eyebrow" style={styles.block}>
-          About
-        </T>
+      <View style={styles.pad}>
+        <T variant="eyebrow">Local profile</T>
+        <T variant="meta">This card stays on the device. It is not sent to a panelist or a provider.</T>
+        <Field label="Name" value={state.profile.name} onChangeText={(name) => dispatch({ type: "updateProfile", patch: { name } })} />
+        <Field label="Title" value={state.profile.title} onChangeText={(title) => dispatch({ type: "updateProfile", patch: { title } })} />
+        <Field label="Company" value={state.profile.company} onChangeText={(company) => dispatch({ type: "updateProfile", patch: { company } })} />
+        <T variant="eyebrow">Networking</T>
+        {state.networkingOptIn ? (
+          <SecondaryButton label="Opt out on this device" onPress={() => dispatch({ type: "setNetworkingOptIn", value: false })} />
+        ) : (
+          <PrimaryButton label="Opt in on this device" onPress={() => dispatch({ type: "setNetworkingOptIn", value: true })} />
+        )}
+        <T variant="eyebrow">Delete my data</T>
         <T variant="small">
-          Portico Assembly is a fictional forum, written for this demo. It is not affiliated with any real event, venue, or company named here.
+          This removes favorites, local notes, guide history, notification reads, your opt-in, and your profile. The program draft remains.
         </T>
-        <T variant="eyebrow" style={styles.block}>
-          Your data
-        </T>
-        <T variant="small">
-          Everything you save — favorites, seats, messages, meeting requests, poll votes, questions, sponsor cards, guide questions, and this profile — lives on this device. Deleting it does not touch the program.
-        </T>
-        <Pressable accessibilityRole="button" onPress={confirmDelete} style={styles.delete}>
-          <T variant="button" color={colors.clay}>
-            Delete my data
-          </T>
-        </Pressable>
-        {notice ? <T variant="small">{notice}</T> : null}
+        {confirming ? (
+          <PrimaryButton label="Confirm delete my data" onPress={ask} />
+        ) : (
+          <PressDelete onPress={() => setConfirming(true)} />
+        )}
+        {cleared ? <T variant="small">Personal data on this device was deleted.</T> : null}
       </View>
     </Screen>
   );
 }
 
-function Field({
-  label,
-  value,
-  onChange,
-  multiline,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  multiline?: boolean;
-}) {
+function PressDelete({ onPress }: { onPress: () => void }) {
+  return <SecondaryButton label="Delete my data" onPress={onPress} />;
+}
+
+function Field({ label, value, onChangeText }: { label: string; value: string; onChangeText: (value: string) => void }) {
   return (
     <View style={styles.field}>
-      <T variant="eyebrow">{label}</T>
+      <T variant="meta">{label}</T>
       <TextInput
         value={value}
-        onChangeText={onChange}
-        placeholder={label}
+        onChangeText={onChangeText}
+        style={styles.input}
         placeholderTextColor={colors.inkSoft}
-        style={[styles.input, multiline && styles.multiline]}
-        multiline={multiline}
+        accessibilityLabel={label}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { paddingHorizontal: pad, gap: 10, paddingBottom: 12 },
+  pad: { padding: pad, gap: 12 },
   field: { gap: 4 },
   input: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.paperRaised,
+    color: colors.ink,
     fontFamily: fonts.body,
     fontSize: 16,
-    color: colors.ink,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
-  multiline: { minHeight: 72, textAlignVertical: "top" },
-  opt: { flexDirection: "row", gap: 12, alignItems: "center", marginTop: 8 },
-  optCopy: { flex: 1, gap: 4 },
-  block: { marginTop: 18 },
-  note: { paddingLeft: 2 },
-  delete: { minHeight: 48, justifyContent: "center" },
 });

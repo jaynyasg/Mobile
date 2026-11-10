@@ -1,135 +1,106 @@
-# Portico
+# TATEL · Conversations
 
-Portico is a mobile event app for a fictional three-day forum, **Assembly**, held at Harbor Hall in Seattle on November 10–12, 2026. It is an original program: the schedule, people, sponsors, and hall are sample content, not a copy of any live event.
+A mobile preview of TATEL · Conversations, January 26–29, 2027, across the Virgin Islands. The website export is the source of truth: 205 sessions, 49 panelists, and five island accommodation stops. Specific venues, some clock times, and some leads are still unconfirmed, and the app says so the same way the site does. The word “Proposed” is kept out of the interface.
 
-The repo started empty. The app is **Expo SDK 58** with **React Native** and **TypeScript**. One codebase runs on Android, iOS, and in a browser. Expo Go on a phone can load it without a local native build, and Expo Router supplies the tab and stack navigation.
+The app is Expo SDK 58 with React Native and TypeScript. The install path is the web app. Android and iOS builds still open in Expo Go.
 
 ## Shared program data
 
-All public event content lives in [`src/content`](src/content). That folder is plain TypeScript. It does not import React or React Native, so a website can import the same module:
+[`src/content/tatel.json`](src/content/tatel.json) is the offline copy. On launch the app requests the website file and, if that succeeds and validates, replaces the copy in memory and caches it on the device. A failed or offline request keeps the cache, then the bundled file.
 
-```ts
-import { forum, sessions, speakers, sponsors } from "./src/content";
-```
-
-Personal data (favorites, seat holds, messages, votes, the profile) lives on the device, in [`src/logic/state.ts`](src/logic/state.ts). Print the program from Node, with no app runtime:
+The default URL path is `/tatel/downloads/tatel-2027-program.json` (same origin as the published site). Override it with:
 
 ```bash
-npm run program
+EXPO_PUBLIC_CONTENT_URL=https://example.com/tatel/downloads/tatel-2027-program.json
 ```
+
+The parser accepts today’s download (`program`, `sessions`, `agendas`, `presenters`) and the future canonical `program.json` (`version`, `updatedAt`, `timezone`, `days`, `sessions`, `presenters`, `accommodations`). A session can later carry `venue.specific` without an app change. Until then every session points at its island’s accommodations stop and the specific venue is “to be confirmed”.
+
+Regenerate the bundle from an extracted website archive:
+
+```bash
+TATEL_SOURCE=/path/to/tatel-site npm run generate
+```
+
+The canonical input is `raw/public/tatel/downloads/tatel-2027-program.json`, plus `venues.json`. Portraits are referenced only when the file is already in `assets/tatel/portraits`.
 
 ## Run it
 
-Install dependencies once:
-
 ```bash
 npm install
-```
-
-Check types and tests:
-
-```bash
 npm run typecheck
 npm test
-```
-
-### In a browser
-
-```bash
 npm run web
 ```
 
-Expo serves the app at `http://localhost:8081`. The page centers a phone-width column. This is the same React Native UI, rendered with React Native Web. It is the fastest way to click through the program on a computer.
+Expo serves the preview at `http://localhost:8081`.
+
+### Installable website
+
+```bash
+npm run export:web
+```
+
+That writes a static PWA to `dist/`: manifest name “TATEL · Conversations”, standalone display, navy theme and background, icons from the 1878 mark, a service worker that caches the shell, and iOS `apple-touch-icon` / `apple-mobile-web-app-capable` tags.
+
+Deploy `dist/` as a static site. Nothing in this repo publishes it.
+
+- Netlify: `netlify.toml` builds with `npm run export:web` and publishes `dist/`.
+- Vercel: `vercel.json` uses the same command and output directory.
+
+From a machine with the CLIs, `netlify deploy --dir=dist` or `vercel deploy dist` will upload that folder. Host the PWA on the same domain as `/tatel/downloads/tatel-2027-program.json` so the sync request stays same-origin.
 
 ### On an Android phone
 
-1. Install [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent) from the Play Store. This project uses Expo SDK 58, so Expo Go needs to support that SDK. The dev server will say so if the installed Expo Go is behind.
-2. Connect the phone and the computer to the same Wi-Fi.
-3. From this directory, start the dev server:
+1. Install [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent) for SDK 58.
+2. Use the same Wi-Fi as the computer.
+3. Run `npm start` and scan the QR code inside Expo Go.
+4. If the phone cannot see the computer, run `npx expo start --tunnel`.
 
-   ```bash
-   npm start
-   ```
+`npm run android` opens Expo Go when a device or emulator is on `adb`. `npm run ios` needs macOS.
 
-4. Open Expo Go and scan the QR code printed in the terminal. On Android, the in-app scanner is more reliable than the camera app.
-5. The project loads in Expo Go. Edits on the computer refresh the phone.
-
-If the phone cannot see the computer, start a tunnel instead:
-
-```bash
-npx expo start --tunnel
-```
-
-Expo may install `@expo/ngrok` the first time. Scan the new QR code from Expo Go.
-
-### Android emulator
-
-With an emulator running, or a device connected through `adb`:
-
-```bash
-npm run android
-```
-
-That is `expo start --android`. It opens the project in Expo Go on the emulator when Expo Go is installed there, or offers a development build.
-
-### iOS
-
-`npm run ios` needs macOS and a simulator. On an iPhone, use Expo Go and the same QR code from `npm start`.
-
-### Deep links
-
-The app scheme is `portico`. In Expo Go or a dev build:
-
-- `portico://session/keynote-attention`
-- `portico://speaker/mira-chen`
-
-On the web preview, the same screens are ordinary paths, such as `/session/keynote-attention`.
+The home screen also explains Add to Home Screen on iOS Safari, and shows an Install button when Chrome fires `beforeinstallprompt`.
 
 ## What you can do
 
-Bottom tabs: **Home**, **Agenda**, **Speakers**, **Network**, **More**.
+Bottom tabs: **Home**, **Agenda**, **Panelists**, **Network**, **More**.
 
-- Agenda has day tabs, track filters, search across the three days, favorites, and **Save a seat**. Capacity is a sample baseline plus the seat held on this device. One session is already full.
-- Every session shows Pacific time. When the phone is in another zone, it also shows that clock.
-- **My Schedule** gathers favorites and seat holds.
-- Speakers have a directory and a detail page.
-- Network lists only people who opted in. Joining the directory unlocks 1:1 messages and meeting requests. A request that overlaps a keynote is refused, with the session named.
-- Sponsors have deals. **Leave my card** stores your name on the device and does not send it.
-- **Studio Walk** and **Talent Market** list exhibitors and, for the market, open roles.
-- Harbor Hall has a tappable floor plan. **Open the sample pin** hands the coordinates to the platform maps app. The hall and the pin are fictional.
-- The badge screen draws a QR code for the sample pass `PA-20481`.
-- Notifications are a sample inbox you can mark read.
-- Session pages include a poll and a question box. Votes stay on the device.
-- The guide answers from the program data on the device. It is not a hosted model.
-- **Settings → Delete my data** clears favorites, seats, messages, requests, votes, questions, sponsor cards, guide history, and the profile. The program remains.
+- Home plays the beacon film behind a navy overlay, with a still frame when autoplay is blocked, reduced motion is on, or data saver is on.
+- Agenda filters by day, pillar, island, type, and panelist. Timed sessions show Atlantic time and the phone’s clock. Sessions with `timeLabel` show that label, including “Opening · Time TBC”.
+- A session with no lead says “Speaker to be announced”. Leads show the role from the site (`Session lead` or `Keynote speaker`).
+- Each session stays on its island accommodations stop. The specific venue is still “to be confirmed.” The session lists that island’s candidate places.
+- Emerald Beach Resort and Gallows Point Resort are marked as app additions. They are not in the website Accommodations list.
+- Place galleries live in `public/venues` as 640 and 1280 WebP plus a JPEG fallback, loaded lazily. Margaritaville IMG_2654–IMG_2659 stay in the gallery and are not used as the hero.
+- The Emerald Beach page shows two Draco-compressed scans, not the sample triangle.
+- Panelist profiles use a portrait when the file is present.
+- Sample transport, accommodations, the pass preview, the on-device guide, opt-in local notes, and Delete my data are still here.
 
-## What is real, and what is mocked
+## What is real, and what is still unconfirmed
 
-Real in the app:
+From the website export:
 
-- Navigation, search, filters, favorites, and seat math
-- Time zones, via `Intl`
-- Opt-in gating for messages and meeting requests
-- Keynote overlap checks
-- QR rendering of the pass id
-- The on-device guide, which retrieves answers from `src/content`
-- Deletion of the on-device store
+- 205 sessions (200 core, 5 supplementary) and 49 panelists
+- Leads after `schedule-assignments.js`, including AI-KEYNOTE-D1
+- Five accommodation stops and their provider links
+- The draft notice and the timing note
 
-Mocked, on purpose:
+Still unconfirmed in that source:
 
-- There is no server, account, or push provider. Chat replies are a single scripted line, saved locally.
-- Seat counts start from sample numbers. Only this phone's hold changes them.
-- "Leave my card" is not delivered to a sponsor.
-- The hall map is a schematic. The external pin is a sample on the Seattle waterfront.
-- Notifications are written into the program. They are not push messages.
-- Polls do not show other people's votes, because there are none.
+- Specific venues
+- Clock times on the five supplementary activities
+- Ten leads marked “Speaker to be announced”
+- Transport connections and pass prices
+
+Real in the app: navigation, filters, search, favorites, time zones, the sync parser and offline fallback, the PWA shell, and deletion of on-device notes.
+
+Not sent anywhere: local notes, the pass QR, and the sample 3D model.
 
 ## Project layout
 
 ```
-src/content     program data, safe for a website to import
-src/logic       time, seats, meetings, agenda, guide, and the personal-data reducer
-src/app         Expo Router screens
-src/components  shared UI
-assets/images   original app icon
+src/content     bundled program, schema, and runtime loader
+src/app         screens, including the PWA HTML shell
+public          manifest, service worker, beacon video, sample glTF
+scripts/generate-tatel-content.mjs
+scripts/finalize-pwa.mjs
 ```

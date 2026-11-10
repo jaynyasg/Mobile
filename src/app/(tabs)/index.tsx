@@ -1,166 +1,110 @@
 import { Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { forum, notifications, sessions, sponsors } from "@/content";
+import { useContent } from "@/content/provider";
+import { BeaconBackground } from "@/components/BeaconBackground";
+import { InstallHint } from "@/components/InstallHint";
 import { Screen } from "@/components/Screen";
-import { SessionRow } from "@/components/SessionRow";
-import { Icon, IconName } from "@/components/Icon";
 import { T } from "@/components/Text";
-import { SectionLabel } from "@/components/ui";
-import { upcomingSessions } from "@/logic/agenda";
-import { forumPhase, phaseLabel } from "@/logic/phase";
-import { useApp } from "@/store";
+import { forumPhase, phaseLabel, suggestedDayId } from "@/logic/phase";
 import { colors, pad } from "@/theme";
 
 export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
-  const { state } = useApp();
+  const { program } = useContent();
+  const { forum, stays, venues } = program;
   const phase = forumPhase(new Date());
-  const next = upcomingSessions(sessions, new Date(), 3);
-  const host = sponsors.find((sponsor) => sponsor.tier === "host");
-  const latest = [...notifications].sort((a, b) => b.sentAt.localeCompare(a.sentAt))[0];
-  const unread = notifications.filter((note) => !state.readNotificationIds.includes(note.id)).length;
 
   return (
-    <Screen edge="none" statusBar="light">
-      <View style={[styles.hero, { paddingTop: insets.top + 22 }]}>
-        <T variant="eyebrow" color={colors.brassSoft}>
-          Portico
-        </T>
-        <T variant="display" color={colors.ivory}>
-          Assembly
-        </T>
-        <T variant="body" color={colors.ivory} style={styles.tagline}>
-          {forum.tagline}
-        </T>
-        <View style={styles.rule} />
-        <T variant="small" color={colors.ivory}>
-          {forum.dateLabel}
-        </T>
-        <T variant="small" color={colors.brassSoft}>
-          {forum.venue.name} · Seattle
-        </T>
-        <T variant="headline" color={colors.ivory} style={styles.phase}>
-          {phaseLabel(phase)}
-        </T>
+    <View style={styles.frame}>
+      <BeaconBackground />
+      <Screen background="transparent" statusBar="light" edge="none">
+        <View style={styles.heroCopy}>
+          <T variant="eyebrow" color={colors.brassSoft}>
+            {forum.name} · {forum.kicker}
+          </T>
+          <T variant="display" color={colors.ivory}>
+            {forum.edition}
+          </T>
+          <T variant="small" color={colors.ivory}>
+            {forum.dateLabel}
+          </T>
+          <T variant="meta" color={colors.muted}>
+            {forum.placeLabel}
+          </T>
+          <T variant="meta" color={colors.brassSoft}>
+            {phaseLabel(phase)}
+          </T>
+        </View>
+      <View style={styles.sheet}>
+      <InstallHint />
+      <View style={styles.notice}>
+        <T variant="eyebrow">Program</T>
+        <T variant="small">{forum.draftNotice}</T>
+        <T variant="meta">{forum.timingNote ? forum.timingNote.replace(/\b[Pp]roposed\s+/g, "") : "Specific venues and untimed activities remain to be confirmed."}</T>
       </View>
-
-      <View style={styles.actions}>
-        <Action href="/ticket" icon="ticket" label="Badge" />
-        <Action href="/schedule" icon="calendar" label="Schedule" />
-        <Action href="/venue" icon="pin" label="Hall" />
-        <Action href="/notifications" icon="bell" label="Notes" badge={unread} />
-      </View>
-
-      <SectionLabel>Next on the program</SectionLabel>
-      {next.map((session) => (
-        <SessionRow key={session.id} session={session} />
+      <T variant="eyebrow" style={styles.section}>
+        Five pillars · planning homes
+      </T>
+      {forum.pillars.map((pillar) => (
+        <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
+          <Pressable accessibilityRole="button" style={styles.pillar}>
+            <T variant="rowTitle">{pillar.name}</T>
+            <T variant="meta">
+              {pillar.island} · {pillar.region}
+            </T>
+          </Pressable>
+        </Link>
       ))}
-
-      <SectionLabel>Side gatherings</SectionLabel>
-      <Gathering href="/studio-walk" when="Wednesday · 5:30 PM" title="Studio Walk" detail="Eight tables in the Arcade" />
-      <Gathering href="/talent-market" when="Thursday · 1:00 PM" title="Talent Market" detail="Hiring tables in the Cloister" />
-
-      {host ? (
-        <>
-          <SectionLabel>Host</SectionLabel>
-          <Link href={{ pathname: "/sponsor/[id]", params: { id: host.id } }} asChild>
-            <Pressable style={styles.host}>
-              <T variant="rowTitle">{host.name}</T>
-              <T variant="meta">{host.summary}</T>
-            </Pressable>
-          </Link>
-        </>
-      ) : null}
-
-      {latest ? (
-        <>
-          <SectionLabel>From the desk</SectionLabel>
-          <Link href="/notifications" asChild>
-            <Pressable style={styles.host}>
-              <T variant="rowTitle">{latest.title}</T>
-              <T variant="meta">{latest.body}</T>
-            </Pressable>
-          </Link>
-        </>
-      ) : null}
-    </Screen>
+      <T variant="eyebrow" style={styles.section}>
+        Move through the draft
+      </T>
+      <View style={styles.links}>
+        <HomeLink href={{ pathname: "/agenda", params: { day: suggestedDayId(new Date()) } }} label="Agenda" detail="Day, pillar, island, type" />
+        <HomeLink href="/transport" label="Sample transport" detail="Three unconfirmed routes" />
+        <HomeLink href="/stays" label="Accommodations" detail={stays.brochureNote} />
+        <HomeLink href={{ pathname: "/venue/[id]", params: { id: venues[0]?.id ?? "st-thomas" } }} label="Venues" detail="Island stops · specific venue to be confirmed" />
+        <HomeLink href="/ticket" label="Pass preview" detail="No payment collected" />
+      </View>
+      </View>
+      </Screen>
+    </View>
   );
 }
 
-function Action({
+function HomeLink({
   href,
-  icon,
   label,
-  badge,
+  detail,
 }: {
-  href: "/ticket" | "/schedule" | "/venue" | "/notifications";
-  icon: IconName;
+  href: "/transport" | "/stays" | "/ticket" | { pathname: "/agenda"; params: { day: string } } | { pathname: "/venue/[id]"; params: { id: string } };
   label: string;
-  badge?: number;
+  detail: string;
 }) {
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={styles.action}>
-        <Icon name={icon} color={colors.pine} />
-        <T variant="meta" color={colors.ink}>
-          {label}
-        </T>
-        {badge ? <View style={styles.badge} /> : null}
-      </Pressable>
-    </Link>
-  );
-}
-
-function Gathering({ href, when, title, detail }: { href: "/studio-walk" | "/talent-market"; when: string; title: string; detail: string }) {
-  return (
-    <Link href={href} asChild>
-      <Pressable style={styles.gather}>
-        <View style={styles.gatherRule} />
-        <View style={styles.gatherCopy}>
-          <T variant="eyebrow">{when}</T>
-          <T variant="headline" style={styles.gatherTitle}>
-            {title}
-          </T>
-          <T variant="meta">{detail}</T>
-        </View>
+      <Pressable accessibilityRole="button" style={styles.link}>
+        <T variant="rowTitle">{label}</T>
+        <T variant="meta">{detail}</T>
       </Pressable>
     </Link>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: colors.pine, paddingHorizontal: pad, paddingBottom: 28, gap: 4 },
-  tagline: { marginTop: 10, maxWidth: 320, color: colors.ivory },
-  rule: { height: 1, width: 48, backgroundColor: colors.brassSoft, marginVertical: 14 },
-  phase: { marginTop: 8, fontSize: 22, lineHeight: 26 },
-  actions: {
-    flexDirection: "row",
-    paddingHorizontal: 8,
-    paddingTop: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
-  },
-  action: { flex: 1, alignItems: "center", gap: 6, paddingVertical: 14 },
-  badge: {
-    position: "absolute",
-    top: 10,
-    right: 22,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.clay,
-  },
-  gather: { flexDirection: "row", gap: 14, paddingHorizontal: pad, paddingVertical: 12 },
-  gatherRule: { width: 2, backgroundColor: colors.brass },
-  gatherCopy: { flex: 1, gap: 3 },
-  gatherTitle: { fontSize: 22, lineHeight: 26 },
-  host: {
+  frame: { flex: 1, backgroundColor: "#071B2A" },
+  heroCopy: { padding: pad, paddingTop: 72, paddingBottom: 22, gap: 6 },
+  sheet: { backgroundColor: colors.paper, paddingTop: 8 },
+  notice: { margin: pad, padding: 14, gap: 8, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised },
+  section: { paddingHorizontal: pad, marginTop: 8, marginBottom: 8 },
+  pillar: {
     marginHorizontal: pad,
-    padding: 16,
-    backgroundColor: colors.paperRaised,
+    marginBottom: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: colors.line,
-    gap: 6,
+    backgroundColor: colors.paperRaised,
+    gap: 2,
   },
+  links: { paddingHorizontal: pad, gap: 8, paddingBottom: 12 },
+  link: { paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line, gap: 2 },
 });

@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from "react-native";
-import { forum, notifications } from "@/content";
+import { forum } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -8,46 +9,35 @@ import { useApp } from "@/store";
 import { colors, pad } from "@/theme";
 
 export default function NotificationsScreen() {
+  const { program } = useContent();
+  const { notifications } = program;
   const { state, dispatch } = useApp();
-  const notes = [...notifications].sort((a, b) => b.sentAt.localeCompare(a.sentAt));
-  const unread = notes.filter((note) => !state.readNotificationIds.includes(note.id)).length;
   return (
     <Screen edge="none">
-      <StackHeader
-        title="Notifications"
-        right={
-          unread > 0 ? (
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => dispatch({ type: "markAllNotificationsRead", ids: notes.map((note) => note.id) })}
-            >
-              <T variant="button" color={colors.brass}>
-                Mark all
-              </T>
-            </Pressable>
-          ) : (
-            <View style={styles.spacer} />
-          )
-        }
-      />
-      <T variant="meta" style={styles.intro}>
-        A sample inbox. These notes are part of the program, not push messages.
-      </T>
-      {notes.map((note) => {
+      <StackHeader title="Notifications" />
+      <View style={styles.pad}>
+        <T variant="meta">These notes are copied from the source draft. They are not push messages.</T>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => dispatch({ type: "markAllNotificationsRead", ids: notifications.map((note) => note.id) })}
+        >
+          <T variant="small" color={colors.brass}>
+            Mark all read
+          </T>
+        </Pressable>
+      </View>
+      {notifications.map((note) => {
         const read = state.readNotificationIds.includes(note.id);
         return (
           <Pressable
             key={note.id}
             accessibilityRole="button"
             onPress={() => dispatch({ type: "markNotificationRead", id: note.id })}
-            style={styles.row}
+            style={[styles.note, !read && styles.unread]}
           >
-            <View style={styles.top}>
-              {!read ? <View style={styles.dot} /> : <View style={styles.dotOff} />}
-              <T variant="meta">{formatStamp(note.sentAt, forum.timezone)}</T>
-            </View>
             <T variant="rowTitle">{note.title}</T>
             <T variant="small">{note.body}</T>
+            <T variant="meta">{formatStamp(note.sentAt, forum.timezone)}</T>
           </Pressable>
         );
       })}
@@ -56,16 +46,7 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  spacer: { width: 36 },
-  intro: { paddingHorizontal: pad, marginBottom: 8 },
-  row: {
-    paddingHorizontal: pad,
-    paddingVertical: 14,
-    gap: 6,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
-  },
-  top: { flexDirection: "row", alignItems: "center", gap: 8 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.brass },
-  dotOff: { width: 8, height: 8 },
+  pad: { padding: pad, gap: 8 },
+  note: { marginHorizontal: pad, marginBottom: 8, padding: 12, gap: 6, borderWidth: 1, borderColor: colors.line },
+  unread: { borderColor: colors.brassSoft },
 });

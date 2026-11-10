@@ -1,224 +1,119 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
-import {
-  forum,
-  formatLabel,
-  pollForSession,
-  roomById,
-  sessionById,
-  speakerById,
-  trackById,
-} from "@/content";
+import { Pressable, StyleSheet, View } from "react-native";
+import { dayById, forum, panelistById, participationLabel, pillarById, placesForIsland, sessionById, venueById } from "@/content";
+import { displayCopy, SPEAKER_TBA } from "@/content/display";
+import { PersonRow } from "@/components/PersonRow";
+import { sessionWhen } from "@/components/SessionRow";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { CapacityMeter, EmptyState, PrimaryButton, SecondaryButton, SectionLabel } from "@/components/ui";
-import { canSaveSeat } from "@/logic/seats";
+import { PrimaryButton, SecondaryButton } from "@/components/ui";
+import { PlacePhoto } from "@/components/PlacePhoto";
+import { portraits } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
-import { createId } from "@/logic/state";
+import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
-import { colors, fonts, pad } from "@/theme";
-import { Icon } from "@/components/Icon";
+import { colors, pad } from "@/theme";
 
 export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const session = sessionById(String(id));
+  useContent();
+  const session = sessionById(id ?? "");
   const { state, dispatch } = useApp();
-  const [draft, setDraft] = useState("");
   if (!session) {
     return (
-      <Screen edge="none" scroll={false}>
+      <Screen edge="none">
         <StackHeader title="Session" />
-        <EmptyState title="Not on the program" body="This link does not match a session." />
+        <T variant="body" style={styles.pad}>This session is not in the draft.</T>
       </Screen>
     );
   }
-
-  const localZone = deviceTimeZone();
-  const room = roomById(session.roomId);
-  const track = trackById(session.trackId);
-  const day = forum.days.find((item) => item.id === session.dayId);
+  const day = dayById(session.dayId);
+  const pillar = pillarById(session.pillarId);
   const favored = state.favoriteIds.includes(session.id);
-  const held = state.heldSeatIds.includes(session.id);
-  const same = sameClock(session.start, forum.timezone, localZone);
-  const poll = pollForSession(session.id);
-  const vote = poll ? state.pollVotes[poll.id] : undefined;
-  const questions = state.questions.filter((question) => question.sessionId === session.id);
-  const open = canSaveSeat(session, held);
+  const local = deviceTimeZone();
+  const timed = Boolean(session.start && session.end);
+  const same = timed && session.start ? sameClock(session.start, forum.timezone, local) : true;
+  const people = session.speakerIds;
+  const stay = session.venue.venueId ? venueById(session.venue.venueId) : undefined;
+  const candidates = placesForIsland(session.island);
+  const kind = session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session";
 
   return (
     <Screen edge="none">
-      <StackHeader
-        title={day ? `${day.weekday}` : "Session"}
-        right={
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={favored ? "Remove from favorites" : "Save to favorites"}
-            onPress={() => dispatch({ type: "toggleFavorite", id: session.id })}
-            style={styles.iconButton}
-          >
-            <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.clay : colors.ink} />
-          </Pressable>
-        }
-      />
-      <View style={styles.body}>
-        <T variant="eyebrow" color={track?.color}>
-          {formatLabel[session.format]}
-          {track ? ` · ${track.name}` : ""}
+      <StackHeader title={day?.label} />
+      <View style={styles.pad}>
+        <T variant="eyebrow">{session.optional ? `${kind} · Optional` : kind}</T>
+        <T variant="title">{displayCopy(session.title)}</T>
+        <T variant="meta">
+          {pillar?.name} · {session.island} · {session.region}
         </T>
-        <T variant="title" style={styles.title}>
-          {session.title}
+        <T variant="small">{sessionWhen(session)}</T>
+        {timed && session.start && session.end ? (
+          same ? (
+            <T variant="meta">Same clock as this phone</T>
+          ) : (
+            <T variant="meta">{formatRange(session.start, session.end, local)} · your time</T>
+          )
+        ) : (
+          <T variant="meta">No clock time yet.</T>
+        )}
+        <T variant="meta">
+          Venue: {session.venue.specific || session.venue.label}
+          {stay ? ` · ${stay.dock}` : ""}
         </T>
-        <T variant="small">{formatRange(session.start, session.end, forum.timezone)}</T>
-        <T variant="meta" color={colors.brass}>
-          {same ? "Pacific time, same as this phone." : `${formatRange(session.start, session.end, localZone)} · your time`}
-        </T>
-        {room ? (
-          <Link href={{ pathname: "/venue", params: { room: room.id } }} asChild>
-            <Pressable>
-              <T variant="small" style={styles.room}>
-                {room.name} · {room.floor}
-              </T>
+        {candidates.length ? (
+          <T variant="meta">Candidate places on {session.island}. None is assigned to this session.</T>
+        ) : null}
+        <T variant="body">{displayCopy(session.description)}</T>
+        <T variant="small">What we’ll work on: {displayCopy(session.outcome)}</T>
+        <T variant="meta">Format: {displayCopy(session.format)}</T>
+        {session.phase ? <T variant="meta">Phase: {displayCopy(session.phase)}</T> : null}
+        {session.specialists ? <T variant="meta">Related expertise: {displayCopy(session.specialists)}</T> : null}
+        {people.length === 0 ? <T variant="small">{SPEAKER_TBA}</T> : null}
+        <View style={styles.actions}>
+          {favored ? (
+            <SecondaryButton label="Remove from My Schedule" onPress={() => dispatch({ type: "toggleFavorite", id: session.id })} />
+          ) : (
+            <PrimaryButton label="Save to My Schedule" onPress={() => dispatch({ type: "toggleFavorite", id: session.id })} />
+          )}
+        </View>
+      </View>
+      {candidates.map((place) => {
+        const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
+        return (
+          <Link key={place.id} href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
+            <Pressable accessibilityRole="button" style={styles.place}>
+              {hero ? <PlacePhoto photo={hero} /> : null}
+              <View style={styles.placeCopy}>
+                <T variant="rowTitle">{place.name}</T>
+                <T variant="meta">{place.source === "app-addition" ? "Added in the app" : "Accommodations"}</T>
+              </View>
             </Pressable>
           </Link>
-        ) : null}
-        <T variant="body" style={styles.summary}>
-          {session.summary}
-        </T>
-        {session.reservable ? (
-          <View style={styles.seat}>
-            <CapacityMeter session={session} held={held} />
-            {held ? (
-              <SecondaryButton label="Release seat" onPress={() => dispatch({ type: "toggleSeat", session })} />
-            ) : (
-              <PrimaryButton
-                label={open ? "Save a seat" : "No seats left"}
-                disabled={!open}
-                onPress={() => dispatch({ type: "toggleSeat", session })}
-              />
-            )}
-          </View>
-        ) : (
-          <T variant="meta">This one does not take a seat hold. Favorite it if you want it on My Schedule.</T>
-        )}
-      </View>
-
-      {session.speakerIds.length > 0 ? (
-        <>
-          <SectionLabel>With</SectionLabel>
-          {session.speakerIds.map((speakerId) => {
-            const speaker = speakerById(speakerId);
-            if (!speaker) return null;
-            return (
-              <Link key={speaker.id} href={{ pathname: "/speaker/[id]", params: { id: speaker.id } }} asChild>
-                <Pressable style={styles.person}>
-                  <T variant="rowTitle">{speaker.name}</T>
-                  <T variant="meta">
-                    {speaker.title}, {speaker.company}
-                  </T>
-                </Pressable>
-              </Link>
-            );
-          })}
-        </>
-      ) : null}
-
-      {poll ? (
-        <View style={styles.block}>
-          <T variant="eyebrow">Poll</T>
-          <T variant="headline" style={styles.pollQuestion}>
-            {poll.question}
-          </T>
-          <T variant="meta">Your vote stays on this device. There is no live tally.</T>
-          {poll.options.map((option) => {
-            const selected = vote === option.id;
-            return (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                onPress={() => dispatch({ type: "vote", pollId: poll.id, optionId: option.id })}
-                style={[styles.option, selected && styles.optionOn]}
-              >
-                <T variant="small" color={selected ? colors.ivory : colors.ink}>
-                  {option.label}
-                </T>
-              </Pressable>
-            );
-          })}
-        </View>
-      ) : null}
-
-      <View style={styles.block}>
-        <T variant="eyebrow">Question</T>
-        <T variant="meta">Saved on this device. A live room is not connected.</T>
-        <TextInput
-          value={draft}
-          onChangeText={setDraft}
-          placeholder="Ask something of the room"
-          placeholderTextColor={colors.inkSoft}
-          style={styles.input}
-          multiline
-        />
-        <PrimaryButton
-          label="Save question"
-          disabled={!draft.trim()}
-          onPress={() => {
-            const text = draft.trim();
-            if (!text) return;
-            dispatch({
-              type: "askQuestion",
-              question: { id: createId("q"), sessionId: session.id, text, at: new Date().toISOString() },
-            });
-            setDraft("");
-          }}
-        />
-        {questions.map((question) => (
-          <T key={question.id} variant="small" style={styles.savedQuestion}>
-            {question.text}
-          </T>
-        ))}
-      </View>
+        );
+      })}
+      {people.map((personId) => {
+        const person = panelistById(personId);
+        if (!person) return null;
+        const role = participationLabel(session, person.id);
+        return (
+          <PersonRow
+            key={person.id}
+            name={person.name}
+            photo={person.photo ? portraits[person.photo] : undefined}
+            meta={`${role ?? ""}\n${person.title} · ${person.company}`}
+            href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
+          />
+        );
+      })}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  iconButton: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  body: { paddingHorizontal: pad, gap: 8, paddingBottom: 8 },
-  title: { marginTop: 4 },
-  room: { textDecorationLine: "underline" },
-  summary: { marginTop: 8 },
-  seat: { marginTop: 12, gap: 12 },
-  person: {
-    paddingHorizontal: pad,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
-    gap: 2,
-  },
-  block: { paddingHorizontal: pad, paddingTop: 22, gap: 10 },
-  pollQuestion: { fontSize: 22, lineHeight: 26 },
-  option: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 4,
-  },
-  optionOn: { backgroundColor: colors.pine, borderColor: colors.pine },
-  input: {
-    minHeight: 72,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
-    padding: 12,
-    fontFamily: fonts.body,
-    fontSize: 16,
-    color: colors.ink,
-    textAlignVertical: "top",
-  },
-  savedQuestion: { paddingTop: 4 },
+  pad: { paddingHorizontal: pad, gap: 8, paddingBottom: 12 },
+  actions: { marginTop: 8 },
+  place: { marginHorizontal: pad, marginBottom: 10, borderWidth: 1, borderColor: colors.line },
+  placeCopy: { padding: 10, gap: 2 },
 });

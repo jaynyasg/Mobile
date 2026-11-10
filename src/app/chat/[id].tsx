@@ -1,160 +1,103 @@
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-  type ScrollViewInstance,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { attendeeById } from "@/content";
+import { useState } from "react";
+import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { panelistById } from "@/content";
+import { useContent } from "@/content/provider";
+import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { EmptyState } from "@/components/ui";
 import { createId } from "@/logic/state";
-import { formatStamp } from "@/logic/time";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
-import { Icon } from "@/components/Icon";
+
+const LOCAL_NOTE = "Not sent. This note stays on this device and is not a message from the panelist.";
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const person = attendeeById(String(id));
+  useContent();
+  const person = panelistById(id ?? "");
   const { state, dispatch } = useApp();
-  const insets = useSafeAreaInsets();
   const [draft, setDraft] = useState("");
-  const scroller = useRef<ScrollViewInstance>(null);
-  const replied = useRef(false);
-  const messages = person ? (state.threads[person.id] ?? []) : [];
+  const thread = person ? (state.threads[person.id] ?? []) : [];
 
-  useEffect(() => {
-    scroller.current?.scrollToEnd({ animated: true });
-  }, [messages.length]);
+  function send() {
+    if (!person || !state.networkingOptIn) return;
+    const text = draft.trim();
+    if (!text) return;
+    const at = new Date().toISOString();
+    dispatch({
+      type: "sendMessage",
+      panelistId: person.id,
+      message: { id: createId("you"), from: "you", text, at },
+    });
+    dispatch({
+      type: "sendMessage",
+      panelistId: person.id,
+      message: { id: createId("note"), from: "note", text: LOCAL_NOTE, at },
+    });
+    setDraft("");
+  }
 
-  if (!person || !person.networkingOptIn) {
+  if (!person) {
     return (
-      <View style={styles.fill}>
-        <StackHeader title="Message" />
-        <EmptyState title="No conversation" body="This person is not in the directory." />
-      </View>
+      <Screen edge="none">
+        <StackHeader title="Note" />
+        <T variant="body" style={{ padding: pad }}>This panelist is not on the roster.</T>
+      </Screen>
     );
   }
 
-  function send() {
-    if (!person) return;
-    const text = draft.trim();
-    if (!text) return;
-    if (!state.networkingOptIn) return;
-    dispatch({
-      type: "sendMessage",
-      attendeeId: person.id,
-      message: { id: createId("m"), from: "you", text, at: new Date().toISOString() },
-    });
-    setDraft("");
-    if (replied.current || !person.reply) return;
-    replied.current = true;
-    const reply = person.reply;
-    setTimeout(() => {
-      dispatch({
-        type: "sendMessage",
-        attendeeId: person.id,
-        message: { id: createId("r"), from: "them", text: reply, at: new Date().toISOString(), scripted: true },
-      });
-    }, 700);
-  }
-
   return (
-    <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <Screen edge="none">
       <StackHeader title={person.name} />
-      {!state.networkingOptIn ? (
-        <View style={styles.gate}>
-          <T variant="meta">Join the directory before sending a message.</T>
-          <Pressable style={styles.sendGate} onPress={() => dispatch({ type: "setNetworkingOptIn", value: true })}>
-            <T variant="button" color={colors.ivory}>
-              Join the directory
-            </T>
-          </Pressable>
-        </View>
-      ) : null}
-      <ScrollView ref={scroller} contentContainerStyle={styles.thread} keyboardShouldPersistTaps="handled">
-        {messages.map((message) => {
-          const mine = message.from === "you";
-          return (
-            <View key={message.id} style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
-              <T variant="small" color={mine ? colors.ivory : colors.ink}>
-                {message.text}
-              </T>
-              <T variant="meta" color={mine ? colors.brassSoft : colors.inkSoft} style={styles.when}>
-                {formatStamp(message.at, forumZone())}
-              </T>
-            </View>
-          );
-        })}
-      </ScrollView>
-      <View style={[styles.composer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+      <View style={styles.pad}>
+        <T variant="meta">
+          {person.title} · {person.company}. A local note is not delivered and is not their words.
+        </T>
+        {!state.networkingOptIn ? <T variant="small">Opt in from Network before writing a note.</T> : null}
+        {thread.map((message) => (
+          <View key={message.id} style={styles.bubble}>
+            <T variant="eyebrow">{message.from === "you" ? "You" : "This device"}</T>
+            <T variant="small">{message.text}</T>
+          </View>
+        ))}
         <TextInput
           value={draft}
           onChangeText={setDraft}
-          placeholder={state.networkingOptIn ? `Message ${person.name.split(" ")[0]}` : "Join to message"}
+          editable={state.networkingOptIn}
+          placeholder="Write a note that stays here"
           placeholderTextColor={colors.inkSoft}
           style={styles.input}
-          editable={state.networkingOptIn}
+          accessibilityLabel="Local note"
         />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Send"
-          accessibilityState={{ disabled: !state.networkingOptIn }}
+          accessibilityLabel="Save note"
           disabled={!state.networkingOptIn}
           onPress={send}
-          style={[styles.send, !state.networkingOptIn && styles.sendOff]}
+          style={[styles.send, !state.networkingOptIn && styles.off]}
         >
-          <Icon name="send" color={colors.ivory} size={18} />
+          <T variant="button" color={colors.ivory}>
+            Save on this device
+          </T>
         </Pressable>
       </View>
-    </KeyboardAvoidingView>
+    </Screen>
   );
 }
 
-function forumZone() {
-  return "America/Los_Angeles";
-}
-
 const styles = StyleSheet.create({
-  fill: { flex: 1, backgroundColor: colors.paper },
-  gate: { paddingHorizontal: pad, paddingBottom: 8, gap: 8 },
-  sendGate: { backgroundColor: colors.pine, minHeight: 42, alignItems: "center", justifyContent: "center", borderRadius: 4 },
-  thread: { paddingHorizontal: pad, paddingVertical: 12, gap: 10 },
-  bubble: { maxWidth: "84%", padding: 12, borderRadius: 4, gap: 6 },
-  mine: { alignSelf: "flex-end", backgroundColor: colors.pine },
-  theirs: { alignSelf: "flex-start", backgroundColor: colors.paperRaised, borderWidth: 1, borderColor: colors.line },
-  when: { fontSize: 11, lineHeight: 14 },
-  composer: {
-    flexDirection: "row",
-    gap: 8,
-    paddingHorizontal: pad,
-    paddingTop: 8,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.line,
-    backgroundColor: colors.paperRaised,
-  },
+  pad: { padding: pad, gap: 10 },
+  bubble: { gap: 4, paddingBottom: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
   input: {
-    flex: 1,
-    minHeight: 44,
+    borderWidth: 1,
+    borderColor: colors.line,
+    color: colors.ink,
     fontFamily: fonts.body,
     fontSize: 16,
-    color: colors.ink,
+    padding: 12,
+    minHeight: 72,
   },
-  send: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.pine,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sendOff: { opacity: 0.35 },
+  send: { backgroundColor: colors.ink, minHeight: 48, alignItems: "center", justifyContent: "center" },
+  off: { opacity: 0.35 },
 });

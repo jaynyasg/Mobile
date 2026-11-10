@@ -5,26 +5,24 @@ export function citationHref(citation: Citation): Href {
   switch (citation.kind) {
     case "session":
       return { pathname: "/session/[id]", params: { id: citation.id } };
-    case "speaker":
+    case "panelist":
       return { pathname: "/speaker/[id]", params: { id: citation.id } };
-    case "sponsor":
-      return { pathname: "/sponsor/[id]", params: { id: citation.id } };
     case "screen":
+      if (citation.id.startsWith("pillar:")) {
+        return { pathname: "/pillar/[id]", params: { id: citation.id.slice("pillar:".length) } };
+      }
+      if (citation.id.startsWith("stay:")) {
+        return { pathname: "/stays/[id]", params: { id: citation.id.slice("stay:".length) } };
+      }
       switch (citation.id) {
-        case "venue":
-          return "/venue";
-        case "studio-walk":
-          return "/studio-walk";
-        case "talent-market":
-          return "/talent-market";
         case "settings":
           return "/settings";
         case "ticket":
           return "/ticket";
         case "agenda":
           return "/agenda";
-        case "sponsors":
-          return "/sponsors";
+        case "transport":
+          return "/transport";
         default:
           return "/";
       }

@@ -1,20 +1,23 @@
 import {
-  exhibitors,
+  credits,
   forum,
-  formatLabel,
-  roomById,
+  panelistById,
+  panelistNames,
+  panelists,
+  participationLabel,
+  passes,
+  pillarById,
   sessions,
-  sessionsForSpeaker,
-  speakers,
-  sponsors,
-  subEvents,
-  tierLabel,
+  sessionsForPanelist,
+  stayIslands,
+  transport,
 } from "../content";
+import { getProgram } from "../content/active";
 import { formatRange } from "./time";
 
 export interface Citation {
   title: string;
-  kind: "session" | "speaker" | "sponsor" | "screen";
+  kind: "session" | "panelist" | "screen";
   id: string;
 }
 
@@ -69,7 +72,7 @@ const STOP = new Set([
 ]);
 
 const FALLBACK =
-  "I only know the Portico program: sessions, speakers, rooms, sponsors, and the two side gatherings. Try a name, a room, or “Studio Walk.”";
+  "I only know the TATEL Conversations draft on this device: proposed sessions, panelists, islands, sample transport, stays, and the pass preview. Try a name, a pillar, or an island.";
 
 function tokens(value: string): string[] {
   return value
@@ -89,166 +92,111 @@ function scoreDoc(queryTokens: string[], doc: GuideDoc): number {
     else if (extra.includes(token)) score += 4;
     else if (bodyTokens.includes(token)) score += 1;
   }
-  if (titleTokens.length > 0 && titleTokens.every((token) => queryTokens.includes(token))) {
-    score += 6;
-  }
+  if (titleTokens.length > 0 && titleTokens.every((token) => queryTokens.includes(token))) score += 6;
   return score;
 }
 
 function buildCorpus(): GuideDoc[] {
+  const { forum, sessions, panelists, passes, transport, credits } = getProgram();
   const zone = forum.timezone;
-  const docs: GuideDoc[] = [];
-
-  docs.push({
-    id: "place-hall",
-    title: "Harbor Hall",
-    keywords: ["venue", "address", "where", "map"],
-    body: `${forum.venue.name}, ${forum.venue.addressLine}, ${forum.venue.locality}. ${forum.venue.summary} ${forum.venue.pinNote}`,
-    citation: { title: "Harbor Hall", kind: "screen", id: "venue" },
-  });
-
-  for (const room of forum.venue.rooms) {
-    docs.push({
-      id: `room-${room.id}`,
-      title: room.name,
-      body: `${room.name} is on ${room.floor} at Harbor Hall. ${room.summary}`,
-      citation: { title: room.name, kind: "screen", id: "venue" },
-    });
-  }
-
-  docs.push({
-    id: "guide-badge",
-    title: "Badge",
-    keywords: ["pass", "ticket", "qr", "pickup", "lobby", "check"],
-    body: "Passes are picked up in the Lobby from 8:30 AM Pacific on Tuesday. Your sample badge and its QR code are on the Badge screen. The code is the pass id for this demo, not a live ticket.",
-    citation: { title: "Badge", kind: "screen", id: "ticket" },
-  });
-
-  const lunches = sessions.filter((session) => session.id.startsWith("lunch"));
-  docs.push({
-    id: "guide-lunch",
-    title: "Lunch",
-    keywords: ["courtyard", "food"],
-    body: `Lunch is in the courtyard every day, with no program. ${lunches
-      .map((session) => {
-        const day = forum.days.find((item) => item.id === session.dayId);
-        return `${day?.weekday} ${formatRange(session.start, session.end, zone)}`;
-      })
-      .join("; ")}.`,
-    citation: { title: "Agenda", kind: "screen", id: "agenda" },
-  });
-
-  const reception = sessions.find((session) => session.id === "reception-tue");
-  if (reception) {
-    docs.push({
-      id: "guide-reception",
-      title: "Opening reception",
-      body: `The opening reception is ${formatRange(reception.start, reception.end, zone)} in the courtyard.`,
-      citation: { title: reception.title, kind: "session", id: reception.id },
-    });
-  }
-
-  docs.push({
-    id: "guide-delete",
-    title: "Delete my data",
-    keywords: ["privacy", "settings", "erase"],
-    body: "Settings has Delete my data. It clears favorites, seats, messages, meeting requests, votes, questions, your card, and your profile from this device. The program stays.",
-    citation: { title: "Settings", kind: "screen", id: "settings" },
-  });
-
-  docs.push({
-    id: "guide-time",
-    title: "Time zones",
-    keywords: ["pacific", "local", "clock"],
-    body: "The forum runs on Pacific time. Every session also shows the clock on this phone, when the two differ.",
-    citation: { title: "Agenda", kind: "screen", id: "agenda" },
-  });
-
-  docs.push({
-    id: "guide-conduct",
-    title: "Conduct",
-    body: forum.conduct.join(" "),
-    citation: { title: "Harbor Hall", kind: "screen", id: "venue" },
-  });
-
-  for (const track of forum.tracks) {
-    const titles = sessions
-      .filter((session) => session.trackId === track.id && session.format !== "social")
-      .map((session) => session.title);
-    docs.push({
-      id: `track-${track.id}`,
-      title: `${track.name} track`,
-      keywords: [track.name.toLowerCase()],
-      body: `${track.description} On the program: ${titles.join("; ")}.`,
+  const docs: GuideDoc[] = [
+    {
+      id: "draft",
+      title: "Proposed program",
+      keywords: ["draft", "unconfirmed", "confirmation"],
+      body: forum.draftNotice,
       citation: { title: "Agenda", kind: "screen", id: "agenda" },
+    },
+    {
+      id: "delete",
+      title: "Delete my data",
+      keywords: ["privacy", "settings", "erase"],
+      body: "Settings has Delete my data. It clears favorites, messages, guide history, notification reads, your opt-in, and your profile from this device. The program stays.",
+      citation: { title: "Settings", kind: "screen", id: "settings" },
+    },
+    {
+      id: "time",
+      title: "Atlantic time",
+      keywords: ["ast", "local", "clock", "timezone"],
+      body: `Session times are proposed in ${forum.timezoneLabel}. The phone also shows its own clock when the two differ. Times, venues, and participation remain unconfirmed.`,
+      citation: { title: "Agenda", kind: "screen", id: "agenda" },
+    },
+    {
+      id: "passes",
+      title: "Pass preview",
+      keywords: ["ticket", "price", "checkout", "beach", "boat", "vip"],
+      body: `${passes.previewLabel} ${passes.legend}. ${passes.items
+        .map((pass) => `${pass.name} ${pass.price} ${pass.unit}${pass.minimum ? `, ${pass.minimum}` : ""}`)
+        .join(". ")}. ${passes.sourceNote}`,
+      citation: { title: "Pass preview", kind: "screen", id: "ticket" },
+    },
+    {
+      id: "imagery",
+      title: "Route map imagery",
+      keywords: ["sentinel", "satellite", "map"],
+      body: `${credits.sentinelNote} ${credits.sentinel} License ${credits.sentinelLicense}. ${credits.coastline}`,
+      citation: { title: "Sample transport", kind: "screen", id: "transport" },
+    },
+  ];
+
+  for (const pillar of forum.pillars) {
+    docs.push({
+      id: `pillar-${pillar.id}`,
+      title: `${pillar.name} pillar`,
+      keywords: [pillar.island, pillar.region],
+      body: `${pillar.name} is planned on ${pillar.island} (${pillar.region}). The specific venue is to be confirmed.`,
+      citation: { title: pillar.name, kind: "screen", id: `pillar:${pillar.id}` },
+    });
+  }
+
+  for (const mode of transport.modes) {
+    docs.push({
+      id: `transport-${mode.id}`,
+      title: mode.name,
+      keywords: ["transport", "agenda", "unconfirmed"],
+      body: `${transport.intro} ${mode.name}: ${mode.summary}. ${mode.description} ${mode.warning}`,
+      citation: { title: mode.name, kind: "screen", id: "transport" },
+    });
+  }
+
+  for (const island of stayIslands()) {
+    const providers = island.sections.flatMap((section) => section.providers.map((provider) => provider.name)).join(", ");
+    docs.push({
+      id: `stay-${island.id}`,
+      title: `${island.island} accommodations`,
+      keywords: ["stay", "hotel", island.dock],
+      body: `${island.island}, ${island.route}. ${island.dock}. Providers from brochure pages 21–22: ${providers}.`,
+      citation: { title: island.island, kind: "screen", id: `stay:${island.id}` },
     });
   }
 
   for (const session of sessions) {
-    if (session.format === "social") continue;
     const day = forum.days.find((item) => item.id === session.dayId);
-    const room = roomById(session.roomId);
-    const names = session.speakerIds
-      .map((id) => speakers.find((speaker) => speaker.id === id)?.name)
-      .filter(Boolean)
-      .join(", ");
+    const people = panelistNames(session.speakerIds) || "Speaker to be announced";
+    const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
     docs.push({
       id: `session-${session.id}`,
       title: session.title,
-      body: `${session.title} is a ${formatLabel[session.format].toLowerCase()} on ${day?.weekday}, ${formatRange(session.start, session.end, zone)}, in the ${room?.name}. ${session.summary}${names ? ` With ${names}.` : ""}`,
+      keywords: [session.island, session.featured ? "featured" : "regular"],
+      body: `${session.title}. ${day?.label}. ${when} on ${session.island}. ${session.format}. ${session.description} Lead: ${people}. Venue: to be confirmed.`,
       citation: { title: session.title, kind: "session", id: session.id },
     });
   }
 
-  for (const speaker of speakers) {
-    const talks = sessionsForSpeaker(speaker.id);
-    const lines = talks.map((session) => {
-      const day = forum.days.find((item) => item.id === session.dayId);
-      const room = roomById(session.roomId);
-      return `${day?.weekday} ${formatRange(session.start, session.end, zone)}, ${session.title}, ${room?.name}`;
+  for (const person of panelists) {
+    const talks = sessionsForPanelist(person.id);
+    const lines = talks.slice(0, 4).map((session) => {
+      const role = participationLabel(session, person.id);
+      const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
+      return `${session.title}, ${when} (${role})`;
     });
+    const pillar = pillarById(person.proposedPillarId);
     docs.push({
-      id: `speaker-${speaker.id}`,
-      title: speaker.name,
-      keywords: [speaker.company],
-      body: `${speaker.name} is ${speaker.title} at ${speaker.company}. ${speaker.bio} On the program: ${lines.join("; ")}.`,
-      citation: { title: speaker.name, kind: "speaker", id: speaker.id },
-    });
-  }
-
-  for (const sponsor of sponsors) {
-    const deals = sponsor.deals.map((deal) => `${deal.title}. ${deal.detail}`).join(" ");
-    docs.push({
-      id: `sponsor-${sponsor.id}`,
-      title: sponsor.name,
-      keywords: [tierLabel[sponsor.tier], "deal", "sponsor"],
-      body: `${sponsor.name} is a ${tierLabel[sponsor.tier].toLowerCase()}. ${sponsor.summary} ${deals}`,
-      citation: { title: sponsor.name, kind: "sponsor", id: sponsor.id },
-    });
-  }
-
-  for (const subEvent of subEvents) {
-    const tables = exhibitors
-      .filter((exhibitor) => exhibitor.subEventId === subEvent.id)
-      .map((exhibitor) => `${exhibitor.name} (${exhibitor.table})`)
-      .join(", ");
-    docs.push({
-      id: `sub-${subEvent.id}`,
-      title: subEvent.name,
-      body: `${subEvent.name} is ${subEvent.whenLabel}, ${subEvent.where}. ${subEvent.summary} Tables: ${tables}.`,
-      citation: { title: subEvent.name, kind: "screen", id: subEvent.id },
-    });
-  }
-
-  for (const exhibitor of exhibitors) {
-    const gathering = subEvents.find((subEvent) => subEvent.id === exhibitor.subEventId);
-    const roles = exhibitor.roles?.length ? ` Open roles: ${exhibitor.roles.join(", ")}.` : "";
-    docs.push({
-      id: `table-${exhibitor.id}`,
-      title: exhibitor.name,
-      keywords: ["table", exhibitor.table, gathering?.name ?? ""],
-      body: `${exhibitor.name} is table ${exhibitor.table} at the ${gathering?.name}. ${exhibitor.summary}${roles}`,
-      citation: { title: gathering?.name ?? exhibitor.name, kind: "screen", id: exhibitor.subEventId },
+      id: `panelist-${person.id}`,
+      title: person.name,
+      keywords: [person.company, person.title, person.proposedIsland],
+      body: `${person.name}, ${person.title}, ${person.company}. ${pillar?.name ?? "Program to be announced"} · ${person.proposedIsland || "Location TBC"}. Linked sessions: ${lines.join("; ")}.`,
+      citation: { title: person.name, kind: "panelist", id: person.id },
     });
   }
 
@@ -256,28 +204,27 @@ function buildCorpus(): GuideDoc[] {
 }
 
 let corpus: GuideDoc[] | null = null;
+let corpusProgram: unknown = null;
 
 export function answerQuestion(question: string): GuideAnswer {
-  const queryTokens = tokens(question);
-  if (queryTokens.length === 0) {
-    return { text: FALLBACK, citations: [] };
+  const program = getProgram();
+  if (corpusProgram !== program) {
+    corpus = null;
+    corpusProgram = program;
   }
+  const queryTokens = tokens(question);
+  if (queryTokens.length === 0) return { text: FALLBACK, citations: [] };
   corpus ??= buildCorpus();
   const ranked = corpus
     .map((doc) => ({ doc, score: scoreDoc(queryTokens, doc) }))
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || a.doc.title.length - b.doc.title.length);
-
   if (ranked.length === 0) return { text: FALLBACK, citations: [] };
-
   const citations: Citation[] = [];
   for (const item of ranked) {
-    if (citations.some((citation) => citation.kind === item.doc.citation.kind && citation.id === item.doc.citation.id)) {
-      continue;
-    }
+    if (citations.some((citation) => citation.kind === item.doc.citation.kind && citation.id === item.doc.citation.id)) continue;
     citations.push(item.doc.citation);
     if (citations.length === 3) break;
   }
-
   return { text: ranked[0].doc.body, citations };
 }

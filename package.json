@@ -1,11 +1,12 @@
 {
-  "name": "portico",
+  "name": "tatel",
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/fraunces": "^0.4.1",
     "@expo-google-fonts/outfit": "^0.4.3",
     "@expo/ui": "~58.0.23",
+    "@google/model-viewer": "^4.1.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~58.0.19",
     "expo-constants": "~58.0.13",
@@ -45,7 +46,9 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "program": "vite-node scripts/print-program.ts"
+    "program": "node scripts/print-program.mjs",
+    "generate": "node scripts/generate-tatel-content.mjs",
+    "export:web": "expo export -p web && node scripts/finalize-pwa.mjs"
   },
   "private": true
 }
