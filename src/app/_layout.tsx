@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import { ReactNode, useEffect } from "react";
 import { Platform, View } from "react-native";
+import { AuthProvider } from "@/community/auth";
 import { ContentProvider } from "@/content/provider";
 import { RegisterPwa } from "@/components/RegisterPwa";
 import { AppProvider, useApp } from "@/store";
@@ -16,6 +17,7 @@ export default function RootLayout() {
   return (
     <AppProvider>
       <ContentProvider>
+      <AuthProvider>
       <Boot>
         <Frame>
           <Stack
@@ -27,6 +29,7 @@ export default function RootLayout() {
           <RegisterPwa />
         </Frame>
       </Boot>
+      </AuthProvider>
       </ContentProvider>
     </AppProvider>
   );
