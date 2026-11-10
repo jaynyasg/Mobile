@@ -26,7 +26,7 @@ export function SessionRow({ session }: { session: Session }) {
 
   return (
     <View style={[styles.row, session.featured && styles.featured]}>
-      <View style={[styles.tick, { backgroundColor: session.featured ? colors.brassSoft : colors.ink }]} />
+      <View style={[styles.tick, { backgroundColor: session.featured ? colors.gold : colors.turquoise }]} />
       <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
           <View style={styles.copy}>
@@ -63,12 +63,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "stretch",
-    paddingRight: pad,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
-    backgroundColor: colors.paper,
+    marginHorizontal: pad,
+    marginBottom: 8,
+    paddingRight: 8,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.92)",
+    backgroundColor: "rgba(255,255,255,0.84)",
+    overflow: "hidden",
   },
-  featured: { backgroundColor: "#F8F1D8" },
+  featured: { backgroundColor: "rgba(255,255,255,0.92)" },
   tick: { width: 3 },
   main: { flex: 1, paddingVertical: 14, paddingLeft: pad },
   copy: { gap: 3 },

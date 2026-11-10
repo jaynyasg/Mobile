@@ -46,7 +46,13 @@ export function BeaconBackground() {
           createElement("source", { src: "/beacon/beacon-720.mp4", type: "video/mp4" }),
         )
       )}
-      <View style={styles.shade} />
+      {createElement("div", {
+        style: {
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(10,20,35,0.05) 40%, rgba(10,20,35,0.45) 100%)",
+        },
+      })}
     </View>
   );
 }
@@ -54,5 +60,4 @@ export function BeaconBackground() {
 const styles = StyleSheet.create({
   fill: { ...StyleSheet.absoluteFill, backgroundColor: "#071B2A" },
   media: { width: "100%", height: "100%" },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(7,27,42,0.72)" },
 });

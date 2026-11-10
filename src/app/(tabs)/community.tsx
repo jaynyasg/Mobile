@@ -1,6 +1,7 @@
 import { Link, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { commentLabel } from "@/community/copy";
 import { useAuth } from "@/community/auth";
 import { communityPreviewEnabled } from "@/community/client";
 import { supabase } from "@/community/client";
@@ -8,9 +9,10 @@ import { createPost, deletePost, explainCommunityError, hidePost, listPosts, sen
 import { pickCommunityPhoto } from "@/community/photo";
 import { MemoryCommunity } from "@/community/memory";
 import type { CommunityPost } from "@/community/types";
+import { Glass } from "@/components/Glass";
 import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
-import { colors, fonts, pad } from "@/theme";
+import { colors, fonts, pad, scenePhotos } from "@/theme";
 
 export default function CommunityScreen() {
   const router = useRouter();
@@ -86,14 +88,15 @@ export default function CommunityScreen() {
   }
 
   return (
-    <Screen>
+    <Screen docked photo={scenePhotos.community}>
       <View style={styles.pad}>
-        <T variant="eyebrow">TATEL</T>
+        <T variant="eyebrow" color={colors.turquoise}>TATEL</T>
         <T variant="title">Community</T>
         <View style={styles.row}>
           <Link href="/community-room" asChild>
-            <Pressable accessibilityRole="button" style={styles.link}>
-              <T variant="small">Live chat</T>
+            <Pressable accessibilityRole="button" style={styles.pill}>
+              <View style={styles.dot} />
+              <T variant="small" color={colors.ivory}>Live chat</T>
             </Pressable>
           </Link>
           <Link href="/community-profile" asChild>
@@ -110,7 +113,7 @@ export default function CommunityScreen() {
         <View style={styles.pad}>
           <T variant="small">Sign in to read and post. A code comes by email.</T>
           <Pressable accessibilityRole="button" onPress={() => router.push("/community-sign-in")} style={styles.button}>
-            <T variant="button" color={colors.ivory}>Sign in</T>
+            <T variant="button" color={colors.ink}>Sign in</T>
           </Pressable>
         </View>
       ) : (
@@ -126,14 +129,19 @@ export default function CommunityScreen() {
               <T variant="small">{photoName ?? "Add photo"}</T>
             </Pressable>
             <Pressable accessibilityRole="button" onPress={publish} style={styles.button}>
-              <T variant="button" color={colors.ivory}>Post</T>
+              <T variant="button" color={colors.ink}>Post</T>
             </Pressable>
             {error ? <T variant="meta">{error}</T> : null}
           </View>
           {posts.map((post) => (
-            <View key={post.id} style={styles.card}>
-              <T variant="rowTitle">{post.author.displayName}</T>
-              <T variant="meta">{[post.author.title, post.author.company].filter(Boolean).join(" · ")}</T>
+            <Glass key={post.id} blur={false} style={styles.card}>
+              <View style={styles.person}>
+                <View style={styles.avatar}><T variant="meta" color={colors.ivory}>{initials(post.author.displayName)}</T></View>
+                <View style={styles.copy}>
+                  <T variant="rowTitle">{post.author.displayName}</T>
+                  <T variant="meta">{[post.author.title, post.author.company].filter(Boolean).join(" · ")}</T>
+                </View>
+              </View>
               <T variant="small">{post.body}</T>
               {post.photoUrl && post.photoUrl !== "preview" ? (
                 <Image source={{ uri: post.photoUrl }} style={styles.photo} accessibilityLabel="Post photo" />
@@ -143,7 +151,7 @@ export default function CommunityScreen() {
                   <T variant="meta">{post.likedByMe ? "Liked" : "Like"} · {post.likeCount}</T>
                 </Pressable>
                 <Link href={{ pathname: "/community-post/[id]", params: { id: post.id } }} asChild>
-                  <Pressable accessibilityRole="button"><T variant="meta">{post.commentCount} comments</T></Pressable>
+                  <Pressable accessibilityRole="button"><T variant="meta" color={colors.turquoise}>{commentLabel(post.commentCount)}</T></Pressable>
                 </Link>
                 {(auth.staff || post.author.id === auth.userId) ? (
                   <Pressable accessibilityRole="button" onPress={() => (preview ? (memory.deletePost(post.id), refresh()) : deletePost(post.id).then(refresh))}>
@@ -160,7 +168,7 @@ export default function CommunityScreen() {
                   </Pressable>
                 )}
               </View>
-            </View>
+            </Glass>
           ))}
         </>
       )}
@@ -168,12 +176,21 @@ export default function CommunityScreen() {
   );
 }
 
+function initials(name: string): string {
+  return name.split(" ").slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase();
+}
+
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: pad, paddingBottom: 12, gap: 8 },
   row: { flexDirection: "row", gap: 16, alignItems: "center" },
   link: { paddingVertical: 6 },
   input: { minHeight: 72, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
-  button: { backgroundColor: colors.ink, minHeight: 44, alignItems: "center", justifyContent: "center" },
-  photo: { width: "100%", height: 180, backgroundColor: colors.muted },
-  card: { marginHorizontal: pad, marginBottom: 10, padding: 12, gap: 4, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised },
+  button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
+  photo: { width: "100%", height: 180, borderRadius: 14, backgroundColor: colors.muted },
+  card: { marginHorizontal: pad, marginBottom: 10, gap: 6 },
+  person: { flexDirection: "row", gap: 10, alignItems: "center" },
+  copy: { flex: 1, gap: 2 },
+  avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.turquoise, alignItems: "center", justifyContent: "center" },
+  pill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.turquoise, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.ivory },
 });

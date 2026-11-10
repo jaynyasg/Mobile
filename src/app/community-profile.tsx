@@ -6,7 +6,7 @@ import { pickCommunityPhoto } from "@/community/photo";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { colors, fonts, pad } from "@/theme";
+import { colors, fonts, pad, scenePhotos } from "@/theme";
 
 export default function ProfileScreen() {
   const auth = useAuth();
@@ -16,7 +16,7 @@ export default function ProfileScreen() {
   const [note, setNote] = useState<string | null>(null);
 
   return (
-    <Screen edge="none">
+    <Screen edge="none" photo={scenePhotos.community}>
       <StackHeader title="Profile" />
       <View style={styles.pad}>
         <T variant="small">Display name, an optional photo, and an optional title and company.</T>

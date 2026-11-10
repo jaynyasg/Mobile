@@ -8,7 +8,7 @@ import type { CommunityMessage } from "@/community/types";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { colors, fonts, pad } from "@/theme";
+import { colors, fonts, pad, scenePhotos } from "@/theme";
 
 export default function CommunityRoomScreen() {
   const auth = useAuth();
@@ -89,7 +89,7 @@ export default function CommunityRoomScreen() {
   }
 
   return (
-    <Screen edge="none" scroll={false}>
+    <Screen edge="none" scroll={false} photo={scenePhotos.community}>
       <StackHeader title="Everyone" />
       {offline ? <T variant="body" style={styles.note}>Community is offline. The program is still available.</T> : null}
       {!auth.userId && !preview ? <T variant="body" style={styles.note}>Sign in to read the room.</T> : null}
@@ -118,7 +118,7 @@ export default function CommunityRoomScreen() {
         scrollEventThrottle={200}
         renderItem={({ item }) => (
           <View style={styles.bubble}>
-            <T variant="meta">{item.author.displayName}</T>
+            <T variant="meta" color={colors.turquoise}>{item.author.displayName}</T>
             <T variant="small">{item.body}</T>
             <View style={styles.actions}>
               {auth.staff || item.author.id === auth.userId ? (
@@ -155,7 +155,7 @@ export default function CommunityRoomScreen() {
       <View style={styles.composer}>
         <TextInput value={draft} onChangeText={setDraft} placeholder="Message everyone" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Message" />
         <Pressable accessibilityRole="button" onPress={() => send().catch((cause) => setError(cause instanceof Error ? cause.message : "Could not send"))} style={styles.send}>
-          <T variant="button" color={colors.ivory}>Send</T>
+          <T variant="button" color={colors.ink}>Send</T>
         </Pressable>
       </View>
       {error ? <T variant="meta" style={styles.note}>{error}</T> : null}
@@ -167,9 +167,9 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   note: { padding: pad },
   list: { padding: pad, gap: 8 },
-  bubble: { paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line, gap: 2 },
+  bubble: { padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.84)", borderWidth: 1, borderColor: "rgba(255,255,255,0.92)", gap: 2 },
   actions: { flexDirection: "row", gap: 16 },
   composer: { flexDirection: "row", gap: 8, padding: pad },
-  input: { flex: 1, borderWidth: 1, borderColor: colors.line, color: colors.ink, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },
-  send: { backgroundColor: colors.ink, paddingHorizontal: 14, justifyContent: "center" },
+  input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,255,255,0.9)", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.88)", color: colors.ink, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },
+  send: { backgroundColor: colors.gold, borderRadius: 14, paddingHorizontal: 14, justifyContent: "center" },
 });

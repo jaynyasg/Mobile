@@ -19,7 +19,7 @@ const variants: Record<Variant, TextStyle> = {
     letterSpacing: -0.4,
   },
   headline: {
-    fontFamily: fonts.displayMedium,
+    fontFamily: fonts.semibold,
     fontSize: 24,
     lineHeight: 28,
     color: colors.ink,

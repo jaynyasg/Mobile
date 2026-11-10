@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { T } from "./Text";
-import { colors, pad } from "@/theme";
+import { colors } from "@/theme";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -21,7 +21,7 @@ function iosSafari(): boolean {
   return ios && safari;
 }
 
-export function InstallHint() {
+export function InstallHint({ tone = "light" }: { tone?: "light" | "dark" }) {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [hidden, setHidden] = useState(installed);
 
@@ -42,10 +42,10 @@ export function InstallHint() {
   if (hidden) return null;
 
   return (
-    <View style={styles.card}>
-      <T variant="eyebrow">Install</T>
+    <View style={[styles.card, tone === "dark" && styles.cardDark]}>
+      <T variant="eyebrow" color={tone === "dark" ? colors.gold : colors.turquoise}>Install</T>
       {iosSafari() ? (
-        <T variant="small">In Safari, tap Share, then Add to Home Screen.</T>
+        <T variant="small" color={tone === "dark" ? colors.onDark : colors.ink}>In Safari, tap Share, then Add to Home Screen.</T>
       ) : prompt ? (
         <Pressable
           accessibilityRole="button"
@@ -56,12 +56,12 @@ export function InstallHint() {
           }}
           style={styles.button}
         >
-          <T variant="button" color={colors.ivory}>
+          <T variant="button" color={colors.ink}>
             Install TATEL
           </T>
         </Pressable>
       ) : (
-        <T variant="small">Use the browser’s install icon, or the Install button when this page offers it.</T>
+        <T variant="small" color={tone === "dark" ? colors.onDark : colors.ink}>Use the browser’s install icon, or the Install button when this page offers it.</T>
       )}
     </View>
   );
@@ -69,13 +69,17 @@ export function InstallHint() {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: pad,
-    marginBottom: 12,
-    padding: 14,
+    marginTop: 12,
+    padding: 12,
     gap: 8,
-    backgroundColor: colors.paperRaised,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.88)",
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: "rgba(255,255,255,0.92)",
   },
-  button: { backgroundColor: colors.ink, minHeight: 44, alignItems: "center", justifyContent: "center" },
+  cardDark: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(255,255,255,0.22)",
+  },
+  button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 14 },
 });

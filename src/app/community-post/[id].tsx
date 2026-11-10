@@ -9,7 +9,7 @@ import type { CommunityComment } from "@/community/types";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { colors, fonts, pad } from "@/theme";
+import { colors, fonts, pad, scenePhotos } from "@/theme";
 
 export default function CommentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,7 +35,7 @@ export default function CommentScreen() {
   }, [id, auth.userId]);
 
   return (
-    <Screen edge="none">
+    <Screen edge="none" photo={scenePhotos.community}>
       <StackHeader title="Comments" />
       {!auth.userId && !preview ? <T variant="body" style={styles.pad}>Sign in to read comments.</T> : null}
       {comments.map((comment) => (
@@ -79,7 +79,7 @@ export default function CommentScreen() {
           const write = preview ? Promise.resolve(memory.addComment(id, draft)) : addComment(auth.userId, id, draft);
           write.then(() => { setDraft(""); return refresh(); }).catch((cause) => setError(cause instanceof Error ? cause.message : "Could not comment"));
         }}>
-          <T variant="button" color={colors.ivory}>Comment</T>
+          <T variant="button" color={colors.ink}>Comment</T>
         </Pressable>
         {error ? <T variant="meta">{error}</T> : null}
       </View>
@@ -89,8 +89,8 @@ export default function CommentScreen() {
 
 const styles = StyleSheet.create({
   pad: { padding: pad, gap: 8 },
-  card: { marginHorizontal: pad, marginBottom: 8, padding: 12, gap: 4, borderWidth: 1, borderColor: colors.line },
+  card: { marginHorizontal: pad, marginBottom: 8, padding: 12, gap: 4, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,0.92)", backgroundColor: "rgba(255,255,255,0.86)" },
   row: { flexDirection: "row", gap: 16 },
   input: { borderWidth: 1, borderColor: colors.line, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
-  button: { backgroundColor: colors.ink, minHeight: 44, alignItems: "center", justifyContent: "center" },
+  button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
 });

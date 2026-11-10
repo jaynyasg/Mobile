@@ -1,16 +1,17 @@
 import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { colors, fonts, pad } from "@/theme";
+import { Glass } from "./Glass";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 
 export function PageHeader({ kicker, title, subtitle }: { kicker?: string; title: string; subtitle?: string }) {
   return (
-    <View style={styles.header}>
-      {kicker ? <T variant="eyebrow">{kicker}</T> : null}
+    <Glass style={styles.header}>
+      {kicker ? <T variant="eyebrow" color={colors.turquoise}>{kicker}</T> : null}
       <T variant="title">{title}</T>
       {subtitle ? <T variant="meta" style={styles.subtitle}>{subtitle}</T> : null}
-    </View>
+    </Glass>
   );
 }
 
@@ -38,7 +39,7 @@ export function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [styles.primary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}
     >
-      <T variant="button" color={colors.ivory}>
+      <T variant="button" color={colors.ink}>
         {label}
       </T>
     </Pressable>
@@ -126,25 +127,25 @@ export function LinkRow({
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: pad, paddingTop: 8, paddingBottom: 8 },
+  header: { marginHorizontal: pad, marginBottom: 10 },
   subtitle: { marginTop: 8 },
   section: { paddingHorizontal: pad, marginTop: 22, marginBottom: 8 },
   primary: {
-    backgroundColor: colors.pine,
+    backgroundColor: colors.gold,
     minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 4,
+    borderRadius: 18,
     paddingHorizontal: 16,
   },
   secondary: {
     minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 4,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
+    borderColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "rgba(255,255,255,0.72)",
     paddingHorizontal: 16,
   },
   disabled: { opacity: 0.4 },
@@ -154,13 +155,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
+    borderColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "rgba(255,255,255,0.72)",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 99,
   },
-  chipOn: { backgroundColor: colors.pine, borderColor: colors.pine },
+  chipOn: { backgroundColor: colors.turquoise, borderColor: colors.turquoise },
   chipLabel: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 16 },
   swatch: { width: 8, height: 8, borderRadius: 4 },
   empty: { paddingHorizontal: pad, paddingVertical: 28, gap: 8 },
@@ -173,9 +174,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
     paddingVertical: 14,
-    paddingHorizontal: pad,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
+    paddingHorizontal: 14,
+    marginHorizontal: pad,
+    marginBottom: 8,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.92)",
+    backgroundColor: "rgba(255,255,255,0.82)",
   },
   linkCopy: { flex: 1, gap: 2 },
   badge: {

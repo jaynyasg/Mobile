@@ -23,7 +23,7 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: colors.paper },
+              contentStyle: { backgroundColor: "transparent" },
             }}
           />
           <RegisterPwa />
@@ -61,7 +61,7 @@ function Frame({ children }: { children: ReactNode }) {
   if (Platform.OS !== "web") return children;
   return (
     <View style={{ flex: 1, backgroundColor: colors.stage, alignItems: "center" }}>
-      <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: colors.paper }}>{children}</View>
+      <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: "#E7F3F4" }}>{children}</View>
     </View>
   );
 }

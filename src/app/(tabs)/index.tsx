@@ -1,71 +1,71 @@
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
-import { useContent } from "@/content/provider";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BeaconBackground } from "@/components/BeaconBackground";
+import { Glass } from "@/components/Glass";
 import { InstallHint } from "@/components/InstallHint";
-import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
+import { useContent } from "@/content/provider";
 import { forumPhase, phaseLabel, suggestedDayId } from "@/logic/phase";
-import { colors, pad } from "@/theme";
+import { sessionWhen } from "@/components/SessionRow";
+import { colors } from "@/theme";
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const { forum, stays, venues } = program;
+  const { forum, sessions, stays, venues } = program;
   const phase = forumPhase(new Date());
+  const dayId = suggestedDayId(new Date());
+  const next = sessions
+    .filter((session) => session.dayId === dayId && session.start)
+    .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))[0];
+  const count = phase.phase === "upcoming" ? String(phase.daysUntil) : phase.phase === "live" ? "Now" : "Closed";
+  const countCaption = phase.phase === "upcoming" ? (phase.daysUntil === 1 ? "day" : "days") : phase.phase === "live" ? "open" : "ended";
 
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <Screen background="transparent" statusBar="light" edge="none">
-        <View style={styles.heroCopy}>
-          <T variant="eyebrow" color={colors.brassSoft}>
-            {forum.name} · {forum.kicker}
-          </T>
-          <T variant="display" color={colors.ivory}>
-            {forum.edition}
-          </T>
-          <T variant="small" color={colors.ivory}>
-            {forum.dateLabel}
-          </T>
-          <T variant="meta" color={colors.muted}>
-            {forum.placeLabel}
-          </T>
-          <T variant="meta" color={colors.brassSoft}>
-            {phaseLabel(phase)}
-          </T>
-        </View>
-      <View style={styles.sheet}>
-      <InstallHint />
-      <View style={styles.notice}>
-        <T variant="eyebrow">Program</T>
-        <T variant="small">{forum.draftNotice}</T>
-        <T variant="meta">{forum.timingNote ? forum.timingNote.replace(/\b[Pp]roposed\s+/g, "") : "Specific venues and untimed activities remain to be confirmed."}</T>
-      </View>
-      <T variant="eyebrow" style={styles.section}>
-        Five pillars · planning homes
-      </T>
-      {forum.pillars.map((pillar) => (
-        <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
-          <Pressable accessibilityRole="button" style={styles.pillar}>
-            <T variant="rowTitle">{pillar.name}</T>
-            <T variant="meta">
-              {pillar.island} · {pillar.region}
-            </T>
-          </Pressable>
-        </Link>
-      ))}
-      <T variant="eyebrow" style={styles.section}>
-        Move through the draft
-      </T>
-      <View style={styles.links}>
-        <HomeLink href={{ pathname: "/agenda", params: { day: suggestedDayId(new Date()) } }} label="Agenda" detail="Day, pillar, island, type" />
-        <HomeLink href="/transport" label="Sample transport" detail="Three unconfirmed routes" />
-        <HomeLink href="/stays" label="Accommodations" detail={stays.brochureNote} />
-        <HomeLink href={{ pathname: "/venue/[id]", params: { id: venues[0]?.id ?? "st-thomas" } }} label="Venues" detail="Island stops · specific venue to be confirmed" />
-        <HomeLink href="/ticket" label="Pass preview" detail="No payment collected" />
-      </View>
-      </View>
-      </Screen>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 168, paddingBottom: insets.bottom + 120, paddingHorizontal: 12 }} keyboardShouldPersistTaps="handled">
+        <Glass tone="dark">
+          <T variant="eyebrow" color={colors.gold}>{forum.name}</T>
+          <T variant="display" color={colors.gold}>{forum.edition}</T>
+          <T variant="small" color={colors.onDark}>{forum.dateLabel}</T>
+          <T variant="meta" color={colors.onDarkSoft}>{forum.placeLabel}</T>
+          <View style={styles.countRow}>
+            <T variant="display" color={colors.onDark}>{count}</T>
+            <T variant="small" color={colors.onDarkSoft}>{countCaption}</T>
+          </View>
+          <T variant="meta" color={colors.gold}>{phaseLabel(phase)}</T>
+          {next ? (
+            <Link href={{ pathname: "/session/[id]", params: { id: next.id } }} asChild>
+              <Pressable accessibilityRole="button" style={styles.next}>
+                <T variant="eyebrow" color={colors.gold}>Next session</T>
+                <T variant="rowTitle" color={colors.onDark}>{next.title}</T>
+                <T variant="meta" color={colors.onDarkSoft}>{sessionWhen(next)} · {next.island}</T>
+              </Pressable>
+            </Link>
+          ) : null}
+          <InstallHint tone="dark" />
+        </Glass>
+        <Glass tone="dark" style={styles.block}>
+          <T variant="eyebrow" color={colors.gold}>Five pillars</T>
+          {forum.pillars.map((pillar) => (
+            <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
+              <Pressable accessibilityRole="button" style={styles.link}>
+                <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
+                <T variant="meta" color={colors.onDarkSoft}>{pillar.island} · {pillar.region}</T>
+              </Pressable>
+            </Link>
+          ))}
+        </Glass>
+        <Glass tone="dark" style={styles.block}>
+          <HomeLink href={{ pathname: "/agenda", params: { day: dayId } }} label="Program" detail="Day, pillar, island, type" />
+          <HomeLink href="/transport" label="Sample transport" detail="Three unconfirmed routes" />
+          <HomeLink href="/stays" label="Accommodations" detail={stays.brochureNote} />
+          <HomeLink href={{ pathname: "/venue/[id]", params: { id: venues[0]?.id ?? "st-thomas" } }} label="Island stops" detail="Specific venue to be confirmed" />
+          <HomeLink href="/ticket" label="Pass preview" detail="No payment collected" />
+        </Glass>
+      </ScrollView>
     </View>
   );
 }
@@ -82,29 +82,17 @@ function HomeLink({
   return (
     <Link href={href} asChild>
       <Pressable accessibilityRole="button" style={styles.link}>
-        <T variant="rowTitle">{label}</T>
-        <T variant="meta">{detail}</T>
+        <T variant="rowTitle" color={colors.onDark}>{label}</T>
+        <T variant="meta" color={colors.onDarkSoft}>{detail}</T>
       </Pressable>
     </Link>
   );
 }
 
 const styles = StyleSheet.create({
-  frame: { flex: 1, backgroundColor: "#071B2A" },
-  heroCopy: { padding: pad, paddingTop: 72, paddingBottom: 22, gap: 6 },
-  sheet: { backgroundColor: colors.paper, paddingTop: 8 },
-  notice: { margin: pad, padding: 14, gap: 8, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised },
-  section: { paddingHorizontal: pad, marginTop: 8, marginBottom: 8 },
-  pillar: {
-    marginHorizontal: pad,
-    marginBottom: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
-    gap: 2,
-  },
-  links: { paddingHorizontal: pad, gap: 8, paddingBottom: 12 },
-  link: { paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line, gap: 2 },
+  frame: { flex: 1, backgroundColor: "#071421" },
+  countRow: { flexDirection: "row", alignItems: "flex-end", gap: 10, marginTop: 8 },
+  next: { marginTop: 12, padding: 12, borderRadius: 16, borderWidth: 1, borderColor: "rgba(201,162,74,0.45)", gap: 3 },
+  block: { marginTop: 12 },
+  link: { paddingVertical: 8, gap: 2 },
 });

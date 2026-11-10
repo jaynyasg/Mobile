@@ -17,6 +17,8 @@ export default function MoreScreen() {
         { href: "/ticket", label: "Pass preview", detail: "Prices shown as a demo. No payment." },
         { href: "/notifications", label: "Notifications", detail: "Notices taken from the source", badge: unread || undefined },
         { href: "/assistant", label: "Guide", detail: "Answers from the program, on this device" },
+        { href: "/speakers", label: "Panelists", detail: "Roster from the website" },
+        { href: "/network", label: "Network", detail: "Opt-in introductions" },
       ],
     },
     {
@@ -33,7 +35,7 @@ export default function MoreScreen() {
   ];
 
   return (
-    <Screen>
+    <Screen docked photo="/venues/emerald-beach-resort/img_1438-1280.webp">
       <PageHeader kicker="TATEL" title="More" />
       {groups.map((group) => (
         <ViewSection key={group.title} title={group.title} items={group.items} />

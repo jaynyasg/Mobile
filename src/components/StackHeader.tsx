@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: colors.paper,
+    backgroundColor: "rgba(255,255,255,0.72)",
   },
   back: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
   title: { flex: 1 },

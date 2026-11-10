@@ -1,10 +1,11 @@
 import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { panelistById } from "@/content";
 import { useContent } from "@/content/provider";
 import { displayCopy } from "@/content/display";
 import type { SessionKind } from "@/content/types";
+import { Glass } from "@/components/Glass";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { SessionRow } from "@/components/SessionRow";
@@ -13,7 +14,7 @@ import { Chip, EmptyState, PageHeader } from "@/components/ui";
 import { filterAgenda } from "@/logic/agenda";
 import { suggestedDayId } from "@/logic/phase";
 import { useApp } from "@/store";
-import { colors, pad } from "@/theme";
+import { colors, pad, sceneForIsland } from "@/theme";
 
 const kinds: { id: SessionKind; label: string }[] = [
   { id: "all", label: "All" },
@@ -53,14 +54,15 @@ export default function AgendaScreen() {
   const selectedPerson = panelistId === "all" ? undefined : panelistById(panelistId);
 
   return (
-    <Screen>
-      <PageHeader kicker="AST" title="Agenda" subtitle={`${forum.draftNotice} ${displayCopy(forum.timingNote)}`} />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-        {forum.days.map((day) => (
-          <Chip key={day.id} label={`${day.shortWeekday} ${day.dayNumber}`} selected={dayId === day.id} onPress={() => setDayId(day.id)} />
+    <Screen docked photo={sceneForIsland(island === "all" ? "St. Thomas" : island)}>
+      <PageHeader kicker="AST" title="Program" subtitle={`${forum.draftNotice} ${displayCopy(forum.timingNote)}`} />
+      <Glass padded={false} blur={false} style={styles.days}>
+        {[...forum.days.map((day) => ({ id: day.id, label: `${day.shortWeekday} ${day.dayNumber}` })), { id: "all", label: "All" }].map((day) => (
+          <Pressable key={day.id} accessibilityRole="button" accessibilityState={{ selected: dayId === day.id }} onPress={() => setDayId(day.id)} style={[styles.day, dayId === day.id && styles.dayOn]}>
+            <T variant="meta" color={dayId === day.id ? colors.ivory : colors.ink} style={styles.dayLabel}>{day.label}</T>
+          </Pressable>
         ))}
-        <Chip label="All days" selected={dayId === "all"} onPress={() => setDayId("all")} />
-      </ScrollView>
+      </Glass>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
         {kinds.map((item) => (
           <Chip key={item.id} label={item.label} selected={kind === item.id} onPress={() => setKind(item.id)} />
@@ -110,6 +112,10 @@ export default function AgendaScreen() {
 }
 
 const styles = StyleSheet.create({
+  days: { marginHorizontal: pad, marginBottom: 10, flexDirection: "row", padding: 4 },
+  day: { flex: 1, minHeight: 36, alignItems: "center", justifyContent: "center", borderRadius: 16 },
+  dayOn: { backgroundColor: colors.turquoise },
+  dayLabel: { fontSize: 12, lineHeight: 14, textAlign: "center" },
   chips: { paddingHorizontal: pad, gap: 8, paddingBottom: 8 },
   search: { paddingHorizontal: pad, paddingBottom: 8 },
   note: { paddingHorizontal: pad, paddingBottom: 8, color: colors.inkSoft },

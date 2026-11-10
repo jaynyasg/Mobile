@@ -4,6 +4,7 @@ import { dayById, forum, panelistById, participationLabel, pillarById, placesFor
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
 import { sessionWhen } from "@/components/SessionRow";
+import { Glass } from "@/components/Glass";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -13,7 +14,7 @@ import { portraits } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
 import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
-import { colors, pad } from "@/theme";
+import { colors, pad, sceneForIsland } from "@/theme";
 
 export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -40,9 +41,9 @@ export default function SessionScreen() {
   const kind = session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session";
 
   return (
-    <Screen edge="none">
+    <Screen edge="none" photo={sceneForIsland(session.island)}>
       <StackHeader title={day?.label} />
-      <View style={styles.pad}>
+      <Glass style={styles.pad}>
         <T variant="eyebrow">{session.optional ? `${kind} · Optional` : kind}</T>
         <T variant="title">{displayCopy(session.title)}</T>
         <T variant="meta">
@@ -78,7 +79,7 @@ export default function SessionScreen() {
             <PrimaryButton label="Save to My Schedule" onPress={() => dispatch({ type: "toggleFavorite", id: session.id })} />
           )}
         </View>
-      </View>
+      </Glass>
       {candidates.map((place) => {
         const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
         return (

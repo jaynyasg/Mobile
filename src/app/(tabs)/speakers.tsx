@@ -17,7 +17,7 @@ export default function PanelistsScreen() {
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
 
   return (
-    <Screen>
+    <Screen docked photo="/venues/emerald-beach-resort/img_1438-1280.webp">
       <PageHeader
         kicker={`${panelists.length} panelists`}
         title="Panelists"

@@ -20,7 +20,7 @@ export default function NetworkScreen() {
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
 
   return (
-    <Screen>
+    <Screen docked photo="/venues/hideout-white-bay/img_2673-1280.webp">
       <PageHeader
         kicker="On this device"
         title="Network"
