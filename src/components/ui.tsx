@@ -1,6 +1,7 @@
 import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { colors, fonts, pad } from "@/theme";
+import { shimmerStyle } from "./gloss";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 
@@ -36,7 +37,7 @@ export function PrimaryButton({
       accessibilityRole="button"
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.primary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}
+      style={({ pressed }) => [styles.primary, shimmerStyle(), disabled && styles.disabled, pressed && !disabled && styles.pressed]}
     >
       <T variant="button" color={colors.ink}>
         {label}
@@ -136,6 +137,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 18,
     paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,248,220,0.8)",
+    shadowColor: "#E7C56A",
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
   },
   secondary: {
     minHeight: 48,
@@ -154,7 +161,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(247,244,239,0.45)",
+    borderColor: "rgba(255,224,138,0.55)",
     backgroundColor: "rgba(7,18,32,0.28)",
     paddingHorizontal: 12,
     paddingVertical: 7,

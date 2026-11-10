@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { useAuth } from "@/community/auth";
+import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -39,7 +40,7 @@ export default function SignInScreen() {
         <T variant="title" color={colors.onDark}>Your email</T>
         <T variant="small" color={colors.onDarkSoft}>A 6-digit code, kept in this app.</T>
         <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colors.onDarkSoft} style={styles.input} accessibilityLabel="Email" />
-        <Pressable accessibilityRole="button" onPress={send} style={styles.button}>
+        <Pressable accessibilityRole="button" onPress={send} style={[styles.button, shimmerStyle()]}>
           <T variant="button" color={colors.ink}>Send code</T>
         </Pressable>
         {sent ? (

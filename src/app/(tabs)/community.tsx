@@ -10,6 +10,7 @@ import { pickCommunityPhoto } from "@/community/photo";
 import { MemoryCommunity } from "@/community/memory";
 import type { CommunityPost } from "@/community/types";
 import { Glass } from "@/components/Glass";
+import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
 import { colors, fonts, pad, scenePhotos } from "@/theme";
@@ -91,7 +92,7 @@ export default function CommunityScreen() {
     <Screen docked photo={scenePhotos.community}>
       <View style={styles.pad}>
         <T variant="eyebrow" color={colors.gold}>TATEL</T>
-        <T variant="title" color={colors.onDark}>Community</T>
+        <T variant="title" foil>Community</T>
         <View style={styles.row}>
           <Link href="/community-room" asChild>
             <Pressable accessibilityRole="button" style={styles.pill}>
@@ -128,7 +129,7 @@ export default function CommunityScreen() {
             }} style={styles.link}>
               <T variant="small">{photoName ?? "Add photo"}</T>
             </Pressable>
-            <Pressable accessibilityRole="button" onPress={publish} style={styles.button}>
+            <Pressable accessibilityRole="button" onPress={publish} style={[styles.button, shimmerStyle()]}>
               <T variant="button" color={colors.ink}>Post</T>
             </Pressable>
             {error ? <T variant="meta">{error}</T> : null}

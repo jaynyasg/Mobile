@@ -1,5 +1,5 @@
+import { createElement, ReactNode } from "react";
 import { Platform, StyleSheet, View, ViewStyle } from "react-native";
-import { ReactNode } from "react";
 import { radius } from "@/theme";
 
 export function backdropBlurSupported(): boolean {
@@ -40,13 +40,29 @@ export function Glass({
         styles.base,
         {
           backgroundColor,
-          borderColor: tone === "dark" ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.9)",
+          borderColor: "rgba(255,224,138,0.55)",
           padding: padded ? 16 : 0,
+          shadowColor: "#E7C56A",
+          shadowOpacity: 0.28,
+          shadowRadius: 18,
         },
         blurStyle,
         style,
       ]}
     >
+      {Platform.OS === "web"
+        ? createElement("div", {
+            style: {
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: "46%",
+              background: "linear-gradient(to bottom, rgba(255,255,255,0.34), rgba(255,255,255,0) 72%)",
+              pointerEvents: "none",
+            },
+          })
+        : <View pointerEvents="none" style={styles.sheen} />}
       {children}
     </View>
   );
@@ -57,9 +73,10 @@ const styles = StyleSheet.create({
     borderRadius: radius,
     borderWidth: 1,
     overflow: "hidden",
-    shadowColor: "#0B1B2B",
-    shadowOpacity: 0.16,
+    shadowColor: "#E7C56A",
+    shadowOpacity: 0.22,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
   },
+  sheen: { position: "absolute", left: 0, right: 0, top: 0, height: "42%", backgroundColor: "rgba(255,255,255,0.14)" },
 });

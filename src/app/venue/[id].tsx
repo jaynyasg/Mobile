@@ -2,6 +2,7 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { placeById, placesForIsland, venueById } from "@/content";
+import { shimmerStyle } from "@/components/gloss";
 import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
@@ -75,7 +76,7 @@ function PlaceScreen({ placeId }: { placeId: string }) {
         <T variant="title" color={colors.onDark}>{place.name}</T>
         <T variant="meta" color={colors.onDarkSoft}>A candidate place. Not assigned to a session yet.</T>
         {place.models.length ? (
-          <Pressable accessibilityRole="button" onPress={() => setShowModels((open) => !open)} style={styles.gold}>
+            <Pressable accessibilityRole="button" onPress={() => setShowModels((open) => !open)} style={[styles.gold, shimmerStyle()]}>
             <T variant="button" color={colors.ink}>{showModels ? "Hide 3D" : "View in 3D"}</T>
           </Pressable>
         ) : null}

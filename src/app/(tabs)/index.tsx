@@ -44,7 +44,7 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
         <View style={styles.copy}>
-          <T variant="display" color={colors.gold}>{forum.edition}</T>
+          <T variant="display" foil>{forum.edition}</T>
           <T variant="small" color={colors.onDark}>{forum.dateLabel}</T>
           <View style={styles.countRow}>
             <T variant="title" color={colors.onDark}>{count}</T>
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   install: { position: "absolute", left: 16 },
   lower: { position: "absolute", left: 0, right: 0 },
   islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
-  island: { width: 132, height: 168, borderRadius: 14, overflow: "hidden", justifyContent: "flex-end" },
+  island: { width: 132, height: 168, borderRadius: 14, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },
   islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   islandCopy: { padding: 10, gap: 2 },
   copy: { paddingHorizontal: 22, gap: 2 },

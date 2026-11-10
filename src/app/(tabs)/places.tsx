@@ -13,7 +13,7 @@ export default function VenuesTab() {
     <Screen docked photo={scenePhotos.community}>
       <View style={styles.header}>
         <T variant="eyebrow" color={colors.gold}>Islands</T>
-        <T variant="title" color={colors.onDark}>Venues</T>
+        <T variant="title" foil>Venues</T>
       </View>
       {program.venues.map((venue) => (
         <View key={venue.id}>
@@ -42,7 +42,7 @@ export default function VenuesTab() {
 const styles = StyleSheet.create({
   header: { paddingHorizontal: 22, paddingTop: 8, paddingBottom: 12, gap: 4 },
   island: { paddingHorizontal: 22, marginTop: 8, marginBottom: 8 },
-  card: { marginHorizontal: 22, marginBottom: 14, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  card: { marginHorizontal: 22, marginBottom: 14, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1, borderColor: "rgba(255,224,138,0.5)" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   copy: { padding: 14, gap: 2 },
 });

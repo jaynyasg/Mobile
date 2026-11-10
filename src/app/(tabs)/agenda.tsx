@@ -61,7 +61,7 @@ export default function AgendaScreen() {
     <View style={styles.frame}>
       <Screen docked photo={sceneForIsland(island === "all" ? "St. Thomas" : island)}>
         <View style={styles.titleRow}>
-          <T variant="title" color={colors.onDark}>Program</T>
+          <T variant="title" foil>Program</T>
           <Pressable accessibilityRole="button" accessibilityLabel="About this draft" onPress={() => setNote((open) => !open)} style={styles.info}>
             <T variant="meta" color={colors.gold}>i</T>
           </Pressable>
@@ -146,13 +146,13 @@ const styles = StyleSheet.create({
   info: { width: 28, height: 28, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.gold, alignItems: "center", justifyContent: "center" },
   note: { paddingHorizontal: 22, paddingTop: 8 },
   days: { paddingHorizontal: 22, gap: 8, paddingTop: 16, paddingBottom: 8 },
-  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(247,244,239,0.4)", backgroundColor: "rgba(7,18,32,0.28)" },
+  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.55)", backgroundColor: "rgba(7,18,32,0.28)" },
   dayOn: { backgroundColor: colors.turquoise, borderColor: colors.turquoise },
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },
   filter: { paddingVertical: 8 },
   search: { flex: 1 },
   carousel: { paddingHorizontal: 22, gap: 12, paddingVertical: 8 },
-  feature: { width: 210, height: 132, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  feature: { width: 210, height: 132, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },
   featurePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   featureCopy: { padding: 12, gap: 2 },
   sheet: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, justifyContent: "flex-end" },

@@ -32,7 +32,7 @@ export function BeaconBackground() {
             muted: true,
             loop: true,
             playsInline: true,
-            poster: "/beacon/beacon-poster.jpg",
+            poster: "/beacon/harbor-poster.jpg",
             onError: () => setStill(true),
             ref: (node: HTMLVideoElement | null) => {
               if (!node) return;
@@ -42,15 +42,16 @@ export function BeaconBackground() {
             },
             style: { width: "100%", height: "100%", objectFit: "cover" },
           },
-          createElement("source", { src: "/beacon/beacon-720.webm", type: "video/webm" }),
-          createElement("source", { src: "/beacon/beacon-720.mp4", type: "video/mp4" }),
+          createElement("source", { src: "/beacon/harbor-720.webm", type: "video/webm" }),
+          createElement("source", { src: "/beacon/harbor-720.mp4", type: "video/mp4" }),
         )
       )}
       {createElement("div", {
         style: {
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to bottom, rgba(6,14,24,0.12) 0%, rgba(6,14,24,0.28) 38%, rgba(6,14,24,0.78) 70%, rgba(6,14,24,0.88) 100%)",
+          background:
+            "linear-gradient(to bottom, rgba(6,14,24,0.18) 0%, rgba(6,14,24,0.08) 36%, rgba(6,14,24,0.55) 72%, rgba(6,14,24,0.84) 100%), radial-gradient(ellipse at 72% 12%, rgba(255,210,120,0.28), transparent 42%)",
         },
       })}
     </View>
