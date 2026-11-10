@@ -9,6 +9,7 @@ import { createPost, deletePost, explainCommunityError, hidePost, listPosts, sen
 import { pickCommunityPhoto } from "@/community/photo";
 import { MemoryCommunity } from "@/community/memory";
 import type { CommunityPost } from "@/community/types";
+import { CrystalMark } from "@/components/CrystalMark";
 import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
@@ -92,7 +93,7 @@ export default function CommunityScreen() {
   return (
     <Screen docked photo={backgrounds.community.day} night={backgrounds.community.night} phase={backgrounds.community.phase}>
       <Glass tone="dark" style={styles.pad}>
-        <T variant="eyebrow" color={colors.gold}>TATEL</T>
+        <CrystalMark size="mark" />
         <T variant="title" foil>Community</T>
         <View style={styles.row}>
           <Link href="/community-room" asChild>

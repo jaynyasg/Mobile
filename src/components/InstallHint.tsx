@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { CrystalMark } from "./CrystalMark";
 import { T } from "./Text";
 import { colors } from "@/theme";
 
@@ -8,6 +9,7 @@ export function InstallHint() {
   if (dismissed) return null;
   return (
     <View style={styles.pill}>
+      <CrystalMark size="mark" />
       <T variant="meta" color={colors.onDark}>Add to Home Screen</T>
       <Pressable accessibilityRole="button" accessibilityLabel="Dismiss install hint" onPress={() => setDismissed(true)} hitSlop={8}>
         <T variant="meta" color={colors.gold}>Close</T>

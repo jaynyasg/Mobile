@@ -1,6 +1,7 @@
 import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { colors, fonts, pad } from "@/theme";
+import { CrystalMark } from "./CrystalMark";
 import { Glass } from "./Glass";
 import { shimmerStyle } from "./gloss";
 import { Icon } from "./Icon";
@@ -9,7 +10,7 @@ import { T } from "./Text";
 export function PageHeader({ kicker, title, subtitle }: { kicker?: string; title: string; subtitle?: string }) {
   return (
     <Glass tone="dark" style={styles.header}>
-      {kicker ? <T variant="eyebrow" color={colors.gold}>{kicker}</T> : null}
+      {kicker === "TATEL" ? <CrystalMark size="mark" /> : kicker ? <T variant="eyebrow" color={colors.gold}>{kicker}</T> : null}
       <T variant="title" foil>{title}</T>
       {subtitle ? <T variant="meta" color={colors.onDarkSoft} style={styles.subtitle}>{subtitle}</T> : null}
     </Glass>

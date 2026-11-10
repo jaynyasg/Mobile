@@ -1,4 +1,15 @@
 import { scenePhotos } from "@/theme";
+import { homeMedia } from "./homeMedia";
+
+export type SceneLoop = { mp4: string; webm?: string; poster: string };
+
+// Per-screen loops. Missing keys use the Home day-night clip until the venue files arrive.
+export const screenLoops: Record<string, SceneLoop> = {};
+
+export function loopFor(phase?: string): SceneLoop {
+  if (phase && screenLoops[phase]) return screenLoops[phase];
+  return { mp4: homeMedia.mp4, webm: homeMedia.webm, poster: homeMedia.poster };
+}
 
 export type ScenePlate = {
   day: string;

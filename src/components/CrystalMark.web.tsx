@@ -1,59 +1,43 @@
 import { createElement } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, TextStyle, View } from "react-native";
+import { T } from "./Text";
 
-const diamond = "0,-7 1.4,-1.4 7,0 1.4,1.4 0,7 -1.4,1.4 -7,0 -1.4,-1.4";
+const shadow = {
+  textShadow: "0 2px 10px rgba(7,20,34,0.92), 0 0 2px rgba(7,20,34,0.95)",
+} as TextStyle;
 
-export function CrystalMark() {
+export function CrystalMark({ size = "hero" }: { size?: "hero" | "mark" }) {
+  const hero = size === "hero";
   return (
-    <View style={styles.wrap} accessibilityRole="header" accessibilityLabel="TATEL">
-      {createElement(
-        "svg",
-        { viewBox: "0 0 440 108", width: "100%", height: "100%", role: "img", "aria-label": "TATEL" },
-        createElement(
-          "defs",
-          null,
-          createElement(
-            "linearGradient",
-            { id: "tatel-facet", x1: "0", y1: "0", x2: "1", y2: "1" },
-            createElement("stop", { offset: "0%", stopColor: "#F7FBFF" }),
-            createElement("stop", { offset: "20%", stopColor: "#B9E6FF" }),
-            createElement("stop", { offset: "38%", stopColor: "#FFFFFF" }),
-            createElement("stop", { offset: "54%", stopColor: "#E6D6FF" }),
-            createElement("stop", { offset: "72%", stopColor: "#FFF3CC" }),
-            createElement("stop", { offset: "100%", stopColor: "#9ED4EA" }),
-          ),
-          createElement(
-            "filter",
-            { id: "tatel-halo", x: "-20%", y: "-40%", width: "140%", height: "180%" },
-            createElement("feDropShadow", { dx: "0", dy: "2", stdDeviation: "2.4", floodColor: "#071422", floodOpacity: "0.78" }),
-          ),
-        ),
-        createElement(
-          "text",
-          {
-            x: "220",
-            y: "78",
-            textAnchor: "middle",
-            fill: "url(#tatel-facet)",
-            stroke: "#071422",
-            strokeWidth: "2.6",
-            filter: "url(#tatel-halo)",
-            style: {
-              fontFamily: "BodoniModa-SemiBold, 'Bodoni Moda', serif",
-              fontSize: "72px",
-              letterSpacing: "12px",
-              paintOrder: "stroke fill",
-            },
-          },
-          "TATEL",
-        ),
-        createElement("polygon", { points: diamond, transform: "translate(28 54)", className: "tatel-twinkle", fill: "#F7FBFF", stroke: "#071422", strokeWidth: "0.6" }),
-        createElement("polygon", { points: diamond, transform: "translate(412 54)", className: "tatel-twinkle tatel-twinkle-late", fill: "#D7FFF4", stroke: "#071422", strokeWidth: "0.6" }),
-      )}
+    <View style={[styles.row, hero ? styles.hero : styles.mark]} accessibilityRole="header" accessibilityLabel="TATEL">
+      {hero ? <Spark /> : null}
+      <T variant={hero ? "display" : "eyebrow"} foil style={hero ? [styles.heroText, shadow] : [styles.markText, shadow]}>
+        TATEL
+      </T>
+      {hero ? <Spark late /> : null}
     </View>
   );
 }
 
+function Spark({ late = false }: { late?: boolean }) {
+  return createElement("span", {
+    "aria-hidden": true,
+    className: late ? "tatel-twinkle tatel-twinkle-late" : "tatel-twinkle",
+    style: {
+      width: 8,
+      height: 8,
+      background: "#FFE08A",
+      transform: "rotate(45deg)",
+      boxShadow: "0 0 6px rgba(255,224,138,0.9)",
+      display: "inline-block",
+    },
+  });
+}
+
 const styles = StyleSheet.create({
-  wrap: { width: "86%", maxWidth: 420, aspectRatio: 440 / 108 },
+  row: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
+  hero: { width: "100%" },
+  mark: { alignSelf: "flex-start" },
+  heroText: { fontSize: 40, lineHeight: 48, letterSpacing: 10, textAlign: "center" },
+  markText: { letterSpacing: 3, color: "#FFE08A" },
 });

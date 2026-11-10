@@ -1,3 +1,4 @@
+import { useIsFocused } from "expo-router";
 import { createElement, useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { homeMedia } from "./homeMedia";
@@ -10,6 +11,7 @@ function wantsStillFrame(): boolean {
 }
 
 export function BeaconBackground() {
+  const focused = useIsFocused();
   const [still, setStill] = useState(wantsStillFrame);
 
   useEffect(() => {
@@ -22,9 +24,8 @@ export function BeaconBackground() {
 
   return (
     <View pointerEvents="none" style={styles.fill}>
-      {still ? (
-        <Image source={{ uri: homeMedia.poster }} style={styles.media} resizeMode="cover" accessibilityIgnoresInvertColors />
-      ) : (
+      <Image source={{ uri: homeMedia.poster }} style={styles.media} resizeMode="cover" accessibilityIgnoresInvertColors />
+      {!still && focused ? (
         createElement(
           "video",
           {
@@ -40,12 +41,12 @@ export function BeaconBackground() {
               const attempt = node.play();
               if (attempt) attempt.catch(() => setStill(true));
             },
-            style: { width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" },
+            style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" },
           },
           createElement("source", { src: homeMedia.webm, type: "video/webm" }),
           createElement("source", { src: homeMedia.mp4, type: "video/mp4" }),
         )
-      )}
+      ) : null}
       {createElement("div", {
         style: {
           position: "absolute",

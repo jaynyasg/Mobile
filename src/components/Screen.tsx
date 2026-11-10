@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { loopFor } from "./backgrounds";
 import { SceneBackground } from "./Scene";
 import { scenePhotos } from "@/theme";
 
@@ -24,6 +25,7 @@ export function Screen({
   phase?: string;
   docked?: boolean;
 }) {
+  const loop = loopFor(phase);
   const insets = useSafeAreaInsets();
   const paddingTop = edge === "top" ? insets.top + 8 : 0;
   const paddingBottom = (docked ? 108 : 28) + insets.bottom;
@@ -36,7 +38,7 @@ export function Screen({
   );
   return (
     <View style={styles.fill}>
-      {photo ? <SceneBackground day={photo} night={night ?? photo} phase={phase ?? photo} /> : null}
+      {photo ? <SceneBackground day={photo} night={night ?? photo} phase={phase ?? photo} video={loop.mp4} videoWebm={loop.webm} poster={loop.poster} /> : null}
       <StatusBar style={statusBar === "light" ? "light" : "dark"} />
       {body}
     </View>

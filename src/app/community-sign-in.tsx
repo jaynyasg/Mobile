@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { useAuth } from "@/community/auth";
+import { CrystalMark } from "@/components/CrystalMark";
 import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
@@ -39,6 +40,7 @@ export default function SignInScreen() {
     <Screen edge="none" photo={backgrounds.signIn.day} night={backgrounds.signIn.night} phase={backgrounds.signIn.phase}>
       <StackHeader title="Sign in" />
       <Glass style={styles.pad}>
+        <CrystalMark size="mark" />
         <T variant="title">Your email</T>
         <T variant="small">A 6-digit code, kept in this app.</T>
         <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Email" />
