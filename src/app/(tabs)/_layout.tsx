@@ -48,6 +48,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="community"
+        options={{
+          title: "Community",
+          tabBarIcon: ({ color, size }) => <TabIcon name="chat" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
         name="speakers"
         options={{
           title: "Panelists",
