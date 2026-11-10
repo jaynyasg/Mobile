@@ -23,19 +23,20 @@ export function Glass({
   style?: ViewStyle | ViewStyle[];
 }) {
   const frosted = blur && backdropBlurSupported();
-  const backgroundColor =
-    tone === "dark"
-      ? frosted
-        ? "rgba(8,16,28,0.55)"
-        : "rgba(8,16,28,0.88)"
-      : frosted
-        ? "rgba(255,255,255,0.58)"
-        : "rgba(255,255,255,0.92)";
-  const blurStyle = frosted
+  const backgroundColor = tone === "dark" ? "rgba(8,16,28,0.9)" : "rgba(255,255,255,0.94)";
+  const crystal = frosted
     ? ({
-        backdropFilter: "blur(10px) saturate(1.15)",
-        WebkitBackdropFilter: "blur(10px) saturate(1.15)",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -8px 14px rgba(11,27,43,0.08), 0 8px 20px rgba(11,27,43,0.1)",
+        borderColor: "transparent",
+        backgroundColor: "transparent",
+        backgroundImage:
+          tone === "dark"
+            ? "linear-gradient(180deg, rgba(8,16,28,0.72), rgba(8,16,28,0.58)), linear-gradient(135deg, #ffffff 0%, #b7e6ff 20%, #e4d4ff 46%, #ffe7a8 74%, #ffffff 100%)"
+            : "linear-gradient(180deg, rgba(255,255,255,0.74), rgba(255,255,255,0.58)), linear-gradient(135deg, #ffffff 0%, #b7e6ff 20%, #e4d4ff 46%, #ffe7a8 72%, #e7fff6 100%)",
+        backgroundOrigin: "border-box",
+        backgroundClip: "padding-box, border-box",
+        backdropFilter: "blur(10px) saturate(1.2)",
+        WebkitBackdropFilter: "blur(10px) saturate(1.2)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -8px 12px rgba(11,27,43,0.08), 0 8px 18px rgba(11,27,43,0.12)",
       } as ViewStyle)
     : null;
   return (
@@ -44,13 +45,10 @@ export function Glass({
         styles.base,
         {
           backgroundColor,
-          borderColor: "rgba(255,224,138,0.55)",
+          borderColor: "rgba(255,255,255,0.85)",
           padding: padded ? 16 : 0,
-          shadowColor: "#E7C56A",
-          shadowOpacity: 0.28,
-          shadowRadius: 18,
         },
-        blurStyle,
+        crystal,
         style,
       ]}
     >
@@ -62,7 +60,7 @@ export function Glass({
               right: 0,
               top: 0,
               height: "100%",
-              background: "linear-gradient(128deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.08) 32%, rgba(255,255,255,0) 48%, rgba(255,224,138,0.16) 100%)",
+              background: "linear-gradient(128deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.06) 26%, rgba(255,255,255,0) 46%, rgba(255,224,138,0.14) 100%)",
               pointerEvents: "none",
             },
           })
@@ -75,7 +73,7 @@ export function Glass({
 const styles = StyleSheet.create({
   base: {
     borderRadius: radius,
-    borderWidth: 1,
+    borderWidth: 1.5,
     overflow: "hidden",
     shadowColor: "#E7C56A",
     shadowOpacity: 0.22,

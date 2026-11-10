@@ -6,7 +6,8 @@ import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { colors, fonts, pad, scenePhotos } from "@/theme";
+import { backgrounds } from "@/components/backgrounds";
+import { colors, fonts, pad } from "@/theme";
 
 export default function SignInScreen() {
   const auth = useAuth();
@@ -35,7 +36,7 @@ export default function SignInScreen() {
   }
 
   return (
-    <Screen edge="none" photo={scenePhotos.community}>
+    <Screen edge="none" photo={backgrounds.signIn.day} night={backgrounds.signIn.night} phase={backgrounds.signIn.phase}>
       <StackHeader title="Sign in" />
       <Glass style={styles.pad}>
         <T variant="title">Your email</T>

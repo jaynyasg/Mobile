@@ -15,6 +15,7 @@ import { Chip, EmptyState } from "@/components/ui";
 import { filterAgenda } from "@/logic/agenda";
 import { suggestedDayId } from "@/logic/phase";
 import { useApp } from "@/store";
+import { plateForIsland, backgrounds } from "@/components/backgrounds";
 import { colors, sceneForIsland } from "@/theme";
 
 const kinds: { id: SessionKind; label: string }[] = [
@@ -60,7 +61,7 @@ export default function AgendaScreen() {
 
   return (
     <View style={styles.frame}>
-      <Screen docked photo={sceneForIsland(island === "all" ? "St. Thomas" : island)}>
+      <Screen docked photo={(island === "all" ? backgrounds.program : plateForIsland(island, "program")).day} night={(island === "all" ? backgrounds.program : plateForIsland(island, "program")).night} phase="program">
         <Glass tone="dark" style={styles.titleRow}>
           <T variant="title" foil>Program</T>
           <Pressable accessibilityRole="button" accessibilityLabel="About this draft" onPress={() => setNote((open) => !open)} style={styles.info}>
@@ -150,13 +151,13 @@ const styles = StyleSheet.create({
   note: { paddingHorizontal: 22, paddingTop: 8 },
   count: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
   days: { paddingHorizontal: 22, gap: 8, paddingTop: 16, paddingBottom: 8 },
-  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,224,138,0.7)", backgroundColor: "rgba(255,255,255,0.62)" },
+  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: 1.5, borderColor: "rgba(255,255,255,0.9)", backgroundColor: "rgba(255,255,255,0.72)" },
   dayOn: { backgroundColor: colors.turquoise, borderColor: colors.turquoise },
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },
-  filter: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,224,138,0.7)", backgroundColor: "rgba(255,255,255,0.62)" },
+  filter: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1.5, borderColor: "rgba(255,255,255,0.9)", backgroundColor: "rgba(255,255,255,0.72)" },
   search: { flex: 1 },
   carousel: { paddingHorizontal: 22, gap: 12, paddingVertical: 8 },
-  feature: { width: 210, height: 132, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },
+  feature: { width: 210, height: 132, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.9)" },
   featurePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   featureCopy: { padding: 12, gap: 2 },
   sheet: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, justifyContent: "flex-end" },

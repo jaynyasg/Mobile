@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255,224,138,0.55)",
+    borderColor: "rgba(255,255,255,0.92)",
     backgroundColor: "rgba(255,255,255,0.58)",
   },
   photo: { width: 52, height: 64, backgroundColor: colors.muted },

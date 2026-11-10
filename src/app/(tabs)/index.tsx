@@ -1,8 +1,8 @@
 import { Link } from "expo-router";
-import { createElement } from "react";
-import { Image, Platform, Pressable, ScrollView, StyleSheet, TextStyle, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BeaconBackground } from "@/components/BeaconBackground";
+import { CrystalMark } from "@/components/CrystalMark";
 import { PhotoShade } from "@/components/PhotoShade";
 import { InstallHint } from "@/components/InstallHint";
 import { sessionWhen } from "@/components/SessionRow";
@@ -29,22 +29,8 @@ export default function HomeScreen() {
       <View style={[styles.install, { top: insets.top + 12 }]}>
         <InstallHint />
       </View>
-      <View pointerEvents="none" style={[styles.mark, { top: insets.top + 92 }]}>
-        {Platform.OS === "web"
-          ? createElement("div", {
-              "aria-hidden": true,
-              style: {
-                position: "absolute",
-                width: 280,
-                height: 72,
-                background: "radial-gradient(ellipse, rgba(255,214,120,0.42), rgba(255,214,120,0) 68%)",
-                filter: "blur(6px)",
-              },
-            })
-          : <View style={styles.glow} />}
-        <T accessibilityRole="header" variant="display" foil style={styles.tatel}>
-          TATEL
-        </T>
+      <View pointerEvents="none" style={[styles.mark, { top: insets.top + 64 }]}>
+        <CrystalMark />
       </View>
       <View style={[styles.lower, { bottom: insets.bottom + 86 }]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.islands}>
@@ -53,6 +39,7 @@ export default function HomeScreen() {
               <Pressable accessibilityRole="button" style={styles.island}>
                 <Image source={{ uri: sceneForIsland(pillar.island) }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 <PhotoShade />
+                <View style={styles.glint} />
                 <View style={styles.islandCopy}>
                   <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
                   <T variant="meta" color={colors.gold}>{pillar.island}</T>
@@ -64,7 +51,7 @@ export default function HomeScreen() {
         <View style={styles.copy}>
           <T variant="display" foil>{forum.edition}</T>
           <T variant="small" color={colors.onDark}>{forum.dateLabel}</T>
-          <View style={styles.countRow}>
+          <View style={styles.countPill}>
             <T variant="title" color={colors.onDark}>{count}</T>
             <T variant="meta" color={colors.onDarkSoft}>{countCaption}</T>
           </View>
@@ -101,28 +88,15 @@ function HomeLink({ href, label }: { href: "/transport" | "/stays" | "/ticket"; 
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
   install: { position: "absolute", left: 16 },
-  mark: { position: "absolute", left: 0, right: 0, alignItems: "center", justifyContent: "center" },
-  glow: { position: "absolute", width: 220, height: 48, borderRadius: 24, backgroundColor: "rgba(255,214,120,0.28)" },
-  tatel: {
-    fontSize: 36,
-    lineHeight: 44,
-    letterSpacing: 11,
-    textAlign: "center",
-    textShadowColor: "rgba(255,196,90,0.55)",
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 16,
-    ...({
-      backgroundImage: "linear-gradient(105deg, #e7c56a 0%, #fff6d2 30%, #f0c85a 52%, #fffaf0 74%, #e7c56a 100%)",
-      animationDuration: "14s",
-    } as TextStyle),
-  },
+  mark: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  glint: { position: "absolute", top: 8, right: 8, width: 6, height: 6, backgroundColor: "#F4FBFF", transform: [{ rotate: "45deg" }] },
+  countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1.5, borderColor: "rgba(255,255,255,0.85)", backgroundColor: "rgba(8,16,28,0.62)" },
   lower: { position: "absolute", left: 0, right: 0 },
   islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
-  island: { width: 132, height: 168, borderRadius: 14, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },
+  island: { width: 132, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.92)" },
   islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   islandCopy: { padding: 10, gap: 2 },
   copy: { paddingHorizontal: 22, gap: 2 },
-  countRow: { flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 4 },
   next: { marginTop: 10, gap: 2, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(201,162,74,0.55)", paddingTop: 8 },
   links: { flexDirection: "row", gap: 18, marginTop: 10 },
 });

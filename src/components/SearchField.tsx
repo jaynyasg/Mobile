@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   wrap: {
     minHeight: 44,
     borderWidth: 1,
-    borderColor: "rgba(255,224,138,0.55)",
+    borderColor: "rgba(255,255,255,0.92)",
     borderRadius: 16,
     backgroundColor: "rgba(255,255,255,0.62)",
     flexDirection: "row",

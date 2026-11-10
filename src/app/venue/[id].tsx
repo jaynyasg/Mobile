@@ -9,7 +9,8 @@ import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { VenueModel } from "@/components/VenueModel";
-import { colors, pad, sceneForIsland } from "@/theme";
+import { plateForIsland, plateForPhoto } from "@/components/backgrounds";
+import { colors, pad } from "@/theme";
 
 export default function VenueScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -26,7 +27,7 @@ export default function VenueScreen() {
   }
   const places = placesForIsland(venue.island);
   return (
-    <Screen edge="none" photo={sceneForIsland(venue.island)}>
+    <Screen edge="none" photo={plateForIsland(venue.island, `venue-${venue.id}`).day} night={plateForIsland(venue.island, `venue-${venue.id}`).night} phase={`venue-${venue.id}`}>
       <StackHeader title={venue.island} />
       <Glass style={styles.intro}>
         <T variant="eyebrow" color={colors.brass}>{venue.route}</T>
@@ -69,7 +70,7 @@ function PlaceScreen({ placeId }: { placeId: string }) {
   if (!place) return null;
   const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
   return (
-    <Screen edge="none" photo={hero?.webp1280 ?? sceneForIsland(place.island)} statusBar="light">
+    <Screen edge="none" photo={(hero ? plateForPhoto(hero.webp1280, place.id) : plateForIsland(place.island, place.id)).day} night={(hero ? plateForPhoto(hero.webp1280, place.id) : plateForIsland(place.island, place.id)).night} phase={`place-${place.id}`} statusBar="light">
       <StackHeader title={place.name} />
       <View style={styles.heroSpace} />
       <Glass style={styles.intro}>
@@ -102,7 +103,7 @@ function PlaceScreen({ placeId }: { placeId: string }) {
 
 const styles = StyleSheet.create({
   intro: { paddingHorizontal: 22, paddingTop: 28, gap: 6, paddingBottom: 8 },
-  card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.9)" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   copy: { padding: 12, gap: 2 },
   note: { paddingHorizontal: 22, paddingBottom: 12, gap: 6 },

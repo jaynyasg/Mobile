@@ -6,7 +6,8 @@ import { pickCommunityPhoto } from "@/community/photo";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { colors, fonts, pad, scenePhotos } from "@/theme";
+import { backgrounds } from "@/components/backgrounds";
+import { colors, fonts, pad } from "@/theme";
 
 export default function ProfileScreen() {
   const auth = useAuth();
@@ -16,7 +17,7 @@ export default function ProfileScreen() {
   const [note, setNote] = useState<string | null>(null);
 
   return (
-    <Screen edge="none" photo={scenePhotos.community}>
+    <Screen edge="none" photo={backgrounds.community.day} night={backgrounds.community.night} phase="profile">
       <StackHeader title="Profile" />
       <View style={styles.pad}>
         <T variant="small">Display name, an optional photo, and an optional title and company.</T>

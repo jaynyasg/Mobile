@@ -8,7 +8,8 @@ import type { CommunityMessage } from "@/community/types";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { colors, fonts, pad, scenePhotos } from "@/theme";
+import { backgrounds } from "@/components/backgrounds";
+import { colors, fonts, pad } from "@/theme";
 
 export default function CommunityRoomScreen() {
   const auth = useAuth();
@@ -89,7 +90,7 @@ export default function CommunityRoomScreen() {
   }
 
   return (
-    <Screen edge="none" scroll={false} photo={scenePhotos.community}>
+    <Screen edge="none" scroll={false} photo={backgrounds.chat.day} night={backgrounds.chat.night} phase={backgrounds.chat.phase}>
       <StackHeader title="Everyone" />
       {offline ? <T variant="body" style={styles.note}>Community is offline. The program is still available.</T> : null}
       {!auth.userId && !preview ? <T variant="body" style={styles.note}>Sign in to read the room.</T> : null}
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   note: { padding: pad },
   list: { padding: pad, gap: 8 },
-  bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.58)", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)", gap: 2 },
+  bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.72)", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.92)", gap: 2 },
   actions: { flexDirection: "row", gap: 16 },
   composer: { flexDirection: "row", gap: 8, padding: pad },
   input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,255,255,0.9)", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.88)", color: colors.ink, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },

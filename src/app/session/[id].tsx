@@ -14,6 +14,7 @@ import { portraits } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
 import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
+import { plateForIsland } from "@/components/backgrounds";
 import { colors, pad, sceneForIsland } from "@/theme";
 
 export default function SessionScreen() {
@@ -41,7 +42,7 @@ export default function SessionScreen() {
   const kind = session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session";
 
   return (
-    <Screen edge="none" photo={sceneForIsland(session.island)}>
+    <Screen edge="none" photo={plateForIsland(session.island, `session-${session.island}`).day} night={plateForIsland(session.island, `session-${session.island}`).night} phase={`session-${session.island}`}>
       <StackHeader title={day?.label} />
       <Glass style={styles.pad}>
         <T variant="eyebrow" color={colors.brass}>{session.optional ? `${kind} · Optional` : kind}</T>

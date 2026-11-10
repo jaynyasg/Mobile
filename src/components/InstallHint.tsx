@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 999,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(247,244,239,0.45)",
-    backgroundColor: "rgba(7,18,32,0.35)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.7)",
+    backgroundColor: "rgba(7,18,32,0.78)",
   },
 });

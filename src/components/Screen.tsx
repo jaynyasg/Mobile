@@ -11,6 +11,8 @@ export function Screen({
   edge = "top",
   statusBar = "light",
   photo = scenePhotos.day,
+  night,
+  phase,
   docked = false,
 }: {
   children: ReactNode;
@@ -18,6 +20,8 @@ export function Screen({
   edge?: "top" | "none";
   statusBar?: "dark" | "light";
   photo?: string | null;
+  night?: string | null;
+  phase?: string;
   docked?: boolean;
 }) {
   const insets = useSafeAreaInsets();
@@ -32,7 +36,7 @@ export function Screen({
   );
   return (
     <View style={styles.fill}>
-      {photo ? <SceneBackground uri={photo} /> : null}
+      {photo ? <SceneBackground day={photo} night={night ?? photo} phase={phase ?? photo} /> : null}
       <StatusBar style={statusBar === "light" ? "light" : "dark"} />
       {body}
     </View>

@@ -1,6 +1,6 @@
 import { createElement, useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { beaconPoster } from "@/images";
+import { homeMedia } from "./homeMedia";
 
 function wantsStillFrame(): boolean {
   if (typeof window === "undefined") return true;
@@ -23,7 +23,7 @@ export function BeaconBackground() {
   return (
     <View pointerEvents="none" style={styles.fill}>
       {still ? (
-        <Image source={beaconPoster} style={styles.media} resizeMode="cover" accessibilityIgnoresInvertColors />
+        <Image source={{ uri: homeMedia.poster }} style={styles.media} resizeMode="cover" accessibilityIgnoresInvertColors />
       ) : (
         createElement(
           "video",
@@ -32,7 +32,7 @@ export function BeaconBackground() {
             muted: true,
             loop: true,
             playsInline: true,
-            poster: "/beacon/ocean-poster.jpg",
+            poster: homeMedia.poster,
             onError: () => setStill(true),
             ref: (node: HTMLVideoElement | null) => {
               if (!node) return;
@@ -42,15 +42,15 @@ export function BeaconBackground() {
             },
             style: { width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" },
           },
-          createElement("source", { src: "/beacon/ocean.webm", type: "video/webm" }),
-          createElement("source", { src: "/beacon/ocean.mp4", type: "video/mp4" }),
+          createElement("source", { src: homeMedia.webm, type: "video/webm" }),
+          createElement("source", { src: homeMedia.mp4, type: "video/mp4" }),
         )
       )}
       {createElement("div", {
         style: {
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to bottom, rgba(6,14,24,0) 0%, rgba(6,14,24,0) 58%, rgba(6,14,24,0.5) 76%, rgba(6,14,24,0.84) 100%)",
+          background: "linear-gradient(to bottom, rgba(6,14,24,0.12) 0%, rgba(6,14,24,0) 18%, rgba(6,14,24,0) 46%, rgba(6,14,24,0.55) 70%, rgba(6,14,24,0.88) 100%)",
         },
       })}
     </View>
