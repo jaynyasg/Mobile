@@ -6,27 +6,32 @@ export type SceneLoop = {
   poster: string;
   posterNight: string;
   focus?: string;
+  zoom?: number;
 };
 
-function clip(name: string, focus = "center center"): SceneLoop {
+function clip(name: string, focus = "center center", zoom = 1): SceneLoop {
   const base = `/beacon/loops/${name}`;
   return {
     mp4: `${base}-loop.mp4`,
     poster: `${base}-poster-day.jpg`,
     posterNight: `${base}-poster-night.jpg`,
     focus,
+    zoom,
   };
 }
 
-const ritz = clip("ritz-terrace");
+// Zoom anchors the phone on the water. Landscape files still cannot
+// invent a pool that only exists in a corner; Gallows and Hideout pool
+// stay provisional until the portrait replacements arrive.
+const ritz = clip("ritz-terrace", "50% 46%", 1.5);
 const emerald = clip("emerald-path");
-const hideoutDeck = clip("hideout-deck", "32% center");
-const hideoutPool = clip("hideout-pool-deck", "58% center");
-const gallows = clip("gallows-terrace", "68% center");
-const lovango = clip("lovango-deck");
-const margaritaville = clip("margaritaville-balcony");
-const scrubPool = clip("scrub-villa-pool", "62% center");
-const scrubBeach = clip("scrub-beach-club");
+const hideoutDeck = clip("hideout-deck", "22% 55%", 1.8);
+const hideoutPool = clip("hideout-pool-deck", "78% 88%", 2.1);
+const gallows = clip("gallows-terrace", "82% 100%", 2.2);
+const lovango = clip("lovango-deck", "48% 42%", 1.55);
+const margaritaville = clip("margaritaville-balcony", "42% 55%", 1.35);
+const scrubPool = clip("scrub-villa-pool", "68% 58%", 1.45);
+const scrubBeach = clip("scrub-beach-club", "18% 78%", 1.8);
 
 function bind(loop: SceneLoop, phases: string[], into: Record<string, SceneLoop>) {
   for (const phase of phases) into[phase] = loop;

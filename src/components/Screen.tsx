@@ -46,6 +46,7 @@ export function Screen({
           video={loop.mp4}
           poster={loop.poster}
           focus={loop.focus}
+          zoom={loop.zoom}
         />
       ) : null}
       <StatusBar style={statusBar === "light" ? "light" : "dark"} />

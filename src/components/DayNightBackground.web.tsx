@@ -29,6 +29,7 @@ export function DayNightBackground({
   videoWebm,
   poster = homeMedia.poster,
   focus = "center center",
+  zoom = 1,
 }: {
   day?: string | null;
   night?: string | null;
@@ -37,6 +38,7 @@ export function DayNightBackground({
   videoWebm?: string | null;
   poster?: string | null;
   focus?: string;
+  zoom?: number;
 }) {
   const focused = useIsFocused();
   const dayUri = day || scenePhotos.day;
@@ -59,10 +61,19 @@ export function DayNightBackground({
 
   const playVideo = mode === "video" && focused && Boolean(video);
   const delay = `-${staggerSeconds(phase || dayUri)}s`;
-  const frame = { position: "absolute" as const, inset: 0, width: "100%", height: "100%", objectFit: "cover" as const, objectPosition: focus };
+  const frame = {
+    position: "absolute" as const,
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover" as const,
+    objectPosition: focus,
+    transform: zoom > 1 ? `scale(${zoom})` : undefined,
+    transformOrigin: focus,
+  };
 
   return (
-    <View pointerEvents="none" style={fill}>
+    <View pointerEvents="none" style={[fill, { overflow: "hidden" }]}>
       {createElement("img", {
         src: mode === "still" ? dayUri : mode === "crossfade" ? nightUri : posterUri,
         alt: "",
