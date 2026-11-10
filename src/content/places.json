@@ -1,0 +1,1735 @@
+[
+  {
+    "id": "ritz-carlton-st-thomas",
+    "name": "The Ritz-Carlton, St. Thomas",
+    "island": "St. Thomas",
+    "islandVenueId": "st-thomas",
+    "source": "accommodations",
+    "sourceNote": "Listed in the website Accommodations section.",
+    "hero": "/venues/ritz-carlton-st-thomas/img_2650-1280.webp",
+    "photos": [
+      {
+        "id": "img_1353",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1353",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1353-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1353-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1353-1280.jpg"
+      },
+      {
+        "id": "img_1355",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1355",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1355-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1355-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1355-1280.jpg"
+      },
+      {
+        "id": "img_1356",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1356",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1356-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1356-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1356-1280.jpg"
+      },
+      {
+        "id": "img_1357",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1357",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1357-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1357-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1357-1280.jpg"
+      },
+      {
+        "id": "img_1359",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1359",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1359-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1359-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1359-1280.jpg"
+      },
+      {
+        "id": "img_1360",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1360",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1360-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1360-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1360-1280.jpg"
+      },
+      {
+        "id": "img_1361",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1361",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1361-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1361-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1361-1280.jpg"
+      },
+      {
+        "id": "img_1363",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1363",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1363-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1363-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1363-1280.jpg"
+      },
+      {
+        "id": "img_1364",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1364",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1364-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1364-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1364-1280.jpg"
+      },
+      {
+        "id": "img_1365",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1365",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1365-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1365-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1365-1280.jpg"
+      },
+      {
+        "id": "img_1366",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1366",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1366-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1366-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1366-1280.jpg"
+      },
+      {
+        "id": "img_1367",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1367",
+        "hero": false,
+        "uncertain": true,
+        "confidence": "low",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1367-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1367-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1367-1280.jpg"
+      },
+      {
+        "id": "img_1368",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1368",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1368-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1368-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1368-1280.jpg"
+      },
+      {
+        "id": "img_1370",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1370",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1370-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1370-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1370-1280.jpg"
+      },
+      {
+        "id": "img_1371",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1371",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1371-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1371-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1371-1280.jpg"
+      },
+      {
+        "id": "img_1372",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1372",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1372-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1372-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1372-1280.jpg"
+      },
+      {
+        "id": "img_1373",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1373",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1373-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1373-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1373-1280.jpg"
+      },
+      {
+        "id": "img_1377",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1377",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1377-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1377-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1377-1280.jpg"
+      },
+      {
+        "id": "img_1378",
+        "alt": "The Ritz-Carlton, St. Thomas, img_1378",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_1378-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_1378-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_1378-1280.jpg"
+      },
+      {
+        "id": "img_2644",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2644",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2644-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2644-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2644-1280.jpg"
+      },
+      {
+        "id": "img_2645",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2645",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2645-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2645-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2645-1280.jpg"
+      },
+      {
+        "id": "img_2646",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2646",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2646-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2646-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2646-1280.jpg"
+      },
+      {
+        "id": "img_2647",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2647",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2647-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2647-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2647-1280.jpg"
+      },
+      {
+        "id": "img_2648",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2648",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2648-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2648-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2648-1280.jpg"
+      },
+      {
+        "id": "img_2649",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2649",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2649-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2649-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2649-1280.jpg"
+      },
+      {
+        "id": "img_2650",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2650",
+        "hero": true,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2650-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2650-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2650-1280.jpg"
+      },
+      {
+        "id": "img_2651",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2651",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2651-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2651-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2651-1280.jpg"
+      },
+      {
+        "id": "img_2652",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2652",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2652-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2652-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2652-1280.jpg"
+      },
+      {
+        "id": "img_2653",
+        "alt": "The Ritz-Carlton, St. Thomas, img_2653",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/ritz-carlton-st-thomas/img_2653-640.webp",
+        "webp1280": "/venues/ritz-carlton-st-thomas/img_2653-1280.webp",
+        "jpeg": "/venues/ritz-carlton-st-thomas/img_2653-1280.jpg"
+      }
+    ],
+    "models": []
+  },
+  {
+    "id": "margaritaville-vacation-club",
+    "name": "Margaritaville Vacation Club",
+    "island": "St. Thomas",
+    "islandVenueId": "st-thomas",
+    "source": "accommodations",
+    "sourceNote": "Listed in the website Accommodations section.",
+    "hero": "/venues/margaritaville-vacation-club/img_2660-1280.webp",
+    "photos": [
+      {
+        "id": "img_2654",
+        "alt": "Margaritaville Vacation Club, img_2654",
+        "hero": false,
+        "uncertain": true,
+        "confidence": "low",
+        "webp640": "/venues/margaritaville-vacation-club/img_2654-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2654-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2654-1280.jpg"
+      },
+      {
+        "id": "img_2655",
+        "alt": "Margaritaville Vacation Club, img_2655",
+        "hero": false,
+        "uncertain": true,
+        "confidence": "low",
+        "webp640": "/venues/margaritaville-vacation-club/img_2655-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2655-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2655-1280.jpg"
+      },
+      {
+        "id": "img_2656",
+        "alt": "Margaritaville Vacation Club, img_2656",
+        "hero": false,
+        "uncertain": true,
+        "confidence": "low",
+        "webp640": "/venues/margaritaville-vacation-club/img_2656-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2656-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2656-1280.jpg"
+      },
+      {
+        "id": "img_2657",
+        "alt": "Margaritaville Vacation Club, img_2657",
+        "hero": false,
+        "uncertain": true,
+        "confidence": "low",
+        "webp640": "/venues/margaritaville-vacation-club/img_2657-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2657-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2657-1280.jpg"
+      },
+      {
+        "id": "img_2658",
+        "alt": "Margaritaville Vacation Club, img_2658",
+        "hero": false,
+        "uncertain": true,
+        "confidence": "low",
+        "webp640": "/venues/margaritaville-vacation-club/img_2658-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2658-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2658-1280.jpg"
+      },
+      {
+        "id": "img_2659",
+        "alt": "Margaritaville Vacation Club, img_2659",
+        "hero": false,
+        "uncertain": true,
+        "confidence": "low",
+        "webp640": "/venues/margaritaville-vacation-club/img_2659-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2659-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2659-1280.jpg"
+      },
+      {
+        "id": "img_2660",
+        "alt": "Margaritaville Vacation Club, img_2660",
+        "hero": true,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/margaritaville-vacation-club/img_2660-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2660-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2660-1280.jpg"
+      },
+      {
+        "id": "img_2661",
+        "alt": "Margaritaville Vacation Club, img_2661",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/margaritaville-vacation-club/img_2661-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2661-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2661-1280.jpg"
+      },
+      {
+        "id": "img_2662",
+        "alt": "Margaritaville Vacation Club, img_2662",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/margaritaville-vacation-club/img_2662-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2662-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2662-1280.jpg"
+      },
+      {
+        "id": "img_2663",
+        "alt": "Margaritaville Vacation Club, img_2663",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/margaritaville-vacation-club/img_2663-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2663-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2663-1280.jpg"
+      },
+      {
+        "id": "img_2664",
+        "alt": "Margaritaville Vacation Club, img_2664",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/margaritaville-vacation-club/img_2664-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2664-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2664-1280.jpg"
+      },
+      {
+        "id": "img_2665",
+        "alt": "Margaritaville Vacation Club, img_2665",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/margaritaville-vacation-club/img_2665-640.webp",
+        "webp1280": "/venues/margaritaville-vacation-club/img_2665-1280.webp",
+        "jpeg": "/venues/margaritaville-vacation-club/img_2665-1280.jpg"
+      }
+    ],
+    "models": []
+  },
+  {
+    "id": "lovango-resort-beach-club",
+    "name": "Lovango Resort & Beach Club",
+    "island": "Lovango",
+    "islandVenueId": "lovango",
+    "source": "accommodations",
+    "sourceNote": "Listed in the website Accommodations section.",
+    "hero": "/venues/lovango-resort-beach-club/img_2666-1280.webp",
+    "photos": [
+      {
+        "id": "img_2666",
+        "alt": "Lovango Resort & Beach Club, img_2666",
+        "hero": true,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/lovango-resort-beach-club/img_2666-640.webp",
+        "webp1280": "/venues/lovango-resort-beach-club/img_2666-1280.webp",
+        "jpeg": "/venues/lovango-resort-beach-club/img_2666-1280.jpg"
+      },
+      {
+        "id": "img_2667",
+        "alt": "Lovango Resort & Beach Club, img_2667",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/lovango-resort-beach-club/img_2667-640.webp",
+        "webp1280": "/venues/lovango-resort-beach-club/img_2667-1280.webp",
+        "jpeg": "/venues/lovango-resort-beach-club/img_2667-1280.jpg"
+      },
+      {
+        "id": "img_2668",
+        "alt": "Lovango Resort & Beach Club, img_2668",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/lovango-resort-beach-club/img_2668-640.webp",
+        "webp1280": "/venues/lovango-resort-beach-club/img_2668-1280.webp",
+        "jpeg": "/venues/lovango-resort-beach-club/img_2668-1280.jpg"
+      },
+      {
+        "id": "img_2669",
+        "alt": "Lovango Resort & Beach Club, img_2669",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/lovango-resort-beach-club/img_2669-640.webp",
+        "webp1280": "/venues/lovango-resort-beach-club/img_2669-1280.webp",
+        "jpeg": "/venues/lovango-resort-beach-club/img_2669-1280.jpg"
+      },
+      {
+        "id": "img_2670",
+        "alt": "Lovango Resort & Beach Club, img_2670",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/lovango-resort-beach-club/img_2670-640.webp",
+        "webp1280": "/venues/lovango-resort-beach-club/img_2670-1280.webp",
+        "jpeg": "/venues/lovango-resort-beach-club/img_2670-1280.jpg"
+      },
+      {
+        "id": "img_2671",
+        "alt": "Lovango Resort & Beach Club, img_2671",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/lovango-resort-beach-club/img_2671-640.webp",
+        "webp1280": "/venues/lovango-resort-beach-club/img_2671-1280.webp",
+        "jpeg": "/venues/lovango-resort-beach-club/img_2671-1280.jpg"
+      },
+      {
+        "id": "img_2672",
+        "alt": "Lovango Resort & Beach Club, img_2672",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/lovango-resort-beach-club/img_2672-640.webp",
+        "webp1280": "/venues/lovango-resort-beach-club/img_2672-1280.webp",
+        "jpeg": "/venues/lovango-resort-beach-club/img_2672-1280.jpg"
+      }
+    ],
+    "models": []
+  },
+  {
+    "id": "hideout-white-bay",
+    "name": "The Hideout, White Bay",
+    "island": "Jost Van Dyke",
+    "islandVenueId": "jost-van-dyke",
+    "source": "accommodations",
+    "sourceNote": "Listed in the website Accommodations section.",
+    "hero": "/venues/hideout-white-bay/img_2673-1280.webp",
+    "photos": [
+      {
+        "id": "img_2673",
+        "alt": "The Hideout, White Bay, img_2673",
+        "hero": true,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2673-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2673-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2673-1280.jpg"
+      },
+      {
+        "id": "img_2674",
+        "alt": "The Hideout, White Bay, img_2674",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2674-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2674-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2674-1280.jpg"
+      },
+      {
+        "id": "img_2675",
+        "alt": "The Hideout, White Bay, img_2675",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2675-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2675-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2675-1280.jpg"
+      },
+      {
+        "id": "img_2676",
+        "alt": "The Hideout, White Bay, img_2676",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2676-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2676-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2676-1280.jpg"
+      },
+      {
+        "id": "img_2677",
+        "alt": "The Hideout, White Bay, img_2677",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2677-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2677-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2677-1280.jpg"
+      },
+      {
+        "id": "img_2678",
+        "alt": "The Hideout, White Bay, img_2678",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2678-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2678-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2678-1280.jpg"
+      },
+      {
+        "id": "img_2679",
+        "alt": "The Hideout, White Bay, img_2679",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2679-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2679-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2679-1280.jpg"
+      },
+      {
+        "id": "img_2680",
+        "alt": "The Hideout, White Bay, img_2680",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/hideout-white-bay/img_2680-640.webp",
+        "webp1280": "/venues/hideout-white-bay/img_2680-1280.webp",
+        "jpeg": "/venues/hideout-white-bay/img_2680-1280.jpg"
+      }
+    ],
+    "models": []
+  },
+  {
+    "id": "scrub-island-resort",
+    "name": "Scrub Island Resort, Spa & Marina",
+    "island": "Scrub Island",
+    "islandVenueId": "scrub-island",
+    "source": "accommodations",
+    "sourceNote": "Listed in the website Accommodations section.",
+    "hero": "/venues/scrub-island-resort/img_2692-1280.webp",
+    "photos": [
+      {
+        "id": "img_2682",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2682",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2682-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2682-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2682-1280.jpg"
+      },
+      {
+        "id": "img_2683",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2683",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2683-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2683-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2683-1280.jpg"
+      },
+      {
+        "id": "img_2684",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2684",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2684-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2684-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2684-1280.jpg"
+      },
+      {
+        "id": "img_2685",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2685",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2685-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2685-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2685-1280.jpg"
+      },
+      {
+        "id": "img_2686",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2686",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2686-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2686-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2686-1280.jpg"
+      },
+      {
+        "id": "img_2687",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2687",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2687-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2687-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2687-1280.jpg"
+      },
+      {
+        "id": "img_2688",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2688",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2688-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2688-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2688-1280.jpg"
+      },
+      {
+        "id": "img_2689",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2689",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2689-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2689-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2689-1280.jpg"
+      },
+      {
+        "id": "img_2690",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2690",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2690-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2690-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2690-1280.jpg"
+      },
+      {
+        "id": "img_2691",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2691",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2691-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2691-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2691-1280.jpg"
+      },
+      {
+        "id": "img_2692",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2692",
+        "hero": true,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2692-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2692-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2692-1280.jpg"
+      },
+      {
+        "id": "img_2693",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2693",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2693-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2693-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2693-1280.jpg"
+      },
+      {
+        "id": "img_2694",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2694",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2694-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2694-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2694-1280.jpg"
+      },
+      {
+        "id": "img_2695",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2695",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2695-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2695-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2695-1280.jpg"
+      },
+      {
+        "id": "img_2696",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2696",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2696-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2696-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2696-1280.jpg"
+      },
+      {
+        "id": "img_2698",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2698",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2698-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2698-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2698-1280.jpg"
+      },
+      {
+        "id": "img_2699",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2699",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2699-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2699-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2699-1280.jpg"
+      },
+      {
+        "id": "img_2700",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2700",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/scrub-island-resort/img_2700-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2700-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2700-1280.jpg"
+      },
+      {
+        "id": "img_2701",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2701",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2701-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2701-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2701-1280.jpg"
+      },
+      {
+        "id": "img_2702",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2702",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2702-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2702-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2702-1280.jpg"
+      },
+      {
+        "id": "img_2703",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2703",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2703-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2703-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2703-1280.jpg"
+      },
+      {
+        "id": "img_2704",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2704",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2704-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2704-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2704-1280.jpg"
+      },
+      {
+        "id": "img_2705",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2705",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2705-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2705-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2705-1280.jpg"
+      },
+      {
+        "id": "img_2706",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2706",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2706-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2706-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2706-1280.jpg"
+      },
+      {
+        "id": "img_2707",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2707",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2707-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2707-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2707-1280.jpg"
+      },
+      {
+        "id": "img_2709",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2709",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2709-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2709-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2709-1280.jpg"
+      },
+      {
+        "id": "img_2710",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2710",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2710-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2710-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2710-1280.jpg"
+      },
+      {
+        "id": "img_2712",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2712",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2712-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2712-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2712-1280.jpg"
+      },
+      {
+        "id": "img_2713",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2713",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2713-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2713-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2713-1280.jpg"
+      },
+      {
+        "id": "img_2714",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2714",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2714-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2714-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2714-1280.jpg"
+      },
+      {
+        "id": "img_2715",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2715",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2715-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2715-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2715-1280.jpg"
+      },
+      {
+        "id": "img_2716",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2716",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2716-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2716-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2716-1280.jpg"
+      },
+      {
+        "id": "img_2717",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2717",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2717-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2717-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2717-1280.jpg"
+      },
+      {
+        "id": "img_2718",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2718",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2718-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2718-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2718-1280.jpg"
+      },
+      {
+        "id": "img_2719",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2719",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2719-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2719-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2719-1280.jpg"
+      },
+      {
+        "id": "img_2720",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2720",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2720-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2720-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2720-1280.jpg"
+      },
+      {
+        "id": "img_2721",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2721",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2721-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2721-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2721-1280.jpg"
+      },
+      {
+        "id": "img_2722",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2722",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2722-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2722-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2722-1280.jpg"
+      },
+      {
+        "id": "img_2723",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2723",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2723-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2723-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2723-1280.jpg"
+      },
+      {
+        "id": "img_2724",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2724",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2724-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2724-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2724-1280.jpg"
+      },
+      {
+        "id": "img_2725",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2725",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2725-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2725-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2725-1280.jpg"
+      },
+      {
+        "id": "img_2726",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2726",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2726-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2726-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2726-1280.jpg"
+      },
+      {
+        "id": "img_2727",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2727",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2727-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2727-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2727-1280.jpg"
+      },
+      {
+        "id": "img_2728",
+        "alt": "Scrub Island Resort, Spa & Marina, img_2728",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/scrub-island-resort/img_2728-640.webp",
+        "webp1280": "/venues/scrub-island-resort/img_2728-1280.webp",
+        "jpeg": "/venues/scrub-island-resort/img_2728-1280.jpg"
+      }
+    ],
+    "models": []
+  },
+  {
+    "id": "gallows-point-resort",
+    "name": "Gallows Point Resort",
+    "island": "St. John",
+    "islandVenueId": "st-john",
+    "source": "app-addition",
+    "sourceNote": "Added in the app. This place is not in the website Accommodations list.",
+    "hero": "/venues/gallows-point-resort/img_2310-1280.webp",
+    "photos": [
+      {
+        "id": "img_2295",
+        "alt": "Gallows Point Resort, img_2295",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/gallows-point-resort/img_2295-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2295-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2295-1280.jpg"
+      },
+      {
+        "id": "img_2296",
+        "alt": "Gallows Point Resort, img_2296",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/gallows-point-resort/img_2296-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2296-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2296-1280.jpg"
+      },
+      {
+        "id": "img_2297",
+        "alt": "Gallows Point Resort, img_2297",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/gallows-point-resort/img_2297-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2297-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2297-1280.jpg"
+      },
+      {
+        "id": "img_2299",
+        "alt": "Gallows Point Resort, img_2299",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/gallows-point-resort/img_2299-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2299-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2299-1280.jpg"
+      },
+      {
+        "id": "img_2300",
+        "alt": "Gallows Point Resort, img_2300",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/gallows-point-resort/img_2300-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2300-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2300-1280.jpg"
+      },
+      {
+        "id": "img_2301",
+        "alt": "Gallows Point Resort, img_2301",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "med",
+        "webp640": "/venues/gallows-point-resort/img_2301-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2301-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2301-1280.jpg"
+      },
+      {
+        "id": "img_2303",
+        "alt": "Gallows Point Resort, img_2303",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2303-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2303-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2303-1280.jpg"
+      },
+      {
+        "id": "img_2304",
+        "alt": "Gallows Point Resort, img_2304",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2304-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2304-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2304-1280.jpg"
+      },
+      {
+        "id": "img_2310",
+        "alt": "Gallows Point Resort, img_2310",
+        "hero": true,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2310-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2310-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2310-1280.jpg"
+      },
+      {
+        "id": "img_2311",
+        "alt": "Gallows Point Resort, img_2311",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2311-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2311-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2311-1280.jpg"
+      },
+      {
+        "id": "img_2312",
+        "alt": "Gallows Point Resort, img_2312",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2312-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2312-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2312-1280.jpg"
+      },
+      {
+        "id": "img_2313",
+        "alt": "Gallows Point Resort, img_2313",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2313-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2313-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2313-1280.jpg"
+      },
+      {
+        "id": "img_2314",
+        "alt": "Gallows Point Resort, img_2314",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2314-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2314-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2314-1280.jpg"
+      },
+      {
+        "id": "img_2315",
+        "alt": "Gallows Point Resort, img_2315",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2315-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2315-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2315-1280.jpg"
+      },
+      {
+        "id": "img_2316",
+        "alt": "Gallows Point Resort, img_2316",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2316-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2316-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2316-1280.jpg"
+      },
+      {
+        "id": "img_2317",
+        "alt": "Gallows Point Resort, img_2317",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2317-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2317-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2317-1280.jpg"
+      },
+      {
+        "id": "img_2318",
+        "alt": "Gallows Point Resort, img_2318",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2318-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2318-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2318-1280.jpg"
+      },
+      {
+        "id": "img_2319",
+        "alt": "Gallows Point Resort, img_2319",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2319-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2319-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2319-1280.jpg"
+      },
+      {
+        "id": "img_2320",
+        "alt": "Gallows Point Resort, img_2320",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2320-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2320-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2320-1280.jpg"
+      },
+      {
+        "id": "img_2321",
+        "alt": "Gallows Point Resort, img_2321",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2321-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2321-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2321-1280.jpg"
+      },
+      {
+        "id": "img_2322",
+        "alt": "Gallows Point Resort, img_2322",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2322-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2322-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2322-1280.jpg"
+      },
+      {
+        "id": "img_2323",
+        "alt": "Gallows Point Resort, img_2323",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2323-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2323-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2323-1280.jpg"
+      },
+      {
+        "id": "img_2324",
+        "alt": "Gallows Point Resort, img_2324",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2324-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2324-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2324-1280.jpg"
+      },
+      {
+        "id": "img_2325",
+        "alt": "Gallows Point Resort, img_2325",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2325-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2325-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2325-1280.jpg"
+      },
+      {
+        "id": "img_2326",
+        "alt": "Gallows Point Resort, img_2326",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2326-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2326-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2326-1280.jpg"
+      },
+      {
+        "id": "img_2327",
+        "alt": "Gallows Point Resort, img_2327",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2327-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2327-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2327-1280.jpg"
+      },
+      {
+        "id": "img_2328",
+        "alt": "Gallows Point Resort, img_2328",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2328-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2328-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2328-1280.jpg"
+      },
+      {
+        "id": "img_2329",
+        "alt": "Gallows Point Resort, img_2329",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2329-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2329-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2329-1280.jpg"
+      },
+      {
+        "id": "img_2330",
+        "alt": "Gallows Point Resort, img_2330",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2330-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2330-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2330-1280.jpg"
+      },
+      {
+        "id": "img_2332",
+        "alt": "Gallows Point Resort, img_2332",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2332-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2332-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2332-1280.jpg"
+      },
+      {
+        "id": "img_2333",
+        "alt": "Gallows Point Resort, img_2333",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2333-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2333-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2333-1280.jpg"
+      },
+      {
+        "id": "img_2334",
+        "alt": "Gallows Point Resort, img_2334",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2334-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2334-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2334-1280.jpg"
+      },
+      {
+        "id": "img_2335",
+        "alt": "Gallows Point Resort, img_2335",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2335-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2335-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2335-1280.jpg"
+      },
+      {
+        "id": "img_2336",
+        "alt": "Gallows Point Resort, img_2336",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2336-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2336-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2336-1280.jpg"
+      },
+      {
+        "id": "img_2337",
+        "alt": "Gallows Point Resort, img_2337",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2337-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2337-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2337-1280.jpg"
+      },
+      {
+        "id": "img_2338",
+        "alt": "Gallows Point Resort, img_2338",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2338-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2338-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2338-1280.jpg"
+      },
+      {
+        "id": "img_2345",
+        "alt": "Gallows Point Resort, img_2345",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2345-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2345-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2345-1280.jpg"
+      },
+      {
+        "id": "img_2346",
+        "alt": "Gallows Point Resort, img_2346",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2346-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2346-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2346-1280.jpg"
+      },
+      {
+        "id": "img_2347",
+        "alt": "Gallows Point Resort, img_2347",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2347-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2347-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2347-1280.jpg"
+      },
+      {
+        "id": "img_2348",
+        "alt": "Gallows Point Resort, img_2348",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2348-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2348-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2348-1280.jpg"
+      },
+      {
+        "id": "img_2349",
+        "alt": "Gallows Point Resort, img_2349",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2349-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2349-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2349-1280.jpg"
+      },
+      {
+        "id": "img_2350",
+        "alt": "Gallows Point Resort, img_2350",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2350-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2350-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2350-1280.jpg"
+      },
+      {
+        "id": "img_2351",
+        "alt": "Gallows Point Resort, img_2351",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2351-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2351-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2351-1280.jpg"
+      },
+      {
+        "id": "img_2352",
+        "alt": "Gallows Point Resort, img_2352",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2352-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2352-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2352-1280.jpg"
+      },
+      {
+        "id": "img_2353",
+        "alt": "Gallows Point Resort, img_2353",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2353-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2353-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2353-1280.jpg"
+      },
+      {
+        "id": "img_2354",
+        "alt": "Gallows Point Resort, img_2354",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2354-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2354-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2354-1280.jpg"
+      },
+      {
+        "id": "img_2355",
+        "alt": "Gallows Point Resort, img_2355",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2355-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2355-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2355-1280.jpg"
+      },
+      {
+        "id": "img_2356",
+        "alt": "Gallows Point Resort, img_2356",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2356-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2356-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2356-1280.jpg"
+      },
+      {
+        "id": "img_2357",
+        "alt": "Gallows Point Resort, img_2357",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2357-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2357-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2357-1280.jpg"
+      },
+      {
+        "id": "img_2358",
+        "alt": "Gallows Point Resort, img_2358",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2358-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2358-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2358-1280.jpg"
+      },
+      {
+        "id": "img_2359",
+        "alt": "Gallows Point Resort, img_2359",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2359-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2359-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2359-1280.jpg"
+      },
+      {
+        "id": "img_2360",
+        "alt": "Gallows Point Resort, img_2360",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/gallows-point-resort/img_2360-640.webp",
+        "webp1280": "/venues/gallows-point-resort/img_2360-1280.webp",
+        "jpeg": "/venues/gallows-point-resort/img_2360-1280.jpg"
+      }
+    ],
+    "models": []
+  },
+  {
+    "id": "emerald-beach-resort",
+    "name": "Emerald Beach Resort",
+    "island": "St. Thomas",
+    "islandVenueId": "st-thomas",
+    "source": "app-addition",
+    "sourceNote": "Added in the app. This place is not in the website Accommodations list.",
+    "hero": "/venues/emerald-beach-resort/img_1438-1280.webp",
+    "photos": [
+      {
+        "id": "img_1432",
+        "alt": "Emerald Beach Resort, img_1432",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1432-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1432-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1432-1280.jpg"
+      },
+      {
+        "id": "img_1433",
+        "alt": "Emerald Beach Resort, img_1433",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1433-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1433-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1433-1280.jpg"
+      },
+      {
+        "id": "img_1435",
+        "alt": "Emerald Beach Resort, img_1435",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1435-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1435-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1435-1280.jpg"
+      },
+      {
+        "id": "img_1436",
+        "alt": "Emerald Beach Resort, img_1436",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1436-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1436-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1436-1280.jpg"
+      },
+      {
+        "id": "img_1437",
+        "alt": "Emerald Beach Resort, img_1437",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1437-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1437-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1437-1280.jpg"
+      },
+      {
+        "id": "img_1438",
+        "alt": "Emerald Beach Resort, img_1438",
+        "hero": true,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1438-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1438-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1438-1280.jpg"
+      },
+      {
+        "id": "img_1439",
+        "alt": "Emerald Beach Resort, img_1439",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1439-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1439-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1439-1280.jpg"
+      },
+      {
+        "id": "img_1440",
+        "alt": "Emerald Beach Resort, img_1440",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1440-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1440-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1440-1280.jpg"
+      },
+      {
+        "id": "img_1441",
+        "alt": "Emerald Beach Resort, img_1441",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1441-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1441-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1441-1280.jpg"
+      },
+      {
+        "id": "img_1442",
+        "alt": "Emerald Beach Resort, img_1442",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1442-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1442-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1442-1280.jpg"
+      },
+      {
+        "id": "img_1443",
+        "alt": "Emerald Beach Resort, img_1443",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1443-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1443-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1443-1280.jpg"
+      },
+      {
+        "id": "img_1446",
+        "alt": "Emerald Beach Resort, img_1446",
+        "hero": false,
+        "uncertain": false,
+        "confidence": "high",
+        "webp640": "/venues/emerald-beach-resort/img_1446-640.webp",
+        "webp1280": "/venues/emerald-beach-resort/img_1446-1280.webp",
+        "jpeg": "/venues/emerald-beach-resort/img_1446-1280.jpg"
+      }
+    ],
+    "models": [
+      {
+        "src": "/venues/emerald-beach-resort/models/site-visit.glb",
+        "label": "Emerald Beach Resort site visit, Scaniverse scan"
+      },
+      {
+        "src": "/venues/emerald-beach-resort/models/scan-1019.glb",
+        "label": "Emerald Beach Resort scan, 10 19 2026"
+      }
+    ]
+  }
+]

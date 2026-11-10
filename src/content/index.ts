@@ -6,7 +6,7 @@
  */
 import { getProgram } from "./active";
 import { bundle } from "./bundle";
-import type { Panelist, Pass, Pillar, Session, StayIsland, TransportMode, Venue } from "./types";
+import type { Panelist, Pass, Pillar, Place, Session, StayIsland, TransportMode, Venue } from "./types";
 
 const data = bundle;
 
@@ -14,6 +14,7 @@ export const forum = data.forum;
 export const panelists = data.panelists;
 export const sessions = data.sessions;
 export const venues = data.venues;
+export const places = data.places;
 export const sampleModel = data.sampleModel;
 export const scenes = data.scenes;
 export const stays = data.stays;
@@ -68,6 +69,14 @@ export function stayById(id: string): StayIsland | undefined {
 
 export function venueById(id: string): Venue | undefined {
   return getProgram().venues.find((venue) => venue.id === id);
+}
+
+export function placeById(id: string): Place | undefined {
+  return getProgram().places.find((place) => place.id === id);
+}
+
+export function placesForIsland(island: string): Place[] {
+  return getProgram().places.filter((place) => place.island === island);
 }
 
 export function venueLabel(session: Session): string {

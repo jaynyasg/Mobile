@@ -68,8 +68,10 @@ Bottom tabs: **Home**, **Agenda**, **Panelists**, **Network**, **More**.
 - Home plays the beacon film behind a navy overlay, with a still frame when autoplay is blocked, reduced motion is on, or data saver is on.
 - Agenda filters by day, pillar, island, type, and panelist. Timed sessions show Atlantic time and the phone’s clock. Sessions with `timeLabel` show that label, including “Opening · Time TBC”.
 - A session with no lead says “Speaker to be announced”. Leads show the role from the site (`Session lead` or `Keynote speaker`).
-- Each session’s location is its island accommodations entry (dock and stay links). The specific venue field is “to be confirmed” until a later file sets `venue.specific`.
-- Venue pages include a 3D viewer. The bundled model is a sample triangle, labeled as not a venue. A real `.glb` can be set on `venue.model`.
+- Each session stays on its island accommodations stop. The specific venue is still “to be confirmed.” The session lists that island’s candidate places.
+- Emerald Beach Resort and Gallows Point Resort are marked as app additions. They are not in the website Accommodations list.
+- Place galleries live in `public/venues` as 640 and 1280 WebP plus a JPEG fallback, loaded lazily. Margaritaville IMG_2654–IMG_2659 stay in the gallery and are not used as the hero.
+- The Emerald Beach page shows two Draco-compressed scans, not the sample triangle.
 - Panelist profiles use a portrait when the file is present.
 - Sample transport, accommodations, the pass preview, the on-device guide, opt-in local notes, and Delete my data are still here.
 

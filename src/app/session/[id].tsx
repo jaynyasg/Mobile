@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, View } from "react-native";
-import { dayById, forum, panelistById, participationLabel, pillarById, sessionById, venueById } from "@/content";
+import { Link, useLocalSearchParams } from "expo-router";
+import { Pressable, StyleSheet, View } from "react-native";
+import { dayById, forum, panelistById, participationLabel, pillarById, placesForIsland, sessionById, venueById } from "@/content";
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
 import { sessionWhen } from "@/components/SessionRow";
@@ -8,6 +8,7 @@ import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
+import { PlacePhoto } from "@/components/PlacePhoto";
 import { portraits } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
 import { useContent } from "@/content/provider";
@@ -35,6 +36,7 @@ export default function SessionScreen() {
   const same = timed && session.start ? sameClock(session.start, forum.timezone, local) : true;
   const people = session.speakerIds;
   const stay = session.venue.venueId ? venueById(session.venue.venueId) : undefined;
+  const candidates = placesForIsland(session.island);
   const kind = session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session";
 
   return (
@@ -60,6 +62,9 @@ export default function SessionScreen() {
           Venue: {session.venue.specific || session.venue.label}
           {stay ? ` · ${stay.dock}` : ""}
         </T>
+        {candidates.length ? (
+          <T variant="meta">Candidate places on {session.island}. None is assigned to this session.</T>
+        ) : null}
         <T variant="body">{displayCopy(session.description)}</T>
         <T variant="small">What we’ll work on: {displayCopy(session.outcome)}</T>
         <T variant="meta">Format: {displayCopy(session.format)}</T>
@@ -74,6 +79,20 @@ export default function SessionScreen() {
           )}
         </View>
       </View>
+      {candidates.map((place) => {
+        const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
+        return (
+          <Link key={place.id} href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
+            <Pressable accessibilityRole="button" style={styles.place}>
+              {hero ? <PlacePhoto photo={hero} /> : null}
+              <View style={styles.placeCopy}>
+                <T variant="rowTitle">{place.name}</T>
+                <T variant="meta">{place.source === "app-addition" ? "Added in the app" : "Accommodations"}</T>
+              </View>
+            </Pressable>
+          </Link>
+        );
+      })}
       {people.map((personId) => {
         const person = panelistById(personId);
         if (!person) return null;
@@ -95,4 +114,6 @@ export default function SessionScreen() {
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: pad, gap: 8, paddingBottom: 12 },
   actions: { marginTop: 8 },
+  place: { marginHorizontal: pad, marginBottom: 10, borderWidth: 1, borderColor: colors.line },
+  placeCopy: { padding: 10, gap: 2 },
 });

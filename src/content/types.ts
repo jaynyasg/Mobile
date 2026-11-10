@@ -125,6 +125,34 @@ export interface SampleModel {
   label: string;
 }
 
+export interface PlacePhoto {
+  id: string;
+  alt: string;
+  hero: boolean;
+  uncertain: boolean;
+  confidence: string;
+  webp640: string;
+  webp1280: string;
+  jpeg: string;
+}
+
+export interface PlaceModel {
+  src: string;
+  label: string;
+}
+
+export interface Place {
+  id: string;
+  name: string;
+  island: string;
+  islandVenueId: string;
+  source: "accommodations" | "app-addition";
+  sourceNote: string;
+  hero: string;
+  photos: PlacePhoto[];
+  models: PlaceModel[];
+}
+
 export type SessionKind = "all" | "featured" | "circuit" | "regular";
 
 export interface Scene {
@@ -239,6 +267,7 @@ export interface ProgramData {
   panelists: Panelist[];
   sessions: Session[];
   venues: Venue[];
+  places: Place[];
   sampleModel: SampleModel;
   scenes: Scene[];
   stays: { intro: string; brochureUrl: string; brochureNote: string; groups: StayGroup[] };
