@@ -1,5 +1,4 @@
-// Replace these three public files to swap the Home loop.
-// The next combined day-and-night clip drops in at the same paths.
+// Home loop. Replace these three public files to swap the clip.
 export const homeMedia = {
   mp4: "/beacon/home.mp4",
   webm: "/beacon/home.webm",

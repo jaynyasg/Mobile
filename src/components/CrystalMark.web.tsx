@@ -35,19 +35,20 @@ export function CrystalMark() {
             y: "78",
             textAnchor: "middle",
             fill: "url(#tatel-facet)",
-            stroke: "rgba(255,255,255,0.9)",
-            strokeWidth: "0.7",
+            stroke: "#071422",
+            strokeWidth: "2.6",
             filter: "url(#tatel-halo)",
             style: {
               fontFamily: "BodoniModa-SemiBold, 'Bodoni Moda', serif",
               fontSize: "72px",
               letterSpacing: "12px",
+              paintOrder: "stroke fill",
             },
           },
           "TATEL",
         ),
-        createElement("polygon", { points: diamond, transform: "translate(28 54)", className: "tatel-twinkle", fill: "#F7FBFF" }),
-        createElement("polygon", { points: diamond, transform: "translate(412 54)", className: "tatel-twinkle tatel-twinkle-late", fill: "#D7FFF4" }),
+        createElement("polygon", { points: diamond, transform: "translate(28 54)", className: "tatel-twinkle", fill: "#F7FBFF", stroke: "#071422", strokeWidth: "0.6" }),
+        createElement("polygon", { points: diamond, transform: "translate(412 54)", className: "tatel-twinkle tatel-twinkle-late", fill: "#D7FFF4", stroke: "#071422", strokeWidth: "0.6" }),
       )}
     </View>
   );
