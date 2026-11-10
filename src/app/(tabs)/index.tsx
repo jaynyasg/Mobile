@@ -1,5 +1,6 @@
 import { Link } from "expo-router";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { createElement } from "react";
+import { Image, Platform, Pressable, ScrollView, StyleSheet, TextStyle, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { PhotoShade } from "@/components/PhotoShade";
@@ -27,6 +28,23 @@ export default function HomeScreen() {
       <BeaconBackground />
       <View style={[styles.install, { top: insets.top + 12 }]}>
         <InstallHint />
+      </View>
+      <View pointerEvents="none" style={[styles.mark, { top: insets.top + 92 }]}>
+        {Platform.OS === "web"
+          ? createElement("div", {
+              "aria-hidden": true,
+              style: {
+                position: "absolute",
+                width: 280,
+                height: 72,
+                background: "radial-gradient(ellipse, rgba(255,214,120,0.42), rgba(255,214,120,0) 68%)",
+                filter: "blur(6px)",
+              },
+            })
+          : <View style={styles.glow} />}
+        <T accessibilityRole="header" variant="display" foil style={styles.tatel}>
+          TATEL
+        </T>
       </View>
       <View style={[styles.lower, { bottom: insets.bottom + 86 }]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.islands}>
@@ -83,6 +101,21 @@ function HomeLink({ href, label }: { href: "/transport" | "/stays" | "/ticket"; 
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
   install: { position: "absolute", left: 16 },
+  mark: { position: "absolute", left: 0, right: 0, alignItems: "center", justifyContent: "center" },
+  glow: { position: "absolute", width: 220, height: 48, borderRadius: 24, backgroundColor: "rgba(255,214,120,0.28)" },
+  tatel: {
+    fontSize: 36,
+    lineHeight: 44,
+    letterSpacing: 11,
+    textAlign: "center",
+    textShadowColor: "rgba(255,196,90,0.55)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
+    ...({
+      backgroundImage: "linear-gradient(105deg, #e7c56a 0%, #fff6d2 30%, #f0c85a 52%, #fffaf0 74%, #e7c56a 100%)",
+      animationDuration: "14s",
+    } as TextStyle),
+  },
   lower: { position: "absolute", left: 0, right: 0 },
   islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
   island: { width: 132, height: 168, borderRadius: 14, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },

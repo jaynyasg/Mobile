@@ -32,7 +32,7 @@ export function BeaconBackground() {
             muted: true,
             loop: true,
             playsInline: true,
-            poster: "/beacon/harbor-poster.jpg",
+            poster: "/beacon/ocean-poster.jpg",
             onError: () => setStill(true),
             ref: (node: HTMLVideoElement | null) => {
               if (!node) return;
@@ -40,17 +40,17 @@ export function BeaconBackground() {
               const attempt = node.play();
               if (attempt) attempt.catch(() => setStill(true));
             },
-            style: { width: "100%", height: "100%", objectFit: "cover" },
+            style: { width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" },
           },
-          createElement("source", { src: "/beacon/harbor-720.webm", type: "video/webm" }),
-          createElement("source", { src: "/beacon/harbor-720.mp4", type: "video/mp4" }),
+          createElement("source", { src: "/beacon/ocean.webm", type: "video/webm" }),
+          createElement("source", { src: "/beacon/ocean.mp4", type: "video/mp4" }),
         )
       )}
       {createElement("div", {
         style: {
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to bottom, rgba(6,14,24,0) 0%, rgba(6,14,24,0) 52%, rgba(6,14,24,0.72) 78%, rgba(6,14,24,0.86) 100%)",
+          background: "linear-gradient(to bottom, rgba(6,14,24,0) 0%, rgba(6,14,24,0) 58%, rgba(6,14,24,0.5) 76%, rgba(6,14,24,0.84) 100%)",
         },
       })}
     </View>
