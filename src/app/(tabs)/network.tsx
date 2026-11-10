@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { View } from "react-native";
-import { panelists, pillarById } from "@/content";
+import { pillarById } from "@/content";
+import { useContent } from "@/content/provider";
 import { PersonRow } from "@/components/PersonRow";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
@@ -12,6 +13,8 @@ import { useApp } from "@/store";
 import { colors, pad } from "@/theme";
 
 export default function NetworkScreen() {
+  const { program } = useContent();
+  const { panelists } = program;
   const { state, dispatch } = useApp();
   const [query, setQuery] = useState("");
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
@@ -47,7 +50,7 @@ export default function NetworkScreen() {
                 <PersonRow
                   key={person.id}
                   name={person.name}
-                  photo={portraits[person.photo]}
+                  photo={person.photo ? portraits[person.photo] : undefined}
                   meta={`${person.company} · ${pillar?.name ?? person.proposedIsland}`}
                   href={{ pathname: "/chat/[id]", params: { id: person.id } }}
                 />

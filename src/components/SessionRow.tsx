@@ -1,6 +1,7 @@
 import { Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { forum, panelistNames, pillarById } from "@/content";
+import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import type { Session } from "@/content/types";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
 import { useApp } from "@/store";
@@ -8,14 +9,20 @@ import { colors, pad } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 
+export function sessionWhen(session: Session): string {
+  if (session.start && session.end) return formatRange(session.start, session.end, forum.timezone);
+  return session.timeLabel || "Time TBC";
+}
+
 export function SessionRow({ session }: { session: Session }) {
   const { state, dispatch } = useApp();
   const localZone = deviceTimeZone();
   const favored = state.favoriteIds.includes(session.id);
   const pillar = pillarById(session.pillarId);
-  const names = panelistNames(session.featured ? session.candidateIds : session.speakerIds);
-  const same = sameClock(session.start, forum.timezone, localZone);
-  const status = session.featured ? "Featured · Proposed" : "Proposed";
+  const names = panelistNames(session.speakerIds);
+  const timed = Boolean(session.start && session.end);
+  const same = timed && session.start ? sameClock(session.start, forum.timezone, localZone) : true;
+  const kind = session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session";
 
   return (
     <View style={[styles.row, session.featured && styles.featured]}>
@@ -23,18 +30,19 @@ export function SessionRow({ session }: { session: Session }) {
       <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
           <View style={styles.copy}>
-            <T variant="eyebrow">{status}</T>
-            <T variant="rowTitle">{session.title}</T>
+            <T variant="eyebrow">{session.optional ? `${kind} · Optional` : kind}</T>
+            <T variant="rowTitle">{displayCopy(session.title)}</T>
             <T variant="meta">
-              {formatRange(session.start, session.end, forum.timezone)}
+              {sessionWhen(session)}
               {pillar ? ` · ${pillar.name}` : ""} · {session.island}
             </T>
-            {names ? (
-              <T variant="meta">{session.featured ? `Potential contributors · ${names}` : names}</T>
+            <T variant="meta">{names || SPEAKER_TBA}</T>
+            <T variant="meta">Venue: {session.venue.specific || session.venue.label}</T>
+            {timed && session.start && session.end ? (
+              <T variant="meta" color={colors.brass}>
+                {same ? "Same clock as this phone" : `${formatRange(session.start, session.end, localZone)} · your time`}
+              </T>
             ) : null}
-            <T variant="meta" color={colors.brass}>
-              {same ? "Same clock as this phone" : `${formatRange(session.start, session.end, localZone)} · your time`}
-            </T>
           </View>
         </Pressable>
       </Link>

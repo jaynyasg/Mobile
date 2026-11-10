@@ -1,4 +1,4 @@
-import { forum } from "../content";
+import { getProgram } from "../content/active";
 import { ymd } from "./time";
 
 export type ForumPhase =
@@ -6,7 +6,8 @@ export type ForumPhase =
   | { phase: "live"; dayId: string }
   | { phase: "ended" };
 
-export function forumPhase(now: Date, timeZone = forum.timezone): ForumPhase {
+export function forumPhase(now: Date, timeZone = getProgram().forum.timezone): ForumPhase {
+  const forum = getProgram().forum;
   const today = ymd(now, timeZone);
   if (today < forum.startDate) {
     return { phase: "upcoming", daysUntil: daysBetween(today, forum.startDate) };
@@ -24,7 +25,8 @@ export function phaseLabel(phase: ForumPhase): string {
   return `The summit opens in ${phase.daysUntil} days`;
 }
 
-export function suggestedDayId(now: Date, timeZone = forum.timezone): string {
+export function suggestedDayId(now: Date, timeZone = getProgram().forum.timezone): string {
+  const forum = getProgram().forum;
   const phase = forumPhase(now, timeZone);
   if (phase.phase === "live") return phase.dayId;
   if (phase.phase === "ended") return forum.days[forum.days.length - 1].id;

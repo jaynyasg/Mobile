@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { forum, panelists, pillarById } from "@/content";
+import { pillarById } from "@/content";
+import { useContent } from "@/content/provider";
 import { PersonRow } from "@/components/PersonRow";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
@@ -10,6 +11,8 @@ import { pad } from "@/theme";
 import { View } from "react-native";
 
 export default function PanelistsScreen() {
+  const { program } = useContent();
+  const { forum, panelists } = program;
   const [query, setQuery] = useState("");
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
 
@@ -18,7 +21,7 @@ export default function PanelistsScreen() {
       <PageHeader
         kicker={`${panelists.length} panelists`}
         title="Panelists"
-        subtitle="Names, companies, titles, and portraits are the supplied roster. Pillar homes are proposed from the first linked draft session."
+        subtitle="Names, companies, and titles come from the website roster. A portrait appears when its file is already in the app."
       />
       <View style={{ paddingHorizontal: pad, paddingBottom: 8 }}>
         <SearchField value={query} onChange={setQuery} placeholder="Name, company, or title" />
@@ -32,8 +35,8 @@ export default function PanelistsScreen() {
             <PersonRow
               key={person.id}
               name={person.name}
-              photo={portraits[person.photo]}
-              meta={`${person.title} · ${person.company}\n${pillar?.name ?? ""} · ${person.proposedIsland} · Proposed`}
+              photo={person.photo ? portraits[person.photo] : undefined}
+              meta={`${person.title} · ${person.company}\n${pillar?.name || "Program to be announced"} · ${person.proposedIsland || "Location TBC"}`}
               href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
             />
           );

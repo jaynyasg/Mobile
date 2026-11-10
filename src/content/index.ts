@@ -4,53 +4,17 @@
  * A website can import this module, or read tatel.json, the same way the app does.
  * Regenerate with scripts/generate-tatel-content.mjs. Do not edit tatel.json by hand.
  */
-import raw from "./tatel.json";
-import type {
-  Credits,
-  Forum,
-  Notice,
-  Panelist,
-  Pass,
-  Pillar,
-  Scene,
-  Session,
-  StayGroup,
-  StayIsland,
-  SourceLink,
-  TransportMode,
-} from "./types";
+import { getProgram } from "./active";
+import { bundle } from "./bundle";
+import type { Panelist, Pass, Pillar, Session, StayIsland, TransportMode, Venue } from "./types";
 
-interface ProgramData {
-  generatedFrom: string;
-  forum: Forum;
-  panelists: Panelist[];
-  sessions: Session[];
-  scenes: Scene[];
-  stays: { intro: string; brochureUrl: string; brochureNote: string; groups: StayGroup[] };
-  passes: {
-    legend: string;
-    sourceUrl: string;
-    sourceNote: string;
-    previewLabel: string;
-    items: Pass[];
-  };
-  transport: {
-    checked: string;
-    intro: string;
-    venueAssumptions: string;
-    borderNote: string;
-    sources: SourceLink[];
-    modes: TransportMode[];
-  };
-  notifications: Notice[];
-  credits: Credits;
-}
-
-const data = raw as ProgramData;
+const data = bundle;
 
 export const forum = data.forum;
 export const panelists = data.panelists;
 export const sessions = data.sessions;
+export const venues = data.venues;
+export const sampleModel = data.sampleModel;
 export const scenes = data.scenes;
 export const stays = data.stays;
 export const passes = data.passes;
@@ -62,34 +26,29 @@ export const generatedFrom = data.generatedFrom;
 export type * from "./types";
 
 export function panelistById(id: string): Panelist | undefined {
-  return panelists.find((person) => person.id === id);
+  return getProgram().panelists.find((person) => person.id === id);
 }
 
 export function sessionById(id: string): Session | undefined {
-  return sessions.find((session) => session.id === id);
+  return getProgram().sessions.find((session) => session.id === id);
 }
 
 export function pillarById(id: string): Pillar | undefined {
-  return forum.pillars.find((pillar) => pillar.id === id);
+  return getProgram().forum.pillars.find((pillar) => pillar.id === id);
 }
 
 export function dayById(id: string) {
-  return forum.days.find((day) => day.id === id);
+  return getProgram().forum.days.find((day) => day.id === id);
 }
 
 export function sessionsForPanelist(panelistId: string): Session[] {
-  return sessions.filter(
+  return getProgram().sessions.filter(
     (session) => session.speakerIds.includes(panelistId) || session.candidateIds.includes(panelistId),
   );
 }
 
 export function participationLabel(session: Session, panelistId: string): string | null {
-  if (session.featured) {
-    return session.candidateIds.includes(panelistId) ? forum.participation.featured : null;
-  }
-  if (session.speakerIds[0] === panelistId) return forum.participation.lead;
-  if (session.speakerIds.includes(panelistId)) return forum.participation.contributor;
-  return null;
+  return session.roles?.[panelistId] ?? (session.speakerIds.includes(panelistId) ? "Session lead" : null);
 }
 
 export function panelistNames(ids: string[]): string {
@@ -100,11 +59,22 @@ export function panelistNames(ids: string[]): string {
 }
 
 export function stayIslands(): StayIsland[] {
-  return stays.groups.flatMap((group) => group.islands);
+  return getProgram().stays.groups.flatMap((group) => group.islands);
 }
 
 export function stayById(id: string): StayIsland | undefined {
   return stayIslands().find((island) => island.id === id);
+}
+
+export function venueById(id: string): Venue | undefined {
+  return getProgram().venues.find((venue) => venue.id === id);
+}
+
+export function venueLabel(session: Session): string {
+  if (!session.venue.venueId && !session.venue.island) return "Venue unassigned";
+  const venue = session.venue.venueId ? venueById(session.venue.venueId) : undefined;
+  if (venue) return `${venue.name} · ${venue.island}`;
+  return [session.venue.island, session.venue.venueId].filter(Boolean).join(" · ");
 }
 
 export function passById(id: string): Pass | undefined {

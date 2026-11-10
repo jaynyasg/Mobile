@@ -1,15 +1,18 @@
 import { Link, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { forum, panelistById, participationLabel, pillarById, sessionsForPanelist } from "@/content";
+import { displayCopy } from "@/content/display";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { portraits } from "@/images";
 import { formatRange } from "@/logic/time";
+import { useContent } from "@/content/provider";
 import { colors, pad } from "@/theme";
 
 export default function PanelistScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  useContent();
   const person = panelistById(id ?? "");
   if (!person) {
     return (
@@ -25,15 +28,20 @@ export default function PanelistScreen() {
   return (
     <Screen edge="none">
       <StackHeader title={person.name} />
-      <Image source={portraits[person.photo]} style={styles.portrait} resizeMode="contain" accessibilityLabel={person.name} />
+      {person.photo && portraits[person.photo] ? (
+        <Image source={portraits[person.photo]} style={styles.portrait} resizeMode="contain" accessibilityLabel={person.name} />
+      ) : null}
       <View style={styles.pad}>
         <T variant="eyebrow">{person.company}</T>
         <T variant="title">{person.name}</T>
         <T variant="small">{person.title}</T>
         <T variant="meta">
-          Proposed pillar {pillar?.name} · {person.proposedIsland}
+          {person.keynote ? "Keynote speaker · " : ""}
+          {pillar?.name || "Program to be announced"} · {person.proposedIsland || "Location TBC"}
         </T>
-        <T variant="meta">A proposed home is the first linked draft session. It is not a confirmed assignment or a venue.</T>
+        {person.origin ? <T variant="meta">{person.origin}</T> : null}
+        {person.bio ? <T variant="small">{displayCopy(person.bio)}</T> : null}
+        <T variant="meta">The island is the planning home for linked sessions. The specific venue is to be confirmed.</T>
         <Link href={{ pathname: "/pillar/[id]", params: { id: person.proposedPillarId } }} asChild>
           <Pressable accessibilityRole="button">
             <T variant="small" color={colors.brass}>
@@ -48,10 +56,10 @@ export default function PanelistScreen() {
       {linked.map((session) => (
         <Link key={session.id} href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
           <Pressable accessibilityRole="button" style={styles.session}>
-            <T variant="eyebrow">{session.featured ? "Featured · Proposed" : "Proposed"}</T>
-            <T variant="rowTitle">{session.title}</T>
+            <T variant="eyebrow">{session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session"}</T>
+            <T variant="rowTitle">{displayCopy(session.title)}</T>
             <T variant="meta">
-              {formatRange(session.start, session.end, forum.timezone)} · {session.island}
+              {session.start && session.end ? formatRange(session.start, session.end, forum.timezone) : session.timeLabel || "Time TBC"} · {session.island}
             </T>
             <T variant="meta">{participationLabel(session, person.id)}</T>
           </Pressable>

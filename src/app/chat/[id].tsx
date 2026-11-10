@@ -2,6 +2,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { panelistById } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -13,6 +14,7 @@ const LOCAL_NOTE = "Not sent. This note stays on this device and is not a messag
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  useContent();
   const person = panelistById(id ?? "");
   const { state, dispatch } = useApp();
   const [draft, setDraft] = useState("");

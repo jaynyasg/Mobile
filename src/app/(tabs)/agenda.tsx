@@ -1,7 +1,9 @@
 import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { forum, panelists, panelistById, sessions } from "@/content";
+import { panelistById } from "@/content";
+import { useContent } from "@/content/provider";
+import { displayCopy } from "@/content/display";
 import type { SessionKind } from "@/content/types";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
@@ -22,6 +24,8 @@ const kinds: { id: SessionKind; label: string }[] = [
 
 export default function AgendaScreen() {
   const params = useLocalSearchParams<{ day?: string; panelist?: string; pillar?: string }>();
+  const { program } = useContent();
+  const { forum, panelists, sessions } = program;
   const { state } = useApp();
   const [dayId, setDayId] = useState(params.day || suggestedDayId(new Date()));
   const [pillarId, setPillarId] = useState(params.pillar || "all");
@@ -50,7 +54,7 @@ export default function AgendaScreen() {
 
   return (
     <Screen>
-      <PageHeader kicker="Proposed · AST" title="Agenda" subtitle={forum.draftNotice} />
+      <PageHeader kicker="AST" title="Agenda" subtitle={`${forum.draftNotice} ${displayCopy(forum.timingNote)}`} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
         {forum.days.map((day) => (
           <Chip key={day.id} label={`${day.shortWeekday} ${day.dayNumber}`} selected={dayId === day.id} onPress={() => setDayId(day.id)} />
@@ -90,11 +94,11 @@ export default function AgendaScreen() {
       </ScrollView>
       {selectedPerson ? (
         <T variant="meta" style={styles.note}>
-          Showing proposed links for {selectedPerson.name}. Featured names are potential contributors, not assigned speakers.
+          Showing sessions led by {selectedPerson.name}.
         </T>
       ) : null}
       <T variant="meta" style={styles.note}>
-        {visible.length} proposed sessions
+        {visible.length} sessions
       </T>
       {visible.length === 0 ? (
         <EmptyState title="Nothing in this cut" body="Clear a filter or search. The underlying draft still has 200 sessions." />

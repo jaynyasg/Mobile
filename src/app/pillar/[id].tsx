@@ -1,6 +1,7 @@
 import { Link, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, StyleSheet, View } from "react-native";
-import { credits, forum, pillarById, scenes, sessions, stayIslands } from "@/content";
+import { credits, pillarById, scenes, stayIslands } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { SessionRow } from "@/components/SessionRow";
 import { StackHeader } from "@/components/StackHeader";
@@ -9,6 +10,8 @@ import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 
 export default function PillarScreen() {
+  const { program } = useContent();
+  const { sessions } = program;
   const { id } = useLocalSearchParams<{ id: string }>();
   const pillar = pillarById(id ?? "");
   if (!pillar) {
@@ -31,7 +34,7 @@ export default function PillarScreen() {
         <View style={styles.shade} />
         <View style={styles.heroCopy}>
           <T variant="eyebrow" color={colors.brassSoft}>
-            Proposed planning home
+            Planning home
           </T>
           <T variant="title" color={colors.ivory}>
             {pillar.name}
@@ -44,7 +47,7 @@ export default function PillarScreen() {
       <View style={styles.pad}>
         <T variant="small">{scene.name}</T>
         <T variant="meta">{credits.scenes}</T>
-        <T variant="meta">Specific venues, bookings, and speaker participation remain unconfirmed.</T>
+        <T variant="meta">Specific venues are to be confirmed. Sessions on this island use its accommodations stop.</T>
         <Link href={{ pathname: "/agenda", params: { pillar: pillar.id } }} asChild>
           <Pressable accessibilityRole="button">
             <T variant="small" color={colors.brass}>
@@ -63,7 +66,7 @@ export default function PillarScreen() {
         ) : null}
       </View>
       <T variant="eyebrow" style={styles.count}>
-        {rows.length} proposed sessions
+        {rows.length} sessions
       </T>
       {rows.map((session) => (
         <SessionRow key={session.id} session={session} />

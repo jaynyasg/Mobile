@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { Link } from "expo-router";
 import { Pressable } from "react-native";
-import { credits, forum, sessionById, transport } from "@/content";
+import { credits, sessionById } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -11,6 +12,8 @@ import { routeMaps } from "@/images";
 import { colors, pad } from "@/theme";
 
 export default function TransportScreen() {
+  const { program } = useContent();
+  const { forum, transport } = program;
   const [modeId, setModeId] = useState(transport.modes[0].id);
   const [date, setDate] = useState(transport.modes[0].days[0].date);
   const mode = transport.modes.find((item) => item.id === modeId) ?? transport.modes[0];

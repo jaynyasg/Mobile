@@ -27,6 +27,8 @@ export interface Forum {
   timezone: string;
   timezoneLabel: string;
   draftNotice: string;
+  timingNote: string;
+  weekAgenda: { date: string; label: string; description: string }[];
   featuredStaffing: string;
   participation: {
     featured: string;
@@ -44,6 +46,12 @@ export interface Panelist {
   company: string;
   title: string;
   photo: string;
+  displayName: string | null;
+  bio: string;
+  bioSourceLabel: string;
+  origin: string;
+  affiliations: string[];
+  keynote: boolean;
   proposedPillarId: string;
   proposedIsland: string;
 }
@@ -54,8 +62,11 @@ export interface Session {
   description: string;
   outcome: string;
   dayId: string;
-  start: string;
-  end: string;
+  start: string | null;
+  end: string | null;
+  timeLabel: string | null;
+  supplemental: boolean;
+  optional: boolean;
   pillarId: string;
   island: string;
   region: string;
@@ -65,12 +76,53 @@ export interface Session {
   featureRole: string | null;
   speakerIds: string[];
   candidateIds: string[];
+  roles: Record<string, string>;
   specialists: string;
   status: string;
-  venue: string | null;
+  sourceNote: string | null;
+  venue: SessionVenue;
   sourcePage: number | null;
   sourceUrl: string;
   workstream: string;
+}
+
+export interface SessionVenue {
+  island: string | null;
+  venueId: string | null;
+  specific: string | null;
+  label: string;
+}
+
+export interface VenuePhoto {
+  src: string;
+  alt: string;
+}
+
+export interface StayLink {
+  name: string;
+  href: string | null;
+  localDeck: boolean;
+}
+
+export interface Venue {
+  id: string;
+  name: string;
+  island: string;
+  region: string;
+  route: string;
+  dock: string;
+  photos: VenuePhoto[];
+  video: string | null;
+  model: string | null;
+  boat: StayLink[];
+  land: StayLink[];
+  notes: string[];
+  note: string;
+}
+
+export interface SampleModel {
+  src: string;
+  label: string;
 }
 
 export type SessionKind = "all" | "featured" | "circuit" | "regular";
@@ -178,4 +230,33 @@ export interface Credits {
   logo: string;
   scenes: string;
   presentedBy: string;
+}
+
+export interface ProgramData {
+  generatedFrom: string;
+  contentUrl: string;
+  forum: Forum;
+  panelists: Panelist[];
+  sessions: Session[];
+  venues: Venue[];
+  sampleModel: SampleModel;
+  scenes: Scene[];
+  stays: { intro: string; brochureUrl: string; brochureNote: string; groups: StayGroup[] };
+  passes: {
+    legend: string;
+    sourceUrl: string;
+    sourceNote: string;
+    previewLabel: string;
+    items: Pass[];
+  };
+  transport: {
+    checked: string;
+    intro: string;
+    venueAssumptions: string;
+    borderNote: string;
+    sources: SourceLink[];
+    modes: TransportMode[];
+  };
+  notifications: Notice[];
+  credits: Credits;
 }

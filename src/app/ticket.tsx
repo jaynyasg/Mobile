@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Linking, Pressable, StyleSheet, View } from "react-native";
-import { passes } from "@/content";
+import { useContent } from "@/content/provider";
 import { QrMark } from "@/components/QrMark";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
@@ -9,6 +9,8 @@ import { passPayload } from "@/logic/state";
 import { colors, pad } from "@/theme";
 
 export default function TicketScreen() {
+  const { program } = useContent();
+  const { passes } = program;
   const [passId, setPassId] = useState(passes.items[0].id);
   const pass = passes.items.find((item) => item.id === passId) ?? passes.items[0];
 

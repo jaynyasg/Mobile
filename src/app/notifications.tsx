@@ -1,14 +1,16 @@
 import { Pressable, StyleSheet, View } from "react-native";
-import { notifications } from "@/content";
+import { forum } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { formatStamp } from "@/logic/time";
 import { useApp } from "@/store";
 import { colors, pad } from "@/theme";
-import { forum } from "@/content";
 
 export default function NotificationsScreen() {
+  const { program } = useContent();
+  const { notifications } = program;
   const { state, dispatch } = useApp();
   return (
     <Screen edge="none">

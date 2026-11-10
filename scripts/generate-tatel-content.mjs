@@ -1,24 +1,21 @@
 /**
- * Build src/content/tatel.json and src/content/images.ts from an extracted
- * TATELprep tree. Nothing in the program is typed by hand.
+ * Build src/content/tatel.json from the TATEL website export.
  *
- *   TATEL_SOURCE=/path/to/extracted node scripts/generate-tatel-content.mjs
+ *   TATEL_SOURCE=/path/to/tatel-site node scripts/generate-tatel-content.mjs
  *
- * The default source is /tmp/tatel-src. Point it at a checkout whose paths
- * match jaynyasg/TATELprep main (public/, docs/, and the image archive).
+ * Canonical input: raw/public/tatel/downloads/tatel-2027-program.json
+ * Accommodations: venues.json
+ * Portraits are copied only when the file already exists under assets/tatel/portraits.
  */
-import { mkdirSync, readFileSync, copyFileSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const sourceRoot = path.resolve(process.env.TATEL_SOURCE ?? "/tmp/tatel-src");
-const assetRoot = path.join(repoRoot, "assets", "tatel");
-
-function read(relative) {
-  return readFileSync(path.join(sourceRoot, relative), "utf8");
-}
+const sourceRoot = path.resolve(process.env.TATEL_SOURCE ?? "/tmp/tatel-site");
+const programPath = path.join(sourceRoot, "raw/public/tatel/downloads/tatel-2027-program.json");
+const venuesPath = path.join(sourceRoot, "venues.json");
+const portraitDir = path.join(repoRoot, "assets/tatel/portraits");
 
 function slug(value) {
   return value
@@ -29,55 +26,24 @@ function slug(value) {
     .replace(/^-|-$/g, "");
 }
 
-function textBetween(html, pattern) {
-  const match = html.match(pattern);
-  if (!match) throw new Error(`Missing pattern ${pattern}`);
-  return match[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+const downloaded = JSON.parse(readFileSync(programPath, "utf8"));
+const venueFile = JSON.parse(readFileSync(venuesPath, "utf8"));
+const { program, sessions: sessionsRaw, agendas, presenters } = downloaded;
+
+if (sessionsRaw.length !== 205) throw new Error(`Expected 205 sessions, found ${sessionsRaw.length}`);
+if (presenters.length !== 49) throw new Error(`Expected 49 presenters, found ${presenters.length}`);
+
+const used = new Map();
+function uniqueSlug(name) {
+  const base = slug(name) || "panelist";
+  const count = used.get(base) ?? 0;
+  used.set(base, count + 1);
+  return count === 0 ? base : `${base}-${count + 1}`;
 }
 
-function decode(value) {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&#8217;|&rsquo;/g, "’")
-    .replace(/&#8211;|&ndash;/g, "–")
-    .replace(/&#8212;|&mdash;/g, "—");
-}
+const idByName = new Map(presenters.map((person) => [person.name, uniqueSlug(person.name)]));
 
-function stripTags(value) {
-  return decode(value.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
-}
-
-const programFile = JSON.parse(read("public/downloads/tatel-2027-program.json"));
-const scenesFile = JSON.parse(read("public/scenes.json"));
-const imagery = JSON.parse(read("public/assets/route-maps/aerial-imagery.json"));
-const routeManifest = JSON.parse(read("public/assets/route-maps/manifest.json"));
-const presentersJs = read("public/presenters.js");
-const sandbox = { window: {} };
-vm.runInNewContext(presentersJs, sandbox);
-const presenters = sandbox.window.PRESENTERS;
-if (!Array.isArray(presenters) || presenters.length !== 29) {
-  throw new Error(`Expected 29 presenters, found ${presenters?.length}`);
-}
-
-const sessionsRaw = programFile.sessions;
-const byName = new Map(presenters.map((person) => [person.name, slug(person.name)]));
-for (const session of sessionsRaw) {
-  for (const name of [...session.speakers, ...session.candidates]) {
-    if (!byName.has(name)) throw new Error(`Session ${session.id} names ${name}, who is not on the roster`);
-  }
-}
-
-const homeByName = new Map();
-for (const session of sessionsRaw) {
-  for (const name of [...session.speakers, ...session.candidates]) {
-    if (!homeByName.has(name)) homeByName.set(name, { pillar: session.track, island: session.island });
-  }
-}
-
-const days = programFile.program.days.map((day) => {
+const days = program.days.map((day) => {
   const date = new Date(`${day.date}T12:00:00-04:00`);
   const weekday = new Intl.DateTimeFormat("en-US", { timeZone: "America/Virgin", weekday: "long" }).format(date);
   return {
@@ -91,249 +57,176 @@ const days = programFile.program.days.map((day) => {
   };
 });
 
-const pillars = programFile.program.pillars.map((pillar) => ({
+const pillars = program.pillars.map((pillar) => ({
   id: slug(pillar.name),
   name: pillar.name,
   island: pillar.island,
   region: pillar.region,
 }));
-
 const pillarByName = new Map(pillars.map((pillar) => [pillar.name, pillar]));
 
-function iso(date, time) {
-  return `${date}T${time}:00-04:00`;
+const venues = venueFile.islands.map((island) => {
+  const localDeck = (stay) => Boolean(stay.linkType === "pdf-preview" || (stay.url && stay.url.endsWith(".pdf")));
+  return {
+    id: slug(island.island),
+    name: island.island,
+    island: island.island,
+    region: island.region,
+    route: island.route,
+    dock: island.dock,
+    photos: [{ src: path.basename(island.image.src), alt: island.image.alt }],
+    video: null,
+    model: null,
+    boat: island.onTheBoat.map((stay) => ({ name: stay.name, href: localDeck(stay) ? null : stay.url, localDeck: localDeck(stay) })),
+    land: island.onTheBeachOrLand.map((stay) => ({ name: stay.name, href: localDeck(stay) ? null : stay.url, localDeck: localDeck(stay) })),
+    notes: Object.values(island.notes ?? {}).filter(Boolean),
+    noteBoat: island.notes?.onTheBoat ?? "",
+    noteLand: island.notes?.onTheBeachOrLand ?? "",
+    note: "Accommodation stop from brochure pages 21–22. The specific venue for each session is to be confirmed.",
+  };
+});
+const venueByIsland = new Map(venues.map((venue) => [venue.island, venue]));
+
+function sessionVenue(session) {
+  const venue = venueByIsland.get(session.island);
+  if (!venue) throw new Error(`${session.id} has no accommodations entry for ${session.island}`);
+  return { island: session.island, venueId: venue.id, specific: null, label: "to be confirmed" };
 }
 
 const sessions = sessionsRaw.map((session) => {
   const pillar = pillarByName.get(session.track);
   if (!pillar) throw new Error(`Unknown pillar ${session.track}`);
-  if (pillar.island !== session.island) {
-    throw new Error(`${session.id} island ${session.island} does not match ${pillar.island}`);
+  const speakerIds = (session.speakers ?? []).map((name) => {
+    const id = idByName.get(name);
+    if (!id) throw new Error(`${session.id} names ${name}, who is not on the roster`);
+    return id;
+  });
+  const roles = {};
+  for (const [name, role] of Object.entries(session.roles ?? {})) {
+    const id = idByName.get(name);
+    if (!id) throw new Error(`${session.id} role names ${name}, who is not on the roster`);
+    roles[id] = role;
   }
+  const timed = Boolean(session.start && session.end);
   return {
     id: session.id,
     title: session.title,
-    description: session.description,
-    outcome: session.outcome,
+    description: session.description ?? "",
+    outcome: session.outcome ?? "",
     dayId: session.date,
-    start: iso(session.date, session.start),
-    end: iso(session.date, session.end),
+    start: timed ? `${session.date}T${session.start}:00-04:00` : null,
+    end: timed ? `${session.date}T${session.end}:00-04:00` : null,
+    timeLabel: session.timeLabel ?? null,
+    supplemental: session.supplemental === true,
+    optional: session.optional === true,
     pillarId: pillar.id,
     island: session.island,
     region: pillar.region,
-    phase: session.phase,
-    format: session.format,
+    phase: session.phase ?? "",
+    format: session.format ?? "",
     featured: session.featured === true,
-    featureRole: session.featureRole,
-    speakerIds: session.speakers.map((name) => byName.get(name)),
-    candidateIds: session.candidates.map((name) => byName.get(name)),
-    specialists: session.specialists,
-    status: session.status,
-    venue: session.venue,
-    sourcePage: session.sourcePage,
-    sourceUrl: session.sourceUrl,
-    workstream: session.workstream,
+    featureRole: session.featureRole ?? null,
+    speakerIds,
+    candidateIds: [],
+    roles,
+    specialists: session.specialists ?? "",
+    status: session.status ?? "",
+    sourceNote: session.sourceNote ?? null,
+    venue: sessionVenue(session),
+    sourcePage: session.sourcePage ?? null,
+    sourceUrl: session.sourceUrl ?? "",
+    workstream: session.workstream ?? "",
   };
 });
+
+const firstSession = new Map();
+for (const session of sessions) {
+  for (const id of session.speakerIds) {
+    if (!firstSession.has(id)) firstSession.set(id, session);
+  }
+}
 
 const panelists = presenters.map((person) => {
-  const home = homeByName.get(person.name);
-  if (!home) throw new Error(`${person.name} has no proposed session`);
-  const photo = path.basename(person.photo);
+  const id = idByName.get(person.name);
+  const home = firstSession.get(id);
+  const photo = path.basename(person.photo ?? "");
   return {
-    id: byName.get(person.name),
+    id,
     name: person.name,
-    company: person.company,
-    title: person.role,
-    photo,
-    proposedPillarId: pillarByName.get(home.pillar).id,
-    proposedIsland: home.island,
+    displayName: person.displayName ?? null,
+    company: person.company ?? "",
+    title: person.role ?? "",
+    photo: photo && existsSync(path.join(portraitDir, photo)) ? photo : "",
+    bio: person.bio ?? "",
+    bioSourceLabel: person.bioSourceLabel ?? "",
+    origin: person.origin ?? "",
+    affiliations: Array.isArray(person.affiliations) ? person.affiliations : [],
+    keynote: person.keynote === true,
+    proposedPillarId: home?.pillarId ?? "",
+    proposedIsland: home?.island ?? "",
   };
 });
 
-const scenes = scenesFile.map((scene) => ({
-  id: scene.id,
-  name: scene.name,
-  image: path.basename(scene.image),
-  source: scene.source,
-  sha256: scene.sha256,
-}));
-
-const indexHtml = read("public/index.html");
-const draftNotice = textBetween(indexHtml, /<p class="draft-notice">([\s\S]*?)<\/p>/);
-const stayIntro = textBetween(indexHtml, /<div class="stay-intro"><p>([\s\S]*?)<\/p>/);
-const brochureUrl = "https://partner.tatel.io/";
-const brochureNote = textBetween(indexHtml, /<span class="source-pages">([\s\S]*?)<\/span>/);
-
-const accommodationsHtml = indexHtml.split('id="accommodations"')[1].split('<section class="closing">')[0];
-const stayGroups = [];
-const groupBlocks = accommodationsHtml.split('<div class="island-group">').slice(1);
-for (const block of groupBlocks) {
-  const headingHtml = block.match(/<h3[^>]*>([\s\S]*?)<\/h3>/)[1];
-  const routeLabel = headingHtml.match(/<span>([\s\S]*?)<\/span>/);
-  const heading = stripTags(headingHtml.replace(/<span>[\s\S]*?<\/span>/, ""));
-  const introMatch = block.match(/<p class="island-group-intro">([\s\S]*?)<\/p>/);
-  const cards = [];
-  const cardPattern = /<article class="stay-card">([\s\S]*?)<\/article>/g;
-  let cardMatch;
-  while ((cardMatch = cardPattern.exec(block))) {
-    const card = cardMatch[1];
-    const image = path.basename(card.match(/<img src="([^"]+)"/)[1]);
-    const imageAlt = decode(card.match(/alt="([^"]*)"/)[1]);
-    const route = stripTags(card.match(/<span>(ROUTE [^<]+)<\/span>/)[1]);
-    const island = stripTags(card.match(/<h4>([\s\S]*?)<\/h4>/)[1]);
-    const dock = stripTags(card.match(/<p class="dock-name">([\s\S]*?)<\/p>/)[1]);
-    const sections = [];
-    const sectionPattern = /<h5>([\s\S]*?)<\/h5>([\s\S]*?)(?=<h5>|<\/div>\s*$)/g;
-    let sectionMatch;
-    while ((sectionMatch = sectionPattern.exec(card))) {
-      const body = sectionMatch[2];
-      const providers = [];
-      const linkPattern = /<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
-      let linkMatch;
-      while ((linkMatch = linkPattern.exec(body))) {
-        const href = decode(linkMatch[1]);
-        providers.push({
-          name: stripTags(linkMatch[2]).replace(/\s*↗\s*$/, "").trim(),
-          href: href.startsWith("assets/") ? null : href,
-          localDeck: href.endsWith(".pdf"),
-        });
-      }
-      const notes = [...body.matchAll(/<p class="stay-note">([\s\S]*?)<\/p>/g)].map((note) => stripTags(note[1]));
-      sections.push({ heading: stripTags(sectionMatch[1]), providers, notes });
-    }
-    cards.push({
-      id: slug(island),
-      island,
-      route,
-      dock,
-      image,
-      imageAlt,
-      sections,
-    });
-  }
-  stayGroups.push({
-    heading,
-    routeLabel: routeLabel ? stripTags(routeLabel[1]) : null,
-    intro: introMatch ? stripTags(introMatch[1]) : null,
-    islands: cards,
-  });
-}
-
-if (stayGroups.length !== 2) throw new Error(`Expected 2 stay groups, found ${stayGroups.length}`);
-
-const mooring = read("public/mooring-preview.js");
-const passes = [];
-const passPattern = /<article class="mooring-pass">([\s\S]*?)<\/article>/g;
-let passMatch;
-while ((passMatch = passPattern.exec(mooring))) {
-  const article = passMatch[1];
-  const value = article.match(/value="([^"]+)"/)[1];
-  const name = stripTags(article.match(/<strong>([\s\S]*?)<\/strong>/)[1]);
-  const price = stripTags(article.match(/<span class="mooring-price">([\s\S]*?)<small>/)[1]);
-  const unit = stripTags(article.match(/<small>([\s\S]*?)<\/small>/)[1]);
-  const minimum = /Minimum of 8 guests/.test(article) ? "Minimum of 8 guests" : null;
-  const paragraphs = [...article.matchAll(/<p>([\s\S]*?)<\/p>/g)].map((item) => stripTags(item[1]));
-  const bullets = [...article.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((item) => stripTags(item[1]));
-  passes.push({ id: value, name, price, unit, minimum, paragraphs, bullets });
-}
-if (passes.length !== 3) throw new Error(`Expected 3 passes, found ${passes.length}`);
-const passSourceUrl = mooring.match(/href="(https:\/\/www\.tatelexclusive\.com\/attend)"/)[1];
-const passSourceNote = stripTags(mooring.match(/<div class="mooring-source">[\s\S]*?<p>([\s\S]*?)<\/p>/)[1]);
-const passPreviewLabel = "DESIGN PREVIEW · NO PAYMENT COLLECTED";
-
-const appJs = read("public/app.js");
-const featuredStaffing = appJs.match(/'Potential contributors only\.[^']+'/)[0].slice(1, -1);
-const participation = {
-  featured: "Potential contributor · Not assigned",
-  lead: "Proposed lead / convener",
-  contributor: "Proposed contributor",
+const transport = {
+  checked: agendas.checked,
+  intro: agendas.intro,
+  venueAssumptions: agendas.venueAssumptions,
+  borderNote: agendas.borderNote,
+  sources: agendas.sources,
+  modes: agendas.modes.map((mode) => ({
+    id: mode.id,
+    name: mode.name,
+    summary: mode.summary,
+    description: mode.description,
+    warning: mode.warning,
+    days: mode.days.map((day) => ({
+      date: day.date,
+      start: day.start,
+      overnight: day.overnight,
+      map: `${mode.id}-${day.date}.png`,
+      mapDescription: `${mode.name}, ${day.date}`,
+      items: day.items.map((item) =>
+        item.sessionId
+          ? { kind: "session", sessionId: item.sessionId }
+          : { kind: "leg", time: item.time, title: item.title, detail: item.detail, caution: item.caution === true },
+      ),
+    })),
+  })),
 };
 
-const decisions = read("docs/lovable/PROGRAM-DECISIONS.md");
-const tuesday = decisions
-  .split("## Tuesday access")[1]
-  .split("When preparing")[0]
-  .split("\n")
-  .map((line) => line.trim())
-  .filter((line) => line && !line.startsWith("#"))
-  .join(" ")
-  .replace(/\*\*/g, "");
-
-const agendas = programFile.agendas;
-const transport = agendas.modes.map((mode) => ({
-  id: mode.id,
-  name: mode.name,
-  summary: mode.summary,
-  description: mode.description,
-  warning: mode.warning,
-  days: mode.days.map((day) => ({
-    date: day.date,
-    start: day.start,
-    overnight: day.overnight,
-    map: `${mode.id}-${day.date}.png`,
-    mapDescription: routeManifest.find((entry) => entry.mode === mode.id && entry.date === day.date)?.description ?? null,
-    items: day.items.map((item) =>
-      item.sessionId
-        ? { kind: "session", sessionId: item.sessionId }
-        : { kind: "leg", time: item.time, title: item.title, detail: item.detail, caution: item.caution === true },
-    ),
-  })),
-}));
-
-for (const mode of transport) {
-  for (const day of mode.days) {
-    if (!day.mapDescription) throw new Error(`Missing route map for ${mode.id} ${day.date}`);
-    for (const item of day.items) {
-      if (item.kind === "session" && !sessions.some((session) => session.id === item.sessionId)) {
-        throw new Error(`Agenda ${mode.id} references missing session ${item.sessionId}`);
-      }
-    }
-  }
-}
-
-const notifications = [
+const stayGroups = [
   {
-    id: "proposed-program",
-    title: "Proposed program",
-    body: draftNotice,
-    sentAt: "2026-10-05T12:00:00-04:00",
+    heading: "U.S. Virgin Islands",
+    routeLabel: "ROUTES 01–03",
+    intro: null,
+    islands: venues.filter((venue) => venue.region === "USVI").map(stayIsland),
   },
   {
-    id: "tuesday-access",
-    title: "Tuesday access",
-    body: tuesday,
-    sentAt: "2026-10-05T12:00:00-04:00",
-  },
-  {
-    id: "sample-transport",
-    title: "Sample transportation",
-    body: agendas.intro,
-    sentAt: "2026-10-05T12:00:00-04:00",
-  },
-  {
-    id: "pass-preview",
-    title: "Pass preview",
-    body: `${passPreviewLabel} ${passSourceNote}`,
-    sentAt: "2026-10-04T12:00:00-04:00",
+    heading: "British Virgin Islands",
+    routeLabel: "ROUTES 04–05",
+    intro: venueFile.source.bviIntro,
+    islands: venues.filter((venue) => venue.region === "BVI").map(stayIsland),
   },
 ];
 
-const credits = {
-  sentinel: imagery.attribution,
-  sentinelLicense: imagery.license,
-  sentinelDocumentation: imagery.sourceDocumentation,
-  sentinelPeriod: imagery.imageryPeriod,
-  sentinelNote: "Historical 2016-edition imagery from 2016–2017; not current imagery.",
-  coastline: "Coastline data © OpenStreetMap contributors; ODbL 1.0 https://opendatacommons.org/licenses/odbl/1-0/ ; attribution https://www.openstreetmap.org/copyright",
-  portraits: "Portrait files and the roster were copied unchanged from the supplied Panelists source. Company and title come from the presenter roster.",
-  logo: "The 1878 mark is the supplied 1878-logo-dark.png artwork.",
-  scenes: "The eight backgrounds keep the source URLs and SHA-256 hashes from scenes.json.",
-  presentedBy: "https://tatel.18seventy8.com/",
-};
+function stayIsland(venue) {
+  return {
+    id: venue.id,
+    island: venue.island,
+    route: venue.route,
+    dock: `Dock · ${venue.dock}`,
+    image: venue.photos[0]?.src ?? "",
+    imageAlt: venue.photos[0]?.alt ?? venue.island,
+    sections: [
+      { heading: "On the boat", providers: venue.boat, notes: venue.noteBoat ? [venue.noteBoat] : [] },
+      { heading: "On the beach or on land", providers: venue.land, notes: venue.noteLand ? [venue.noteLand] : [] },
+    ],
+  };
+}
 
 const content = {
-  generatedFrom: "TATELprep public/downloads/tatel-2027-program.json, public/presenters.js, public/scenes.json, public/index.html, public/mooring-preview.js, and public/assets/route-maps/",
+  generatedFrom: "TATEL website raw/public/tatel/downloads/tatel-2027-program.json plus venues.json",
+  contentUrl: "/tatel/downloads/tatel-2027-program.json",
   forum: {
     id: "tatel",
     name: "TATEL",
@@ -341,114 +234,154 @@ const content = {
     kicker: "The tech summit on water",
     dateLabel: "January 26 – 29, 2027",
     placeLabel: "Four days · across the Virgin Islands",
-    startDate: days[0].date,
-    endDate: days[days.length - 1].date,
+    startDate: program.weekAgenda?.[0]?.date ?? days[0].date,
+    endDate: program.weekAgenda?.[program.weekAgenda.length - 1]?.date ?? days[days.length - 1].date,
     timezone: "America/Virgin",
-    timezoneLabel: programFile.program.timezone,
-    draftNotice,
-    featuredStaffing,
-    participation,
+    timezoneLabel: program.timezone,
+    draftNotice: "January 26–29, 2027 · Four days across the Virgin Islands.",
+    timingNote: program.timingNote ?? "",
+    weekAgenda: program.weekAgenda ?? [],
+    featuredStaffing: "Each session has one lead. Timed appearances are conflict-free; untimed activities still require scheduling.",
+    participation: {
+      featured: "Session lead",
+      lead: "Session lead",
+      contributor: "Session lead",
+    },
     closing: "Different perspectives. One shared horizon.",
     days,
     pillars,
   },
   panelists,
   sessions,
-  scenes,
+  venues,
+  sampleModel: {
+    src: "/sample/viewer-sample.glb",
+    label: "Sample model for the viewer. This is not a venue.",
+  },
+  scenes: [
+    { id: 1, name: "Cyril E. King Airport", image: "scene-01.jpg", source: "", sha256: "" },
+    { id: 2, name: "Red Hook · IGY Marina", image: "scene-02.jpg", source: "", sha256: "" },
+    { id: 3, name: "Lovango Cay", image: "scene-03.jpg", source: "", sha256: "" },
+    { id: 4, name: "Cruz Bay · VI National Park", image: "scene-04.jpg", source: "", sha256: "" },
+    { id: 5, name: "Jost Van Dyke", image: "scene-05.jpg", source: "", sha256: "" },
+    { id: 6, name: "Tortola · West End", image: "scene-06.jpg", source: "", sha256: "" },
+    { id: 7, name: "Scrub Island Resort", image: "scene-07.jpg", source: "", sha256: "" },
+    { id: 8, name: "Terrence B. Lettsome Airport", image: "scene-08.jpg", source: "", sha256: "" },
+  ],
   stays: {
-    intro: stayIntro,
-    brochureUrl,
-    brochureNote,
+    intro: venueFile.source.intro,
+    brochureUrl: venueFile.source.brochure,
+    brochureNote: venueFile.source.sourcePagesNote,
     groups: stayGroups,
   },
   passes: {
     legend: "Choose your passage - Early bird pricing",
-    sourceUrl: passSourceUrl,
-    sourceNote: passSourceNote,
-    previewLabel: passPreviewLabel,
-    items: passes,
+    sourceUrl: "https://www.tatelexclusive.com/attend",
+    sourceNote: "Pass prices reflect this preview. Final inclusions and availability need confirmation before checkout goes live.",
+    previewLabel: "DESIGN PREVIEW · NO PAYMENT COLLECTED",
+    items: [
+      { id: "beach", name: "BE on the Beach", price: "$1,900", unit: "PER GUEST", minimum: null, paragraphs: ["Beach pass details to be confirmed."], bullets: [] },
+      {
+        id: "boat",
+        name: "BE on the boat.",
+        price: "$2,500",
+        unit: "PER GUEST",
+        minimum: null,
+        paragraphs: ["Journey one route across three islands and conference on the water — dock panels and beach panels with builders, founders, and investors, plus the onboard mini-panel underway between every leg."],
+        bullets: ["Dock and beach panels for builders, founders & investors", "One route · 3 islands — choose Route 1 or Route 2", "The onboard mini-panel underway between stops"],
+      },
+      {
+        id: "vip",
+        name: "STAY onboard - All inclusive VIP",
+        price: "$5,000",
+        unit: "PER GUEST",
+        minimum: "Minimum of 8 guests",
+        paragraphs: [],
+        bullets: [
+          "Stay on the boats for the conference — every destination, at each stop along the way",
+          "VIP sessions, beaches, boats and local water excursions with your own local guide and concierge",
+          "Personal local guides at every island with curated lunches & dinners",
+          "Sessions not just on the water — but in the water",
+          "The entire four-day conference",
+        ],
+      },
+    ],
   },
-  transport: {
-    checked: agendas.checked,
-    intro: agendas.intro,
-    venueAssumptions: agendas.venueAssumptions,
-    borderNote: agendas.borderNote,
-    sources: agendas.sources,
-    modes: transport,
+  transport,
+  notifications: [
+    {
+      id: "draft-notice",
+      title: "Program",
+      body: "January 26–29, 2027 · Four days across the Virgin Islands. Speakers, session times, and specific venues remain subject to confirmation.",
+      sentAt: "2026-11-09T12:00:00-04:00",
+    },
+    {
+      id: "timing",
+      title: "Times",
+      body: program.timingNote,
+      sentAt: "2026-11-09T12:00:00-04:00",
+    },
+    {
+      id: "sample-transport",
+      title: "Sample transportation",
+      body: agendas.intro,
+      sentAt: "2026-10-05T12:00:00-04:00",
+    },
+    {
+      id: "pass-preview",
+      title: "Pass preview",
+      body: "DESIGN PREVIEW · NO PAYMENT COLLECTED Pass prices reflect this preview. Final inclusions and availability need confirmation before checkout goes live.",
+      sentAt: "2026-10-04T12:00:00-04:00",
+    },
+  ],
+  credits: {
+    sentinel: "Sentinel-2 cloudless - https://s2maps.eu by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2016 & 2017)",
+    sentinelLicense: "https://creativecommons.org/licenses/by/4.0/",
+    sentinelDocumentation: "https://eox.at/2017/08/sentinel-2-global-cloudless-mosaic/",
+    sentinelPeriod: "2016 & 2017",
+    sentinelNote: "Historical 2016-edition imagery from 2016–2017; not current imagery.",
+    coastline: "Coastline data © OpenStreetMap contributors; ODbL 1.0 https://opendatacommons.org/licenses/odbl/1-0/ ; attribution https://www.openstreetmap.org/copyright",
+    portraits: "Portraits are the files supplied with the panelist roster. Missing files are left blank.",
+    logo: "The 1878 mark is the supplied 1878-logo-dark.png artwork.",
+    scenes: "The eight backgrounds are the island scenes supplied with the program.",
+    presentedBy: "https://tatel.18seventy8.com/",
   },
-  notifications,
-  credits,
 };
 
-const contentDir = path.join(repoRoot, "src", "content");
-mkdirSync(contentDir, { recursive: true });
-writeFileSync(path.join(contentDir, "tatel.json"), `${JSON.stringify(content, null, 2)}\n`);
+writeFileSync(path.join(repoRoot, "src/content/tatel.json"), `${JSON.stringify(content, null, 2)}\n`);
 
-function place(fromRelative, toRelative) {
-  const from = path.join(sourceRoot, fromRelative);
-  const to = path.join(assetRoot, toRelative);
-  mkdirSync(path.dirname(to), { recursive: true });
-  copyFileSync(from, to);
-}
-
-rmSync(assetRoot, { recursive: true, force: true });
-for (const person of panelists) place(`public/assets/${person.photo}`, `portraits/${person.photo}`);
-for (const scene of scenes) place(`public/assets/${scene.image}`, `scenes/${scene.image}`);
-for (const mode of transport) {
-  for (const day of mode.days) {
-    place(`public/assets/route-maps/${mode.id}-${day.date}.png`, `routes/${day.map}`);
-  }
-}
-place("public/assets/1878-logo-dark.png", "1878-logo-dark.png");
-for (let page = 1; page <= 12; page += 1) {
-  const name = `page-${String(page).padStart(2, "0")}.jpg`;
-  place(`public/assets/ilma-deck-plans/${name}`, `ilma/${name}`);
-}
-
-function requireLines(directory, files) {
-  return files
-    .map((file) => `  ${JSON.stringify(file)}: require("../assets/tatel/${directory}/${file}"),`)
-    .join("\n");
-}
-
+const photos = panelists.map((person) => person.photo).filter(Boolean);
 const imageModule = `/* Generated by scripts/generate-tatel-content.mjs. Do not edit by hand. */
 import type { ImageSourcePropType } from "react-native";
 
 export const portraits: Record<string, ImageSourcePropType> = {
-${requireLines("portraits", panelists.map((person) => person.photo))}
+${photos.map((file) => `  ${JSON.stringify(file)}: require("../assets/tatel/portraits/${file}"),`).join("\n")}
 };
 
 export const scenes: Record<string, ImageSourcePropType> = {
-${requireLines("scenes", scenes.map((scene) => scene.image))}
+${content.scenes.map((scene) => `  ${JSON.stringify(scene.image)}: require("../assets/tatel/scenes/${scene.image}"),`).join("\n")}
 };
 
 export const routeMaps: Record<string, ImageSourcePropType> = {
-${requireLines(
-  "routes",
-  transport.flatMap((mode) => mode.days.map((day) => day.map)),
-)}
+${transport.modes.flatMap((mode) => mode.days.map((day) => `  ${JSON.stringify(day.map)}: require("../assets/tatel/routes/${day.map}"),`)).join("\n")}
 };
 
 export const logo1878 = require("../assets/tatel/1878-logo-dark.png") as ImageSourcePropType;
 
 export const ilmaPages: ImageSourcePropType[] = [
-${Array.from({ length: 12 }, (_, index) => {
-  const name = `page-${String(index + 1).padStart(2, "0")}.jpg`;
-  return `  require("../assets/tatel/ilma/${name}"),`;
-}).join("\n")}
+${Array.from({ length: 12 }, (_, index) => `  require("../assets/tatel/ilma/page-${String(index + 1).padStart(2, "0")}.jpg"),`).join("\n")}
 ];
+
+export const beaconPoster = require("../assets/tatel/beacon-poster.jpg") as ImageSourcePropType;
 `;
+writeFileSync(path.join(repoRoot, "src/images.ts"), imageModule);
 
-writeFileSync(path.join(repoRoot, "src", "images.ts"), imageModule);
-
-const counts = {
+const tba = sessions.filter((session) => session.speakerIds.length === 0).length;
+console.log(JSON.stringify({
   sessions: sessions.length,
-  featured: sessions.filter((session) => session.featured).length,
-  circuit: sessions.filter((session) => session.featureRole === "Circuit feature").length,
-  regular: sessions.filter((session) => !session.featured).length,
+  supplemental: sessions.filter((session) => session.supplemental).length,
   panelists: panelists.length,
-  stays: stayGroups.reduce((sum, group) => sum + group.islands.length, 0),
-  passes: passes.length,
-  maps: transport.reduce((sum, mode) => sum + mode.days.length, 0),
-};
-console.log(JSON.stringify(counts));
+  photos: photos.length,
+  venues: venues.length,
+  tba,
+}));

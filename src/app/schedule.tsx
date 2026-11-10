@@ -1,4 +1,5 @@
-import { forum, sessions } from "@/content";
+import { forum } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { SessionRow } from "@/components/SessionRow";
 import { StackHeader } from "@/components/StackHeader";
@@ -7,6 +8,8 @@ import { mySchedule } from "@/logic/agenda";
 import { useApp } from "@/store";
 
 export default function ScheduleScreen() {
+  const { program } = useContent();
+  const { sessions } = program;
   const { state } = useApp();
   const mine = mySchedule(sessions, state.favoriteIds);
 

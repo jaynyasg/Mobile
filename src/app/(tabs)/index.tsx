@@ -1,21 +1,22 @@
 import { Link } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
-import { forum, scenes, stays } from "@/content";
+import { Pressable, StyleSheet, View } from "react-native";
+import { useContent } from "@/content/provider";
+import { BeaconBackground } from "@/components/BeaconBackground";
+import { InstallHint } from "@/components/InstallHint";
 import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
-import { scenes as sceneImages } from "@/images";
 import { forumPhase, phaseLabel, suggestedDayId } from "@/logic/phase";
 import { colors, pad } from "@/theme";
 
 export default function HomeScreen() {
+  const { program } = useContent();
+  const { forum, stays, venues } = program;
   const phase = forumPhase(new Date());
-  const scene = scenes[1] ?? scenes[0];
 
   return (
-    <Screen statusBar="light" edge="none">
-      <View style={styles.hero}>
-        <Image source={sceneImages[scene.image]} style={styles.heroImage} resizeMode="cover" />
-        <View style={styles.heroShade} />
+    <View style={styles.frame}>
+      <BeaconBackground />
+      <Screen background="transparent" statusBar="light" edge="none">
         <View style={styles.heroCopy}>
           <T variant="eyebrow" color={colors.brassSoft}>
             {forum.name} · {forum.kicker}
@@ -33,11 +34,12 @@ export default function HomeScreen() {
             {phaseLabel(phase)}
           </T>
         </View>
-      </View>
+      <View style={styles.sheet}>
+      <InstallHint />
       <View style={styles.notice}>
-        <T variant="eyebrow">Proposed program</T>
+        <T variant="eyebrow">Program</T>
         <T variant="small">{forum.draftNotice}</T>
-        <T variant="meta">{scene.name}</T>
+        <T variant="meta">{forum.timingNote ? forum.timingNote.replace(/\b[Pp]roposed\s+/g, "") : "Specific venues and untimed activities remain to be confirmed."}</T>
       </View>
       <T variant="eyebrow" style={styles.section}>
         Five pillars · planning homes
@@ -47,7 +49,7 @@ export default function HomeScreen() {
           <Pressable accessibilityRole="button" style={styles.pillar}>
             <T variant="rowTitle">{pillar.name}</T>
             <T variant="meta">
-              {pillar.island} · {pillar.region} · Proposed
+              {pillar.island} · {pillar.region}
             </T>
           </Pressable>
         </Link>
@@ -59,9 +61,12 @@ export default function HomeScreen() {
         <HomeLink href={{ pathname: "/agenda", params: { day: suggestedDayId(new Date()) } }} label="Agenda" detail="Day, pillar, island, type" />
         <HomeLink href="/transport" label="Sample transport" detail="Three unconfirmed routes" />
         <HomeLink href="/stays" label="Accommodations" detail={stays.brochureNote} />
+        <HomeLink href={{ pathname: "/venue/[id]", params: { id: venues[0]?.id ?? "st-thomas" } }} label="Venues" detail="Island stops · specific venue to be confirmed" />
         <HomeLink href="/ticket" label="Pass preview" detail="No payment collected" />
       </View>
-    </Screen>
+      </View>
+      </Screen>
+    </View>
   );
 }
 
@@ -70,7 +75,7 @@ function HomeLink({
   label,
   detail,
 }: {
-  href: "/transport" | "/stays" | "/ticket" | { pathname: "/agenda"; params: { day: string } };
+  href: "/transport" | "/stays" | "/ticket" | { pathname: "/agenda"; params: { day: string } } | { pathname: "/venue/[id]"; params: { id: string } };
   label: string;
   detail: string;
 }) {
@@ -85,10 +90,9 @@ function HomeLink({
 }
 
 const styles = StyleSheet.create({
-  hero: { height: 320, justifyContent: "flex-end", overflow: "hidden" },
-  heroImage: { position: "absolute", top: 0, left: 0, right: 0, height: 320 },
-  heroShade: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(7,27,42,0.46)" },
-  heroCopy: { padding: pad, paddingBottom: 22, gap: 6 },
+  frame: { flex: 1, backgroundColor: "#071B2A" },
+  heroCopy: { padding: pad, paddingTop: 72, paddingBottom: 22, gap: 6 },
+  sheet: { backgroundColor: colors.paper, paddingTop: 8 },
   notice: { margin: pad, padding: 14, gap: 8, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised },
   section: { paddingHorizontal: pad, marginTop: 8, marginBottom: 8 },
   pillar: {

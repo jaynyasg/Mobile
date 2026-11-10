@@ -1,6 +1,7 @@
 import { Link, useLocalSearchParams } from "expo-router";
 import { Image, Linking, Pressable, StyleSheet, View } from "react-native";
 import { stayById } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -8,6 +9,7 @@ import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 
 export default function StayScreen() {
+  useContent();
   const { id } = useLocalSearchParams<{ id: string }>();
   const island = stayById(id ?? "");
   if (!island) {

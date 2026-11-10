@@ -25,7 +25,14 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "TATEL · Conversations",
+      "shortName": "TATEL",
+      "themeColor": "#071B2A",
+      "backgroundColor": "#071B2A",
+      "display": "standalone",
+      "lang": "en",
+      "description": "TATEL · Conversations. January 26–29, 2027, across the Virgin Islands."
     },
     "plugins": [
       "expo-router",

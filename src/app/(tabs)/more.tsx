@@ -1,10 +1,12 @@
 import { Href } from "expo-router";
-import { notifications } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { LinkRow, PageHeader, SectionLabel } from "@/components/ui";
 import { useApp } from "@/store";
 
 export default function MoreScreen() {
+  const { program } = useContent();
+  const { notifications } = program;
   const { state } = useApp();
   const unread = notifications.filter((note) => !state.readNotificationIds.includes(note.id)).length;
   const groups: { title: string; items: { href: Href; label: string; detail?: string; badge?: number }[] }[] = [

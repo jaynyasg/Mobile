@@ -1,12 +1,14 @@
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { notifications } from "@/content";
+import { useContent } from "@/content/provider";
 import { Icon, IconName } from "@/components/Icon";
 import { useApp } from "@/store";
 import { colors, fonts } from "@/theme";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { program } = useContent();
+  const { notifications } = program;
   const { state } = useApp();
   const unread = notifications.filter((note) => !state.readNotificationIds.includes(note.id)).length;
 

@@ -7,29 +7,22 @@ export const portraits: Record<string, ImageSourcePropType> = {
   "p24-travis-long.png": require("../assets/tatel/portraits/p24-travis-long.png"),
   "p09-john-nelson-henry.png": require("../assets/tatel/portraits/p09-john-nelson-henry.png"),
   "p00-jemaul-griffith.png": require("../assets/tatel/portraits/p00-jemaul-griffith.png"),
-  "p01-cory-t.png": require("../assets/tatel/portraits/p01-cory-t.png"),
   "p25-latoya-donastorg.png": require("../assets/tatel/portraits/p25-latoya-donastorg.png"),
   "p12-tischer-l-lockhart-mba.png": require("../assets/tatel/portraits/p12-tischer-l-lockhart-mba.png"),
   "p13-artra-watlington-francis-mba.png": require("../assets/tatel/portraits/p13-artra-watlington-francis-mba.png"),
   "p16-kyle-fleming.png": require("../assets/tatel/portraits/p16-kyle-fleming.png"),
-  "p22-coral-megahy-mba.png": require("../assets/tatel/portraits/p22-coral-megahy-mba.png"),
-  "p21-jarrod-bernstein.png": require("../assets/tatel/portraits/p21-jarrod-bernstein.png"),
   "p02-ralph-motta.png": require("../assets/tatel/portraits/p02-ralph-motta.png"),
   "p03-trinity-austrie.png": require("../assets/tatel/portraits/p03-trinity-austrie.png"),
   "p04-sheldon-williams.png": require("../assets/tatel/portraits/p04-sheldon-williams.png"),
   "p05-george-cannon.png": require("../assets/tatel/portraits/p05-george-cannon.png"),
   "p06-chris-gordon-cpa-cgma.png": require("../assets/tatel/portraits/p06-chris-gordon-cpa-cgma.png"),
   "p07-elizabeth-sweetland.png": require("../assets/tatel/portraits/p07-elizabeth-sweetland.png"),
-  "p08-lajuan-leon-mba.png": require("../assets/tatel/portraits/p08-lajuan-leon-mba.png"),
   "p11-lamin-jackson.png": require("../assets/tatel/portraits/p11-lamin-jackson.png"),
   "p14-arsenio-watlington.png": require("../assets/tatel/portraits/p14-arsenio-watlington.png"),
-  "p15-keena-fleming.png": require("../assets/tatel/portraits/p15-keena-fleming.png"),
   "p17-ashley-scotland.png": require("../assets/tatel/portraits/p17-ashley-scotland.png"),
   "p18-tk-petersen.png": require("../assets/tatel/portraits/p18-tk-petersen.png"),
   "p20-zahra-jackson.png": require("../assets/tatel/portraits/p20-zahra-jackson.png"),
-  "p23-reesha-l-archibald.png": require("../assets/tatel/portraits/p23-reesha-l-archibald.png"),
   "p26-will-scott-terrell.png": require("../assets/tatel/portraits/p26-will-scott-terrell.png"),
-  "p28-jay-godfrey.png": require("../assets/tatel/portraits/p28-jay-godfrey.png"),
   "p28-daniel-lee.png": require("../assets/tatel/portraits/p28-daniel-lee.png"),
 };
 
@@ -75,3 +68,5 @@ export const ilmaPages: ImageSourcePropType[] = [
   require("../assets/tatel/ilma/page-11.jpg"),
   require("../assets/tatel/ilma/page-12.jpg"),
 ];
+
+export const beaconPoster = require("../assets/tatel/beacon-poster.jpg") as ImageSourcePropType;

@@ -9,17 +9,19 @@ export function Screen({
   scroll = true,
   edge = "top",
   statusBar = "dark",
+  background = colors.paper,
 }: {
   children: ReactNode;
   scroll?: boolean;
   edge?: "top" | "none";
   statusBar?: "dark" | "light";
+  background?: string;
 }) {
   const insets = useSafeAreaInsets();
   const paddingTop = edge === "top" ? insets.top : 0;
   if (!scroll) {
     return (
-      <View style={[styles.fill, { paddingTop }]}>
+      <View style={[styles.fill, { paddingTop, backgroundColor: background }]}>
         <StatusBar style={statusBar === "light" ? "light" : "dark"} />
         {children}
       </View>
@@ -27,7 +29,7 @@ export function Screen({
   }
   return (
     <ScrollView
-      style={styles.fill}
+      style={[styles.fill, { backgroundColor: background }]}
       contentContainerStyle={{ paddingTop, paddingBottom: 36 }}
       keyboardShouldPersistTaps="handled"
     >

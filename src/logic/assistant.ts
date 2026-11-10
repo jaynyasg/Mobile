@@ -12,6 +12,7 @@ import {
   stayIslands,
   transport,
 } from "../content";
+import { getProgram } from "../content/active";
 import { formatRange } from "./time";
 
 export interface Citation {
@@ -96,6 +97,7 @@ function scoreDoc(queryTokens: string[], doc: GuideDoc): number {
 }
 
 function buildCorpus(): GuideDoc[] {
+  const { forum, sessions, panelists, passes, transport, credits } = getProgram();
   const zone = forum.timezone;
   const docs: GuideDoc[] = [
     {
@@ -142,7 +144,7 @@ function buildCorpus(): GuideDoc[] {
       id: `pillar-${pillar.id}`,
       title: `${pillar.name} pillar`,
       keywords: [pillar.island, pillar.region],
-      body: `${pillar.name} is a proposed planning home on ${pillar.island} (${pillar.region}). Specific venues and speaker participation remain unconfirmed.`,
+      body: `${pillar.name} is planned on ${pillar.island} (${pillar.region}). The specific venue is to be confirmed.`,
       citation: { title: pillar.name, kind: "screen", id: `pillar:${pillar.id}` },
     });
   }
@@ -170,14 +172,13 @@ function buildCorpus(): GuideDoc[] {
 
   for (const session of sessions) {
     const day = forum.days.find((item) => item.id === session.dayId);
-    const people = session.featured
-      ? `Potential contributors, not assigned: ${panelistNames(session.candidateIds) || "none listed"}.`
-      : `Suggested panelists: ${panelistNames(session.speakerIds) || "none listed"}.`;
+    const people = panelistNames(session.speakerIds) || "Speaker to be announced";
+    const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
     docs.push({
       id: `session-${session.id}`,
       title: session.title,
-      keywords: [session.island, session.status, session.featured ? "featured" : "regular"],
-      body: `${session.title} is ${session.status.toLowerCase()}. ${day?.label}. ${formatRange(session.start, session.end, zone)} on ${session.island}. ${session.format}. ${session.description} ${people} Venue: unconfirmed.`,
+      keywords: [session.island, session.featured ? "featured" : "regular"],
+      body: `${session.title}. ${day?.label}. ${when} on ${session.island}. ${session.format}. ${session.description} Lead: ${people}. Venue: to be confirmed.`,
       citation: { title: session.title, kind: "session", id: session.id },
     });
   }
@@ -186,14 +187,15 @@ function buildCorpus(): GuideDoc[] {
     const talks = sessionsForPanelist(person.id);
     const lines = talks.slice(0, 4).map((session) => {
       const role = participationLabel(session, person.id);
-      return `${session.title}, ${formatRange(session.start, session.end, zone)} (${role})`;
+      const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
+      return `${session.title}, ${when} (${role})`;
     });
     const pillar = pillarById(person.proposedPillarId);
     docs.push({
       id: `panelist-${person.id}`,
       title: person.name,
       keywords: [person.company, person.title, person.proposedIsland],
-      body: `${person.name}, ${person.title}, ${person.company}. Proposed pillar ${pillar?.name} · ${person.proposedIsland}. Linked sessions: ${lines.join("; ")}.`,
+      body: `${person.name}, ${person.title}, ${person.company}. ${pillar?.name ?? "Program to be announced"} · ${person.proposedIsland || "Location TBC"}. Linked sessions: ${lines.join("; ")}.`,
       citation: { title: person.name, kind: "panelist", id: person.id },
     });
   }
@@ -202,8 +204,14 @@ function buildCorpus(): GuideDoc[] {
 }
 
 let corpus: GuideDoc[] | null = null;
+let corpusProgram: unknown = null;
 
 export function answerQuestion(question: string): GuideAnswer {
+  const program = getProgram();
+  if (corpusProgram !== program) {
+    corpus = null;
+    corpusProgram = program;
+  }
   const queryTokens = tokens(question);
   if (queryTokens.length === 0) return { text: FALLBACK, citations: [] };
   corpus ??= buildCorpus();

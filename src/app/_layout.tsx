@@ -4,6 +4,8 @@ import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import { ReactNode, useEffect } from "react";
 import { Platform, View } from "react-native";
+import { ContentProvider } from "@/content/provider";
+import { RegisterPwa } from "@/components/RegisterPwa";
 import { AppProvider, useApp } from "@/store";
 import { colors } from "@/theme";
 import "@/global.css";
@@ -13,6 +15,7 @@ SplashScreen.preventAutoHideAsync().catch(() => undefined);
 export default function RootLayout() {
   return (
     <AppProvider>
+      <ContentProvider>
       <Boot>
         <Frame>
           <Stack
@@ -21,8 +24,10 @@ export default function RootLayout() {
               contentStyle: { backgroundColor: colors.paper },
             }}
           />
+          <RegisterPwa />
         </Frame>
       </Boot>
+      </ContentProvider>
     </AppProvider>
   );
 }

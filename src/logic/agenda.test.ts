@@ -18,7 +18,7 @@ const base = {
 describe("agenda filters", () => {
   it("filters by day, pillar, island, type, and panelist", () => {
     const tuesday = filterAgenda(base);
-    expect(tuesday).toHaveLength(50);
+    expect(tuesday).toHaveLength(52);
     expect(tuesday.every((session) => session.dayId === "2027-01-26")).toBe(true);
 
     const tech = filterAgenda({ ...base, pillarId: "tech", island: "St. Thomas" });
@@ -31,8 +31,8 @@ describe("agenda filters", () => {
 
     const malik = panelists.find((person) => person.name === "Malik Elizee");
     expect(malik).toBeTruthy();
-    const theirs = filterAgenda({ ...base, dayId: "all", panelistId: malik?.id ?? "", query: "offline" });
-    expect(theirs.map((session) => session.id)).toContain("F-TECH-A-D1");
+    const theirs = filterAgenda({ ...base, dayId: "all", panelistId: malik?.id ?? "", query: "systems" });
+    expect(theirs.map((session) => session.id)).toContain("T1-D1");
   });
 
   it("keeps favorites on a personal schedule", () => {

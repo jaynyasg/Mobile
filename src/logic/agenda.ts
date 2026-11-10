@@ -34,16 +34,16 @@ export function filterAgenda(input: {
       return haystack.includes(needle);
     })
     .slice()
-    .sort((a, b) => a.start.localeCompare(b.start) || Number(b.featured) - Number(a.featured) || a.title.localeCompare(b.title));
+    .sort((a, b) => (a.start ?? "9999").localeCompare(b.start ?? "9999") || Number(b.featured) - Number(a.featured) || a.title.localeCompare(b.title));
 }
 
 export function mySchedule(sessions: Session[], favoriteIds: string[]): Session[] {
   const ids = new Set(favoriteIds);
-  return sessions.filter((session) => ids.has(session.id)).sort((a, b) => a.start.localeCompare(b.start));
+  return sessions.filter((session) => ids.has(session.id)).sort((a, b) => (a.start ?? "9999").localeCompare(b.start ?? "9999"));
 }
 
 export function upcomingSessions(sessions: Session[], now: Date, limit: number): Session[] {
-  const future = sessions.filter((session) => Date.parse(session.end) > now.getTime());
+  const future = sessions.filter((session) => session.end !== null && Date.parse(session.end) > now.getTime());
   const source = future.length > 0 ? future : sessions;
   return source.slice(0, limit);
 }

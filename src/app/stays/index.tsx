@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { Image, Pressable, StyleSheet, View } from "react-native";
-import { stays } from "@/content";
+import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -8,6 +8,8 @@ import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 
 export default function StaysScreen() {
+  const { program } = useContent();
+  const { stays } = program;
   return (
     <Screen edge="none">
       <StackHeader title="Accommodations" />
