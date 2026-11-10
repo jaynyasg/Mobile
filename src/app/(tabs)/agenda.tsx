@@ -5,6 +5,7 @@ import { panelistById } from "@/content";
 import { useContent } from "@/content/provider";
 import { displayCopy } from "@/content/display";
 import type { SessionKind } from "@/content/types";
+import { Glass } from "@/components/Glass";
 import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
@@ -60,23 +61,23 @@ export default function AgendaScreen() {
   return (
     <View style={styles.frame}>
       <Screen docked photo={sceneForIsland(island === "all" ? "St. Thomas" : island)}>
-        <View style={styles.titleRow}>
+        <Glass tone="dark" style={styles.titleRow}>
           <T variant="title" foil>Program</T>
           <Pressable accessibilityRole="button" accessibilityLabel="About this draft" onPress={() => setNote((open) => !open)} style={styles.info}>
             <T variant="meta" color={colors.gold}>i</T>
           </Pressable>
-        </View>
+        </Glass>
         {note ? <T variant="meta" color={colors.onDarkSoft} style={styles.note}>{displayCopy(forum.draftNotice)}</T> : null}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.days}>
           {[...forum.days.map((day) => ({ id: day.id, label: `${day.shortWeekday} ${day.dayNumber}` })), { id: "all", label: "All" }].map((day) => (
             <Pressable key={day.id} accessibilityRole="button" accessibilityState={{ selected: dayId === day.id }} onPress={() => setDayId(day.id)} style={[styles.day, dayId === day.id && styles.dayOn]}>
-              <T variant="meta" color={colors.ivory}>{day.label}</T>
+              <T variant="meta" color={dayId === day.id ? colors.ivory : colors.ink}>{day.label}</T>
             </Pressable>
           ))}
         </ScrollView>
         <View style={styles.tools}>
           <Pressable accessibilityRole="button" onPress={() => setFiltersOpen(true)} style={styles.filter}>
-            <T variant="meta" color={colors.onDark}>Filter{filterCount ? ` · ${filterCount}` : ""}</T>
+            <T variant="meta">Filter{filterCount ? ` · ${filterCount}` : ""}</T>
           </Pressable>
           <View style={styles.search}><SearchField value={query} onChange={setQuery} placeholder="Search" /></View>
         </View>
@@ -84,7 +85,7 @@ export default function AgendaScreen() {
           {lead.map((session) => (
             <Link key={session.id} href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
               <Pressable accessibilityRole="button" style={styles.feature}>
-                <Image source={{ uri: sceneForIsland(session.island).replace("-1280.webp", "-640.webp") }} style={styles.featurePhoto} accessibilityIgnoresInvertColors />
+                <Image source={{ uri: sceneForIsland(session.island) }} style={styles.featurePhoto} accessibilityIgnoresInvertColors />
                 <PhotoShade />
                 <View style={styles.featureCopy}>
                   <T variant="small" color={colors.onDark} numberOfLines={2}>{displayCopy(session.title)}</T>
@@ -94,8 +95,10 @@ export default function AgendaScreen() {
             </Link>
           ))}
         </ScrollView>
-        {selectedPerson ? <T variant="meta" color={colors.onDarkSoft} style={styles.note}>{selectedPerson.name}</T> : null}
-        <T variant="meta" color={colors.onDarkSoft} style={styles.note}>{visible.length} sessions</T>
+        {selectedPerson ? <T variant="meta" style={styles.note}>{selectedPerson.name}</T> : null}
+        <Glass padded={false} style={styles.count}>
+          <T variant="meta">{visible.length} sessions</T>
+        </Glass>
         {visible.length === 0 ? (
           <EmptyState title="Nothing in this cut" body="Clear a filter. The draft is still here." />
         ) : (
@@ -142,14 +145,15 @@ export default function AgendaScreen() {
 
 const styles = StyleSheet.create({
   frame: { flex: 1 },
-  titleRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 22, paddingTop: 8 },
+  titleRow: { marginHorizontal: 16, marginBottom: 8, flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, paddingHorizontal: 14 },
   info: { width: 28, height: 28, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.gold, alignItems: "center", justifyContent: "center" },
   note: { paddingHorizontal: 22, paddingTop: 8 },
+  count: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
   days: { paddingHorizontal: 22, gap: 8, paddingTop: 16, paddingBottom: 8 },
-  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.55)", backgroundColor: "rgba(7,18,32,0.28)" },
+  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,224,138,0.7)", backgroundColor: "rgba(255,255,255,0.62)" },
   dayOn: { backgroundColor: colors.turquoise, borderColor: colors.turquoise },
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },
-  filter: { paddingVertical: 8 },
+  filter: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,224,138,0.7)", backgroundColor: "rgba(255,255,255,0.62)" },
   search: { flex: 1 },
   carousel: { paddingHorizontal: 22, gap: 12, paddingVertical: 8 },
   feature: { width: 210, height: 132, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },

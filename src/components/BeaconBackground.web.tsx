@@ -50,8 +50,7 @@ export function BeaconBackground() {
         style: {
           position: "absolute",
           inset: 0,
-          background:
-            "linear-gradient(to bottom, rgba(6,14,24,0.18) 0%, rgba(6,14,24,0.08) 36%, rgba(6,14,24,0.55) 72%, rgba(6,14,24,0.84) 100%), radial-gradient(ellipse at 72% 12%, rgba(255,210,120,0.28), transparent 42%)",
+          background: "linear-gradient(to bottom, rgba(6,14,24,0) 0%, rgba(6,14,24,0) 52%, rgba(6,14,24,0.72) 78%, rgba(6,14,24,0.86) 100%)",
         },
       })}
     </View>

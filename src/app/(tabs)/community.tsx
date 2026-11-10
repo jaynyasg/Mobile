@@ -90,7 +90,7 @@ export default function CommunityScreen() {
 
   return (
     <Screen docked photo={scenePhotos.community}>
-      <View style={styles.pad}>
+      <Glass tone="dark" style={styles.pad}>
         <T variant="eyebrow" color={colors.gold}>TATEL</T>
         <T variant="title" foil>Community</T>
         <View style={styles.row}>
@@ -102,21 +102,21 @@ export default function CommunityScreen() {
           </Link>
           <Link href="/community-profile" asChild>
             <Pressable accessibilityRole="button" style={styles.link}>
-              <T variant="small">Profile</T>
+              <T variant="small" color={colors.onDark}>Profile</T>
             </Pressable>
           </Link>
         </View>
         {preview ? <T variant="meta" color={colors.onDarkSoft}>Preview</T> : null}
-      </View>
+      </Glass>
       {offline ? (
         <T variant="body" style={styles.pad}>Community is offline. The program is still available.</T>
       ) : !auth.ready ? null : !auth.userId ? (
-        <View style={styles.pad}>
-          <T variant="small" color={colors.onDark}>Sign in to read and post.</T>
+        <Glass style={styles.pad}>
+          <T variant="small">Sign in to read and post.</T>
           <Pressable accessibilityRole="button" onPress={() => router.push("/community-sign-in")} style={styles.button}>
             <T variant="button" color={colors.ink}>Sign in</T>
           </Pressable>
-        </View>
+        </Glass>
       ) : (
         <>
           <View style={styles.pad}>
@@ -126,8 +126,8 @@ export default function CommunityScreen() {
                 setPhotoFile(picked);
                 setPhotoName(picked ? "Photo attached" : null);
               }).catch(() => setError("Could not read that photo"));
-            }} style={styles.link}>
-              <T variant="small">{photoName ?? "Add photo"}</T>
+            }} style={styles.attach}>
+              <T variant="small" color={colors.ink}>{photoName ?? "Add photo"}</T>
             </Pressable>
             <Pressable accessibilityRole="button" onPress={publish} style={[styles.button, shimmerStyle()]}>
               <T variant="button" color={colors.ink}>Post</T>
@@ -185,10 +185,11 @@ const styles = StyleSheet.create({
   pad: { paddingHorizontal: pad, paddingBottom: 12, gap: 8 },
   row: { flexDirection: "row", gap: 16, alignItems: "center" },
   link: { paddingVertical: 6 },
+  attach: { alignSelf: "flex-start", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.7)", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },
   input: { minHeight: 64, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(247,244,239,0.45)", borderRadius: 14, backgroundColor: "rgba(6,14,24,0.72)", color: colors.onDark, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
   photo: { width: "100%", height: 180, borderRadius: 14, backgroundColor: colors.muted },
-  card: { marginHorizontal: 22, marginBottom: 18, gap: 6, backgroundColor: "rgba(255,255,255,0.84)" },
+  card: { marginHorizontal: 22, marginBottom: 18, gap: 6 },
   person: { flexDirection: "row", gap: 10, alignItems: "center" },
   copy: { flex: 1, gap: 2 },
   avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.turquoise, alignItems: "center", justifyContent: "center" },

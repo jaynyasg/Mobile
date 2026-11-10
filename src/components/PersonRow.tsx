@@ -21,10 +21,10 @@ export function PersonRow({
       <Pressable accessibilityRole="button" style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
         {photo ? <Image source={photo} style={styles.photo} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
         <View style={styles.copy}>
-          <T variant="rowTitle" color={colors.onDark}>{name}</T>
-          <T variant="meta" color={colors.onDarkSoft}>{meta}</T>
+          <T variant="rowTitle">{name}</T>
+          <T variant="meta">{meta}</T>
         </View>
-        <Icon name="chevron" size={18} color={colors.onDarkSoft} />
+        <Icon name="chevron" size={18} color={colors.inkSoft} />
       </Pressable>
     </Link>
   );
@@ -35,10 +35,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    paddingHorizontal: 22,
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(247,244,239,0.28)",
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,224,138,0.55)",
+    backgroundColor: "rgba(255,255,255,0.58)",
   },
   photo: { width: 52, height: 64, backgroundColor: colors.muted },
   copy: { flex: 1, gap: 2 },

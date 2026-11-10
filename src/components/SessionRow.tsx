@@ -6,6 +6,7 @@ import type { Session } from "@/content/types";
 import { formatRange } from "@/logic/time";
 import { useApp } from "@/store";
 import { colors, sceneForIsland } from "@/theme";
+import { Glass } from "./Glass";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 
@@ -17,15 +18,15 @@ export function sessionWhen(session: Session): string {
 export function SessionRow({ session }: { session: Session }) {
   const { state, dispatch } = useApp();
   const favored = state.favoriteIds.includes(session.id);
-  const photo = sceneForIsland(session.island).replace("-1280.webp", "-640.webp");
+  const photo = sceneForIsland(session.island);
 
   return (
-    <View style={styles.row}>
+    <Glass padded={false} style={styles.row}>
       <Image source={{ uri: photo }} style={styles.thumb} accessibilityIgnoresInvertColors />
       <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
-          <T variant="rowTitle" color={colors.onDark} numberOfLines={2}>{displayCopy(session.title)}</T>
-          <T variant="meta" color={colors.gold}>{sessionWhen(session)} · {session.island}</T>
+          <T variant="rowTitle" numberOfLines={2}>{displayCopy(session.title)}</T>
+          <T variant="meta" color={colors.brass}>{sessionWhen(session)} · {session.island}</T>
         </Pressable>
       </Link>
       <Pressable
@@ -35,9 +36,9 @@ export function SessionRow({ session }: { session: Session }) {
         onPress={() => dispatch({ type: "toggleFavorite", id: session.id })}
         style={styles.heart}
       >
-        <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.gold : colors.onDarkSoft} />
+        <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.brass : colors.inkSoft} />
       </Pressable>
-    </View>
+    </Glass>
   );
 }
 
@@ -46,10 +47,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    marginHorizontal: 18,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(247,244,239,0.28)",
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingVertical: 8,
+    paddingRight: 8,
+    paddingLeft: 8,
   },
   thumb: { width: 54, height: 54, borderRadius: 8 },
   main: { flex: 1, gap: 3 },

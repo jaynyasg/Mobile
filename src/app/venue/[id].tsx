@@ -2,6 +2,7 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { placeById, placesForIsland, venueById } from "@/content";
+import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
 import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
@@ -27,17 +28,17 @@ export default function VenueScreen() {
   return (
     <Screen edge="none" photo={sceneForIsland(venue.island)}>
       <StackHeader title={venue.island} />
-      <View style={styles.intro}>
-        <T variant="eyebrow" color={colors.gold}>{venue.route}</T>
-        <T variant="title" color={colors.onDark}>{venue.island}</T>
-        <T variant="meta" color={colors.onDarkSoft}>Dock · {venue.dock}</T>
-      </View>
+      <Glass style={styles.intro}>
+        <T variant="eyebrow" color={colors.brass}>{venue.route}</T>
+        <T variant="title">{venue.island}</T>
+        <T variant="meta">Dock · {venue.dock}</T>
+      </Glass>
       {places.map((item) => {
         const hero = item.photos.find((photo) => photo.hero) ?? item.photos[0];
         return (
           <Link key={item.id} href={{ pathname: "/venue/[id]", params: { id: item.id } }} asChild>
             <Pressable accessibilityRole="button" style={styles.card}>
-              {hero ? <Image source={{ uri: hero.webp640 }} style={styles.photo} accessibilityIgnoresInvertColors /> : null}
+              {hero ? <Image source={{ uri: hero.webp1280 }} style={styles.photo} accessibilityIgnoresInvertColors /> : null}
               <PhotoShade />
               <View style={styles.copy}>
                 <T variant="rowTitle" color={colors.onDark}>{item.name}</T>
@@ -47,13 +48,13 @@ export default function VenueScreen() {
           </Link>
         );
       })}
-      <T variant="meta" color={colors.onDarkSoft} style={styles.note}>{venue.note}</T>
+      <T variant="meta" style={styles.note}>{venue.note}</T>
       {[{ title: "On the boat", links: venue.boat }, { title: "On the beach or on land", links: venue.land }].map((section) => (
         <View key={section.title} style={styles.note}>
           <T variant="eyebrow" color={colors.gold}>{section.title}</T>
           {section.links.map((link) => (
             <Pressable key={link.name} accessibilityRole="link" onPress={() => link.href && Linking.openURL(link.href).catch(() => undefined)}>
-              <T variant="small" color={colors.onDark}>{link.name}</T>
+              <T variant="small">{link.name}</T>
             </Pressable>
           ))}
         </View>
@@ -71,16 +72,16 @@ function PlaceScreen({ placeId }: { placeId: string }) {
     <Screen edge="none" photo={hero?.webp1280 ?? sceneForIsland(place.island)} statusBar="light">
       <StackHeader title={place.name} />
       <View style={styles.heroSpace} />
-      <View style={styles.intro}>
-        <T variant="eyebrow" color={colors.gold}>{place.island}</T>
-        <T variant="title" color={colors.onDark}>{place.name}</T>
-        <T variant="meta" color={colors.onDarkSoft}>A candidate place. Not assigned to a session yet.</T>
+      <Glass style={styles.intro}>
+        <T variant="eyebrow" color={colors.brass}>{place.island}</T>
+        <T variant="title">{place.name}</T>
+        <T variant="meta">A candidate place. Not assigned to a session yet.</T>
         {place.models.length ? (
             <Pressable accessibilityRole="button" onPress={() => setShowModels((open) => !open)} style={[styles.gold, shimmerStyle()]}>
             <T variant="button" color={colors.ink}>{showModels ? "Hide 3D" : "View in 3D"}</T>
           </Pressable>
         ) : null}
-      </View>
+      </Glass>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
         {place.photos.map((photo) => (
           <Image key={photo.id} source={{ uri: photo.webp640 }} style={styles.thumb} accessibilityLabel={photo.alt} />
@@ -91,7 +92,7 @@ function PlaceScreen({ placeId }: { placeId: string }) {
             <View key={model.src} style={styles.model}>
               <T variant="eyebrow" color={colors.gold}>3D</T>
               <VenueModel src={model.src} label={model.label} />
-              <T variant="meta" color={colors.onDarkSoft}>{model.label}</T>
+              <T variant="meta">{model.label}</T>
             </View>
           ))
         : null}

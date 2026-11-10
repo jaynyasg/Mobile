@@ -26,13 +26,17 @@ export function Glass({
   const backgroundColor =
     tone === "dark"
       ? frosted
-        ? "rgba(10,20,35,0.68)"
-        : "rgba(10,20,35,0.92)"
+        ? "rgba(8,16,28,0.55)"
+        : "rgba(8,16,28,0.88)"
       : frosted
-        ? "rgba(255,255,255,0.62)"
-        : "rgba(255,255,255,0.94)";
+        ? "rgba(255,255,255,0.58)"
+        : "rgba(255,255,255,0.92)";
   const blurStyle = frosted
-    ? ({ backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" } as ViewStyle)
+    ? ({
+        backdropFilter: "blur(10px) saturate(1.15)",
+        WebkitBackdropFilter: "blur(10px) saturate(1.15)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -8px 14px rgba(11,27,43,0.08), 0 8px 20px rgba(11,27,43,0.1)",
+      } as ViewStyle)
     : null;
   return (
     <View
@@ -57,8 +61,8 @@ export function Glass({
               left: 0,
               right: 0,
               top: 0,
-              height: "46%",
-              background: "linear-gradient(to bottom, rgba(255,255,255,0.34), rgba(255,255,255,0) 72%)",
+              height: "100%",
+              background: "linear-gradient(128deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.08) 32%, rgba(255,255,255,0) 48%, rgba(255,224,138,0.16) 100%)",
               pointerEvents: "none",
             },
           })

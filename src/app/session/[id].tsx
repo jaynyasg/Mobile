@@ -4,6 +4,7 @@ import { dayById, forum, panelistById, participationLabel, pillarById, placesFor
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
 import { sessionWhen } from "@/components/SessionRow";
+import { Glass } from "@/components/Glass";
 import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
@@ -42,29 +43,29 @@ export default function SessionScreen() {
   return (
     <Screen edge="none" photo={sceneForIsland(session.island)}>
       <StackHeader title={day?.label} />
-      <View style={styles.pad}>
-        <T variant="eyebrow" color={colors.gold}>{session.optional ? `${kind} · Optional` : kind}</T>
-        <T variant="title" color={colors.onDark}>{displayCopy(session.title)}</T>
-        <T variant="meta" color={colors.onDarkSoft}>
+      <Glass style={styles.pad}>
+        <T variant="eyebrow" color={colors.brass}>{session.optional ? `${kind} · Optional` : kind}</T>
+        <T variant="title">{displayCopy(session.title)}</T>
+        <T variant="meta">
           {pillar?.name} · {session.island} · {session.region}
         </T>
-        <T variant="small" color={colors.onDark}>{sessionWhen(session)}</T>
+        <T variant="small">{sessionWhen(session)}</T>
         {timed && session.start && session.end ? (
           same ? (
-            <T variant="meta" color={colors.onDarkSoft}>Same clock as this phone</T>
+            <T variant="meta">Same clock as this phone</T>
           ) : (
-            <T variant="meta" color={colors.onDarkSoft}>{formatRange(session.start, session.end, local)} · your time</T>
+            <T variant="meta">{formatRange(session.start, session.end, local)} · your time</T>
           )
         ) : (
-          <T variant="meta" color={colors.onDarkSoft}>No clock time yet.</T>
+          <T variant="meta">No clock time yet.</T>
         )}
-        <T variant="meta" color={colors.onDarkSoft}>
+        <T variant="meta">
           {session.venue.specific || session.venue.label}
           {stay ? ` · ${stay.dock}` : ""}
         </T>
-        <T variant="body" color={colors.onDark}>{displayCopy(session.description)}</T>
-        <T variant="small" color={colors.onDarkSoft}>{displayCopy(session.outcome)}</T>
-        {people.length === 0 ? <T variant="small" color={colors.onDark}>{SPEAKER_TBA}</T> : null}
+        <T variant="body">{displayCopy(session.description)}</T>
+        <T variant="small">{displayCopy(session.outcome)}</T>
+        {people.length === 0 ? <T variant="small">{SPEAKER_TBA}</T> : null}
         <View style={styles.actions}>
           {favored ? (
             <SecondaryButton label="Remove from My Schedule" onPress={() => dispatch({ type: "toggleFavorite", id: session.id })} />
@@ -72,13 +73,13 @@ export default function SessionScreen() {
             <PrimaryButton label="Save to My Schedule" onPress={() => dispatch({ type: "toggleFavorite", id: session.id })} />
           )}
         </View>
-      </View>
+      </Glass>
       {candidates.map((place) => {
         const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
         return (
           <Link key={place.id} href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
             <Pressable accessibilityRole="button" style={styles.place}>
-              {hero ? <Image source={{ uri: hero.webp640 }} style={styles.placePhoto} accessibilityIgnoresInvertColors /> : null}
+              {hero ? <Image source={{ uri: hero.webp1280 }} style={styles.placePhoto} accessibilityIgnoresInvertColors /> : null}
               <PhotoShade />
               <View style={styles.placeCopy}>
                 <T variant="rowTitle" color={colors.onDark}>{place.name}</T>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { useAuth } from "@/community/auth";
+import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
@@ -36,10 +37,10 @@ export default function SignInScreen() {
   return (
     <Screen edge="none" photo={scenePhotos.community}>
       <StackHeader title="Sign in" />
-      <View style={styles.pad}>
-        <T variant="title" color={colors.onDark}>Your email</T>
-        <T variant="small" color={colors.onDarkSoft}>A 6-digit code, kept in this app.</T>
-        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colors.onDarkSoft} style={styles.input} accessibilityLabel="Email" />
+      <Glass style={styles.pad}>
+        <T variant="title">Your email</T>
+        <T variant="small">A 6-digit code, kept in this app.</T>
+        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Email" />
         <Pressable accessibilityRole="button" onPress={send} style={[styles.button, shimmerStyle()]}>
           <T variant="button" color={colors.ink}>Send code</T>
         </Pressable>
@@ -53,13 +54,13 @@ export default function SignInScreen() {
         ) : null}
         {auth.userId && !auth.preview ? <T variant="meta">Signed in{auth.email ? ` as ${auth.email}` : ""}.</T> : null}
         {error ? <T variant="meta">{error}</T> : null}
-      </View>
+      </Glass>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  pad: { marginTop: 72, marginHorizontal: 22, gap: 14 },
-  input: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(247,244,239,0.55)", color: colors.onDark, fontFamily: fonts.body, fontSize: 16, paddingVertical: 12 },
+  pad: { marginTop: 48, marginHorizontal: 22, gap: 14 },
+  input: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(11,27,43,0.28)", color: colors.ink, fontFamily: fonts.body, fontSize: 16, paddingVertical: 12 },
   button: { backgroundColor: colors.gold, minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 16 },
 });

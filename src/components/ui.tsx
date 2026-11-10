@@ -1,25 +1,26 @@
 import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { colors, fonts, pad } from "@/theme";
+import { Glass } from "./Glass";
 import { shimmerStyle } from "./gloss";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 
 export function PageHeader({ kicker, title, subtitle }: { kicker?: string; title: string; subtitle?: string }) {
   return (
-    <View style={styles.header}>
+    <Glass tone="dark" style={styles.header}>
       {kicker ? <T variant="eyebrow" color={colors.gold}>{kicker}</T> : null}
-      <T variant="title" color={colors.onDark}>{title}</T>
+      <T variant="title" foil>{title}</T>
       {subtitle ? <T variant="meta" color={colors.onDarkSoft} style={styles.subtitle}>{subtitle}</T> : null}
-    </View>
+    </Glass>
   );
 }
 
 export function SectionLabel({ children }: { children: string }) {
   return (
-    <T variant="eyebrow" color={colors.gold} style={styles.section}>
-      {children}
-    </T>
+    <Glass tone="dark" style={styles.section}>
+      <T variant="eyebrow" color={colors.gold}>{children}</T>
+    </Glass>
   );
 }
 
@@ -77,7 +78,7 @@ export function Chip({
       style={[styles.chip, selected && styles.chipOn]}
     >
       {swatch ? <View style={[styles.swatch, { backgroundColor: selected ? colors.ivory : swatch }]} /> : null}
-      <T variant="small" color={colors.ivory} style={styles.chipLabel}>
+      <T variant="small" color={selected ? colors.ivory : colors.ink} style={styles.chipLabel}>
         {label}
       </T>
     </Pressable>
@@ -87,10 +88,10 @@ export function Chip({
 export function EmptyState({ title, body }: { title: string; body: string }) {
   return (
     <View style={styles.empty}>
-      <T variant="headline" color={colors.onDark} style={styles.emptyTitle}>
+      <T variant="headline" style={styles.emptyTitle}>
         {title}
       </T>
-      <T variant="meta" color={colors.onDarkSoft}>{body}</T>
+      <T variant="meta">{body}</T>
     </View>
   );
 }
@@ -110,8 +111,8 @@ export function LinkRow({
     <Link href={href} asChild>
       <Pressable accessibilityRole="button" style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}>
         <View style={styles.linkCopy}>
-          <T variant="rowTitle" color={colors.onDark}>{label}</T>
-          {detail ? <T variant="meta" color={colors.onDarkSoft}>{detail}</T> : null}
+          <T variant="rowTitle">{label}</T>
+          {detail ? <T variant="meta">{detail}</T> : null}
         </View>
         {badge ? (
           <View style={styles.badge}>
@@ -120,7 +121,7 @@ export function LinkRow({
             </T>
           </View>
         ) : null}
-        <Icon name="chevron" size={18} color={colors.onDarkSoft} />
+        <Icon name="chevron" size={18} color={colors.inkSoft} />
       </Pressable>
     </Link>
   );
@@ -129,7 +130,7 @@ export function LinkRow({
 const styles = StyleSheet.create({
   header: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 18, gap: 4 },
   subtitle: { marginTop: 8 },
-  section: { paddingHorizontal: pad, marginTop: 22, marginBottom: 8 },
+  section: { alignSelf: "flex-start", marginLeft: pad, marginTop: 22, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
   primary: {
     backgroundColor: colors.gold,
     minHeight: 48,
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(255,224,138,0.55)",
-    backgroundColor: "rgba(7,18,32,0.28)",
+    backgroundColor: "rgba(255,255,255,0.62)",
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 99,
@@ -179,10 +180,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 22,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(247,244,239,0.28)",
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,224,138,0.55)",
+    backgroundColor: "rgba(255,255,255,0.58)",
   },
   linkCopy: { flex: 1, gap: 2 },
   badge: {

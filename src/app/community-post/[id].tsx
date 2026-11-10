@@ -89,7 +89,7 @@ export default function CommentScreen() {
 
 const styles = StyleSheet.create({
   pad: { padding: pad, gap: 8 },
-  card: { marginHorizontal: 22, marginBottom: 14, padding: 14, gap: 4, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.86)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.7)" },
+  card: { marginHorizontal: 22, marginBottom: 14, padding: 14, gap: 4, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.62)", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)" },
   row: { flexDirection: "row", gap: 16 },
   input: { borderWidth: 1, borderColor: colors.line, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },

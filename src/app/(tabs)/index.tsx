@@ -33,7 +33,7 @@ export default function HomeScreen() {
           {forum.pillars.map((pillar) => (
             <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
               <Pressable accessibilityRole="button" style={styles.island}>
-                <Image source={{ uri: sceneForIsland(pillar.island).replace("-1280.webp", "-640.webp") }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
+                <Image source={{ uri: sceneForIsland(pillar.island) }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 <PhotoShade />
                 <View style={styles.islandCopy}>
                   <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
