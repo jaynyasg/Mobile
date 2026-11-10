@@ -4,6 +4,7 @@ import { dayById, forum, panelistById, participationLabel, pillarById, placesFor
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
 import { sessionWhen } from "@/components/SessionRow";
+import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -78,6 +79,7 @@ export default function SessionScreen() {
           <Link key={place.id} href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
             <Pressable accessibilityRole="button" style={styles.place}>
               {hero ? <Image source={{ uri: hero.webp640 }} style={styles.placePhoto} accessibilityIgnoresInvertColors /> : null}
+              <PhotoShade />
               <View style={styles.placeCopy}>
                 <T variant="rowTitle" color={colors.onDark}>{place.name}</T>
               </View>
@@ -108,5 +110,5 @@ const styles = StyleSheet.create({
   actions: { marginTop: 8, alignSelf: "flex-start" },
   place: { marginHorizontal: 22, marginBottom: 12, height: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   placePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 12, backgroundColor: "rgba(6,14,24,0.35)" },
+  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 12 },
 });

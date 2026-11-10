@@ -5,6 +5,7 @@ import { panelistById } from "@/content";
 import { useContent } from "@/content/provider";
 import { displayCopy } from "@/content/display";
 import type { SessionKind } from "@/content/types";
+import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { SessionRow } from "@/components/SessionRow";
@@ -84,6 +85,7 @@ export default function AgendaScreen() {
             <Link key={session.id} href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
               <Pressable accessibilityRole="button" style={styles.feature}>
                 <Image source={{ uri: sceneForIsland(session.island).replace("-1280.webp", "-640.webp") }} style={styles.featurePhoto} accessibilityIgnoresInvertColors />
+                <PhotoShade />
                 <View style={styles.featureCopy}>
                   <T variant="small" color={colors.onDark} numberOfLines={2}>{displayCopy(session.title)}</T>
                   <T variant="meta" color={colors.gold}>{session.island}</T>
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
   carousel: { paddingHorizontal: 22, gap: 12, paddingVertical: 8 },
   feature: { width: 210, height: 132, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   featurePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  featureCopy: { padding: 12, gap: 2, backgroundColor: "rgba(6,14,24,0.38)" },
+  featureCopy: { padding: 12, gap: 2 },
   sheet: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, justifyContent: "flex-end" },
   sheetBackdrop: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.45)" },
   sheetCard: { margin: 12, marginBottom: 96, padding: 16, gap: 10, borderRadius: 22, backgroundColor: "rgba(10,20,35,0.88)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(247,244,239,0.3)" },

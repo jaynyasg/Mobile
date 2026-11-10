@@ -25,7 +25,7 @@ export function SceneBackground({ uri = scenePhotos.day }: { uri?: string | null
             src: uri,
             alt: "",
             className: still ? undefined : "tatel-drift",
-            style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" },
+            style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.86) blur(1.5px)" },
           })
         : <View style={[fill, styles.fallback]} />}
       {createElement("div", {
@@ -33,7 +33,7 @@ export function SceneBackground({ uri = scenePhotos.day }: { uri?: string | null
           position: "absolute",
           inset: 0,
           background:
-            "linear-gradient(to bottom, rgba(6,14,24,0.46) 0%, rgba(6,14,24,0.22) 24%, rgba(6,14,24,0.28) 62%, rgba(6,14,24,0.62) 100%)",
+            "linear-gradient(to bottom, rgba(6,14,24,0.68) 0%, rgba(6,14,24,0.62) 28%, rgba(6,14,24,0.72) 100%)",
         },
       })}
     </View>

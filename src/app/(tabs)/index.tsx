@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BeaconBackground } from "@/components/BeaconBackground";
+import { PhotoShade } from "@/components/PhotoShade";
 import { InstallHint } from "@/components/InstallHint";
 import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
@@ -33,6 +34,7 @@ export default function HomeScreen() {
             <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
               <Pressable accessibilityRole="button" style={styles.island}>
                 <Image source={{ uri: sceneForIsland(pillar.island).replace("-1280.webp", "-640.webp") }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
+                <PhotoShade />
                 <View style={styles.islandCopy}>
                   <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
                   <T variant="meta" color={colors.gold}>{pillar.island}</T>
@@ -85,7 +87,7 @@ const styles = StyleSheet.create({
   islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
   island: { width: 132, height: 168, borderRadius: 14, overflow: "hidden", justifyContent: "flex-end" },
   islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  islandCopy: { padding: 10, gap: 2, backgroundColor: "rgba(6,14,24,0.35)" },
+  islandCopy: { padding: 10, gap: 2 },
   copy: { paddingHorizontal: 22, gap: 2 },
   countRow: { flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 4 },
   next: { marginTop: 10, gap: 2, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(201,162,74,0.55)", paddingTop: 8 },

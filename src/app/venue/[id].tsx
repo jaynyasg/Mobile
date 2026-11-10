@@ -2,6 +2,7 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { placeById, placesForIsland, venueById } from "@/content";
+import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -36,6 +37,7 @@ export default function VenueScreen() {
           <Link key={item.id} href={{ pathname: "/venue/[id]", params: { id: item.id } }} asChild>
             <Pressable accessibilityRole="button" style={styles.card}>
               {hero ? <Image source={{ uri: hero.webp640 }} style={styles.photo} accessibilityIgnoresInvertColors /> : null}
+              <PhotoShade />
               <View style={styles.copy}>
                 <T variant="rowTitle" color={colors.onDark}>{item.name}</T>
                 <T variant="meta" color={colors.gold}>{item.photos.length} photos{item.models.length ? " · 3D" : ""}</T>
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
   intro: { paddingHorizontal: 22, paddingTop: 28, gap: 6, paddingBottom: 8 },
   card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  copy: { padding: 12, gap: 2, backgroundColor: "rgba(6,14,24,0.32)" },
+  copy: { padding: 12, gap: 2 },
   note: { paddingHorizontal: 22, paddingBottom: 12, gap: 6 },
   heroSpace: { height: 280 },
   model: { marginHorizontal: 22, marginBottom: 16, gap: 8 },

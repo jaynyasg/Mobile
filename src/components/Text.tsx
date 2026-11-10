@@ -26,17 +26,17 @@ const variants: Record<Variant, TextStyle> = {
   },
   body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 23, color: colors.ink },
   small: { fontFamily: fonts.body, fontSize: 15, lineHeight: 21, color: colors.ink },
-  meta: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.inkSoft },
+  meta: { fontFamily: fonts.medium, fontSize: 14, lineHeight: 19, color: colors.inkSoft },
   eyebrow: {
-    fontFamily: fonts.medium,
-    fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 1.2,
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 1.1,
     textTransform: "uppercase",
     color: colors.inkSoft,
   },
   button: { fontFamily: fonts.medium, fontSize: 15, lineHeight: 20, color: colors.ink },
-  rowTitle: { fontFamily: fonts.medium, fontSize: 16.5, lineHeight: 21, color: colors.ink },
+  rowTitle: { fontFamily: fonts.semibold, fontSize: 17, lineHeight: 22, color: colors.ink },
 };
 
 export function T({
@@ -45,5 +45,18 @@ export function T({
   style,
   ...rest
 }: TextProps & { variant?: Variant; color?: string }) {
-  return <Text {...rest} style={[variants[variant], color ? { color } : null, style]} />;
+  const shade = color === colors.onDark || color === colors.onDarkSoft || color === colors.gold;
+  return (
+    <Text
+      {...rest}
+      style={[
+        variants[variant],
+        color ? { color } : null,
+        shade
+          ? { textShadowColor: "rgba(6,14,24,0.9)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 8 }
+          : null,
+        style,
+      ]}
+    />
+  );
 }

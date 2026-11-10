@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { placesForIsland } from "@/content";
 import { useContent } from "@/content/provider";
+import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
 import { colors, scenePhotos } from "@/theme";
@@ -23,6 +24,7 @@ export default function VenuesTab() {
               <Link key={place.id} href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
                 <Pressable accessibilityRole="button" style={styles.card}>
                   {hero ? <Image source={{ uri: hero.webp640 }} style={styles.photo} accessibilityIgnoresInvertColors /> : null}
+                  <PhotoShade />
                   <View style={styles.copy}>
                     <T variant="rowTitle" color={colors.onDark}>{place.name}</T>
                     <T variant="meta" color={colors.gold}>{place.photos.length} photos{place.models.length ? " · 3D" : ""}</T>
@@ -42,5 +44,5 @@ const styles = StyleSheet.create({
   island: { paddingHorizontal: 22, marginTop: 8, marginBottom: 8 },
   card: { marginHorizontal: 22, marginBottom: 14, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  copy: { padding: 14, gap: 2, backgroundColor: "rgba(6,14,24,0.32)" },
+  copy: { padding: 14, gap: 2 },
 });

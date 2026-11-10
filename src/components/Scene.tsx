@@ -19,6 +19,6 @@ export function SceneBackground({ uri = scenePhotos.day }: { uri?: string | null
 
 const styles = StyleSheet.create({
   fallback: { backgroundColor: "#123044" },
-  top: { backgroundColor: "rgba(6,14,24,0.28)" },
-  bottom: { position: "absolute", left: 0, right: 0, bottom: 0, height: "42%", backgroundColor: "rgba(6,14,24,0.45)" },
+  top: { backgroundColor: "rgba(6,14,24,0.66)" },
+  bottom: { position: "absolute", left: 0, right: 0, bottom: 0, height: "55%", backgroundColor: "rgba(6,14,24,0.28)" },
 });

@@ -13,9 +13,9 @@ export const colors = {
   stage: "#071421",
   muted: "#D5DEE3",
   turquoise: "#0E7490",
-  gold: "#C9A24A",
-  onDark: "#F7F4EF",
-  onDarkSoft: "rgba(247,244,239,0.82)",
+  gold: "#FFE08A",
+  onDark: "#FFFFFF",
+  onDarkSoft: "#FFF6DE",
 };
 
 export const fonts = {
