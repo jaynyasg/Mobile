@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   note: { padding: pad },
   list: { padding: pad, gap: 8 },
-  bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.72)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.5)", gap: 2 },
+  bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 16, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", gap: 2 },
   actions: { flexDirection: "row", gap: 16 },
   composer: { flexDirection: "row", gap: 8, padding: pad },
   input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,255,255,0.9)", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.88)", color: colors.ink, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },

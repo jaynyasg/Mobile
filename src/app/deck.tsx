@@ -37,7 +37,7 @@ export default function DeckScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 8 },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
   pages: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingHorizontal: pad },
   image: { width: "100%", height: 520, marginTop: 12 },
 });

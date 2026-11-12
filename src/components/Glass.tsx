@@ -26,7 +26,7 @@ export function Glass({
   const backgroundColor = tone === "dark" ? "rgba(8,16,28,0.9)" : "rgba(255,255,255,0.94)";
   const crystal = frosted
     ? ({
-        backgroundColor: tone === "dark" ? "rgba(10,18,32,0.62)" : "rgba(255,255,255,0.62)",
+        backgroundColor: tone === "dark" ? "rgba(7,16,28,0.9)" : "rgba(247,244,239,0.94)",
         borderColor: "rgba(255,255,255,0.42)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",

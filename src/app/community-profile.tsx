@@ -68,7 +68,7 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 12 },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
   field: { gap: 4 },
   input: { borderWidth: 1, borderColor: colors.line, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.ink, minHeight: 48, alignItems: "center", justifyContent: "center" },

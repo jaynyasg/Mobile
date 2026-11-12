@@ -24,9 +24,9 @@ const variants: Record<Variant, TextStyle> = {
     lineHeight: 28,
     color: colors.ink,
   },
-  body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 23, color: colors.ink },
-  small: { fontFamily: fonts.body, fontSize: 15, lineHeight: 21, color: colors.ink },
-  meta: { fontFamily: fonts.medium, fontSize: 14, lineHeight: 19, color: colors.inkSoft },
+  body: { fontFamily: fonts.body, fontSize: 17, lineHeight: 24, color: colors.ink },
+  small: { fontFamily: fonts.medium, fontSize: 16, lineHeight: 22, color: colors.ink },
+  meta: { fontFamily: fonts.medium, fontSize: 15, lineHeight: 21, color: colors.ink },
   eyebrow: {
     fontFamily: fonts.semibold,
     fontSize: 12,

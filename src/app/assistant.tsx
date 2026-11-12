@@ -64,7 +64,7 @@ export default function AssistantScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 12 },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
   turn: { gap: 4, paddingBottom: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
   input: {
     borderWidth: 1,

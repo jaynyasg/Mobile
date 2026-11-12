@@ -89,8 +89,8 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 10 },
-  bubble: { gap: 4, paddingBottom: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 10, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  bubble: { gap: 4, padding: 12, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.72)" },
   input: {
     borderWidth: 1,
     borderColor: colors.line,

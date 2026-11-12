@@ -72,14 +72,17 @@ export default function PanelistScreen() {
 
 const styles = StyleSheet.create({
   portrait: { height: 280, backgroundColor: colors.muted, marginHorizontal: pad },
-  pad: { padding: pad, gap: 8 },
-  section: { paddingHorizontal: pad },
+  pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  section: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 14, backgroundColor: "rgba(247,244,239,0.96)" },
   session: {
-    marginHorizontal: pad,
+    marginHorizontal: 12,
     marginBottom: 8,
-    padding: 12,
-    gap: 3,
-    borderWidth: 1,
-    borderColor: colors.line,
+    padding: 14,
+    gap: 4,
+    minHeight: 44,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(11,27,43,0.12)",
+    backgroundColor: "rgba(247,244,239,0.96)",
   },
 });

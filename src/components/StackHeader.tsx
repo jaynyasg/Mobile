@@ -41,10 +41,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(255,255,255,0.62)",
+    backgroundColor: "rgba(247,244,239,0.96)",
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,224,138,0.45)",
   },
-  back: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
+  back: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   title: { flex: 1 },
 });

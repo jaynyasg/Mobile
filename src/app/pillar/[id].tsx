@@ -79,8 +79,8 @@ export default function PillarScreen() {
 const styles = StyleSheet.create({
   hero: { height: 240, justifyContent: "flex-end", overflow: "hidden" },
   image: { position: "absolute", top: 0, left: 0, right: 0, height: 240 },
-  shade: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(7,27,42,0.45)" },
+  shade: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(7,18,32,0.62)" },
   heroCopy: { padding: pad, gap: 4 },
-  pad: { padding: pad, gap: 8 },
-  count: { paddingHorizontal: pad, marginBottom: 8 },
+  pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  count: { alignSelf: "flex-start", marginLeft: 12, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14, backgroundColor: "rgba(247,244,239,0.96)" },
 });

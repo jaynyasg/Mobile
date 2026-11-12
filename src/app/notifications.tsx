@@ -46,7 +46,7 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 8 },
-  note: { marginHorizontal: pad, marginBottom: 8, padding: 12, gap: 6, borderWidth: 1, borderColor: colors.line },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  note: { marginHorizontal: 12, marginBottom: 8, padding: 14, gap: 6, minHeight: 44, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", backgroundColor: "rgba(247,244,239,0.96)" },
   unread: { borderColor: colors.brassSoft },
 });

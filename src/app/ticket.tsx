@@ -65,8 +65,8 @@ export default function TicketScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 8 },
-  pass: { marginHorizontal: pad, marginBottom: 8, padding: 12, gap: 4, borderWidth: 1, borderColor: colors.line },
-  passOn: { borderColor: colors.brassSoft, backgroundColor: "#F8F1D8" },
-  qr: { alignItems: "center", gap: 12, padding: pad },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  pass: { marginHorizontal: 12, marginBottom: 8, padding: 14, gap: 6, minHeight: 44, borderRadius: 16, borderWidth: 1, borderColor: "rgba(11,27,43,0.12)", backgroundColor: "rgba(247,244,239,0.96)" },
+  passOn: { borderColor: colors.brass, backgroundColor: "#F8F1D8" },
+  qr: { alignItems: "center", gap: 12, marginHorizontal: 12, marginBottom: 12, padding: 16, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
 });
