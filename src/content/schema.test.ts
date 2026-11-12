@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { bundle } from "./bundle";
 import { resolveContent } from "./load";
+import { publishedProgramUrl } from "./published";
 import { parseContent } from "./schema";
 
 describe("content sync", () => {
@@ -68,6 +69,24 @@ describe("content sync", () => {
     if (!future.ok) return;
     expect(future.program.sessions[0]?.venue.specific).toBe("American Yacht Harbor, slip 4");
     expect(future.program.sessions[0]?.start).toBe("2027-01-26T08:00:00-04:00");
+  });
+
+  it("requests the published program and keeps the bundle when the browser blocks it", async () => {
+    expect(bundle.contentUrl).toBe(publishedProgramUrl);
+    expect(publishedProgramUrl).toBe("https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json");
+    const result = await resolveContent({
+      bundle,
+      url: publishedProgramUrl,
+      fetchImpl: async () => {
+        throw new TypeError("Failed to fetch");
+      },
+      readCache: async () => null,
+      writeCache: async () => {
+        throw new Error("a blocked response is not cached");
+      },
+    });
+    expect(result.source).toBe("bundle");
+    expect(result.program.sessions).toHaveLength(205);
   });
 
   it("keeps the last good copy when the website cannot be reached", async () => {

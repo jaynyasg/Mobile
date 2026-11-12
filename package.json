@@ -38,7 +38,8 @@
     "@types/qrcode": "^1.5.6",
     "@types/react": "~19.3.0",
     "typescript": "~6.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "wrangler": "^4.161.0"
   },
   "scripts": {
     "start": "expo start",
@@ -49,7 +50,9 @@
     "test": "vitest run",
     "program": "node scripts/print-program.mjs",
     "generate": "node scripts/generate-tatel-content.mjs",
-    "export:web": "expo export -p web && node scripts/finalize-pwa.mjs"
+    "export:web": "expo export -p web && node scripts/finalize-pwa.mjs",
+    "build:web": "npm run export:web",
+    "deploy": "npm run build:web && wrangler deploy"
   },
   "private": true
 }

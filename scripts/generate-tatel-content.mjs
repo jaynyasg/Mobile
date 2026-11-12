@@ -226,7 +226,7 @@ function stayIsland(venue) {
 
 const content = {
   generatedFrom: "TATEL website raw/public/tatel/downloads/tatel-2027-program.json plus venues.json",
-  contentUrl: "/tatel/downloads/tatel-2027-program.json",
+  contentUrl: "https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json",
   forum: {
     id: "tatel",
     name: "TATEL",

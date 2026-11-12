@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tatel",
+  "compatibility_date": "2026-11-12",
+  "main": "worker/index.ts",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // Static assets ignore Range and return the whole file. MP4s run the worker so video can seek.
+    "run_worker_first": ["/*.mp4"]
+  }
+}
