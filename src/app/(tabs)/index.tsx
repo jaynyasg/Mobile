@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { CrystalMark } from "@/components/CrystalMark";
@@ -7,6 +7,7 @@ import { PhotoShade } from "@/components/PhotoShade";
 import { InstallHint } from "@/components/InstallHint";
 import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { useContent } from "@/content/provider";
 import { forumPhase, suggestedDayId } from "@/logic/phase";
 import { colors, sceneForIsland } from "@/theme";
@@ -35,16 +36,16 @@ export default function HomeScreen() {
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.islands}>
           {forum.pillars.map((pillar) => (
-            <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
-              <Pressable accessibilityRole="button" style={styles.island}>
-                <Image source={{ uri: sceneForIsland(pillar.island) }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
-                <PhotoShade />
-                <View style={styles.islandCopy}>
+            <View key={pillar.id} style={styles.island}>
+              <TappablePhoto source={sceneForIsland(pillar.island)} alt={`${pillar.name} on ${pillar.island}`} style={styles.islandPhoto} />
+              <PhotoShade />
+              <Link href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
+                <Pressable accessibilityRole="button" accessibilityLabel={pillar.name} style={styles.islandCopy}>
                   <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
                   <T variant="meta" color={colors.gold}>{pillar.island}</T>
-                </View>
-              </Pressable>
-            </Link>
+                </Pressable>
+              </Link>
+            </View>
           ))}
         </ScrollView>
         <View style={styles.copy}>
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
   island: { width: 132, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  islandCopy: { padding: 10, gap: 2 },
+  islandCopy: { padding: 10, gap: 2, zIndex: 1 },
   copy: { paddingHorizontal: 22, gap: 2 },
   next: { marginTop: 10, gap: 2, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(201,162,74,0.55)", paddingTop: 8 },
   links: { flexDirection: "row", gap: 18, marginTop: 10 },

@@ -1,5 +1,5 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { dayById, forum, panelistById, participationLabel, pillarById, placesForIsland, sessionById, venueById } from "@/content";
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
@@ -9,6 +9,7 @@ import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { portraits } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
@@ -78,15 +79,17 @@ export default function SessionScreen() {
       {candidates.map((place) => {
         const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
         return (
-          <Link key={place.id} href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
-            <Pressable accessibilityRole="button" style={styles.place}>
-              {hero ? <Image source={{ uri: hero.webp1280 }} style={styles.placePhoto} accessibilityIgnoresInvertColors /> : null}
-              <PhotoShade />
-              <View style={styles.placeCopy}>
+          <View key={place.id} style={styles.place}>
+            {hero ? (
+              <TappablePhoto source={hero.webp1280} alt={hero.alt || place.name} gallery={place.photos.map((photo) => ({ source: photo.webp1280 || photo.jpeg, alt: photo.alt || place.name }))} index={Math.max(0, place.photos.findIndex((photo) => photo.id === hero.id))} style={styles.placePhoto} />
+            ) : null}
+            <PhotoShade />
+            <Link href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
+              <Pressable accessibilityRole="button" accessibilityLabel={place.name} style={styles.placeCopy}>
                 <T variant="rowTitle" color={colors.onDark}>{place.name}</T>
-              </View>
-            </Pressable>
-          </Link>
+              </Pressable>
+            </Link>
+          </View>
         );
       })}
       {people.map((personId) => {
@@ -112,5 +115,5 @@ const styles = StyleSheet.create({
   actions: { marginTop: 8, alignSelf: "flex-start" },
   place: { marginHorizontal: 22, marginBottom: 12, height: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   placePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 12 },
+  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 12, zIndex: 1 },
 });

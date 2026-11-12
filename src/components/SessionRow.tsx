@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { forum } from "@/content";
 import { displayCopy } from "@/content/display";
 import type { Session } from "@/content/types";
@@ -9,6 +9,7 @@ import { colors, sceneForIsland } from "@/theme";
 import { Glass } from "./Glass";
 import { Icon } from "./Icon";
 import { T } from "./Text";
+import { TappablePhoto } from "./TappablePhoto";
 
 export function sessionWhen(session: Session): string {
   if (session.start && session.end) return formatRange(session.start, session.end, forum.timezone);
@@ -22,7 +23,7 @@ export function SessionRow({ session }: { session: Session }) {
 
   return (
     <Glass padded={false} style={styles.row}>
-      <Image source={{ uri: photo }} style={styles.thumb} accessibilityIgnoresInvertColors />
+      <TappablePhoto source={photo} alt={`${session.island} photo`} style={styles.thumb} />
       <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
           <T variant="rowTitle" numberOfLines={2}>{displayCopy(session.title)}</T>

@@ -5,6 +5,7 @@ import { communityPreviewEnabled, supabase } from "@/community/client";
 import { deleteMessage, generalRoom, hideMessage, listMessages, sendMessage, sendReport } from "@/community/live";
 import { MemoryCommunity } from "@/community/memory";
 import type { CommunityMessage } from "@/community/types";
+import { ChatImages } from "@/components/ChatImages";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -121,6 +122,7 @@ export default function CommunityRoomScreen() {
           <View style={styles.bubble}>
             <T variant="meta" color={colors.turquoise}>{item.author.displayName}</T>
             <T variant="small">{item.body}</T>
+            <ChatImages text={item.body} photoUrl={item.photoUrl} label={`Photo from ${item.author.displayName}`} />
             <View style={styles.actions}>
               {auth.staff || item.author.id === auth.userId ? (
                 <Pressable accessibilityRole="button" onPress={() => {

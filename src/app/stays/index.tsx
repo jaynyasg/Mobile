@@ -1,9 +1,10 @@
 import { Link } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 
@@ -28,16 +29,16 @@ export default function StaysScreen() {
           </T>
           {group.intro ? <T variant="meta" style={styles.groupIntro}>{group.intro}</T> : null}
           {group.islands.map((island) => (
-            <Link key={island.id} href={{ pathname: "/stays/[id]", params: { id: island.id } }} asChild>
-              <Pressable accessibilityRole="button" style={styles.card}>
-                <Image source={sceneImages[island.image]} style={styles.image} resizeMode="cover" />
-                <View style={styles.copy}>
+            <View key={island.id} style={styles.card}>
+              <TappablePhoto source={sceneImages[island.image]} alt={island.imageAlt || island.island} style={styles.image} />
+              <Link href={{ pathname: "/stays/[id]", params: { id: island.id } }} asChild>
+                <Pressable accessibilityRole="button" accessibilityLabel={island.island} style={styles.copy}>
                   <T variant="eyebrow">{island.route}</T>
                   <T variant="rowTitle">{island.island}</T>
                   <T variant="meta">{island.dock}</T>
-                </View>
-              </Pressable>
-            </Link>
+                </Pressable>
+              </Link>
+            </View>
           ))}
         </View>
       ))}

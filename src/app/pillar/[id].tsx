@@ -1,11 +1,12 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { credits, pillarById, scenes, stayIslands } from "@/content";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { SessionRow } from "@/components/SessionRow";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 
@@ -30,9 +31,9 @@ export default function PillarScreen() {
     <Screen edge="none">
       <StackHeader title={pillar.name} />
       <View style={styles.hero}>
-        <Image source={sceneImages[scene.image]} style={styles.image} resizeMode="cover" />
-        <View style={styles.shade} />
-        <View style={styles.heroCopy}>
+        <TappablePhoto source={sceneImages[scene.image]} alt={scene.name} style={styles.image} />
+        <View pointerEvents="none" style={styles.shade} />
+        <View pointerEvents="none" style={styles.heroCopy}>
           <T variant="eyebrow" color={colors.brassSoft}>
             Planning home
           </T>

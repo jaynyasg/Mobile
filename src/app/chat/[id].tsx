@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { panelistById } from "@/content";
 import { useContent } from "@/content/provider";
+import { ChatImages } from "@/components/ChatImages";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -59,6 +60,7 @@ export default function ChatScreen() {
           <View key={message.id} style={styles.bubble}>
             <T variant="eyebrow">{message.from === "you" ? "You" : "This device"}</T>
             <T variant="small">{message.text}</T>
+            <ChatImages text={message.text} label={message.from === "you" ? "Photo from you" : "Photo on this device"} />
           </View>
         ))}
         <TextInput

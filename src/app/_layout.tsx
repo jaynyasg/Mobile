@@ -6,6 +6,7 @@ import { ReactNode, useEffect } from "react";
 import { Platform, View } from "react-native";
 import { AuthProvider } from "@/community/auth";
 import { ContentProvider } from "@/content/provider";
+import { ImageViewerProvider } from "@/components/ImageViewer";
 import { RegisterPwa } from "@/components/RegisterPwa";
 import { AppProvider, useApp } from "@/store";
 import { colors } from "@/theme";
@@ -19,15 +20,17 @@ export default function RootLayout() {
       <ContentProvider>
       <AuthProvider>
       <Boot>
-        <Frame>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "transparent" },
-            }}
-          />
-          <RegisterPwa />
-        </Frame>
+        <ImageViewerProvider>
+          <Frame>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "transparent" },
+              }}
+            />
+            <RegisterPwa />
+          </Frame>
+        </ImageViewerProvider>
       </Boot>
       </AuthProvider>
       </ContentProvider>

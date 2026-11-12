@@ -1,6 +1,6 @@
 import { Link, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { commentLabel } from "@/community/copy";
 import { useAuth } from "@/community/auth";
 import { communityPreviewEnabled } from "@/community/client";
@@ -9,6 +9,7 @@ import { createPost, deletePost, explainCommunityError, hidePost, listPosts, sen
 import { pickCommunityPhoto } from "@/community/photo";
 import { MemoryCommunity } from "@/community/memory";
 import type { CommunityPost } from "@/community/types";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { CrystalMark } from "@/components/CrystalMark";
 import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
@@ -147,7 +148,7 @@ export default function CommunityScreen() {
               </View>
               <T variant="small">{post.body}</T>
               {post.photoUrl && post.photoUrl !== "preview" ? (
-                <Image source={{ uri: post.photoUrl }} style={styles.photo} accessibilityLabel="Post photo" />
+                <TappablePhoto source={post.photoUrl} alt={`Photo from ${post.author.displayName}`} style={styles.photo} />
               ) : null}
               <View style={styles.row}>
                 <Pressable accessibilityRole="button" onPress={() => (preview ? (memory.toggleLike(post.id), refresh()) : toggleLike(auth.userId!, post.id, post.likedByMe).then(refresh))}>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Link } from "expo-router";
 import { Pressable } from "react-native";
 import { credits, sessionById } from "@/content";
@@ -8,6 +8,7 @@ import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { Chip } from "@/components/ui";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { routeMaps } from "@/images";
 import { colors, pad } from "@/theme";
 
@@ -48,7 +49,7 @@ export default function TransportScreen() {
         <T variant="meta">Overnight: {day.overnight}</T>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={styles.mapScroll}>
-        <Image source={routeMaps[day.map]} style={styles.map} resizeMode="contain" accessibilityLabel={day.mapDescription} />
+        <TappablePhoto source={routeMaps[day.map]} alt={day.mapDescription} style={styles.map} resizeMode="contain" />
       </ScrollView>
       <View style={styles.pad}>
         <T variant="meta">{day.mapDescription}</T>

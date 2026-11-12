@@ -1,6 +1,6 @@
 import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { placeById, placesForIsland, venueById } from "@/content";
 import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
@@ -9,6 +9,7 @@ import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { VenueModel } from "@/components/VenueModel";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { plateForIsland, plateForPhoto } from "@/components/backgrounds";
 import { colors, pad } from "@/theme";
 
@@ -37,16 +38,18 @@ export default function VenueScreen() {
       {places.map((item) => {
         const hero = item.photos.find((photo) => photo.hero) ?? item.photos[0];
         return (
-          <Link key={item.id} href={{ pathname: "/venue/[id]", params: { id: item.id } }} asChild>
-            <Pressable accessibilityRole="button" style={styles.card}>
-              {hero ? <Image source={{ uri: hero.webp1280 }} style={styles.photo} accessibilityIgnoresInvertColors /> : null}
-              <PhotoShade />
-              <View style={styles.copy}>
+          <View key={item.id} style={styles.card}>
+            {hero ? (
+              <TappablePhoto source={hero.webp1280} alt={hero.alt || item.name} gallery={item.photos.map((photo) => ({ source: photo.webp1280 || photo.jpeg, alt: photo.alt || item.name }))} index={Math.max(0, item.photos.findIndex((photo) => photo.id === hero.id))} style={styles.photo} />
+            ) : null}
+            <PhotoShade />
+            <Link href={{ pathname: "/venue/[id]", params: { id: item.id } }} asChild>
+              <Pressable accessibilityRole="button" accessibilityLabel={item.name} style={styles.copy}>
                 <T variant="rowTitle" color={colors.onDark}>{item.name}</T>
                 <T variant="meta" color={colors.gold}>{item.photos.length} photos{item.models.length ? " · 3D" : ""}</T>
-              </View>
-            </Pressable>
-          </Link>
+              </Pressable>
+            </Link>
+          </View>
         );
       })}
       <T variant="meta" style={styles.note}>{venue.note}</T>
@@ -84,8 +87,15 @@ function PlaceScreen({ placeId }: { placeId: string }) {
         ) : null}
       </Glass>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
-        {place.photos.map((photo) => (
-          <Image key={photo.id} source={{ uri: photo.webp640 }} style={styles.thumb} accessibilityLabel={photo.alt} />
+        {place.photos.map((photo, index) => (
+          <TappablePhoto
+            key={photo.id}
+            source={photo.webp640}
+            alt={photo.alt || place.name}
+            gallery={place.photos.map((item) => ({ source: item.webp1280 || item.jpeg, alt: item.alt || place.name }))}
+            index={index}
+            style={styles.thumb}
+          />
         ))}
       </ScrollView>
       {showModels
@@ -105,7 +115,7 @@ const styles = StyleSheet.create({
   intro: { paddingHorizontal: 22, paddingTop: 28, gap: 6, paddingBottom: 8 },
   card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  copy: { padding: 12, gap: 2 },
+  copy: { padding: 12, gap: 2, zIndex: 1 },
   note: { paddingHorizontal: 22, paddingBottom: 12, gap: 6 },
   heroSpace: { height: 280 },
   model: { marginHorizontal: 22, marginBottom: 16, gap: 8 },

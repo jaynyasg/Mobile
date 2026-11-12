@@ -43,6 +43,7 @@ export interface CommunityMessage {
   roomId: string;
   author: CommunityProfile;
   body: string;
+  photoUrl?: string | null;
   createdAt: string;
   hidden: boolean;
 }

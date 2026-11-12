@@ -1,10 +1,11 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { forum, panelistById, participationLabel, pillarById, sessionsForPanelist } from "@/content";
 import { displayCopy } from "@/content/display";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { portraits } from "@/images";
 import { formatRange } from "@/logic/time";
 import { useContent } from "@/content/provider";
@@ -29,7 +30,7 @@ export default function PanelistScreen() {
     <Screen edge="none">
       <StackHeader title={person.name} />
       {person.photo && portraits[person.photo] ? (
-        <Image source={portraits[person.photo]} style={styles.portrait} resizeMode="contain" accessibilityLabel={person.name} />
+        <TappablePhoto source={portraits[person.photo]} alt={person.name} style={styles.portrait} resizeMode="contain" />
       ) : null}
       <View style={styles.pad}>
         <T variant="eyebrow">{person.company}</T>

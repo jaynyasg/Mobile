@@ -1,10 +1,11 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { Image, Linking, Pressable, StyleSheet, View } from "react-native";
+import { Linking, Pressable, StyleSheet, View } from "react-native";
 import { stayById } from "@/content";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 
@@ -24,7 +25,7 @@ export default function StayScreen() {
   return (
     <Screen edge="none">
       <StackHeader title={island.island} />
-      <Image source={sceneImages[island.image]} style={styles.image} resizeMode="cover" accessibilityLabel={island.imageAlt} />
+      <TappablePhoto source={sceneImages[island.image]} alt={island.imageAlt || island.island} style={styles.image} />
       <View style={styles.pad}>
         <T variant="eyebrow">{island.route}</T>
         <T variant="title">{island.island}</T>

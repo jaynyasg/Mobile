@@ -1,5 +1,6 @@
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useState } from "react";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -23,7 +24,14 @@ export default function DeckScreen() {
           <Chip key={index} label={String(index + 1)} selected={page === index} onPress={() => setPage(index)} />
         ))}
       </View>
-      <Image source={ilmaPages[page]} style={styles.image} resizeMode="contain" accessibilityLabel={`Deck plan page ${page + 1}`} />
+      <TappablePhoto
+        source={ilmaPages[page]}
+        alt={`Deck plan page ${page + 1}`}
+        gallery={ilmaPages.map((source, index) => ({ source, alt: `Deck plan page ${index + 1}` }))}
+        index={page}
+        style={styles.image}
+        resizeMode="contain"
+      />
     </Screen>
   );
 }
