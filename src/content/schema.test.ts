@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { bundle } from "./bundle";
 import { resolveContent } from "./load";
-import { publishedProgramUrl } from "./published";
+import { programRequestUrls, publishedProgramUrl } from "./published";
 import { parseContent } from "./schema";
 
 describe("content sync", () => {
@@ -71,12 +71,42 @@ describe("content sync", () => {
     expect(future.program.sessions[0]?.start).toBe("2027-01-26T08:00:00-04:00");
   });
 
-  it("requests the published program and keeps the bundle when the browser blocks it", async () => {
-    expect(bundle.contentUrl).toBe(publishedProgramUrl);
-    expect(publishedProgramUrl).toBe("https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json");
-    const result = await resolveContent({
+  it("syncs from /api/program and tries the published file only when local dev has no worker", async () => {
+    expect(bundle.contentUrl).toBe("/api/program");
+    expect(programRequestUrls({ origin: "https://tatel.app" })).toEqual({ url: "/api/program" });
+    expect(programRequestUrls({ origin: "http://localhost:8081" })).toEqual({
+      url: "/api/program",
+      fallbackUrl: publishedProgramUrl,
+    });
+    expect(programRequestUrls()).toEqual({ url: publishedProgramUrl });
+    const calls: string[] = [];
+    const live = await resolveContent({
       bundle,
-      url: publishedProgramUrl,
+      url: "/api/program",
+      fallbackUrl: publishedProgramUrl,
+      fetchImpl: async (input) => {
+        const url = String(input);
+        calls.push(url);
+        if (url === "/api/program") return new Response("missing", { status: 404 });
+        return new Response(
+          JSON.stringify({
+            program: { timezone: "AST (UTC−4)" },
+            presenters: [],
+            sessions: [{ id: "LIVE", title: "From the published site", date: "2027-01-26", track: "Tech", island: "St. Thomas", speakers: [] }],
+          }),
+          { status: 200 },
+        );
+      },
+      readCache: async () => null,
+      writeCache: async () => undefined,
+    });
+    expect(calls).toEqual(["/api/program", publishedProgramUrl]);
+    expect(live.source).toBe("remote");
+    expect(live.program.sessions.some((session) => session.id === "LIVE")).toBe(true);
+
+    const blocked = await resolveContent({
+      bundle,
+      url: "/api/program",
       fetchImpl: async () => {
         throw new TypeError("Failed to fetch");
       },
@@ -85,8 +115,8 @@ describe("content sync", () => {
         throw new Error("a blocked response is not cached");
       },
     });
-    expect(result.source).toBe("bundle");
-    expect(result.program.sessions).toHaveLength(205);
+    expect(blocked.source).toBe("bundle");
+    expect(blocked.program.sessions).toHaveLength(205);
   });
 
   it("keeps the last good copy when the website cannot be reached", async () => {

@@ -8,13 +8,13 @@ The app is Expo SDK 58 with React Native and TypeScript. The install path is the
 
 [`src/content/tatel.json`](src/content/tatel.json) is the offline copy. On launch the app requests the website file and, if that succeeds and validates, replaces the copy in memory and caches it on the device. A failed or offline request keeps the cache, then the bundled file.
 
-The app requests the published program file on the Lovable site:
+On `https://tatel.app` the app requests `/api/program`. The worker fetches the published Lovable file server-side:
 
 `https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json`
 
-That host is the published site for Lovable project `e06d93b5-2057-4f6f-9494-a9a198357d4a`. Its sitemap canonical URL is `https://tatel.18seventy8.com/`. Override the file with `EXPO_PUBLIC_CONTENT_URL`.
+That host is Lovable project `e06d93b5-2057-4f6f-9494-a9a198357d4a`. Its sitemap canonical URL is `https://tatel.18seventy8.com/`. The file does not send `Access-Control-Allow-Origin`, so the browser does not read it directly. `/api/program` is same-origin. Override the request with `EXPO_PUBLIC_CONTENT_URL`.
 
-A failed request, including a browser CORS failure, keeps the on-device cache and then the bundled copy. The published file is live (205 sessions). Its response does not send `Access-Control-Allow-Origin`, so a page on `https://tatel.app` cannot read it yet. The app stays on the bundled program until that site allows `https://tatel.app`.
+Local web dev has no worker, so a miss on `/api/program` tries that published URL next. Native builds request the published URL directly. A failed request keeps the on-device cache, then the bundled copy.
 
 The parser accepts today’s download (`program`, `sessions`, `agendas`, `presenters`) and the future canonical `program.json` (`version`, `updatedAt`, `timezone`, `days`, `sessions`, `presenters`, `accommodations`). A session can later carry `venue.specific` without an app change. Until then every session points at its island’s accommodations stop and the specific venue is “to be confirmed”.
 
@@ -49,7 +49,9 @@ That writes a static PWA to `dist/`: manifest name “TATEL · Conversations”,
 
 `wrangler.jsonc` deploys the export as a Workers static-asset site named `tatel`. A path with no file serves `index.html`. `public/_headers` is copied into `dist/` and sets `Cache-Control: no-cache` on `/sw.js` and `/manifest.webmanifest`, and a one-year immutable cache on the hashed `/_expo/*` and `/assets/*` files.
 
-Workers static assets ignore `Range` and return the whole file. `worker/index.ts` runs first for `*.mp4` and answers a single range with `206` and `Content-Range`. Each of those requests reads the file in the worker. `white-bay.mp4` is about 14 MB, under the 25 MiB asset limit.
+Workers static assets ignore `Range` and return the whole file. `worker/index.ts` runs first for `/api/*` and `*.mp4`. An MP4 range comes back as `206` with `Content-Range`. Each of those requests reads the file in the worker. `white-bay.mp4` is about 14 MB, under the 25 MiB asset limit.
+
+`GET /api/program` fetches the published program file, checks that the body parses as JSON, and returns `Content-Type: application/json` with `Cache-Control: public, max-age=300, stale-while-revalidate=86400`. The Cache API keeps the last good copy through that stale window. If the upstream fails, the route returns the cached copy, or `502` when there is none.
 
 ```bash
 npm run build:web

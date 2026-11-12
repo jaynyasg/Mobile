@@ -3,7 +3,7 @@ import { createContext, ReactNode, useContext, useEffect, useMemo, useState } fr
 import { setProgram } from "./active";
 import { bundle } from "./bundle";
 import { CONTENT_CACHE_KEY, ContentSource, resolveContent } from "./load";
-import { publishedProgramUrl } from "./published";
+import { programRequestUrls } from "./published";
 import type { ProgramData } from "./types";
 
 interface ContentValue {
@@ -18,9 +18,14 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    const urls = programRequestUrls({
+      override: process.env.EXPO_PUBLIC_CONTENT_URL,
+      origin: typeof window !== "undefined" && window.location?.origin ? window.location.origin : null,
+    });
     resolveContent({
       bundle,
-      url: process.env.EXPO_PUBLIC_CONTENT_URL?.trim() || publishedProgramUrl,
+      url: urls.url,
+      fallbackUrl: urls.fallbackUrl,
       readCache: async () => {
         const raw = await AsyncStorage.getItem(CONTENT_CACHE_KEY);
         return raw ? (JSON.parse(raw) as unknown) : null;

@@ -1,6 +1,6 @@
 {
   "generatedFrom": "TATEL website raw/public/tatel/downloads/tatel-2027-program.json plus venues.json",
-  "contentUrl": "https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json",
+  "contentUrl": "/api/program",
   "forum": {
     "id": "tatel",
     "name": "TATEL",

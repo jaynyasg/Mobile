@@ -1,7 +1,19 @@
+import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
 
 interface Env {
   ASSETS: { fetch(input: Request | string): Promise<Response> };
+}
+
+type ProgramDeps = {
+  fetchImpl?: typeof fetch;
+  cache?: import("./program").ProgramCache | null;
+};
+
+function programDeps(value: unknown): ProgramDeps {
+  if (!value || typeof value !== "object") return {};
+  if ("fetchImpl" in value || "cache" in value) return value as ProgramDeps;
+  return {};
 }
 
 function videoHeaders(asset: Response, size: number): Headers {
@@ -18,8 +30,12 @@ function videoHeaders(asset: Response, size: number): Headers {
 // Workers static assets answer a Range request with the whole file and no
 // Content-Range. Video playback needs 206, so MP4 requests come here first.
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, third?: unknown): Promise<Response> {
     const url = new URL(request.url);
+    if (url.pathname === "/api/program") {
+      const deps = programDeps(third);
+      return serveProgram(request, deps.fetchImpl, deps.cache);
+    }
     if (!url.pathname.toLowerCase().endsWith(".mp4")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response(null, { status: 405, headers: { Allow: "GET, HEAD" } });
