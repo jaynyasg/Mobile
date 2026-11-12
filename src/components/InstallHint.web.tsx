@@ -82,10 +82,10 @@ export function InstallHint() {
   return (
     <>
       <View style={styles.pill}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Add to Home Screen" onPress={() => onAdd().catch(() => setGuide("menu"))}>
-          <T variant="meta" color={colors.onDark}>Add to Home Screen</T>
+        <Pressable accessibilityRole="button" accessibilityLabel="Add to Home Screen" onPress={() => onAdd().catch(() => setGuide("menu"))} style={styles.add}>
+          <T variant="meta" color={colors.onDark} numberOfLines={1}>Add to Home Screen</T>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Dismiss install hint" onPress={() => setDismissed(true)} hitSlop={8}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Dismiss install hint" onPress={() => setDismissed(true)} style={styles.dismiss}>
           <T variant="meta" color={colors.gold}>Close</T>
         </Pressable>
       </View>
@@ -154,17 +154,21 @@ const fixed = { position: "fixed" } as unknown as ViewStyle;
 
 const styles = StyleSheet.create({
   pill: {
-    alignSelf: "flex-start",
+    alignSelf: "stretch",
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 999,
+    justifyContent: "space-between",
+    gap: 8,
+    minHeight: 44,
+    paddingVertical: 4,
+    paddingHorizontal: 14,
+    borderRadius: 16,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(247,244,239,0.45)",
-    backgroundColor: "rgba(7,18,32,0.35)",
+    backgroundColor: "rgba(7,18,32,0.9)",
   },
+  add: { flexShrink: 1, minHeight: 44, justifyContent: "center" },
+  dismiss: { minHeight: 44, justifyContent: "center", paddingHorizontal: 4 },
   overlay: {
     ...fixed,
     top: 0,

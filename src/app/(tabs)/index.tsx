@@ -20,7 +20,7 @@ import { Link } from "expo-router";
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const { forum, sessions, passes } = program;
+  const { forum, sessions } = program;
   const phase = forumPhase(new Date());
   const dayId = suggestedDayId(new Date());
   const next = sessions
@@ -40,21 +40,21 @@ export default function HomeScreen() {
   }
 
   const actions = [
-    { href: "/agenda" as const, icon: "calendar" as const, label: "Program", detail: forum.placeLabel },
+    { href: "/agenda" as const, icon: "calendar" as const, label: "Program", detail: "Sessions, speakers & your schedule" },
     { href: "/places" as const, icon: "pin" as const, label: "Venues", detail: "Candidate places on each island" },
     { href: "/transport" as const, icon: "seat" as const, label: "Transport", detail: "Sample routes. Unconfirmed." },
-    { href: "/stays" as const, icon: "pin" as const, label: "Stays", detail: "Where you stay" },
-    { href: "/ticket" as const, icon: "ticket" as const, label: "Pass", detail: passes.previewLabel },
+    { href: "/stays" as const, icon: "pin" as const, label: "Stays", detail: "Resorts & where to sleep" },
+    { href: "/ticket" as const, icon: "ticket" as const, label: "Pass", detail: "Your event pass (preview, no payment)" },
     { href: "/community" as const, icon: "chat" as const, label: "Community", detail: "Live chat" },
   ];
 
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <View style={[styles.install, { top: insets.top + 12 }]}>
-        <InstallHint />
-      </View>
-      <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop: insets.top + 72, paddingBottom: insets.bottom + 108 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: insets.bottom + 108 }} keyboardShouldPersistTaps="handled">
+        <View style={styles.install}>
+          <InstallHint />
+        </View>
         <View pointerEvents="none" style={styles.mark}>
           <CrystalMark />
         </View>
@@ -113,7 +113,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
   fill: { flex: 1 },
-  install: { position: "absolute", left: 16, zIndex: 2 },
+  install: { marginHorizontal: 16, marginBottom: 8 },
   mark: { alignItems: "center", marginBottom: 12 },
   hero: { marginHorizontal: 16, gap: 6, paddingVertical: 18 },
   countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.35)", backgroundColor: "rgba(7,18,32,0.55)" },
