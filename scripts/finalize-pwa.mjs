@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { patchPwaHtml } from "./pwa-html.mjs";
 
 const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist");
 const htmlPath = path.join(dist, "index.html");
@@ -25,18 +26,6 @@ const manifest = {
 };
 writeFileSync(path.join(dist, "manifest.webmanifest"), `${JSON.stringify(manifest, null, 2)}\n`);
 
-let html = readFileSync(htmlPath, "utf8");
-if (!html.includes('rel="manifest"')) {
-  html = html.replace("</head>", '  <link rel="manifest" href="/manifest.webmanifest" />\n</head>');
-}
-if (!html.includes("apple-mobile-web-app-capable")) {
-  html = html.replace(
-    "</head>",
-    '  <meta name="apple-mobile-web-app-capable" content="yes" />\n  <meta name="mobile-web-app-capable" content="yes" />\n  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />\n</head>',
-  );
-}
-if (!html.includes('name="theme-color"')) {
-  html = html.replace("</head>", '  <meta name="theme-color" content="#071B2A" />\n</head>');
-}
+const html = patchPwaHtml(readFileSync(htmlPath, "utf8"));
 writeFileSync(htmlPath, html);
 console.log("PWA manifest and iOS tags are in dist/");

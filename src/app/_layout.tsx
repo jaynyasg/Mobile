@@ -7,11 +7,13 @@ import { Platform, View } from "react-native";
 import { AuthProvider } from "@/community/auth";
 import { ContentProvider } from "@/content/provider";
 import { ImageViewerProvider } from "@/components/ImageViewer";
+import { listenForInstallPrompt } from "@/components/installPrompt";
 import { RegisterPwa } from "@/components/RegisterPwa";
 import { AppProvider, useApp } from "@/store";
 import { colors } from "@/theme";
 import "@/global.css";
 
+listenForInstallPrompt();
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
