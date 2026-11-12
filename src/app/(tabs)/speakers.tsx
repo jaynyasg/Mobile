@@ -7,6 +7,7 @@ import { SearchField } from "@/components/SearchField";
 import { EmptyState, PageHeader } from "@/components/ui";
 import { portraits } from "@/images";
 import { searchPanelists } from "@/logic/directory";
+import { backgrounds } from "@/components/backgrounds";
 import { pad } from "@/theme";
 import { View } from "react-native";
 
@@ -17,7 +18,7 @@ export default function PanelistsScreen() {
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
 
   return (
-    <Screen>
+    <Screen docked photo={backgrounds.panelists.day} night={backgrounds.panelists.night} phase={backgrounds.panelists.phase}>
       <PageHeader
         kicker={`${panelists.length} panelists`}
         title="Panelists"

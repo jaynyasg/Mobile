@@ -13,5 +13,5 @@ export function BeaconBackground() {
 const styles = StyleSheet.create({
   fill: { ...StyleSheet.absoluteFill, backgroundColor: "#071B2A" },
   media: { width: "100%", height: "100%" },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(7,27,42,0.72)" },
+  shade: { position: "absolute", left: 0, right: 0, bottom: 0, height: "46%", backgroundColor: "rgba(10,20,35,0.28)" },
 });

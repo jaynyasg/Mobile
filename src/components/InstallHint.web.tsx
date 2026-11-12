@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { T } from "./Text";
-import { colors, pad } from "@/theme";
+import { colors } from "@/theme";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -24,6 +24,7 @@ function iosSafari(): boolean {
 export function InstallHint() {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [hidden, setHidden] = useState(installed);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     const onPrompt = (event: Event) => {
@@ -39,43 +40,38 @@ export function InstallHint() {
     };
   }, []);
 
-  if (hidden) return null;
+  if (hidden || dismissed) return null;
+  const label = iosSafari() ? "Share, then Add to Home Screen" : prompt ? "Install" : "Add to Home Screen";
 
   return (
-    <View style={styles.card}>
-      <T variant="eyebrow">Install</T>
-      {iosSafari() ? (
-        <T variant="small">In Safari, tap Share, then Add to Home Screen.</T>
-      ) : prompt ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Install TATEL"
-          onPress={() => {
-            prompt.prompt().catch(() => undefined);
-            setPrompt(null);
-          }}
-          style={styles.button}
-        >
-          <T variant="button" color={colors.ivory}>
-            Install TATEL
-          </T>
-        </Pressable>
-      ) : (
-        <T variant="small">Use the browser’s install icon, or the Install button when this page offers it.</T>
-      )}
+    <View style={styles.pill}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        onPress={() => {
+          if (prompt) prompt.prompt().catch(() => undefined);
+        }}
+      >
+        <T variant="meta" color={colors.onDark}>{label}</T>
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss install hint" onPress={() => setDismissed(true)} hitSlop={8}>
+        <T variant="meta" color={colors.gold}>Close</T>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: pad,
-    marginBottom: 12,
-    padding: 14,
-    gap: 8,
-    backgroundColor: colors.paperRaised,
-    borderWidth: 1,
-    borderColor: colors.line,
+  pill: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(247,244,239,0.45)",
+    backgroundColor: "rgba(7,18,32,0.35)",
   },
-  button: { backgroundColor: colors.ink, minHeight: 44, alignItems: "center", justifyContent: "center" },
 });

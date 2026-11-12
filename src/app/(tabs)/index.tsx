@@ -1,110 +1,100 @@
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
-import { useContent } from "@/content/provider";
+import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BeaconBackground } from "@/components/BeaconBackground";
+import { CrystalMark } from "@/components/CrystalMark";
+import { PhotoShade } from "@/components/PhotoShade";
 import { InstallHint } from "@/components/InstallHint";
-import { Screen } from "@/components/Screen";
+import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
-import { forumPhase, phaseLabel, suggestedDayId } from "@/logic/phase";
-import { colors, pad } from "@/theme";
+import { useContent } from "@/content/provider";
+import { forumPhase, suggestedDayId } from "@/logic/phase";
+import { colors, sceneForIsland } from "@/theme";
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const { forum, stays, venues } = program;
+  const { forum, sessions } = program;
   const phase = forumPhase(new Date());
+  const dayId = suggestedDayId(new Date());
+  const next = sessions
+    .filter((session) => session.dayId === dayId && session.start)
+    .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))[0];
+  const count = phase.phase === "upcoming" ? String(phase.daysUntil) : phase.phase === "live" ? "Now" : "Closed";
+  const countCaption = phase.phase === "upcoming" ? (phase.daysUntil === 1 ? "day" : "days") : phase.phase === "live" ? "open" : "ended";
 
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <Screen background="transparent" statusBar="light" edge="none">
-        <View style={styles.heroCopy}>
-          <T variant="eyebrow" color={colors.brassSoft}>
-            {forum.name} · {forum.kicker}
-          </T>
-          <T variant="display" color={colors.ivory}>
-            {forum.edition}
-          </T>
-          <T variant="small" color={colors.ivory}>
-            {forum.dateLabel}
-          </T>
-          <T variant="meta" color={colors.muted}>
-            {forum.placeLabel}
-          </T>
-          <T variant="meta" color={colors.brassSoft}>
-            {phaseLabel(phase)}
-          </T>
+      <View style={[styles.install, { top: insets.top + 12 }]}>
+        <InstallHint />
+      </View>
+      <View style={[styles.lower, { bottom: insets.bottom + 86 }]}>
+        <View pointerEvents="none" style={styles.mark}>
+          <CrystalMark />
         </View>
-      <View style={styles.sheet}>
-      <InstallHint />
-      <View style={styles.notice}>
-        <T variant="eyebrow">Program</T>
-        <T variant="small">{forum.draftNotice}</T>
-        <T variant="meta">{forum.timingNote ? forum.timingNote.replace(/\b[Pp]roposed\s+/g, "") : "Specific venues and untimed activities remain to be confirmed."}</T>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.islands}>
+          {forum.pillars.map((pillar) => (
+            <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
+              <Pressable accessibilityRole="button" style={styles.island}>
+                <Image source={{ uri: sceneForIsland(pillar.island) }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
+                <PhotoShade />
+                <View style={styles.islandCopy}>
+                  <T variant="rowTitle" color={colors.onDark}>{pillar.name}</T>
+                  <T variant="meta" color={colors.gold}>{pillar.island}</T>
+                </View>
+              </Pressable>
+            </Link>
+          ))}
+        </ScrollView>
+        <View style={styles.copy}>
+          <T variant="display" foil>{forum.edition}</T>
+          <T variant="small" color={colors.onDark}>{forum.dateLabel}</T>
+          <View style={styles.countPill}>
+            <T variant="title" color={colors.onDark}>{count}</T>
+            <T variant="meta" color={colors.onDarkSoft}>{countCaption}</T>
+          </View>
+          {next ? (
+            <Link href={{ pathname: "/session/[id]", params: { id: next.id } }} asChild>
+              <Pressable accessibilityRole="button" style={styles.next}>
+                <T variant="eyebrow" color={colors.gold}>Next</T>
+                <T variant="small" color={colors.onDark} numberOfLines={1}>{next.title}</T>
+                <T variant="meta" color={colors.onDarkSoft}>{sessionWhen(next)} · {next.island}</T>
+              </Pressable>
+            </Link>
+          ) : null}
+          <View style={styles.links}>
+            <HomeLink href="/transport" label="Transport" />
+            <HomeLink href="/stays" label="Stays" />
+            <HomeLink href="/ticket" label="Pass" />
+          </View>
+        </View>
       </View>
-      <T variant="eyebrow" style={styles.section}>
-        Five pillars · planning homes
-      </T>
-      {forum.pillars.map((pillar) => (
-        <Link key={pillar.id} href={{ pathname: "/pillar/[id]", params: { id: pillar.id } }} asChild>
-          <Pressable accessibilityRole="button" style={styles.pillar}>
-            <T variant="rowTitle">{pillar.name}</T>
-            <T variant="meta">
-              {pillar.island} · {pillar.region}
-            </T>
-          </Pressable>
-        </Link>
-      ))}
-      <T variant="eyebrow" style={styles.section}>
-        Move through the draft
-      </T>
-      <View style={styles.links}>
-        <HomeLink href={{ pathname: "/agenda", params: { day: suggestedDayId(new Date()) } }} label="Agenda" detail="Day, pillar, island, type" />
-        <HomeLink href="/transport" label="Sample transport" detail="Three unconfirmed routes" />
-        <HomeLink href="/stays" label="Accommodations" detail={stays.brochureNote} />
-        <HomeLink href={{ pathname: "/venue/[id]", params: { id: venues[0]?.id ?? "st-thomas" } }} label="Venues" detail="Island stops · specific venue to be confirmed" />
-        <HomeLink href="/ticket" label="Pass preview" detail="No payment collected" />
-      </View>
-      </View>
-      </Screen>
     </View>
   );
 }
 
-function HomeLink({
-  href,
-  label,
-  detail,
-}: {
-  href: "/transport" | "/stays" | "/ticket" | { pathname: "/agenda"; params: { day: string } } | { pathname: "/venue/[id]"; params: { id: string } };
-  label: string;
-  detail: string;
-}) {
+function HomeLink({ href, label }: { href: "/transport" | "/stays" | "/ticket"; label: string }) {
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={styles.link}>
-        <T variant="rowTitle">{label}</T>
-        <T variant="meta">{detail}</T>
+      <Pressable accessibilityRole="button">
+        <T variant="meta" color={colors.gold}>{label}</T>
       </Pressable>
     </Link>
   );
 }
 
 const styles = StyleSheet.create({
-  frame: { flex: 1, backgroundColor: "#071B2A" },
-  heroCopy: { padding: pad, paddingTop: 72, paddingBottom: 22, gap: 6 },
-  sheet: { backgroundColor: colors.paper, paddingTop: 8 },
-  notice: { margin: pad, padding: 14, gap: 8, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised },
-  section: { paddingHorizontal: pad, marginTop: 8, marginBottom: 8 },
-  pillar: {
-    marginHorizontal: pad,
-    marginBottom: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
-    gap: 2,
-  },
-  links: { paddingHorizontal: pad, gap: 8, paddingBottom: 12 },
-  link: { paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line, gap: 2 },
+  frame: { flex: 1, backgroundColor: "#071421" },
+  install: { position: "absolute", left: 16 },
+  mark: { alignItems: "center", marginBottom: 12 },
+  countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)", backgroundColor: "rgba(8,16,28,0.72)" },
+  lower: { position: "absolute", left: 0, right: 0 },
+  islands: { paddingHorizontal: 16, gap: 10, paddingBottom: 14 },
+  island: { width: 132, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
+  islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  islandCopy: { padding: 10, gap: 2 },
+  copy: { paddingHorizontal: 22, gap: 2 },
+  next: { marginTop: 10, gap: 2, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "rgba(201,162,74,0.55)", paddingTop: 8 },
+  links: { flexDirection: "row", gap: 18, marginTop: 10 },
 });

@@ -1,11 +1,12 @@
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
-import { forum, panelistNames, pillarById } from "@/content";
-import { displayCopy, SPEAKER_TBA } from "@/content/display";
+import { Image, Pressable, StyleSheet, View } from "react-native";
+import { forum } from "@/content";
+import { displayCopy } from "@/content/display";
 import type { Session } from "@/content/types";
-import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
+import { formatRange } from "@/logic/time";
 import { useApp } from "@/store";
-import { colors, pad } from "@/theme";
+import { colors, sceneForIsland } from "@/theme";
+import { Glass } from "./Glass";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 
@@ -16,34 +17,16 @@ export function sessionWhen(session: Session): string {
 
 export function SessionRow({ session }: { session: Session }) {
   const { state, dispatch } = useApp();
-  const localZone = deviceTimeZone();
   const favored = state.favoriteIds.includes(session.id);
-  const pillar = pillarById(session.pillarId);
-  const names = panelistNames(session.speakerIds);
-  const timed = Boolean(session.start && session.end);
-  const same = timed && session.start ? sameClock(session.start, forum.timezone, localZone) : true;
-  const kind = session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session";
+  const photo = sceneForIsland(session.island);
 
   return (
-    <View style={[styles.row, session.featured && styles.featured]}>
-      <View style={[styles.tick, { backgroundColor: session.featured ? colors.brassSoft : colors.ink }]} />
+    <Glass padded={false} style={styles.row}>
+      <Image source={{ uri: photo }} style={styles.thumb} accessibilityIgnoresInvertColors />
       <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
-          <View style={styles.copy}>
-            <T variant="eyebrow">{session.optional ? `${kind} · Optional` : kind}</T>
-            <T variant="rowTitle">{displayCopy(session.title)}</T>
-            <T variant="meta">
-              {sessionWhen(session)}
-              {pillar ? ` · ${pillar.name}` : ""} · {session.island}
-            </T>
-            <T variant="meta">{names || SPEAKER_TBA}</T>
-            <T variant="meta">Venue: {session.venue.specific || session.venue.label}</T>
-            {timed && session.start && session.end ? (
-              <T variant="meta" color={colors.brass}>
-                {same ? "Same clock as this phone" : `${formatRange(session.start, session.end, localZone)} · your time`}
-              </T>
-            ) : null}
-          </View>
+          <T variant="rowTitle" numberOfLines={2}>{displayCopy(session.title)}</T>
+          <T variant="meta" color={colors.brass}>{sessionWhen(session)} · {session.island}</T>
         </Pressable>
       </Link>
       <Pressable
@@ -53,24 +36,24 @@ export function SessionRow({ session }: { session: Session }) {
         onPress={() => dispatch({ type: "toggleFavorite", id: session.id })}
         style={styles.heart}
       >
-        <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.ink : colors.inkSoft} />
+        <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.brass : colors.inkSoft} />
       </Pressable>
-    </View>
+    </Glass>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    alignItems: "stretch",
-    paddingRight: pad,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.line,
-    backgroundColor: colors.paper,
+    alignItems: "center",
+    gap: 12,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    paddingVertical: 8,
+    paddingRight: 8,
+    paddingLeft: 8,
   },
-  featured: { backgroundColor: "#F8F1D8" },
-  tick: { width: 3 },
-  main: { flex: 1, paddingVertical: 14, paddingLeft: pad },
-  copy: { gap: 3 },
-  heart: { width: 40, alignItems: "center", justifyContent: "center" },
+  thumb: { width: 54, height: 54, borderRadius: 8 },
+  main: { flex: 1, gap: 3 },
+  heart: { width: 32, alignItems: "center", justifyContent: "center" },
 });

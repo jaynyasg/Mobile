@@ -1,24 +1,34 @@
-import { StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { CrystalMark } from "./CrystalMark";
 import { T } from "./Text";
-import { colors, pad } from "@/theme";
+import { colors } from "@/theme";
 
 export function InstallHint() {
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) return null;
   return (
-    <View style={styles.card}>
-      <T variant="eyebrow">Install</T>
-      <T variant="small">Open this site in Chrome or Safari, then add TATEL · Conversations to your home screen.</T>
+    <View style={styles.pill}>
+      <CrystalMark size="mark" />
+      <T variant="meta" color={colors.onDark}>Add to Home Screen</T>
+      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss install hint" onPress={() => setDismissed(true)} hitSlop={8}>
+        <T variant="meta" color={colors.gold}>Close</T>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    marginHorizontal: pad,
-    marginBottom: 12,
-    padding: 14,
-    gap: 6,
-    backgroundColor: colors.paperRaised,
+  pill: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: "rgba(255,255,255,0.7)",
+    backgroundColor: "rgba(7,18,32,0.78)",
   },
 });

@@ -1,6 +1,7 @@
+import { useIsFocused } from "expo-router";
 import { createElement, useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { beaconPoster } from "@/images";
+import { homeMedia } from "./homeMedia";
 
 function wantsStillFrame(): boolean {
   if (typeof window === "undefined") return true;
@@ -10,6 +11,7 @@ function wantsStillFrame(): boolean {
 }
 
 export function BeaconBackground() {
+  const focused = useIsFocused();
   const [still, setStill] = useState(wantsStillFrame);
 
   useEffect(() => {
@@ -22,9 +24,8 @@ export function BeaconBackground() {
 
   return (
     <View pointerEvents="none" style={styles.fill}>
-      {still ? (
-        <Image source={beaconPoster} style={styles.media} resizeMode="cover" accessibilityIgnoresInvertColors />
-      ) : (
+      <Image source={{ uri: homeMedia.poster }} style={styles.media} resizeMode="cover" accessibilityIgnoresInvertColors />
+      {!still && focused ? (
         createElement(
           "video",
           {
@@ -32,7 +33,7 @@ export function BeaconBackground() {
             muted: true,
             loop: true,
             playsInline: true,
-            poster: "/beacon/beacon-poster.jpg",
+            poster: homeMedia.poster,
             onError: () => setStill(true),
             ref: (node: HTMLVideoElement | null) => {
               if (!node) return;
@@ -40,13 +41,19 @@ export function BeaconBackground() {
               const attempt = node.play();
               if (attempt) attempt.catch(() => setStill(true));
             },
-            style: { width: "100%", height: "100%", objectFit: "cover" },
+            preload: "metadata",
+            style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center" },
           },
-          createElement("source", { src: "/beacon/beacon-720.webm", type: "video/webm" }),
-          createElement("source", { src: "/beacon/beacon-720.mp4", type: "video/mp4" }),
+          createElement("source", { src: homeMedia.mp4, type: "video/mp4" }),
         )
-      )}
-      <View style={styles.shade} />
+      ) : null}
+      {createElement("div", {
+        style: {
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(6,14,24,0) 0%, rgba(6,14,24,0) 34%, rgba(6,14,24,0.42) 54%, rgba(6,14,24,0.78) 72%, rgba(6,14,24,0.92) 100%)",
+        },
+      })}
     </View>
   );
 }
@@ -54,5 +61,4 @@ export function BeaconBackground() {
 const styles = StyleSheet.create({
   fill: { ...StyleSheet.absoluteFill, backgroundColor: "#071B2A" },
   media: { width: "100%", height: "100%" },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: "rgba(7,27,42,0.72)" },
 });

@@ -10,6 +10,7 @@ import { EmptyState, PageHeader, PrimaryButton, SecondaryButton } from "@/compon
 import { portraits } from "@/images";
 import { searchPanelists } from "@/logic/directory";
 import { useApp } from "@/store";
+import { backgrounds } from "@/components/backgrounds";
 import { colors, pad } from "@/theme";
 
 export default function NetworkScreen() {
@@ -20,7 +21,7 @@ export default function NetworkScreen() {
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
 
   return (
-    <Screen>
+    <Screen docked photo={backgrounds.network.day} night={backgrounds.network.night} phase={backgrounds.network.phase}>
       <PageHeader
         kicker="On this device"
         title="Network"

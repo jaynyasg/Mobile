@@ -1,5 +1,5 @@
 import { Platform, Pressable, StyleSheet, TextInput, View } from "react-native";
-import { colors, fonts, pad } from "@/theme";
+import { colors, fonts } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 
@@ -36,14 +36,15 @@ export function SearchField({
 
 const styles = StyleSheet.create({
   wrap: {
-    marginHorizontal: pad,
-    marginBottom: 8,
     minHeight: 44,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.92)",
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.62)",
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    paddingHorizontal: 12,
   },
   input: {
     flex: 1,

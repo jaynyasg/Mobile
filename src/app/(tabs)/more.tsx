@@ -2,6 +2,7 @@ import { Href } from "expo-router";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { LinkRow, PageHeader, SectionLabel } from "@/components/ui";
+import { backgrounds } from "@/components/backgrounds";
 import { useApp } from "@/store";
 
 export default function MoreScreen() {
@@ -17,6 +18,8 @@ export default function MoreScreen() {
         { href: "/ticket", label: "Pass preview", detail: "Prices shown as a demo. No payment." },
         { href: "/notifications", label: "Notifications", detail: "Notices taken from the source", badge: unread || undefined },
         { href: "/assistant", label: "Guide", detail: "Answers from the program, on this device" },
+        { href: "/speakers", label: "Panelists", detail: "Roster from the website" },
+        { href: "/network", label: "Network", detail: "Opt-in introductions" },
       ],
     },
     {
@@ -33,7 +36,7 @@ export default function MoreScreen() {
   ];
 
   return (
-    <Screen>
+    <Screen docked photo={backgrounds.more.day} night={backgrounds.more.night} phase={backgrounds.more.phase}>
       <PageHeader kicker="TATEL" title="More" />
       {groups.map((group) => (
         <ViewSection key={group.title} title={group.title} items={group.items} />

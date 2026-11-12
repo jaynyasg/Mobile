@@ -5,3 +5,91 @@ body,
   margin: 0;
   background: #071b2a;
 }
+
+@keyframes tatel-drift {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
+.tatel-drift {
+  animation: tatel-drift 28s ease-in-out infinite alternate;
+  transform-origin: center center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tatel-drift { animation: none; }
+}
+
+@keyframes tatel-foil {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes tatel-sheen {
+  0% { background-position: 120% 0; }
+  100% { background-position: -40% 0; }
+}
+
+@keyframes tatel-daynight {
+  0% { opacity: 1; }
+  34.5% { opacity: 1; animation-timing-function: ease-in-out; }
+  50% { opacity: 0; }
+  84.5% { opacity: 0; animation-timing-function: ease-in-out; }
+  100% { opacity: 1; }
+}
+
+.tatel-day {
+  animation: tatel-daynight 58s linear infinite;
+}
+
+@keyframes tatel-twinkle {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+.tatel-twinkle { animation: tatel-twinkle 3.6s ease-in-out infinite; }
+.tatel-twinkle-late { animation-delay: 1.4s; }
+
+.tatel-gold {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  line-height: 1.05;
+  white-space: nowrap;
+  color: #F0C24F;
+  -webkit-text-fill-color: #F0C24F;
+  text-shadow: 0 1px 4px rgba(7, 20, 34, 0.28);
+}
+
+.tatel-gold-hero {
+  font-size: 56px;
+  letter-spacing: 0.18em;
+}
+
+.tatel-gold-mark {
+  font-size: 15px;
+  letter-spacing: 0.28em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tatel-day { animation: none; opacity: 1; }
+  .tatel-twinkle, .tatel-twinkle-late { animation: none; opacity: 0.8; }
+}
+
+[data-gloss="foil"] {
+  background-image: linear-gradient(105deg, #8d6a28 0%, #fff6d2 28%, #f0c85a 50%, #fffaf0 72%, #c4a15a 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+[data-gloss="shimmer"] {
+  background-image: linear-gradient(100deg, #e7c56a 0%, #fff6d0 42%, #e7c56a 68%);
+  background-size: 220% 100%;
+  box-shadow: 0 8px 22px rgba(201, 162, 74, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-gloss="foil"] { animation: tatel-foil 8s ease-in-out infinite; }
+  [data-gloss="shimmer"] { animation: tatel-sheen 4.8s ease-in-out infinite; }
+}

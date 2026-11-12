@@ -1,5 +1,5 @@
-const CACHE = "tatel-shell-v1";
-const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/favicon.ico", "/apple-touch-icon.png", "/beacon/beacon-poster.jpg"];
+const CACHE = "tatel-shell-v6";
+const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/favicon.ico", "/apple-touch-icon.png", "/beacon/coast/white-bay-day.jpg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -25,6 +25,10 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  if (/\.(mp4|webm)$/i.test(url.pathname)) {
+    event.respondWith(fetch(request));
+    return;
+  }
   event.respondWith(
     fetch(request)
       .then((response) => {

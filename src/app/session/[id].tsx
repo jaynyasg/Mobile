@@ -1,19 +1,21 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { dayById, forum, panelistById, participationLabel, pillarById, placesForIsland, sessionById, venueById } from "@/content";
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
 import { sessionWhen } from "@/components/SessionRow";
+import { Glass } from "@/components/Glass";
+import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
-import { PlacePhoto } from "@/components/PlacePhoto";
 import { portraits } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
 import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
-import { colors, pad } from "@/theme";
+import { plateForIsland } from "@/components/backgrounds";
+import { colors, pad, sceneForIsland } from "@/theme";
 
 export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -40,10 +42,10 @@ export default function SessionScreen() {
   const kind = session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session";
 
   return (
-    <Screen edge="none">
+    <Screen edge="none" photo={plateForIsland(session.island, `session-${session.island}`).day} night={plateForIsland(session.island, `session-${session.island}`).night} phase={`session-${session.island}`}>
       <StackHeader title={day?.label} />
-      <View style={styles.pad}>
-        <T variant="eyebrow">{session.optional ? `${kind} · Optional` : kind}</T>
+      <Glass style={styles.pad}>
+        <T variant="eyebrow" color={colors.brass}>{session.optional ? `${kind} · Optional` : kind}</T>
         <T variant="title">{displayCopy(session.title)}</T>
         <T variant="meta">
           {pillar?.name} · {session.island} · {session.region}
@@ -59,17 +61,11 @@ export default function SessionScreen() {
           <T variant="meta">No clock time yet.</T>
         )}
         <T variant="meta">
-          Venue: {session.venue.specific || session.venue.label}
+          {session.venue.specific || session.venue.label}
           {stay ? ` · ${stay.dock}` : ""}
         </T>
-        {candidates.length ? (
-          <T variant="meta">Candidate places on {session.island}. None is assigned to this session.</T>
-        ) : null}
         <T variant="body">{displayCopy(session.description)}</T>
-        <T variant="small">What we’ll work on: {displayCopy(session.outcome)}</T>
-        <T variant="meta">Format: {displayCopy(session.format)}</T>
-        {session.phase ? <T variant="meta">Phase: {displayCopy(session.phase)}</T> : null}
-        {session.specialists ? <T variant="meta">Related expertise: {displayCopy(session.specialists)}</T> : null}
+        <T variant="small">{displayCopy(session.outcome)}</T>
         {people.length === 0 ? <T variant="small">{SPEAKER_TBA}</T> : null}
         <View style={styles.actions}>
           {favored ? (
@@ -78,16 +74,16 @@ export default function SessionScreen() {
             <PrimaryButton label="Save to My Schedule" onPress={() => dispatch({ type: "toggleFavorite", id: session.id })} />
           )}
         </View>
-      </View>
+      </Glass>
       {candidates.map((place) => {
         const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
         return (
           <Link key={place.id} href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
             <Pressable accessibilityRole="button" style={styles.place}>
-              {hero ? <PlacePhoto photo={hero} /> : null}
+              {hero ? <Image source={{ uri: hero.webp1280 }} style={styles.placePhoto} accessibilityIgnoresInvertColors /> : null}
+              <PhotoShade />
               <View style={styles.placeCopy}>
-                <T variant="rowTitle">{place.name}</T>
-                <T variant="meta">{place.source === "app-addition" ? "Added in the app" : "Accommodations"}</T>
+                <T variant="rowTitle" color={colors.onDark}>{place.name}</T>
               </View>
             </Pressable>
           </Link>
@@ -112,8 +108,9 @@ export default function SessionScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { paddingHorizontal: pad, gap: 8, paddingBottom: 12 },
-  actions: { marginTop: 8 },
-  place: { marginHorizontal: pad, marginBottom: 10, borderWidth: 1, borderColor: colors.line },
-  placeCopy: { padding: 10, gap: 2 },
+  pad: { paddingHorizontal: 22, paddingTop: 36, gap: 10, paddingBottom: 18 },
+  actions: { marginTop: 8, alignSelf: "flex-start" },
+  place: { marginHorizontal: 22, marginBottom: 12, height: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  placePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
+  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 12 },
 });

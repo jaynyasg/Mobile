@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, pad } from "@/theme";
@@ -10,7 +10,7 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
   const insets = useSafeAreaInsets();
   const router = useRouter();
   return (
-    <View style={[styles.bar, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.bar, Platform.OS === "web" ? webBlur : null, { paddingTop: insets.top + 8 }]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Go back"
@@ -18,7 +18,7 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
         style={styles.back}
       >
-        <Icon name="back" />
+        <Icon name="back" color={colors.ink} />
       </Pressable>
       <View style={styles.title}>
         {title ? (
@@ -32,6 +32,8 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
   );
 }
 
+const webBlur = { backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" } as ViewStyle;
+
 const styles = StyleSheet.create({
   bar: {
     paddingHorizontal: pad,
@@ -39,7 +41,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: colors.paper,
+    backgroundColor: "rgba(255,255,255,0.62)",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,224,138,0.45)",
   },
   back: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
   title: { flex: 1 },
