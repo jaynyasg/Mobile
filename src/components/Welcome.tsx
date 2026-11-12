@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContent } from "@/content/provider";
 import { colors } from "@/theme";
 import { Glass } from "./Glass";
+import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
 
 export function Welcome({ onClose }: { onClose: () => void }) {
@@ -31,13 +32,13 @@ export function Welcome({ onClose }: { onClose: () => void }) {
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="How TATEL works">
       <Pressable accessibilityRole="button" accessibilityLabel="Skip the introduction" style={styles.backdrop} onPress={onClose} />
-      <Glass tone="dark" style={[styles.card, { marginBottom: Math.max(insets.bottom, 16), backgroundColor: "rgba(8,16,28,0.92)" }]}>
+      <Glass tone="dark" style={[styles.card, nightGlass, { marginBottom: Math.max(insets.bottom, 16) }]}>
         <T variant="eyebrow" color={colors.gold}>{step + 1} of {cards.length}</T>
-        <T variant="title" color={colors.ivory}>{card.title}</T>
-        <T variant="body" color={colors.ivory}>{card.body}</T>
+        <T variant="title" color={colors.foam}>{card.title}</T>
+        <T variant="body" color={colors.foam}>{card.body}</T>
         <View style={styles.row}>
           <Pressable accessibilityRole="button" accessibilityLabel="Skip" onPress={onClose} style={styles.skip}>
-            <T variant="button" color={colors.ivory}>Skip</T>
+            <T variant="button" color={colors.foam}>Skip</T>
           </Pressable>
           <Pressable
             accessibilityRole="button"
@@ -62,6 +63,6 @@ const styles = StyleSheet.create({
   backdrop: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.5)" },
   card: { marginHorizontal: 12, gap: 12, borderRadius: 22 },
   row: { flexDirection: "row", gap: 10, marginTop: 4 },
-  skip: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 16, borderWidth: 1, borderColor: "rgba(247,244,239,0.45)" },
+  skip: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,224,138,0.48)" },
   next: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 16, backgroundColor: colors.gold },
 });

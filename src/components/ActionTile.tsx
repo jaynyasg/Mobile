@@ -1,7 +1,8 @@
 import { Href, Link } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { colors } from "@/theme";
+import { TILE_TOP, nightGlass } from "./nightGlass";
 import { Icon, IconName } from "./Icon";
 import { T } from "./Text";
 
@@ -28,13 +29,13 @@ export function ActionTile({
       >
         <View style={[styles.tile, hover && styles.hover]}>
           <View style={styles.icon}>
-            <Icon name={icon} size={20} color={colors.ink} />
+            <Icon name={icon} size={20} color={colors.pine} />
           </View>
           <View style={styles.copy}>
             <T variant="rowTitle">{label}</T>
             <T variant="meta" numberOfLines={2}>{detail}</T>
           </View>
-          <Icon name="chevron" size={18} color={colors.ink} />
+          <Icon name="chevron" size={18} color={colors.gold} />
         </View>
       </Pressable>
     </Link>
@@ -44,6 +45,7 @@ export function ActionTile({
 const styles = StyleSheet.create({
   hit: { minHeight: 56 },
   tile: {
+    ...nightGlass,
     minHeight: 56,
     flexDirection: "row",
     alignItems: "center",
@@ -51,15 +53,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(11,27,43,0.16)",
-    backgroundColor: "#F7F4EF",
-    shadowColor: "#071421",
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    ...({
+      backgroundImage: `linear-gradient(180deg, ${TILE_TOP} 0%, rgba(7,27,42,0.9) 100%)`,
+    } as ViewStyle),
   },
-  hover: { borderColor: colors.gold, backgroundColor: "#FFF9EC" },
+  hover: { borderColor: colors.gold },
   pressed: { opacity: 0.78 },
   icon: {
     width: 36,
@@ -67,7 +65,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,224,138,0.55)",
+    backgroundColor: colors.gold,
   },
   copy: { flex: 1, gap: 2 },
 });

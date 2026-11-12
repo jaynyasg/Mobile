@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { CrystalMark } from "./CrystalMark";
 import { T } from "./Text";
 import { colors } from "@/theme";
+import { nightGlass } from "./nightGlass";
 
 export function InstallHint() {
   const [dismissed, setDismissed] = useState(false);
@@ -20,15 +21,14 @@ export function InstallHint() {
 
 const styles = StyleSheet.create({
   pill: {
-    alignSelf: "flex-start",
+    ...nightGlass,
+    alignSelf: "stretch",
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    minHeight: 44,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.7)",
-    backgroundColor: "rgba(7,18,32,0.78)",
+    borderRadius: 16,
   },
 });

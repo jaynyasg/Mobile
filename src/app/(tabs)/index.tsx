@@ -16,6 +16,7 @@ import { forumPhase, suggestedDayId } from "@/logic/phase";
 import { colors, sceneForIsland } from "@/theme";
 import { hasSeenWelcome, markWelcomeSeen, webStorage } from "@/welcome";
 import { Link } from "expo-router";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -61,8 +62,8 @@ export default function HomeScreen() {
         <Glass tone="dark" style={[styles.hero, { backgroundColor: "rgba(7,18,32,0.9)" }]}>
           <T variant="eyebrow" color={colors.gold}>{forum.kicker}</T>
           <T variant="display" foil>{forum.edition}</T>
-          <T variant="small" color={colors.ivory}>{forum.dateLabel}</T>
-          <T variant="body" color={colors.ivory}>{forum.placeLabel}</T>
+          <T variant="small" color={colors.foam}>{forum.dateLabel}</T>
+          <T variant="body" color={colors.foam}>{forum.placeLabel}</T>
           <View style={styles.countPill}>
             <T variant="title" color={colors.onDark}>{count}</T>
             <T variant="meta" color={colors.onDarkSoft}>{countCaption}</T>
@@ -119,11 +120,11 @@ const styles = StyleSheet.create({
   countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.35)", backgroundColor: "rgba(7,18,32,0.55)" },
   start: { alignSelf: "flex-start", marginLeft: 16, marginTop: 18, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: "rgba(7,18,32,0.9)" },
   actions: { paddingHorizontal: 16, gap: 8 },
-  replay: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", marginLeft: 16, marginTop: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "rgba(247,244,239,0.96)" },
+  replay: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", marginLeft: 16, marginTop: 8, paddingHorizontal: 14, borderRadius: 999, ...nightGlass },
   islands: { paddingHorizontal: 16, gap: 10, paddingTop: 8, paddingBottom: 14 },
   island: { width: 132, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   islandPhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   islandCopy: { padding: 10, gap: 2, zIndex: 1 },
-  next: { marginHorizontal: 16, marginBottom: 8, padding: 14, gap: 4, borderRadius: 16, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  next: { marginHorizontal: 16, marginBottom: 8, padding: 14, gap: 4, borderRadius: 16, ...nightGlass },
   pressed: { opacity: 0.78 },
 });

@@ -55,7 +55,7 @@ export function SecondaryButton({ label, onPress }: { label: string; onPress: ()
       onPress={onPress}
       style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}
     >
-      <T variant="button">{label}</T>
+      <T variant="button" color={colors.foam}>{label}</T>
     </Pressable>
   );
 }
@@ -79,7 +79,7 @@ export function Chip({
       style={[styles.chip, selected && styles.chipOn]}
     >
       {swatch ? <View style={[styles.swatch, { backgroundColor: selected ? colors.ivory : swatch }]} /> : null}
-      <T variant="small" color={selected ? colors.ivory : colors.ink} style={styles.chipLabel}>
+      <T variant="small" color={colors.foam} style={styles.chipLabel}>
         {label}
       </T>
     </Pressable>
@@ -123,7 +123,7 @@ export function LinkRow({
               </T>
             </View>
           ) : null}
-          <Icon name="chevron" size={18} color={colors.inkSoft} />
+          <Icon name="chevron" size={18} color={colors.gold} />
         </View>
       </Pressable>
     </Link>
@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.9)",
-    backgroundColor: "rgba(255,255,255,0.72)",
+    borderColor: "rgba(255,224,138,0.48)",
+    backgroundColor: "rgba(7,27,42,0.84)",
     paddingHorizontal: 16,
   },
   disabled: { opacity: 0.4 },
@@ -165,13 +165,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(186,220,255,0.85)",
-    backgroundColor: "rgba(255,255,255,0.72)",
+    borderColor: "rgba(255,224,138,0.42)",
+    backgroundColor: "rgba(7,27,42,0.84)",
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 99,
   },
-  chipOn: { backgroundColor: colors.turquoise, borderColor: colors.turquoise },
+  chipOn: { backgroundColor: "rgba(16,52,68,0.92)", borderColor: colors.gold },
   chipLabel: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 16 },
   swatch: { width: 8, height: 8, borderRadius: 4 },
   empty: { paddingHorizontal: pad, paddingVertical: 28, gap: 8 },
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.92)",
-    backgroundColor: "rgba(255,255,255,0.7)",
+    borderColor: "rgba(255,224,138,0.48)",
+    backgroundColor: "rgba(7,27,42,0.84)",
   },
   linkCopy: { flex: 1, gap: 2 },
   badge: {

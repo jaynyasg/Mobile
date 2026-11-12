@@ -10,6 +10,7 @@ import { portraits } from "@/images";
 import { formatRange } from "@/logic/time";
 import { useContent } from "@/content/provider";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function PanelistScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -45,7 +46,7 @@ export default function PanelistScreen() {
         <T variant="meta">The island is the planning home for linked sessions. The specific venue is to be confirmed.</T>
         <Link href={{ pathname: "/pillar/[id]", params: { id: person.proposedPillarId } }} asChild>
           <Pressable accessibilityRole="button">
-            <T variant="small" color={colors.brass}>
+            <T variant="small" color={colors.gold}>
               Open the {pillar?.name} island page
             </T>
           </Pressable>
@@ -72,8 +73,8 @@ export default function PanelistScreen() {
 
 const styles = StyleSheet.create({
   portrait: { height: 280, backgroundColor: colors.muted, marginHorizontal: pad },
-  pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
-  section: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 14, backgroundColor: "rgba(247,244,239,0.96)" },
+  pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  section: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 14, ...nightGlass },
   session: {
     marginHorizontal: 12,
     marginBottom: 8,
@@ -83,6 +84,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(11,27,43,0.12)",
-    backgroundColor: "rgba(247,244,239,0.96)",
+    ...nightGlass,
   },
 });

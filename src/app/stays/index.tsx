@@ -7,6 +7,7 @@ import { T } from "@/components/Text";
 import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function StaysScreen() {
   const { program } = useContent();
@@ -38,7 +39,7 @@ export default function StaysScreen() {
                     <T variant="rowTitle">{island.island}</T>
                     <T variant="meta">{island.dock}</T>
                   </View>
-                  <T variant="button" color={colors.brass}>Open</T>
+                  <T variant="button" color={colors.gold}>Open</T>
                 </Pressable>
               </Link>
             </View>
@@ -50,10 +51,10 @@ export default function StaysScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
-  group: { marginHorizontal: 12, marginTop: 8, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, backgroundColor: "rgba(247,244,239,0.96)" },
-  groupIntro: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, backgroundColor: "rgba(247,244,239,0.96)" },
-  card: { marginHorizontal: 12, marginBottom: 12, borderRadius: 16, overflow: "hidden", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", backgroundColor: "rgba(247,244,239,0.96)" },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  group: { marginHorizontal: 12, marginTop: 8, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, ...nightGlass },
+  groupIntro: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, ...nightGlass },
+  card: { marginHorizontal: 12, marginBottom: 12, borderRadius: 16, overflow: "hidden", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", ...nightGlass },
   image: { height: 140, width: "100%" },
   copy: { minHeight: 56, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 12 },
   copyText: { flex: 1, gap: 2 },

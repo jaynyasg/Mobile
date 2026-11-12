@@ -23,14 +23,14 @@ export function Glass({
   style?: ViewStyle | ViewStyle[];
 }) {
   const frosted = blur && backdropBlurSupported();
-  const backgroundColor = tone === "dark" ? "rgba(8,16,28,0.9)" : "rgba(255,255,255,0.94)";
+  const backgroundColor = tone === "dark" ? "rgba(7,27,42,0.9)" : "rgba(7,27,42,0.84)";
   const crystal = frosted
     ? ({
-        backgroundColor: tone === "dark" ? "rgba(7,16,28,0.9)" : "rgba(247,244,239,0.94)",
-        borderColor: "rgba(255,255,255,0.42)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55)",
+        backgroundColor,
+        borderColor: "rgba(255,224,138,0.48)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.32), 0 12px 28px rgba(4,10,18,0.4)",
       } as ViewStyle)
     : null;
   return (
@@ -39,7 +39,7 @@ export function Glass({
         styles.base,
         {
           backgroundColor,
-          borderColor: "rgba(255,255,255,0.85)",
+          borderColor: "rgba(255,224,138,0.48)",
           padding: padded ? 16 : 0,
         },
         crystal,
@@ -54,7 +54,7 @@ export function Glass({
 const styles = StyleSheet.create({
   base: {
     borderRadius: radius,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
     overflow: "hidden",
   },
 });

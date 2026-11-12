@@ -9,6 +9,7 @@ import { T } from "@/components/Text";
 import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function PillarScreen() {
   const { program } = useContent();
@@ -34,7 +35,7 @@ export default function PillarScreen() {
         <TappablePhoto source={sceneImages[scene.image]} alt={scene.name} style={styles.image} />
         <View pointerEvents="none" style={styles.shade} />
         <View pointerEvents="none" style={styles.heroCopy}>
-          <T variant="eyebrow" color={colors.brassSoft}>
+          <T variant="eyebrow" color={colors.gold}>
             Planning home
           </T>
           <T variant="title" color={colors.ivory}>
@@ -51,7 +52,7 @@ export default function PillarScreen() {
         <T variant="meta">Specific venues are to be confirmed. Sessions on this island use its accommodations stop.</T>
         <Link href={{ pathname: "/agenda", params: { pillar: pillar.id } }} asChild>
           <Pressable accessibilityRole="button">
-            <T variant="small" color={colors.brass}>
+            <T variant="small" color={colors.gold}>
               Filter the agenda to {pillar.name}
             </T>
           </Pressable>
@@ -59,7 +60,7 @@ export default function PillarScreen() {
         {stay ? (
           <Link href={{ pathname: "/stays/[id]", params: { id: stay.id } }} asChild>
             <Pressable accessibilityRole="button">
-              <T variant="small" color={colors.brass}>
+              <T variant="small" color={colors.gold}>
                 Accommodations · {stay.dock}
               </T>
             </Pressable>
@@ -81,6 +82,6 @@ const styles = StyleSheet.create({
   image: { position: "absolute", top: 0, left: 0, right: 0, height: 240 },
   shade: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(7,18,32,0.62)" },
   heroCopy: { padding: pad, gap: 4 },
-  pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
-  count: { alignSelf: "flex-start", marginLeft: 12, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14, backgroundColor: "rgba(247,244,239,0.96)" },
+  pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  count: { alignSelf: "flex-start", marginLeft: 12, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 14, ...nightGlass },
 });

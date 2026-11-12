@@ -7,6 +7,7 @@ import { T } from "@/components/Text";
 import { formatStamp } from "@/logic/time";
 import { useApp } from "@/store";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function NotificationsScreen() {
   const { program } = useContent();
@@ -21,7 +22,7 @@ export default function NotificationsScreen() {
           accessibilityRole="button"
           onPress={() => dispatch({ type: "markAllNotificationsRead", ids: notifications.map((note) => note.id) })}
         >
-          <T variant="small" color={colors.brass}>
+          <T variant="small" color={colors.gold}>
             Mark all read
           </T>
         </Pressable>
@@ -46,7 +47,7 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
-  note: { marginHorizontal: 12, marginBottom: 8, padding: 14, gap: 6, minHeight: 44, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", backgroundColor: "rgba(247,244,239,0.96)" },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  note: { marginHorizontal: 12, marginBottom: 8, padding: 14, gap: 6, minHeight: 44, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", ...nightGlass },
   unread: { borderColor: colors.brassSoft },
 });

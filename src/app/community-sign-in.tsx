@@ -43,13 +43,13 @@ export default function SignInScreen() {
         <CrystalMark size="mark" />
         <T variant="title">Your email</T>
         <T variant="small">A 6-digit code, kept in this app.</T>
-        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Email" />
+        <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor="rgba(245,241,232,0.62)" style={styles.input} accessibilityLabel="Email" />
         <Pressable accessibilityRole="button" onPress={send} style={[styles.button, shimmerStyle()]}>
           <T variant="button" color={colors.ink}>Send code</T>
         </Pressable>
         {sent ? (
           <>
-            <TextInput value={code} onChangeText={setCode} keyboardType="number-pad" placeholder="6-digit code" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Email code" />
+            <TextInput value={code} onChangeText={setCode} keyboardType="number-pad" placeholder="6-digit code" placeholderTextColor="rgba(245,241,232,0.62)" style={styles.input} accessibilityLabel="Email code" />
             <Pressable accessibilityRole="button" onPress={verify} style={styles.button}>
               <T variant="button" color={colors.ink}>Verify code</T>
             </Pressable>
@@ -64,6 +64,6 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   pad: { marginTop: 48, marginHorizontal: 22, gap: 14 },
-  input: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(11,27,43,0.28)", color: colors.ink, fontFamily: fonts.body, fontSize: 16, paddingVertical: 12 },
+  input: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(255,224,138,0.42)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, paddingVertical: 12 },
   button: { backgroundColor: colors.gold, minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 16 },
 });

@@ -11,6 +11,7 @@ import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { backgrounds } from "@/components/backgrounds";
 import { colors, fonts, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function CommunityRoomScreen() {
   const auth = useAuth();
@@ -156,7 +157,7 @@ export default function CommunityRoomScreen() {
         )}
       />
       <View style={styles.composer}>
-        <TextInput value={draft} onChangeText={setDraft} placeholder="Message everyone" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Message" />
+        <TextInput value={draft} onChangeText={setDraft} placeholder="Message everyone" placeholderTextColor="rgba(245,241,232,0.62)" style={styles.input} accessibilityLabel="Message" />
         <Pressable accessibilityRole="button" onPress={() => send().catch((cause) => setError(cause instanceof Error ? cause.message : "Could not send"))} style={styles.send}>
           <T variant="button" color={colors.ink}>Send</T>
         </Pressable>
@@ -170,9 +171,9 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   note: { padding: pad },
   list: { padding: pad, gap: 8 },
-  bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 16, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", gap: 2 },
+  bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 16, ...nightGlass, gap: 2 },
   actions: { flexDirection: "row", gap: 16 },
   composer: { flexDirection: "row", gap: 8, padding: pad },
-  input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,255,255,0.9)", borderRadius: 14, backgroundColor: "rgba(255,255,255,0.88)", color: colors.ink, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },
+  input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", borderRadius: 14, backgroundColor: "rgba(7,27,42,0.72)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },
   send: { backgroundColor: colors.gold, borderRadius: 14, paddingHorizontal: 14, justifyContent: "center" },
 });

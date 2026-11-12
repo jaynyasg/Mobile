@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { nightGlass } from "./nightGlass";
 import { colors, pad } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
@@ -18,7 +19,7 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
         style={styles.back}
       >
-        <Icon name="back" color={colors.ink} />
+        <Icon name="back" color={colors.gold} />
       </Pressable>
       <View style={styles.title}>
         {title ? (
@@ -41,7 +42,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(247,244,239,0.96)",
+    ...nightGlass,
+    backgroundColor: "rgba(7,27,42,0.88)",
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,224,138,0.45)",
   },

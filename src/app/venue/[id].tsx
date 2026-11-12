@@ -31,7 +31,7 @@ export default function VenueScreen() {
     <Screen edge="none" photo={plateForIsland(venue.island, `venue-${venue.id}`).day} night={plateForIsland(venue.island, `venue-${venue.id}`).night} phase={`venue-${venue.id}`}>
       <StackHeader title={venue.island} />
       <Glass style={styles.intro}>
-        <T variant="eyebrow" color={colors.brass}>{venue.route}</T>
+        <T variant="eyebrow" color={colors.gold}>{venue.route}</T>
         <T variant="title">{venue.island}</T>
         <T variant="meta">Dock · {venue.dock}</T>
       </Glass>
@@ -77,7 +77,7 @@ function PlaceScreen({ placeId }: { placeId: string }) {
       <StackHeader title={place.name} />
       <View style={styles.heroSpace} />
       <Glass style={styles.intro}>
-        <T variant="eyebrow" color={colors.brass}>{place.island}</T>
+        <T variant="eyebrow" color={colors.gold}>{place.island}</T>
         <T variant="title">{place.name}</T>
         <T variant="meta">A candidate place. Not assigned to a session yet.</T>
         {place.models.length ? (

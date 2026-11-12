@@ -73,7 +73,7 @@ export default function AgendaScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.days}>
           {[...forum.days.map((day) => ({ id: day.id, label: `${day.shortWeekday} ${day.dayNumber}` })), { id: "all", label: "All" }].map((day) => (
             <Pressable key={day.id} accessibilityRole="button" accessibilityState={{ selected: dayId === day.id }} onPress={() => setDayId(day.id)} style={[styles.day, dayId === day.id && styles.dayOn]}>
-              <T variant="meta" color={dayId === day.id ? colors.ivory : colors.ink}>{day.label}</T>
+              <T variant="meta" color={colors.foam}>{day.label}</T>
             </Pressable>
           ))}
         </ScrollView>
@@ -152,10 +152,10 @@ const styles = StyleSheet.create({
   note: { paddingHorizontal: 22, paddingTop: 8 },
   count: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
   days: { paddingHorizontal: 22, gap: 8, paddingTop: 16, paddingBottom: 8 },
-  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)", backgroundColor: "rgba(255,255,255,0.72)" },
-  dayOn: { backgroundColor: colors.turquoise, borderColor: colors.turquoise },
+  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.84)" },
+  dayOn: { backgroundColor: "rgba(16,52,68,0.92)", borderColor: colors.gold },
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },
-  filter: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)", backgroundColor: "rgba(255,255,255,0.72)" },
+  filter: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.84)" },
   search: { flex: 1 },
   carousel: { paddingHorizontal: 22, gap: 12, paddingVertical: 8 },
   feature: { width: 210, height: 132, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },

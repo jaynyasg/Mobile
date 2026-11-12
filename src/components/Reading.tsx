@@ -1,11 +1,8 @@
 import { ReactNode } from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
+import { nightGlass } from "./nightGlass";
 
-export const readingPanel: ViewStyle = {
-  backgroundColor: "rgba(247,244,239,0.96)",
-  borderWidth: StyleSheet.hairlineWidth,
-  borderColor: "rgba(11,27,43,0.12)",
-};
+export const readingPanel: ViewStyle = nightGlass;
 
 export function Reading({ children, style }: { children: ReactNode; style?: ViewStyle | ViewStyle[] }) {
   return <View style={[styles.panel, style]}>{children}</View>;

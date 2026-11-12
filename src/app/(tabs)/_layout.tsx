@@ -58,7 +58,7 @@ function GlassTabBar({
         <View style={styles.row}>
           {routes.map((route) => {
             const active = state.routes[state.index]?.key === route.key;
-            const color = active ? (dark ? colors.gold : colors.turquoise) : dark ? colors.onDarkSoft : colors.inkSoft;
+            const color = active ? colors.gold : colors.foam;
             const label = route.name === "agenda" ? "Program" : route.name === "index" ? "Home" : route.name === "community" ? "Community" : route.name === "places" ? "Venues" : "More";
             return (
               <Pressable

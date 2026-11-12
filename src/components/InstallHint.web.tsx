@@ -13,6 +13,7 @@ import {
   type InstallChoice,
 } from "./installPrompt";
 import { colors } from "@/theme";
+import { nightGlass } from "./nightGlass";
 
 type Guide = Exclude<InstallChoice, "hide" | "prompt">;
 
@@ -154,6 +155,7 @@ const fixed = { position: "fixed" } as unknown as ViewStyle;
 
 const styles = StyleSheet.create({
   pill: {
+    ...nightGlass,
     alignSelf: "stretch",
     flexDirection: "row",
     alignItems: "center",
@@ -163,9 +165,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 14,
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(247,244,239,0.45)",
-    backgroundColor: "rgba(7,18,32,0.9)",
   },
   add: { flexShrink: 1, minHeight: 44, justifyContent: "center" },
   dismiss: { minHeight: 44, justifyContent: "center", paddingHorizontal: 4 },

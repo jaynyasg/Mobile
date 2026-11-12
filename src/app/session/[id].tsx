@@ -46,7 +46,7 @@ export default function SessionScreen() {
     <Screen edge="none" photo={plateForIsland(session.island, `session-${session.island}`).day} night={plateForIsland(session.island, `session-${session.island}`).night} phase={`session-${session.island}`}>
       <StackHeader title={day?.label} />
       <Glass style={styles.pad}>
-        <T variant="eyebrow" color={colors.brass}>{session.optional ? `${kind} · Optional` : kind}</T>
+        <T variant="eyebrow" color={colors.gold}>{session.optional ? `${kind} · Optional` : kind}</T>
         <T variant="title">{displayCopy(session.title)}</T>
         <T variant="meta">
           {pillar?.name} · {session.island} · {session.region}

@@ -27,7 +27,7 @@ export function SessionRow({ session }: { session: Session }) {
       <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
           <T variant="rowTitle" numberOfLines={2}>{displayCopy(session.title)}</T>
-          <T variant="meta" color={colors.brass}>{sessionWhen(session)} · {session.island}</T>
+          <T variant="meta" color={colors.gold}>{sessionWhen(session)} · {session.island}</T>
         </Pressable>
       </Link>
       <Pressable
@@ -37,7 +37,7 @@ export function SessionRow({ session }: { session: Session }) {
         onPress={() => dispatch({ type: "toggleFavorite", id: session.id })}
         style={styles.heart}
       >
-        <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.brass : colors.inkSoft} />
+        <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.gold : colors.foam} />
       </Pressable>
     </Glass>
   );

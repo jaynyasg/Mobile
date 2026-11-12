@@ -7,6 +7,7 @@ export const colors = {
   pine: "#0B1B2B",
   pineDeep: "#071421",
   ivory: "#F7F4EF",
+  foam: "#F5F1E8",
   brass: "#7A5E1A",
   brassSoft: "#C9A24A",
   clay: "#0E7490",

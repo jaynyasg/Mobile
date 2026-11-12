@@ -9,7 +9,7 @@ export default function NotFoundScreen() {
       <T variant="eyebrow">Portico</T>
       <T variant="title">That page is not on the program.</T>
       <Link href="/">
-        <T variant="button" color={colors.brass}>
+        <T variant="button" color={colors.gold}>
           Back to Assembly
         </T>
       </Link>
@@ -18,5 +18,5 @@ export default function NotFoundScreen() {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.paper, padding: pad, justifyContent: "center", gap: 12 },
+  page: { flex: 1, backgroundColor: colors.pineDeep, padding: pad, justifyContent: "center", gap: 12 },
 });

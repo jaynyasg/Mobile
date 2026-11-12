@@ -7,6 +7,7 @@ import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { passPayload } from "@/logic/state";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function TicketScreen() {
   const { program } = useContent();
@@ -55,7 +56,7 @@ export default function TicketScreen() {
         <QrMark value={passPayload(pass.id)} />
         <T variant="meta">This code marks a design preview. It is not a ticket and it does not reserve a place.</T>
         <Pressable accessibilityRole="link" onPress={() => Linking.openURL(passes.sourceUrl).catch(() => undefined)}>
-          <T variant="small" color={colors.brass}>
+          <T variant="small" color={colors.gold}>
             View original pass information
           </T>
         </Pressable>
@@ -65,8 +66,8 @@ export default function TicketScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
-  pass: { marginHorizontal: 12, marginBottom: 8, padding: 14, gap: 6, minHeight: 44, borderRadius: 16, borderWidth: 1, borderColor: "rgba(11,27,43,0.12)", backgroundColor: "rgba(247,244,239,0.96)" },
-  passOn: { borderColor: colors.brass, backgroundColor: "#F8F1D8" },
-  qr: { alignItems: "center", gap: 12, marginHorizontal: 12, marginBottom: 12, padding: 16, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  pass: { marginHorizontal: 12, marginBottom: 8, padding: 14, gap: 6, minHeight: 44, borderRadius: 16, borderWidth: 1, borderColor: "rgba(11,27,43,0.12)", ...nightGlass },
+  passOn: { ...nightGlass, borderColor: colors.gold, backgroundColor: "rgba(16,52,68,0.92)" },
+  qr: { alignItems: "center", gap: 12, marginHorizontal: 12, marginBottom: 12, padding: 16, borderRadius: 18, ...nightGlass },
 });

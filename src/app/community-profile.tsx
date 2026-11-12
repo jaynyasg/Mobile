@@ -8,6 +8,7 @@ import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { backgrounds } from "@/components/backgrounds";
 import { colors, fonts, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function ProfileScreen() {
   const auth = useAuth();
@@ -62,14 +63,14 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
   return (
     <View style={styles.field}>
       <T variant="meta">{label}</T>
-      <TextInput value={value} onChangeText={onChangeText} style={styles.input} accessibilityLabel={label} placeholderTextColor={colors.inkSoft} />
+      <TextInput value={value} onChangeText={onChangeText} style={styles.input} accessibilityLabel={label} placeholderTextColor="rgba(245,241,232,0.62)" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderRadius: 18, ...nightGlass },
   field: { gap: 4 },
-  input: { borderWidth: 1, borderColor: colors.line, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
+  input: { borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", backgroundColor: "rgba(7,27,42,0.72)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.ink, minHeight: 48, alignItems: "center", justifyContent: "center" },
 });

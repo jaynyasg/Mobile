@@ -11,6 +11,7 @@ import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { backgrounds } from "@/components/backgrounds";
 import { colors, fonts, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function CommentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -74,7 +75,7 @@ export default function CommentScreen() {
         </View>
       ))}
       <View style={styles.pad}>
-        <TextInput value={draft} onChangeText={setDraft} placeholder="Add a comment" placeholderTextColor={colors.inkSoft} style={styles.input} accessibilityLabel="Comment" />
+        <TextInput value={draft} onChangeText={setDraft} placeholder="Add a comment" placeholderTextColor="rgba(245,241,232,0.62)" style={styles.input} accessibilityLabel="Comment" />
         <Pressable accessibilityRole="button" style={styles.button} onPress={() => {
           if (!auth.userId || !id) return;
           const write = preview ? Promise.resolve(memory.addComment(id, draft)) : addComment(auth.userId, id, draft);
@@ -89,9 +90,9 @@ export default function CommentScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
-  card: { marginHorizontal: 12, marginBottom: 14, padding: 14, gap: 6, borderRadius: 16, backgroundColor: "rgba(247,244,239,0.96)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)" },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  card: { marginHorizontal: 12, marginBottom: 14, padding: 14, gap: 6, borderRadius: 16, ...nightGlass },
   row: { flexDirection: "row", gap: 16 },
-  input: { borderWidth: 1, borderColor: colors.line, color: colors.ink, fontFamily: fonts.body, fontSize: 16, padding: 12 },
+  input: { borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", backgroundColor: "rgba(7,27,42,0.72)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
 });

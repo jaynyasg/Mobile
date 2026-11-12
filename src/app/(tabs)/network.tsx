@@ -33,7 +33,7 @@ export default function NetworkScreen() {
         ) : (
           <PrimaryButton label="Opt in on this device" onPress={() => dispatch({ type: "setNetworkingOptIn", value: true })} />
         )}
-        <T variant="meta" color={colors.inkSoft}>
+        <T variant="meta" color={colors.foam}>
           {state.networkingOptIn ? "Local notes are unlocked." : "The roster stays hidden until you opt in."}
         </T>
       </View>

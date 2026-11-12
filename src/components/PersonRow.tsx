@@ -26,7 +26,7 @@ export function PersonRow({
             <T variant="rowTitle">{name}</T>
             <T variant="meta">{meta}</T>
           </View>
-          <Icon name="chevron" size={18} color={colors.inkSoft} />
+          <Icon name="chevron" size={18} color={colors.gold} />
         </Pressable>
       </Link>
     </View>
@@ -44,10 +44,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.92)",
-    backgroundColor: "rgba(255,255,255,0.58)",
+    borderColor: "rgba(255,224,138,0.48)",
+    backgroundColor: "rgba(7,27,42,0.84)",
   },
-  photo: { width: 52, height: 64, backgroundColor: colors.muted },
+  photo: { width: 52, height: 64, backgroundColor: "rgba(7,27,42,0.5)" },
   main: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
   copy: { flex: 1, gap: 2 },
   pressed: { opacity: 0.72 },
