@@ -5,10 +5,11 @@ export const STRIPE_API_VERSION = "2026-03-25.dahlia";
 export const STRIPE_UI_MODE = "embedded_page";
 export const CHECKOUT_RETURN_URL = "https://tatel.app/passport?checkout=return&session_id={CHECKOUT_SESSION_ID}";
 
+/** Live catalog prices. Override with STRIPE_PRICE_BEACH, STRIPE_PRICE_BOAT, and STRIPE_PRICE_VIP. */
 export const DEFAULT_PASS_PRICES = {
-  beach: "price_1UNKawRqnFhvQ1qEJUntZTaY",
-  boat: "price_1UNKb2RqnFhvQ1qEkpU0ehSl",
-  vip: "price_1UNKb3RqnFhvQ1qEBmxzSQV2",
+  beach: "price_1UbToMRqnFhvQ1qEsP0qj1b8",
+  boat: "price_1UbToRRqnFhvQ1qEqvHiOHHo",
+  vip: "price_1UbToURqnFhvQ1qEunY1AOnL",
 } as const;
 
 export const PASS_QUANTITY = { beach: 1, boat: 1, vip: 8 } as const;

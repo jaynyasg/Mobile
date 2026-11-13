@@ -32,7 +32,9 @@ describe("pass checkout", () => {
     const params = new URLSearchParams(String(init?.body));
     expect(params.get("mode")).toBe("payment");
     expect(params.get("ui_mode")).toBe(STRIPE_UI_MODE);
-    expect(params.get("line_items[0][price]")).toBe(DEFAULT_PASS_PRICES.vip);
+    expect(params.get("line_items[0][price]")).toBe("price_1UbToURqnFhvQ1qEunY1AOnL");
+    expect(DEFAULT_PASS_PRICES.beach).toBe("price_1UbToMRqnFhvQ1qEsP0qj1b8");
+    expect(DEFAULT_PASS_PRICES.boat).toBe("price_1UbToRRqnFhvQ1qEqvHiOHHo");
     expect(params.get("line_items[0][quantity]")).toBe("8");
     expect(params.get("metadata[event]")).toBe("tatel_2027");
     expect(params.get("metadata[tier]")).toBe("vip");
