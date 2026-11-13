@@ -26,14 +26,23 @@ import { useApp } from "@/store";
 
 const stepImage: Record<(typeof guideSteps)[number]["id"], string> = {
   welcome: "/reels/tatel-welcome-intro-poster.jpg",
-  tracks: sceneForIsland("St. Thomas"),
-  sessions: sceneForIsland("St. John"),
-  transport: sceneForIsland("St. Thomas"),
-  stay: sceneForIsland("Lovango"),
-  know: sceneForIsland("Scrub Island"),
-  pass: sceneForIsland("Jost Van Dyke"),
+  tracks: "/venues/ritz-carlton-st-thomas/img_2650-640.webp",
+  sessions: "/venues/emerald-beach-resort/img_1438-640.webp",
+  transport: "/venues/ritz-carlton-st-thomas/img_2650-640.webp",
+  stay: "/venues/lovango-resort-beach-club/img_2668-640.webp",
+  know: "/venues/scrub-island-resort/img_2695-640.webp",
+  pass: "/venues/hideout-white-bay/img_2673-640.webp",
   chat: scenePhotos.community,
 };
+
+type Spot = { top: number; left: number; width: number; height: number };
+
+function hostNode(value: unknown): HTMLElement | null {
+  if (!value || typeof window === "undefined") return null;
+  if (typeof (value as HTMLElement).getBoundingClientRect === "function") return value as HTMLElement;
+  const inner = (value as { getScrollableNode?: () => HTMLElement | null }).getScrollableNode?.();
+  return inner ?? null;
+}
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -42,13 +51,12 @@ export default function HomeScreen() {
   const { state } = useApp();
   const router = useRouter();
   const { openChapter, replayIntro, guideTick, reelActive } = useReels();
-  const scrollRef = useRef<{ scrollTo: (options: { y?: number; animated?: boolean }) => void } | null>(null);
-  const cardY = useRef<number[]>([]);
+  const scrollRef = useRef<{ scrollTo: (options: { y?: number; animated?: boolean }) => void; getScrollableNode?: () => HTMLElement | null } | null>(null);
+  const cardNodes = useRef<Array<HTMLElement | null>>([]);
   const tourBoot = useRef(false);
   const [touring, setTouring] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
-  const [frames, setFrames] = useState<{ y: number; height: number }[]>([]);
+  const [spot, setSpot] = useState<Spot | null>(null);
   const [mode, setMode] = useState<"you" | "explore">("you");
   const [welcome, setWelcome] = useState(false);
   const [welcomeStart, setWelcomeStart] = useState<"arrival" | "tracks">("arrival");
@@ -101,18 +109,36 @@ export default function HomeScreen() {
   const flagsRef = useRef(doneFlags);
   flagsRef.current = doneFlags;
 
+  function placeSpotlight(index: number) {
+    const node = cardNodes.current[index];
+    const scroller = hostNode(scrollRef.current);
+    if (!node || !scroller) return;
+    const pad = index === 0 ? 72 : 20;
+    const host = scroller.getBoundingClientRect();
+    const rect = node.getBoundingClientRect();
+    const delta = rect.top - host.top - pad;
+    if (Math.abs(delta) > 1) scroller.scrollTop += delta;
+    const placed = node.getBoundingClientRect();
+    setSpot({ top: placed.top, left: placed.left, width: placed.width, height: placed.height });
+  }
+
   function finishTour() {
     markTourSeen(webStorage());
     setTouring(false);
+    setSpot(null);
     const settle = firstUnfinished(flagsRef.current);
     setTourIndex(settle);
-    scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[settle] ?? 0) - 72), animated: true });
+    const node = cardNodes.current[settle];
+    const scroller = hostNode(scrollRef.current);
+    if (node && scroller) {
+      const host = scroller.getBoundingClientRect();
+      scroller.scrollTop += node.getBoundingClientRect().top - host.top - 72;
+    }
   }
 
   function replayTour() {
     setTourIndex(0);
     setTouring(true);
-    scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[0] ?? 0) - 72), animated: true });
   }
 
   useEffect(() => {
@@ -122,8 +148,31 @@ export default function HomeScreen() {
   }, [ready, welcome, mode, reelActive]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    Object.values(stepImage).forEach((src) => {
+      const photo = new window.Image();
+      photo.src = src;
+    });
+  }, []);
+
+  useEffect(() => {
     if (!touring) return;
-    scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[tourIndex] ?? 0) - 72), animated: true });
+    let cancelled = false;
+    const align = () => {
+      if (!cancelled) placeSpotlight(tourIndex);
+    };
+    align();
+    const frame = requestAnimationFrame(align);
+    const timer = setTimeout(align, 80);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      clearTimeout(timer);
+    };
+  }, [touring, tourIndex]);
+
+  useEffect(() => {
+    if (!touring) return;
     if (prefersReducedMotion()) return;
     const timer = setTimeout(() => {
       if (tourIndex >= guideSteps.length - 1) finishTour();
@@ -156,12 +205,10 @@ export default function HomeScreen() {
       <BeaconBackground />
       <ScrollView
         ref={scrollRef as never}
-        style={[styles.fill, { marginBottom: dockClearance(insets.bottom) }]}
-        contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }}
+        style={styles.fill}
+        contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: dockClearance(insets.bottom) }}
         keyboardShouldPersistTaps="handled"
         scrollEnabled={!touring}
-        onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
-        scrollEventThrottle={16}
       >
         <View style={styles.install}>
           <InstallHint />
@@ -186,20 +233,9 @@ export default function HomeScreen() {
             {guideSteps.map((step, index) => {
               const done = doneFlags[index];
               return (
-                <View
-                  key={step.id}
-                  pointerEvents={touring ? "none" : "auto"}
-                  onLayout={(event) => {
-                    cardY.current[index] = event.nativeEvent.layout.y;
-                    const next = { y: event.nativeEvent.layout.y, height: event.nativeEvent.layout.height };
-                    setFrames((current) => {
-                      const copy = current.slice();
-                      copy[index] = next;
-                      return copy;
-                    });
-                  }}
-                >
+                <View key={step.id} pointerEvents={touring ? "none" : "auto"}>
                   <FeedCard
+                    cardRef={(node) => { cardNodes.current[index] = hostNode(node); }}
                     image={stepImage[step.id]}
                     alt={step.headline}
                     kicker={done ? "Done" : `Step ${index + 1} of ${guideSteps.length}`}
@@ -207,7 +243,6 @@ export default function HomeScreen() {
                     line={step.line}
                     cta={done && step.id === "welcome" ? "Replay" : step.cta}
                     done={done}
-                    lit={touring && tourIndex === index}
                     onPress={() => openStep(step.id)}
                   />
                 </View>
@@ -251,10 +286,12 @@ export default function HomeScreen() {
           <T variant="meta" color={colors.gold}>Replay the welcome</T>
         </Pressable>
       </ScrollView>
-      {touring && mode === "you" ? (
+      {touring && mode === "you" && spot ? (
         <StepTour
-          top={Math.max(8, (frames[tourIndex]?.y ?? 0) - scrollY)}
-          height={frames[tourIndex]?.height ?? 400}
+          top={spot.top}
+          left={spot.left}
+          width={spot.width}
+          height={spot.height}
           caption={tourCaption(tourIndex)}
           canBack={tourIndex > 0}
           onBack={() => setTourIndex((current) => Math.max(0, current - 1))}

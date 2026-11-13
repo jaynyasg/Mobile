@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ElementRef, type Ref } from "react";
 import { Image, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { prefersReducedMotion } from "@/guide/stamps";
 import { PhotoShade } from "./PhotoShade";
 import { T } from "./Text";
-import { colors } from "@/theme";
+import { colors, scenePhotos } from "@/theme";
 
 export function FeedCard({
   image,
@@ -15,6 +15,7 @@ export function FeedCard({
   done = false,
   lit = false,
   onPress,
+  cardRef,
 }: {
   image: string;
   alt: string;
@@ -25,13 +26,23 @@ export function FeedCard({
   done?: boolean;
   lit?: boolean;
   onPress: () => void;
+  cardRef?: Ref<ElementRef<typeof View>>;
 }) {
   const [reduce, setReduce] = useState(true);
   const [pressed, setPressed] = useState(false);
+  const [src, setSrc] = useState(image);
   useEffect(() => setReduce(prefersReducedMotion()), []);
+  useEffect(() => setSrc(image), [image]);
   return (
-    <View style={[styles.card, lit && styles.lit, !reduce && pressed && styles.pressed]}>
-      <Image source={{ uri: image }} accessibilityLabel={alt} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
+    <View ref={cardRef} style={[styles.card, lit && styles.lit, !reduce && pressed && styles.pressed]}>
+      <Image
+        source={{ uri: src }}
+        accessibilityLabel={alt}
+        style={styles.photo}
+        resizeMode="cover"
+        accessibilityIgnoresInvertColors
+        onError={() => setSrc((current) => (current === scenePhotos.day ? current : scenePhotos.day))}
+      />
       <PhotoShade />
       {done ? (
         <View style={styles.check} accessibilityLabel="Done">

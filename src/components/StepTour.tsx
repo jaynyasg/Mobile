@@ -6,6 +6,8 @@ import { T } from "./Text";
 
 export function StepTour({
   top,
+  left,
+  width,
   height,
   caption,
   canBack,
@@ -14,6 +16,8 @@ export function StepTour({
   onSkip,
 }: {
   top: number;
+  left: number;
+  width: number;
   height: number;
   caption: string;
   canBack: boolean;
@@ -23,18 +27,18 @@ export function StepTour({
 }) {
   const insets = useSafeAreaInsets();
   const { height: screen } = useWindowDimensions();
-  const holeTop = Math.max(8, top);
-  const holeHeight = Math.max(80, height);
-  const below = holeTop + holeHeight + 12;
-  const bubbleTop = below + 150 < screen ? below : Math.max(insets.top + 8, holeTop - 148);
+  const dockTop = screen - (112 + 12 + Math.max(insets.bottom, 6));
+  const bubbleHeight = 132;
+  const below = top + height + 12;
+  const bubbleTop = below + bubbleHeight < dockTop ? below : Math.max(insets.top + 8, top - bubbleHeight - 12);
 
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal>
-      <View style={[styles.dim, { top: 0, left: 0, right: 0, height: holeTop }]} />
-      <View style={[styles.dim, { top: holeTop, left: 0, width: 10, height: holeHeight }]} />
-      <View style={[styles.dim, { top: holeTop, right: 0, width: 10, height: holeHeight }]} />
-      <View style={[styles.dim, { top: holeTop + holeHeight, left: 0, right: 0, bottom: 0 }]} />
-      <View pointerEvents="none" style={[styles.ring, { top: holeTop, height: holeHeight }]} />
+      <View style={[styles.dim, { top: 0, left: 0, right: 0, height: top }]} />
+      <View style={[styles.dim, { top, left: 0, width: left, height }]} />
+      <View style={[styles.dim, { top, left: left + width, right: 0, height }]} />
+      <View style={[styles.dim, { top: top + height, left: 0, right: 0, bottom: 0 }]} />
+      <View pointerEvents="none" style={[styles.ring, { top, left, width, height }]} />
       <View style={[styles.bubble, { top: bubbleTop }]}>
         <T variant="small" color={colors.foam}>{caption}</T>
         <View style={styles.row}>
@@ -61,7 +65,7 @@ const fixed = { position: "fixed" } as unknown as ViewStyle;
 const styles = StyleSheet.create({
   overlay: { ...fixed, top: 0, right: 0, bottom: 0, left: 0, zIndex: 80 },
   dim: { position: "absolute", backgroundColor: "rgba(6,14,24,0.72)" },
-  ring: { position: "absolute", left: 10, right: 10, borderWidth: 2, borderColor: colors.gold, borderRadius: 22 },
+  ring: { position: "absolute", borderWidth: 2, borderColor: colors.gold, borderRadius: 22 },
   bubble: {
     position: "absolute",
     left: 16,
