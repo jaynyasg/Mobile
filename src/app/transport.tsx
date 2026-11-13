@@ -99,7 +99,7 @@ export default function TransportScreen() {
             {mode.days.map((item) => {
               const meta = forum.days.find((dayItem) => dayItem.id === item.date);
               const on = item.date === day.date;
-              const label = meta ? `${meta.shortWeekday} ${meta.dayNumber}` : item.date;
+              const label = meta?.phase?.trim() && meta.label ? meta.label : meta ? `${meta.shortWeekday} ${meta.dayNumber}` : item.date;
               return (
                 <Pressable
                   key={item.date}

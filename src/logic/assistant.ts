@@ -13,7 +13,7 @@ import {
   transport,
 } from "../content";
 import { getProgram } from "../content/active";
-import { formatRange } from "./time";
+import { sessionDateLine } from "./dayTheme";
 
 export interface Citation {
   title: string;
@@ -173,7 +173,7 @@ function buildCorpus(): GuideDoc[] {
   for (const session of sessions) {
     const day = forum.days.find((item) => item.id === session.dayId);
     const people = panelistNames(session.speakerIds) || "Speaker to be announced";
-    const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
+    const when = sessionDateLine(session, forum.days, zone);
     docs.push({
       id: `session-${session.id}`,
       title: session.title,
@@ -187,7 +187,7 @@ function buildCorpus(): GuideDoc[] {
     const talks = sessionsForPanelist(person.id);
     const lines = talks.slice(0, 4).map((session) => {
       const role = participationLabel(session, person.id);
-      const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
+      const when = sessionDateLine(session, forum.days, zone);
       return `${session.title}, ${when} (${role})`;
     });
     const pillar = pillarById(person.proposedPillarId);

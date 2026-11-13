@@ -10,6 +10,7 @@ import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { SessionRow } from "@/components/SessionRow";
 import { T } from "@/components/Text";
+import { DayFilter } from "@/components/DayFilter";
 import { Chip, EmptyState } from "@/components/ui";
 import { filterAgenda } from "@/logic/agenda";
 import { suggestedDayId } from "@/logic/phase";
@@ -75,13 +76,9 @@ export default function AgendaScreen() {
           </Pressable>
         </Glass>
         {note ? <T variant="meta" color={colors.onDarkSoft} style={styles.note}>{displayCopy(forum.draftNotice)}</T> : null}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.days}>
-          {[...forum.days.map((day) => ({ id: day.id, label: `${day.shortWeekday} ${day.dayNumber}` })), { id: "all", label: "All" }].map((day) => (
-            <Pressable key={day.id} accessibilityRole="button" accessibilityState={{ selected: dayId === day.id }} onPress={() => setDayId(day.id)} style={[styles.day, dayId === day.id && styles.dayOn]}>
-              <T variant="meta" color={colors.foam}>{day.label}</T>
-            </Pressable>
-          ))}
-        </ScrollView>
+        <View style={styles.dayBar}>
+          <DayFilter days={forum.days} dayId={dayId} onChange={setDayId} />
+        </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.topics}>
           <Chip label="All topics" selected={pillarId === "all"} onPress={() => setPillarId("all")} />
           {forum.pillars.map((pillar) => (
@@ -176,9 +173,7 @@ const styles = StyleSheet.create({
   info: { width: 28, height: 28, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.gold, alignItems: "center", justifyContent: "center" },
   note: { paddingHorizontal: 22, paddingTop: 8 },
   count: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
-  days: { paddingHorizontal: 22, gap: 8, paddingTop: 16, paddingBottom: 8 },
-  day: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.58)" },
-  dayOn: { backgroundColor: "rgba(16,52,68,0.92)", borderColor: colors.gold },
+  dayBar: { backgroundColor: "rgba(7,20,33,0.92)" },
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },
   filter: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.58)" },
   search: { flex: 1 },

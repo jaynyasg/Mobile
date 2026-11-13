@@ -4,7 +4,7 @@ import { getProgram } from "@/content/active";
 import { useContent } from "@/content/provider";
 import { displayCopy } from "@/content/display";
 import type { Session } from "@/content/types";
-import { formatRange } from "@/logic/time";
+import { sessionDateLine } from "@/logic/dayTheme";
 import { sessionTopic } from "@/logic/topic";
 import { useApp } from "@/store";
 import { addStamp, pulse, prefersReducedMotion, sessionStamp } from "@/guide/stamps";
@@ -15,8 +15,7 @@ import { T } from "./Text";
 import { TopicChip } from "./TopicChip";
 
 export function sessionWhen(session: Session, timeZone = getProgram().forum.timezone): string {
-  if (session.start && session.end) return formatRange(session.start, session.end, timeZone);
-  return session.timeLabel || "Time TBC";
+  return sessionDateLine(session, getProgram().forum.days, timeZone);
 }
 
 export function SessionRow({ session }: { session: Session }) {

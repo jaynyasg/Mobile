@@ -7,7 +7,7 @@ import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { Portrait } from "@/components/Portrait";
 import { portraitFor } from "@/images";
-import { formatRange } from "@/logic/time";
+import { sessionWhen } from "@/components/SessionRow";
 import { useContent } from "@/content/provider";
 import { colors } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
@@ -61,7 +61,7 @@ export default function PanelistScreen() {
             <T variant="eyebrow">{session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session"}</T>
             <T variant="rowTitle">{displayCopy(session.title)}</T>
             <T variant="meta">
-              {session.start && session.end ? formatRange(session.start, session.end, forum.timezone) : session.timeLabel || "Time TBC"} · {session.island}
+              {sessionWhen(session, forum.timezone)} · {session.island}
             </T>
             <T variant="meta">{participationLabel(session, person.id)}</T>
           </Pressable>
