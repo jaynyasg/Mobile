@@ -110,11 +110,8 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
         ) : (
           <T style={styles.phase}>{slide.title}</T>
         )}
-        {slide.kind === "letter" ? (
-          <T variant="title" color={colors.foam}>{slide.title} · {slide.line}</T>
-        ) : (
-          <T variant="small" color={colors.foam}>{slide.line}</T>
-        )}
+        <T variant="headline" color={colors.foam}>{slide.line}</T>
+        {slide.note ? <T variant="small" color={colors.foam}>{slide.note}</T> : null}
         <View style={styles.dots}>
           {slides.map((item, dot) => (
             <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={`Page ${dot + 1} of ${slides.length}`} onPress={() => setIndex(dot)} style={styles.dotHit}>

@@ -1,9 +1,9 @@
 const LETTERS = ["tech", "ai", "travel", "entertainment", "law"] as const;
 
 /** How long each letter stays lit before the next one. */
-export const LETTER_BEAT_MS = 2_500;
+export const LETTER_BEAT_MS = 3_500;
 /** How long each day stays up before the next one. */
-export const DAY_BEAT_MS = 4_000;
+export const DAY_BEAT_MS = 5_000;
 
 export function storyBeat(kind: "letter" | "day"): number {
   return kind === "letter" ? LETTER_BEAT_MS : DAY_BEAT_MS;
@@ -29,8 +29,34 @@ export interface StorySlide {
   kicker: string;
   title: string;
   line: string;
+  note: string;
   letter?: string;
   reelId?: TatelLetter["id"];
+}
+
+export function letterPlaceLine(name: string, island: string): string {
+  return `${name}: located on ${island}`;
+}
+
+export function dayCoverLine(dayNumber: string, phase: string): string {
+  return `Jan ${dayNumber} sessions cover ${phase}`;
+}
+
+/** Plain line for a phase that is already in the program. Unknown phases stay blank. */
+export function dayFlowLine(phase: string): string {
+  if (phase === "The Problem") return "The first sessions name what is broken.";
+  if (phase === "The Plan / Solution") return "The next sessions turn that into a plan.";
+  if (phase === "Build") return "Then the sessions build it.";
+  if (phase === "Showcase") return "The last sessions show the results.";
+  return "";
+}
+
+export function storyIntro(days: readonly { id: string; dayNumber: string }[]): string {
+  const first = days[0];
+  const last = days[days.length - 1];
+  if (!first || !last) return "A summit on the water across the Virgin Islands.";
+  const year = first.id.slice(0, 4);
+  return `A summit on the water across the Virgin Islands, Jan ${first.dayNumber}–${last.dayNumber}, ${year}.`;
 }
 
 export function tatelLetters(pillars: readonly { id: string; name: string; island: string }[]): TatelLetter[] {
@@ -58,21 +84,24 @@ export function storySlides(input: {
   days: readonly { id: string; phase: string; shortWeekday: string; dayNumber: string }[];
   formatsByDay: Readonly<Record<string, readonly string[]>>;
 }): StorySlide[] {
+  const intro = storyIntro(input.days);
   const letters: StorySlide[] = tatelLetters(input.pillars).map((item) => ({
     id: item.id,
     kind: "letter",
     kicker: "What TATEL stands for",
     title: item.name,
-    line: item.island,
+    line: letterPlaceLine(item.name, item.island),
+    note: intro,
     letter: item.letter,
     reelId: item.id,
   }));
   const days: StorySlide[] = input.days.map((day) => ({
     id: day.id,
     kind: "day",
-    kicker: `${day.shortWeekday} Jan ${day.dayNumber}`,
+    kicker: "Sessions",
     title: day.phase,
-    line: dayBlurb(input.formatsByDay[day.id] ?? []),
+    line: dayCoverLine(day.dayNumber, day.phase),
+    note: dayFlowLine(day.phase),
   }));
   return [...letters, ...days];
 }
