@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Day, Pillar, Session, TransportMode } from "@/content/types";
 import { displayCopy } from "@/content/display";
+import { ChipRail } from "@/components/ChipRail";
 import { Icon } from "@/components/Icon";
 import { T } from "@/components/Text";
 import { nightGlass } from "@/components/nightGlass";
@@ -188,15 +189,12 @@ export function CustomRoute({
               <T variant="meta" color={colors.ink}>Clear</T>
             </Pressable>
           ) : null}
-          <View style={styles.infraScroll}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.infraRow}>
-              <IslandChip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
-              {islands.map((name) => (
-                <IslandChip key={name} label={name} selected={island !== "all" && island.includes(name)} onPress={() => toggleIsland(name)} />
-              ))}
-            </ScrollView>
-            <View pointerEvents="none" style={styles.infraFade} />
-          </View>
+          <ChipRail pad={0}>
+            <IslandChip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
+            {islands.map((name) => (
+              <IslandChip key={name} label={name} selected={island !== "all" && island.includes(name)} onPress={() => toggleIsland(name)} />
+            ))}
+          </ChipRail>
         </View>
       </View>
       <Pressable
@@ -315,23 +313,6 @@ const styles = StyleSheet.create({
   segmentLabel: { textAlign: "center" },
   infra: { gap: 6 },
   areasChip: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
-  infraScroll: {
-    position: "relative",
-    ...({
-      maskImage: "linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%)",
-      WebkitMaskImage: "linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%)",
-    } as ViewStyle),
-  },
-  infraRow: { gap: 8, paddingRight: 48, flexGrow: 0 },
-  infraFade: {
-    position: "absolute",
-    top: 0,
-    right: -12,
-    bottom: 0,
-    width: 88,
-    zIndex: 2,
-    ...({ backgroundImage: "linear-gradient(to right, rgba(7,20,33,0) 0%, rgba(6,14,24,0.82) 28%, rgba(6,14,24,0.96) 62%)" } as ViewStyle),
-  },
   create: { marginHorizontal: 12, marginBottom: 8, minHeight: 48, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   createOff: { opacity: 0.4 },
   chip: { flexGrow: 0, flexShrink: 0, alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.86)" },

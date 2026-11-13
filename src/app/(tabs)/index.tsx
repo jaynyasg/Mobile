@@ -219,7 +219,7 @@ export default function HomeScreen() {
       <ScrollView
         ref={scrollRef as never}
         style={styles.fill}
-        contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: dockClearance(insets.bottom) }}
+        contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: dockClearance(insets.bottom) + 48 }}
         keyboardShouldPersistTaps="handled"
         scrollEnabled={!touring}
       >

@@ -4,7 +4,7 @@ import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-n
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContent } from "@/content/provider";
 import { reels, type ReelId } from "@/content/reels";
-import { storySlides } from "@/logic/tatelStory";
+import { advanceStory, storyBeat, storySlides } from "@/logic/tatelStory";
 import { prefersReducedMotion } from "@/guide/stamps";
 import { colors, fonts } from "@/theme";
 import { Icon } from "./Icon";
@@ -17,7 +17,10 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   const { program } = useContent();
   const { forum, sessions } = program;
   const [index, setIndex] = useState(0);
+  const [held, setHeld] = useState(false);
   const start = useRef<{ x: number; y: number } | null>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   const slides = useMemo(() => {
     const formatsByDay: Record<string, string[]> = {};
     for (const session of sessions) (formatsByDay[session.dayId] ??= []).push(session.format);
@@ -34,6 +37,17 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
       document.body.style.overflow = previous;
     };
   }, []);
+
+  useEffect(() => {
+    const slide = slides[index];
+    if (!slide || held || prefersReducedMotion()) return;
+    const timer = setTimeout(() => {
+      const next = advanceStory(index, slides.length);
+      if (next === null) closeRef.current();
+      else setIndex(next);
+    }, storyBeat(slide.kind));
+    return () => clearTimeout(timer);
+  }, [held, index, slides]);
 
   function go(next: number) {
     if (next < 0) return;
@@ -70,8 +84,18 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
       accessibilityLabel="What is TATEL"
       onTouchStart={(event) => {
         start.current = point(event);
+        setHeld(true);
       }}
-      onTouchEnd={end}
+      onTouchEnd={(event) => {
+        setHeld(false);
+        end(event);
+      }}
+      onTouchCancel={() => setHeld(false)}
+      {...({
+        onMouseDown: () => setHeld(true),
+        onMouseUp: () => setHeld(false),
+        onMouseLeave: () => setHeld(false),
+      } as ViewStyle)}
     >
       <Film key={slide.id} poster={reel.poster} mp4={slide.kind === "letter" ? reel.mp4 : undefined} />
       <View style={styles.shade} />

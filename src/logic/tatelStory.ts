@@ -1,5 +1,21 @@
 const LETTERS = ["tech", "ai", "travel", "entertainment", "law"] as const;
 
+/** How long each letter stays lit before the next one. */
+export const LETTER_BEAT_MS = 2_500;
+/** How long each day stays up before the next one. */
+export const DAY_BEAT_MS = 4_000;
+
+export function storyBeat(kind: "letter" | "day"): number {
+  return kind === "letter" ? LETTER_BEAT_MS : DAY_BEAT_MS;
+}
+
+/** The next slide, or null when the story should close into the app. */
+export function advanceStory(index: number, count: number): number | null {
+  if (count <= 0 || index < 0) return null;
+  const next = index + 1;
+  return next >= count ? null : next;
+}
+
 export interface TatelLetter {
   id: (typeof LETTERS)[number];
   letter: string;

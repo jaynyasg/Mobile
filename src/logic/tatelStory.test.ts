@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { forum, sessions } from "../content";
-import { dayBlurb, storySlides, tatelLetters } from "./tatelStory";
+import { advanceStory, dayBlurb, storyBeat, storySlides, tatelLetters } from "./tatelStory";
 
 function formatsByDay(): Record<string, string[]> {
   const map: Record<string, string[]> = {};
@@ -28,5 +28,24 @@ describe("what TATEL is", () => {
     expect(slides.map((slide) => `${slide.title} ${slide.line}`).join(" ")).not.toMatch(/conversation/i);
     expect(slides[5]?.kicker).toBe("Tue Jan 26");
     expect(slides[5]?.title).toBe("The Problem");
+  });
+
+  it("advances past the first letter, through the rest, then the days", () => {
+    const slides = storySlides({ pillars: forum.pillars, days: forum.days, formatsByDay: formatsByDay() });
+    expect(slides[0]?.letter).toBe("T");
+    expect(storyBeat("letter")).toBe(2_500);
+    expect(storyBeat("day")).toBe(4_000);
+    const seen: string[] = [];
+    let index: number | null = 0;
+    while (index !== null) {
+      const slide = slides[index];
+      seen.push(slide?.letter ?? slide?.title ?? "");
+      index = advanceStory(index, slides.length);
+    }
+    expect(seen[0]).toBe("T");
+    expect(seen[1]).toBe("A");
+    expect(seen.slice(0, 5)).toEqual(["T", "A", "T", "E", "L"]);
+    expect(seen.slice(5)).toEqual(["The Problem", "The Plan / Solution", "Build", "Showcase"]);
+    expect(advanceStory(slides.length - 1, slides.length)).toBeNull();
   });
 });
