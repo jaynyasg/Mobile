@@ -1,8 +1,8 @@
 export interface QuickSignInEnv {
   SUPABASE_URL?: string;
-  SUPABASE_SERVICE_ROLE_KEY?: string;
-  QUICK_SIGNIN_EMAILS?: string;
 }
+
+export const QUICK_SIGNIN_PATH = "/functions/v1/tatel-quick-signin";
 
 export interface RateBook {
   hits: Map<string, number[]>;
@@ -16,19 +16,6 @@ export function normalizeEmail(value: unknown): string | null {
   const email = value.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
   return email;
-}
-
-export function emailAllowlist(raw: string | undefined): Set<string> {
-  return new Set(
-    (raw ?? "")
-      .split(",")
-      .map((item) => item.trim().toLowerCase())
-      .filter(Boolean),
-  );
-}
-
-export function allowQuickSignIn(email: string, raw: string | undefined): boolean {
-  return emailAllowlist(raw).has(email);
 }
 
 export function consumeRate(book: RateBook, key: string, now: number): boolean {
@@ -53,77 +40,35 @@ function json(body: unknown, status: number): Response {
   });
 }
 
-interface LinkResponse {
-  properties?: { hashed_token?: string };
-  hashed_token?: string;
-  msg?: string;
-  error_description?: string;
-  message?: string;
-}
-
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
 interface SessionResponse {
   access_token?: string;
   refresh_token?: string;
-  msg?: string;
-  error_description?: string;
-  message?: string;
+  error?: string;
 }
 
-async function readJson(response: Response): Promise<LinkResponse & SessionResponse> {
+async function readJson(response: Response): Promise<SessionResponse> {
   try {
-    return (await response.json()) as LinkResponse & SessionResponse;
+    return (await response.json()) as SessionResponse;
   } catch {
     return {};
   }
 }
 
-async function generateLink(env: QuickSignInEnv, email: string, fetchImpl: FetchLike): Promise<string> {
-  const response = await fetchImpl(`${env.SUPABASE_URL}/auth/v1/admin/generate_link`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ type: "magiclink", email }),
-  });
-  const body = await readJson(response);
-  const token = body.properties?.hashed_token || body.hashed_token;
-  if (!response.ok || !token) {
-    const missing = /not found|user/i.test(`${body.msg ?? ""} ${body.message ?? ""} ${body.error_description ?? ""}`);
-    if (response.status === 404 || response.status === 422 || missing) {
-      const created = await fetchImpl(`${env.SUPABASE_URL}/auth/v1/admin/users`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-          apikey: env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, email_confirm: true }),
-      });
-      if (!created.ok && created.status !== 422) return "";
-      const again = await fetchImpl(`${env.SUPABASE_URL}/auth/v1/admin/generate_link`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-          apikey: env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ type: "magiclink", email }),
-      });
-      const second = await readJson(again);
-      return second.properties?.hashed_token || second.hashed_token || "";
-    }
-    return "";
-  }
-  return token;
+export function quickSignInUrl(base: string): string {
+  return `${base.replace(/\/$/, "")}${QUICK_SIGNIN_PATH}`;
 }
 
-export async function quickSignIn(request: Request, env: QuickSignInEnv, fetchImpl: FetchLike = fetch, book: RateBook = sharedBook, now = Date.now()): Promise<Response> {
+export async function quickSignIn(
+  request: Request,
+  env: QuickSignInEnv,
+  fetchImpl: FetchLike = fetch,
+  book: RateBook = sharedBook,
+  now = Date.now(),
+): Promise<Response> {
   if (request.method !== "POST") return json({ error: "method" }, 405);
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return json({ error: "unavailable" }, 503);
+  if (!env.SUPABASE_URL) return json({ error: "unavailable" }, 503);
   let payload: unknown;
   try {
     payload = await request.json();
@@ -133,21 +78,15 @@ export async function quickSignIn(request: Request, env: QuickSignInEnv, fetchIm
   const email = normalizeEmail(payload && typeof payload === "object" ? (payload as { email?: unknown }).email : null);
   if (!email) return json({ error: "email" }, 400);
   if (!consumeRate(book, clientKey(request), now)) return json({ error: "rate" }, 429);
-  if (!allowQuickSignIn(email, env.QUICK_SIGNIN_EMAILS)) return json({ error: "code" }, 403);
 
-  const tokenHash = await generateLink(env, email, fetchImpl);
-  if (!tokenHash) return json({ error: "unavailable" }, 502);
-  const verified = await fetchImpl(`${env.SUPABASE_URL}/auth/v1/verify`, {
+  const response = await fetchImpl(quickSignInUrl(env.SUPABASE_URL), {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ type: "magiclink", token_hash: tokenHash }),
+    headers: { "Content-Type": "application/json", Origin: "https://tatel.app" },
+    body: JSON.stringify({ email }),
   });
-  const session = await readJson(verified);
-  if (!verified.ok || !session.access_token || !session.refresh_token) return json({ error: "unavailable" }, 502);
+  const session = await readJson(response);
+  if (response.status === 403) return json({ error: "code" }, 403);
+  if (!response.ok || !session.access_token || !session.refresh_token) return json({ error: "unavailable" }, 502);
   return json({ access_token: session.access_token, refresh_token: session.refresh_token }, 200);
 }
 

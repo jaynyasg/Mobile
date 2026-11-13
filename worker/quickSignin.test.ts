@@ -1,19 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
-import { allowQuickSignIn, consumeRate, normalizeEmail, quickSignIn, type RateBook } from "./quickSignin";
+import { consumeRate, normalizeEmail, quickSignIn, quickSignInUrl, type RateBook } from "./quickSignin";
 
 const env = {
   SUPABASE_URL: "https://oykwxnzlpxbrfcoejawt.supabase.co",
-  SUPABASE_SERVICE_ROLE_KEY: "service-role-test",
-  QUICK_SIGNIN_EMAILS: "sansara13@gmail.com, jamerosg@gmail.com",
 };
 
-describe("quick sign-in allowlist", () => {
-  it("matches a trimmed, case-insensitive allowlist and ignores everyone else", () => {
+describe("quick sign-in proxy", () => {
+  it("normalizes an email address", () => {
     expect(normalizeEmail("  Sansara13@Gmail.com ")).toBe("sansara13@gmail.com");
     expect(normalizeEmail("not-an-email")).toBeNull();
-    expect(allowQuickSignIn("sansara13@gmail.com", env.QUICK_SIGNIN_EMAILS)).toBe(true);
-    expect(allowQuickSignIn("jamerosg@gmail.com", env.QUICK_SIGNIN_EMAILS)).toBe(true);
-    expect(allowQuickSignIn("someone@example.com", env.QUICK_SIGNIN_EMAILS)).toBe(false);
   });
 
   it("stops a burst from the same address", () => {
@@ -23,16 +18,13 @@ describe("quick sign-in allowlist", () => {
     expect(consumeRate(book, "1.2.3.4", 1_000 + 10 * 60 * 1000)).toBe(true);
   });
 
-  it("returns a session for an allowlisted email and a code hint otherwise", async () => {
-    const fetchImpl = vi.fn(async (input: string, _init?: RequestInit) => {
-      const url = String(input);
-      if (url.endsWith("/admin/generate_link")) {
-        return new Response(JSON.stringify({ properties: { hashed_token: "hash-1" } }), { status: 200 });
+  it("returns a session from the edge function and a code hint otherwise", async () => {
+    const fetchImpl = vi.fn(async (_input: string, init?: RequestInit) => {
+      const payload = JSON.parse(String(init?.body ?? "{}")) as { email?: string };
+      if (payload.email === "sansara13@gmail.com") {
+        return new Response(JSON.stringify({ access_token: "access", refresh_token: "refresh", expires_at: 1, user: { id: "u" } }), { status: 200 });
       }
-      if (url.endsWith("/verify")) {
-        return new Response(JSON.stringify({ access_token: "access", refresh_token: "refresh" }), { status: 200 });
-      }
-      return new Response("no", { status: 404 });
+      return new Response(JSON.stringify({ error: "code" }), { status: 403 });
     });
     const book: RateBook = { hits: new Map() };
     const ok = await quickSignIn(
@@ -48,10 +40,10 @@ describe("quick sign-in allowlist", () => {
     );
     expect(ok.status).toBe(200);
     expect(await ok.json()).toEqual({ access_token: "access", refresh_token: "refresh" });
-    expect(String(fetchImpl.mock.calls[0]?.[0])).toContain("/auth/v1/admin/generate_link");
-    expect(String(fetchImpl.mock.calls[1]?.[0])).toContain("/auth/v1/verify");
-    const init = fetchImpl.mock.calls[0]?.[1] as { headers?: Record<string, string> } | undefined;
-    expect(init?.headers?.Authorization).toBe("Bearer service-role-test");
+    expect(String(fetchImpl.mock.calls[0]?.[0])).toBe(quickSignInUrl(env.SUPABASE_URL));
+    const init = fetchImpl.mock.calls[0]?.[1] as { headers?: Record<string, string>; body?: string } | undefined;
+    expect(init?.headers?.["Content-Type"]).toBe("application/json");
+    expect(init?.body).toBe(JSON.stringify({ email: "sansara13@gmail.com" }));
 
     const other = await quickSignIn(
       new Request("https://tatel.app/api/quick-signin", {
@@ -65,14 +57,15 @@ describe("quick sign-in allowlist", () => {
       6_000,
     );
     expect(other.status).toBe(403);
+    expect(await other.json()).toEqual({ error: "code" });
     expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 
-  it("does not call Supabase when the service role is missing", async () => {
+  it("does not call the edge function when the Supabase URL is missing", async () => {
     const fetchImpl = vi.fn(async () => new Response("unused"));
     const response = await quickSignIn(
       new Request("https://tatel.app/api/quick-signin", { method: "POST", body: JSON.stringify({ email: "sansara13@gmail.com" }) }),
-      { SUPABASE_URL: env.SUPABASE_URL, QUICK_SIGNIN_EMAILS: env.QUICK_SIGNIN_EMAILS },
+      {},
       fetchImpl,
       { hits: new Map() },
     );
