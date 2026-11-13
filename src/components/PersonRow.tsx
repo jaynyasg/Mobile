@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(255,224,138,0.48)",
-    backgroundColor: "rgba(7,27,42,0.84)",
+    backgroundColor: "rgba(7,27,42,0.58)",
   },
   photo: { width: 52, height: 64, backgroundColor: "rgba(7,27,42,0.5)" },
   main: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },

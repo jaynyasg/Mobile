@@ -71,6 +71,6 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
 const styles = StyleSheet.create({
   pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderRadius: 18, ...nightGlass },
   field: { gap: 4 },
-  input: { borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", backgroundColor: "rgba(7,27,42,0.72)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, padding: 12 },
+  input: { borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", backgroundColor: "rgba(7,27,42,0.62)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.ink, minHeight: 48, alignItems: "center", justifyContent: "center" },
 });

@@ -100,7 +100,7 @@ function InstallSheet({ kind, bottom, onClose }: { kind: Guide; bottom: number; 
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Add to Home Screen">
       <Pressable accessibilityRole="button" accessibilityLabel="Close install steps" style={styles.backdrop} onPress={onClose} />
-      <Glass tone="dark" style={[styles.sheet, { marginBottom: Math.max(bottom, 16), backgroundColor: "rgba(8,16,28,0.9)" }]}>
+      <Glass tone="dark" style={[styles.sheet, { marginBottom: Math.max(bottom, 16), backgroundColor: "rgba(7,27,42,0.62)" }]}>
         <T variant="eyebrow" color={colors.gold}>Home Screen</T>
         <T variant="title" color={colors.ivory}>Add TATEL</T>
         {steps.map((step) => (

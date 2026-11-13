@@ -29,7 +29,7 @@ export default function TabLayout() {
       screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen name="index" options={{ title: "Home" }} />
-      <Tabs.Screen name="agenda" options={{ title: "Program" }} />
+      <Tabs.Screen name="agenda" options={{ title: "Sessions" }} />
       <Tabs.Screen name="community" options={{ title: "Community" }} />
       <Tabs.Screen name="places" options={{ title: "Venues" }} />
       <Tabs.Screen name="more" options={{ title: "More" }} />
@@ -59,7 +59,7 @@ function GlassTabBar({
           {routes.map((route) => {
             const active = state.routes[state.index]?.key === route.key;
             const color = active ? colors.gold : colors.foam;
-            const label = route.name === "agenda" ? "Program" : route.name === "index" ? "Home" : route.name === "community" ? "Community" : route.name === "places" ? "Venues" : "More";
+            const label = route.name === "agenda" ? "Sessions" : route.name === "index" ? "Home" : route.name === "community" ? "Community" : route.name === "places" ? "Venues" : "More";
             return (
               <Pressable
                 key={route.key}

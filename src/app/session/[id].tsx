@@ -4,6 +4,7 @@ import { dayById, forum, panelistById, participationLabel, pillarById, placesFor
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
 import { sessionWhen } from "@/components/SessionRow";
+import { TopicChip } from "@/components/TopicChip";
 import { Glass } from "@/components/Glass";
 import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
@@ -47,6 +48,7 @@ export default function SessionScreen() {
       <StackHeader title={day?.label} />
       <Glass style={styles.pad}>
         <T variant="eyebrow" color={colors.gold}>{session.optional ? `${kind} · Optional` : kind}</T>
+        {pillar ? <TopicChip id={pillar.id} name={pillar.name} /> : null}
         <T variant="title">{displayCopy(session.title)}</T>
         <T variant="meta">
           {pillar?.name} · {session.island} · {session.region}

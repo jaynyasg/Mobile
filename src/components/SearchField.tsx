@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,224,138,0.48)",
     borderRadius: 16,
-    backgroundColor: "rgba(7,27,42,0.84)",
+    backgroundColor: "rgba(7,27,42,0.58)",
     flexDirection: "row",
     alignItems: "center",
     gap: 8,

@@ -39,7 +39,7 @@ export default function PanelistScreen() {
         <T variant="small">{person.title}</T>
         <T variant="meta">
           {person.keynote ? "Keynote speaker · " : ""}
-          {pillar?.name || "Program to be announced"} · {person.proposedIsland || "Location TBC"}
+          {pillar?.name || "Topic to be announced"} · {person.proposedIsland || "Location TBC"}
         </T>
         {person.origin ? <T variant="meta">{person.origin}</T> : null}
         {person.bio ? <T variant="small">{displayCopy(person.bio)}</T> : null}

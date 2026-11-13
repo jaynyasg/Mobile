@@ -174,6 +174,6 @@ const styles = StyleSheet.create({
   bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 16, ...nightGlass, gap: 2 },
   actions: { flexDirection: "row", gap: 16 },
   composer: { flexDirection: "row", gap: 8, padding: pad },
-  input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", borderRadius: 14, backgroundColor: "rgba(7,27,42,0.72)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },
+  input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", borderRadius: 14, backgroundColor: "rgba(7,27,42,0.62)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },
   send: { backgroundColor: colors.gold, borderRadius: 14, paddingHorizontal: 14, justifyContent: "center" },
 });

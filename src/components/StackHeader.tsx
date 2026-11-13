@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     ...nightGlass,
-    backgroundColor: "rgba(7,27,42,0.88)",
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,224,138,0.45)",
   },

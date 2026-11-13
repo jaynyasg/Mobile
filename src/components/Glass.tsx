@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Platform, StyleSheet, View, ViewStyle } from "react-native";
 import { radius } from "@/theme";
+import { NIGHT_GLASS } from "./nightGlass";
 
 export function backdropBlurSupported(): boolean {
   if (Platform.OS !== "web") return false;
@@ -23,13 +24,13 @@ export function Glass({
   style?: ViewStyle | ViewStyle[];
 }) {
   const frosted = blur && backdropBlurSupported();
-  const backgroundColor = tone === "dark" ? "rgba(7,27,42,0.9)" : "rgba(7,27,42,0.84)";
+  const backgroundColor = tone === "dark" ? "rgba(7,27,42,0.62)" : NIGHT_GLASS;
   const crystal = frosted
     ? ({
         backgroundColor,
         borderColor: "rgba(255,224,138,0.48)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
+        backdropFilter: "blur(30px) saturate(1.25)",
+        WebkitBackdropFilter: "blur(30px) saturate(1.25)",
         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.32), 0 12px 28px rgba(4,10,18,0.4)",
       } as ViewStyle)
     : null;

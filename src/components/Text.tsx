@@ -3,6 +3,12 @@ import { colors, fonts } from "@/theme";
 
 type Variant = "display" | "title" | "headline" | "body" | "small" | "meta" | "eyebrow" | "button" | "rowTitle";
 
+const readable: TextStyle = {
+  textShadowColor: "rgba(4,10,18,0.9)",
+  textShadowOffset: { width: 0, height: 1 },
+  textShadowRadius: 8,
+};
+
 const variants: Record<Variant, TextStyle> = {
   display: {
     fontFamily: fonts.display,
@@ -17,16 +23,18 @@ const variants: Record<Variant, TextStyle> = {
     lineHeight: 36,
     color: colors.foam,
     letterSpacing: -0.4,
+    ...readable,
   },
   headline: {
     fontFamily: fonts.semibold,
     fontSize: 24,
     lineHeight: 28,
     color: colors.foam,
+    ...readable,
   },
-  body: { fontFamily: fonts.body, fontSize: 17, lineHeight: 24, color: colors.foam },
-  small: { fontFamily: fonts.medium, fontSize: 16, lineHeight: 22, color: colors.foam },
-  meta: { fontFamily: fonts.medium, fontSize: 15, lineHeight: 21, color: colors.foam },
+  body: { fontFamily: fonts.body, fontSize: 17, lineHeight: 24, color: colors.foam, ...readable },
+  small: { fontFamily: fonts.medium, fontSize: 16, lineHeight: 22, color: colors.foam, ...readable },
+  meta: { fontFamily: fonts.medium, fontSize: 15, lineHeight: 21, color: colors.foam, ...readable },
   eyebrow: {
     fontFamily: fonts.semibold,
     fontSize: 12,
@@ -36,7 +44,7 @@ const variants: Record<Variant, TextStyle> = {
     color: colors.gold,
   },
   button: { fontFamily: fonts.medium, fontSize: 15, lineHeight: 20, color: colors.ink },
-  rowTitle: { fontFamily: fonts.semibold, fontSize: 17, lineHeight: 22, color: colors.foam },
+  rowTitle: { fontFamily: fonts.semibold, fontSize: 17, lineHeight: 22, color: colors.foam, ...readable },
 };
 
 const foil = {

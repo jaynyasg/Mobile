@@ -53,7 +53,7 @@ export default function PillarScreen() {
         <Link href={{ pathname: "/agenda", params: { pillar: pillar.id } }} asChild>
           <Pressable accessibilityRole="button">
             <T variant="small" color={colors.gold}>
-              Filter the agenda to {pillar.name}
+              Show {pillar.name} in Sessions
             </T>
           </Pressable>
         </Link>

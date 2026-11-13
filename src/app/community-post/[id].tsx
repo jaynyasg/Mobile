@@ -93,6 +93,6 @@ const styles = StyleSheet.create({
   pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
   card: { marginHorizontal: 12, marginBottom: 14, padding: 14, gap: 6, borderRadius: 16, ...nightGlass },
   row: { flexDirection: "row", gap: 16 },
-  input: { borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", backgroundColor: "rgba(7,27,42,0.72)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, padding: 12 },
+  input: { borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", backgroundColor: "rgba(7,27,42,0.62)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
 });

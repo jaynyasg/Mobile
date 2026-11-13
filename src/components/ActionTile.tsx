@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 16,
     ...({
-      backgroundImage: `linear-gradient(180deg, ${TILE_TOP} 0%, rgba(7,27,42,0.9) 100%)`,
+      backgroundImage: `linear-gradient(180deg, ${TILE_TOP} 0%, rgba(7,27,42,0.58) 100%)`,
     } as ViewStyle),
   },
   hover: { borderColor: colors.gold },

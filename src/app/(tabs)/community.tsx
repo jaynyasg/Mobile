@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   pad: { paddingHorizontal: pad, paddingBottom: 12, gap: 8 },
   row: { flexDirection: "row", gap: 16, alignItems: "center" },
   link: { paddingVertical: 6 },
-  attach: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.84)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
+  attach: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   input: { minHeight: 64, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(247,244,239,0.45)", borderRadius: 14, backgroundColor: "rgba(6,14,24,0.72)", color: colors.onDark, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
   photo: { width: "100%", height: 180, borderRadius: 14, backgroundColor: colors.muted },
@@ -196,6 +196,6 @@ const styles = StyleSheet.create({
   person: { flexDirection: "row", gap: 10, alignItems: "center" },
   copy: { flex: 1, gap: 2 },
   avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.turquoise, alignItems: "center", justifyContent: "center" },
-  pill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(7,27,42,0.84)", borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8, minHeight: 44 },
+  pill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8, minHeight: 44 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.ivory },
 });

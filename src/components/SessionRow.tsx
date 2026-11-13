@@ -1,33 +1,41 @@
 import { Link } from "expo-router";
-import { Pressable, StyleSheet } from "react-native";
-import { forum } from "@/content";
+import { Image, Pressable, StyleSheet, View } from "react-native";
+import { getProgram } from "@/content/active";
+import { useContent } from "@/content/provider";
 import { displayCopy } from "@/content/display";
 import type { Session } from "@/content/types";
 import { formatRange } from "@/logic/time";
+import { sessionTopic } from "@/logic/topic";
 import { useApp } from "@/store";
 import { colors, sceneForIsland } from "@/theme";
-import { Glass } from "./Glass";
+import { nightGlass } from "./nightGlass";
 import { Icon } from "./Icon";
 import { T } from "./Text";
-import { TappablePhoto } from "./TappablePhoto";
+import { TopicChip } from "./TopicChip";
 
-export function sessionWhen(session: Session): string {
-  if (session.start && session.end) return formatRange(session.start, session.end, forum.timezone);
+export function sessionWhen(session: Session, timeZone = getProgram().forum.timezone): string {
+  if (session.start && session.end) return formatRange(session.start, session.end, timeZone);
   return session.timeLabel || "Time TBC";
 }
 
 export function SessionRow({ session }: { session: Session }) {
   const { state, dispatch } = useApp();
+  const { program } = useContent();
   const favored = state.favoriteIds.includes(session.id);
   const photo = sceneForIsland(session.island);
+  const topic = sessionTopic(session, program.forum.pillars);
+  const when = sessionWhen(session, program.forum.timezone);
 
   return (
-    <Glass padded={false} style={styles.row}>
-      <TappablePhoto source={photo} alt={`${session.island} photo`} style={styles.thumb} />
+    <View style={styles.row}>
+      <View style={styles.thumb}>
+        <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
+      </View>
       <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
+          {topic ? <TopicChip id={topic.id} name={topic.name} /> : null}
           <T variant="rowTitle" numberOfLines={2}>{displayCopy(session.title)}</T>
-          <T variant="meta" color={colors.gold}>{sessionWhen(session)} · {session.island}</T>
+          <T variant="meta" color={colors.gold} numberOfLines={1} style={styles.when}>{when} · {session.island}</T>
         </Pressable>
       </Link>
       <Pressable
@@ -39,22 +47,24 @@ export function SessionRow({ session }: { session: Session }) {
       >
         <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.gold : colors.foam} />
       </Pressable>
-    </Glass>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
+    ...nightGlass,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     marginHorizontal: 16,
-    marginBottom: 8,
-    paddingVertical: 8,
-    paddingRight: 8,
-    paddingLeft: 8,
+    marginBottom: 10,
+    padding: 12,
+    borderRadius: 16,
   },
-  thumb: { width: 54, height: 54, borderRadius: 8 },
-  main: { flex: 1, gap: 3 },
-  heart: { width: 32, alignItems: "center", justifyContent: "center" },
+  thumb: { width: 84, height: 84, borderRadius: 12, overflow: "hidden" },
+  photo: { width: 84, height: 84 },
+  main: { flex: 1, minWidth: 0, gap: 4, justifyContent: "center" },
+  when: { overflow: "hidden" },
+  heart: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
 });

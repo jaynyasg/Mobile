@@ -37,7 +37,7 @@ export default function PanelistsScreen() {
               key={person.id}
               name={person.name}
               photo={person.photo ? portraits[person.photo] : undefined}
-              meta={`${person.title} · ${person.company}\n${pillar?.name || "Program to be announced"} · ${person.proposedIsland || "Location TBC"}`}
+              meta={`${person.title} · ${person.company}\n${pillar?.name || "Topic to be announced"} · ${person.proposedIsland || "Location TBC"}`}
               href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
             />
           );

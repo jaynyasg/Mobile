@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Icon } from "@/components/Icon";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ActionTile } from "@/components/ActionTile";
 import { BeaconBackground } from "@/components/BeaconBackground";
@@ -41,7 +42,7 @@ export default function HomeScreen() {
   }
 
   const actions = [
-    { href: "/agenda" as const, icon: "calendar" as const, label: "Program", detail: "Sessions, speakers & your schedule" },
+    { href: "/agenda" as const, icon: "calendar" as const, label: "Sessions", detail: "Speakers and your schedule" },
     { href: "/places" as const, icon: "pin" as const, label: "Venues", detail: "Candidate places on each island" },
     { href: "/transport" as const, icon: "seat" as const, label: "Transport", detail: "Sample routes. Unconfirmed." },
     { href: "/stays" as const, icon: "pin" as const, label: "Stays", detail: "Resorts & where to sleep" },
@@ -59,16 +60,22 @@ export default function HomeScreen() {
         <View pointerEvents="none" style={styles.mark}>
           <CrystalMark />
         </View>
-        <Glass tone="dark" style={[styles.hero, { backgroundColor: "rgba(7,18,32,0.9)" }]}>
-          <T variant="eyebrow" color={colors.gold}>{forum.kicker}</T>
-          <T variant="display" foil>{forum.edition}</T>
-          <T variant="small" color={colors.foam}>{forum.dateLabel}</T>
-          <T variant="body" color={colors.foam}>{forum.placeLabel}</T>
-          <View style={styles.countPill}>
-            <T variant="title" color={colors.onDark}>{count}</T>
-            <T variant="meta" color={colors.onDarkSoft}>{countCaption}</T>
-          </View>
-        </Glass>
+        <Pressable accessibilityRole="button" accessibilityLabel="Explore the welcome guide" onPress={() => setWelcome(true)}>
+          <Glass tone="dark" style={styles.hero}>
+            <T variant="eyebrow" color={colors.gold}>{forum.edition}</T>
+            <T variant="title">{forum.kicker}</T>
+            <T variant="small" color={colors.foam}>{forum.dateLabel}</T>
+            <T variant="body" color={colors.foam}>{forum.placeLabel}</T>
+            <View style={styles.countPill}>
+              <T variant="title" color={colors.onDark}>{count}</T>
+              <T variant="meta" color={colors.onDarkSoft}>{countCaption}</T>
+            </View>
+            <View style={styles.explore}>
+              <T variant="small" color={colors.gold}>Explore</T>
+              <Icon name="chevron" size={18} color={colors.gold} />
+            </View>
+          </Glass>
+        </Pressable>
         <View style={styles.start}>
           <T variant="eyebrow" color={colors.gold}>Start here</T>
         </View>
@@ -117,8 +124,9 @@ const styles = StyleSheet.create({
   install: { marginHorizontal: 16, marginBottom: 8 },
   mark: { alignItems: "center", marginBottom: 12 },
   hero: { marginHorizontal: 16, gap: 6, paddingVertical: 18 },
-  countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.35)", backgroundColor: "rgba(7,18,32,0.55)" },
-  start: { alignSelf: "flex-start", marginLeft: 16, marginTop: 18, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: "rgba(7,18,32,0.9)" },
+  explore: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 8, minHeight: 44 },
+  countPill: { alignSelf: "flex-start", flexDirection: "row", alignItems: "flex-end", gap: 8, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.58)" },
+  start: { alignSelf: "flex-start", marginLeft: 16, marginTop: 18, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)" },
   actions: { paddingHorizontal: 16, gap: 8 },
   replay: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", marginLeft: 16, marginTop: 8, paddingHorizontal: 14, borderRadius: 999, ...nightGlass },
   islands: { paddingHorizontal: 16, gap: 10, paddingTop: 8, paddingBottom: 14 },

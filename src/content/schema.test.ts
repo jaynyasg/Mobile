@@ -34,6 +34,7 @@ describe("content sync", () => {
     );
     expect(site.ok).toBe(true);
     if (!site.ok) return;
+    expect(site.program.sessions[0]?.pillarId).toBe("ai");
     expect(site.program.sessions[0]?.timeLabel).toBe("Opening · Time TBC");
     expect(site.program.sessions[0]?.venue.label).toBe("to be confirmed");
     expect(site.program.sessions[0]?.venue.venueId).toBe("st-john");

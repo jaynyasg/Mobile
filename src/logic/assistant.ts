@@ -105,7 +105,7 @@ function buildCorpus(): GuideDoc[] {
       title: "Proposed program",
       keywords: ["draft", "unconfirmed", "confirmation"],
       body: forum.draftNotice,
-      citation: { title: "Agenda", kind: "screen", id: "agenda" },
+      citation: { title: "Sessions", kind: "screen", id: "agenda" },
     },
     {
       id: "delete",
@@ -119,7 +119,7 @@ function buildCorpus(): GuideDoc[] {
       title: "Atlantic time",
       keywords: ["ast", "local", "clock", "timezone"],
       body: `Session times are proposed in ${forum.timezoneLabel}. The phone also shows its own clock when the two differ. Times, venues, and participation remain unconfirmed.`,
-      citation: { title: "Agenda", kind: "screen", id: "agenda" },
+      citation: { title: "Sessions", kind: "screen", id: "agenda" },
     },
     {
       id: "passes",
@@ -195,7 +195,7 @@ function buildCorpus(): GuideDoc[] {
       id: `panelist-${person.id}`,
       title: person.name,
       keywords: [person.company, person.title, person.proposedIsland],
-      body: `${person.name}, ${person.title}, ${person.company}. ${pillar?.name ?? "Program to be announced"} · ${person.proposedIsland || "Location TBC"}. Linked sessions: ${lines.join("; ")}.`,
+      body: `${person.name}, ${person.title}, ${person.company}. ${pillar?.name ?? "Topic to be announced"} · ${person.proposedIsland || "Location TBC"}. Linked sessions: ${lines.join("; ")}.`,
       citation: { title: person.name, kind: "panelist", id: person.id },
     });
   }
