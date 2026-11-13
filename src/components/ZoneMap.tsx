@@ -5,11 +5,11 @@ import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 
 const zones = [
-  { id: "tech", name: "Tech", island: "Thomas", x: 18, y: 62 },
-  { id: "ai", name: "AI", island: "John", x: 36, y: 38 },
-  { id: "law", name: "Law", island: "Lovango", x: 52, y: 58 },
-  { id: "entertainment", name: "Entertainment", island: "Jost", x: 70, y: 30 },
-  { id: "travel", name: "Travel", island: "Scrub", x: 86, y: 48 },
+  { id: "tech", name: "Tech", island: "St. Thomas", x: 18, y: 58 },
+  { id: "ai", name: "AI", island: "St. John", x: 38, y: 34 },
+  { id: "law", name: "Law", island: "Lovango", x: 56, y: 62 },
+  { id: "entertainment", name: "Entertainment", island: "Jost Van Dyke", x: 74, y: 28 },
+  { id: "travel", name: "Travel", island: "Scrub Island", x: 84, y: 52 },
 ] as const;
 
 export function ZoneMap({
@@ -51,7 +51,7 @@ export function ZoneMap({
                   origin="22,22"
                 />
               </Svg>
-              <T variant="meta" color={colors.foam} numberOfLines={1} style={styles.label}>{zone.island}</T>
+              <T variant="meta" color={colors.foam} numberOfLines={2} style={styles.label}>{zone.island}</T>
             </Pressable>
           );
         })}
@@ -64,7 +64,7 @@ export function ZoneMap({
 const styles = StyleSheet.create({
   board: { marginHorizontal: 12, marginBottom: 14, padding: 14, borderRadius: 22, ...nightGlass },
   map: { height: 210, marginTop: 8 },
-  node: { position: "absolute", width: 78, marginLeft: -22, alignItems: "center" },
-  label: { marginTop: -4, textAlign: "center" },
+  node: { position: "absolute", width: 96, marginLeft: -26, alignItems: "center" },
+  label: { marginTop: -4, textAlign: "center", fontSize: 12, lineHeight: 15 },
   sheen: { position: "absolute", top: 18, left: 18, right: 18, height: 1, backgroundColor: "rgba(255,224,138,0.35)" },
 });

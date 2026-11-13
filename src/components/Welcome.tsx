@@ -70,7 +70,7 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
                   >
                     <Image source={{ uri: sceneForIsland(pillar.island) }} style={styles.trackPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                     <View style={styles.trackShade} />
-                    <T variant="meta" color={colors.foam} numberOfLines={1}>{pillar.island}</T>
+                    <T variant="meta" color={colors.foam} numberOfLines={2}>{pillar.island}</T>
                     <T variant="small" color={colors.gold} numberOfLines={1}>{pillar.name}</T>
                   </Pressable>
                 );

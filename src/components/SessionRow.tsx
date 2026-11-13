@@ -46,7 +46,7 @@ export function SessionRow({ session }: { session: Session }) {
       <View style={styles.copy}>
         {topic ? <TopicChip id={topic.id} name={topic.name} /> : null}
         <T variant="rowTitle" color={colors.foam} numberOfLines={2}>{displayCopy(session.title)}</T>
-        <T variant="meta" color={colors.gold} numberOfLines={1}>{when} · {session.island}</T>
+        <T variant="meta" color={colors.gold} numberOfLines={2}>{when} · {session.island}</T>
         <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
           <Pressable accessibilityRole="button" accessibilityLabel={`Open ${session.title}`} style={styles.pill}>
             <T variant="button" color={colors.ink}>Open</T>

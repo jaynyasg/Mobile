@@ -132,7 +132,7 @@ export default function HomeScreen() {
               >
                 <T variant="meta" color={colors.gold}>Happening next</T>
                 <T variant="small" color={colors.foam} numberOfLines={1}>{next.title}</T>
-                <T variant="meta" color={colors.foam} numberOfLines={1}>{sessionWhen(next, forum.timezone)} · {next.island}</T>
+                <T variant="meta" color={colors.foam} numberOfLines={2}>{sessionWhen(next, forum.timezone)} · {next.island}</T>
               </Pressable>
             ) : null}
             {guideSteps.map((step, index) => {
