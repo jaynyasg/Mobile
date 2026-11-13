@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { firstUnfinished, guideSteps, markGuide, readGuide, stepDone, type GuideStore } from "./path";
+import { firstUnfinished, guideSteps, hasSeenTour, markTourSeen, tourCaption, markGuide, readGuide, stepDone, type GuideStore } from "./path";
 
 function memory(): GuideStore & { values: Map<string, string> } {
   const values = new Map<string, string>();
@@ -51,5 +51,13 @@ describe("home guide", () => {
   it("settles the tour on the first unfinished step", () => {
     expect(firstUnfinished([true, false, false])).toBe(1);
     expect(firstUnfinished([true, true, true])).toBe(0);
+  });
+
+  it("names each tutorial frame and remembers that the tour finished", () => {
+    expect(tourCaption(2)).toBe("Step 3 of 8 · Sessions: build your schedule");
+    const store = memory();
+    expect(hasSeenTour(store)).toBe(false);
+    markTourSeen(store);
+    expect(hasSeenTour(store)).toBe(true);
   });
 });

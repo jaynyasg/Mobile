@@ -1,4 +1,16 @@
 export const GUIDE_KEY = "tatel.guide";
+export const TOUR_KEY = "tatel.tourSeen";
+
+const tourLine: Record<string, string> = {
+  welcome: "Welcome: watch the film",
+  tracks: "Tracks: pick your islands",
+  sessions: "Sessions: build your schedule",
+  transport: "Transport: see the routes",
+  stay: "Stays: find where you sleep",
+  know: "Guide: know before you go",
+  pass: "Passport: get your stamps",
+  chat: "Chat: join the room",
+};
 
 export interface GuideStore {
   getItem: (key: string) => string | null;
@@ -43,6 +55,20 @@ export function markGuide(store: GuideStore | null, id: string): void {
   const next = new Set(readGuide(store));
   next.add(id);
   store.setItem(GUIDE_KEY, [...next].join(","));
+}
+
+export function tourCaption(index: number): string {
+  const step = guideSteps[index];
+  if (!step) return "";
+  return `Step ${index + 1} of ${guideSteps.length} · ${tourLine[step.id]}`;
+}
+
+export function hasSeenTour(store: GuideStore | null): boolean {
+  return store?.getItem(TOUR_KEY) === "1";
+}
+
+export function markTourSeen(store: GuideStore | null): void {
+  store?.setItem(TOUR_KEY, "1");
 }
 
 export function firstUnfinished(done: readonly boolean[]): number {

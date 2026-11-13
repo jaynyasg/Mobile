@@ -6,6 +6,7 @@ import { dockClearance } from "@/components/Dock";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
 import { FeedCard } from "@/components/FeedCard";
+import { StepTour } from "@/components/StepTour";
 import { InstallHint } from "@/components/InstallHint";
 import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
@@ -13,7 +14,7 @@ import { Welcome } from "@/components/Welcome";
 import { useContent } from "@/content/provider";
 import { islandTrackLabel } from "@/content/labels";
 import { readTracks, webTrackStore } from "@/guide/interests";
-import { firstUnfinished, guideSteps, markGuide, readGuide, stepDone } from "@/guide/path";
+import { firstUnfinished, guideSteps, hasSeenTour, markGuide, markTourSeen, readGuide, stepDone, tourCaption } from "@/guide/path";
 import { prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { suggestedDayId } from "@/logic/phase";
 import { INTRO_DAY_KEY, isExplored, localReelStore } from "@/reels/gate";
@@ -43,9 +44,11 @@ export default function HomeScreen() {
   const { openChapter, replayIntro, guideTick, reelActive } = useReels();
   const scrollRef = useRef<{ scrollTo: (options: { y?: number; animated?: boolean }) => void } | null>(null);
   const cardY = useRef<number[]>([]);
-  const tourOnce = useRef(false);
-  const tourStop = useRef(false);
-  const [spotlight, setSpotlight] = useState<number | null>(null);
+  const tourBoot = useRef(false);
+  const [touring, setTouring] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const [frames, setFrames] = useState<{ y: number; height: number }[]>([]);
   const [mode, setMode] = useState<"you" | "explore">("you");
   const [welcome, setWelcome] = useState(false);
   const [welcomeStart, setWelcomeStart] = useState<"arrival" | "tracks">("arrival");
@@ -98,35 +101,39 @@ export default function HomeScreen() {
   const flagsRef = useRef(doneFlags);
   flagsRef.current = doneFlags;
 
-  useEffect(() => {
-    if (!ready || welcome || mode !== "you" || reelActive || tourOnce.current) return;
-    tourOnce.current = true;
+  function finishTour() {
+    markTourSeen(webStorage());
+    setTouring(false);
     const settle = firstUnfinished(flagsRef.current);
-    if (prefersReducedMotion()) {
-      setSpotlight(settle);
-      return;
-    }
-    let index = 0;
-    setSpotlight(0);
-    const timer = setInterval(() => {
-      if (tourStop.current) {
-        clearInterval(timer);
-        return;
-      }
-      index += 1;
-      if (index >= guideSteps.length) {
-        clearInterval(timer);
-        setSpotlight(settle);
-        scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[settle] ?? 0) - 12), animated: true });
-        return;
-      }
-      setSpotlight(index);
-      scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[index] ?? 0) - 12), animated: true });
-    }, 2000);
-    return () => clearInterval(timer);
+    setTourIndex(settle);
+    scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[settle] ?? 0) - 72), animated: true });
+  }
+
+  function replayTour() {
+    setTourIndex(0);
+    setTouring(true);
+    scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[0] ?? 0) - 72), animated: true });
+  }
+
+  useEffect(() => {
+    if (!ready || welcome || mode !== "you" || reelActive || tourBoot.current) return;
+    tourBoot.current = true;
+    if (!hasSeenTour(webStorage())) replayTour();
   }, [ready, welcome, mode, reelActive]);
 
+  useEffect(() => {
+    if (!touring) return;
+    scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[tourIndex] ?? 0) - 72), animated: true });
+    if (prefersReducedMotion()) return;
+    const timer = setTimeout(() => {
+      if (tourIndex >= guideSteps.length - 1) finishTour();
+      else setTourIndex(tourIndex + 1);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [touring, tourIndex]);
+
   function openStep(id: (typeof guideSteps)[number]["id"]) {
+    if (touring) return;
     if (id !== "welcome") {
       markGuide(webTrackStore(), id);
       setMarked(readGuide(webTrackStore()));
@@ -152,9 +159,9 @@ export default function HomeScreen() {
         style={[styles.fill, { marginBottom: dockClearance(insets.bottom) }]}
         contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
-        onTouchStart={() => {
-          tourStop.current = true;
-        }}
+        scrollEnabled={!touring}
+        onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
+        scrollEventThrottle={16}
       >
         <View style={styles.install}>
           <InstallHint />
@@ -169,14 +176,29 @@ export default function HomeScreen() {
         </View>
         {mode === "you" ? (
           <>
-            <T variant="headline" color={colors.foam} style={styles.guideTitle}>8 steps to get started</T>
+            <View style={styles.guideHead}>
+              <T variant="headline" color={colors.foam} style={styles.guideTitle}>8 steps to get started</T>
+              <Pressable accessibilityRole="button" accessibilityLabel="Replay tour" onPress={replayTour} style={styles.replayTour}>
+                <T variant="meta" color={colors.gold}>Replay tour</T>
+              </Pressable>
+            </View>
             <T variant="meta" color={colors.gold} style={styles.progress}>{doneCount} of {guideSteps.length} done</T>
             {guideSteps.map((step, index) => {
               const done = doneFlags[index];
               return (
-                <View key={step.id} onLayout={(event) => {
-                  cardY.current[index] = event.nativeEvent.layout.y;
-                }}>
+                <View
+                  key={step.id}
+                  pointerEvents={touring ? "none" : "auto"}
+                  onLayout={(event) => {
+                    cardY.current[index] = event.nativeEvent.layout.y;
+                    const next = { y: event.nativeEvent.layout.y, height: event.nativeEvent.layout.height };
+                    setFrames((current) => {
+                      const copy = current.slice();
+                      copy[index] = next;
+                      return copy;
+                    });
+                  }}
+                >
                   <FeedCard
                     image={stepImage[step.id]}
                     alt={step.headline}
@@ -185,7 +207,7 @@ export default function HomeScreen() {
                     line={step.line}
                     cta={done && step.id === "welcome" ? "Replay" : step.cta}
                     done={done}
-                    lit={spotlight === index}
+                    lit={touring && tourIndex === index}
                     onPress={() => openStep(step.id)}
                   />
                 </View>
@@ -229,6 +251,20 @@ export default function HomeScreen() {
           <T variant="meta" color={colors.gold}>Replay the welcome</T>
         </Pressable>
       </ScrollView>
+      {touring && mode === "you" ? (
+        <StepTour
+          top={Math.max(8, (frames[tourIndex]?.y ?? 0) - scrollY)}
+          height={frames[tourIndex]?.height ?? 400}
+          caption={tourCaption(tourIndex)}
+          canBack={tourIndex > 0}
+          onBack={() => setTourIndex((current) => Math.max(0, current - 1))}
+          onNext={() => {
+            if (tourIndex >= guideSteps.length - 1) finishTour();
+            else setTourIndex((current) => current + 1);
+          }}
+          onSkip={finishTour}
+        />
+      ) : null}
       {welcome ? <Welcome start={welcomeStart} onClose={closeWelcome} /> : null}
       {deck ? <EssentialsDeck onClose={() => setDeck(false)} /> : null}
     </View>
@@ -242,7 +278,9 @@ const styles = StyleSheet.create({
   switch: { flexDirection: "row", alignSelf: "center", marginBottom: 8, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
-  guideTitle: { marginHorizontal: 20, marginBottom: 0 },
+  guideHead: { marginHorizontal: 20, marginBottom: 2, gap: 2 },
+  guideTitle: { marginHorizontal: 0, marginBottom: 0 },
+  replayTour: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center" },
   progress: { marginLeft: 22, marginBottom: 6 },
   next: {
     marginHorizontal: 16,
