@@ -32,7 +32,7 @@ describe("first-visit welcome", () => {
       pillars: forum.pillars,
       days: forum.days,
       staysIntro: stays.intro,
-      passNote: "The pass is a design preview. No payment is collected.",
+      passNote: "Choose a pass for the sessions.",
     });
     expect(pages.map((page) => page.id)).toEqual(["what", "islands", "sessions", "around", "together"]);
     expect(pages[0]?.kicker).toBe("Sessions");
@@ -44,7 +44,7 @@ describe("first-visit welcome", () => {
     expect(pages[2]?.body).toContain("The Problem");
     expect(pages[3]?.body.toLowerCase()).toContain("unconfirmed");
     expect(pages[4]?.install).toBe(true);
-    expect(pages[4]?.body).toContain("No payment");
-    expect(passes.previewLabel.toLowerCase()).toContain("no payment");
+    expect(pages[4]?.body).toContain("Choose a pass");
+    expect(passes.previewLabel.toLowerCase()).not.toContain("no payment");
   });
 });

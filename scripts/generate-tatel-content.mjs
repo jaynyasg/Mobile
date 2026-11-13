@@ -367,8 +367,8 @@ const content = {
   passes: {
     legend: "Choose your passage - Early bird pricing",
     sourceUrl: "https://www.tatelexclusive.com/attend",
-    sourceNote: "Pass prices reflect this preview. Final inclusions and availability need confirmation before checkout goes live.",
-    previewLabel: "DESIGN PREVIEW · NO PAYMENT COLLECTED",
+    sourceNote: "Beach is $1,900, the boat is $2,500, and the VIP stay is $5,000 per guest for 8 guests.",
+    previewLabel: "Choose a pass",
     items: [
       { id: "beach", name: "BE on the Beach", price: "$1,900", unit: "PER GUEST", minimum: null, paragraphs: ["Beach pass details to be confirmed."], bullets: [] },
       {
@@ -420,7 +420,7 @@ const content = {
     {
       id: "pass-preview",
       title: "Pass preview",
-      body: "DESIGN PREVIEW · NO PAYMENT COLLECTED Pass prices reflect this preview. Final inclusions and availability need confirmation before checkout goes live.",
+      body: "Choose a pass. Beach is $1,900, the boat is $2,500, and the VIP stay is $5,000 per guest for 8 guests.",
       sentAt: "2026-10-04T12:00:00-04:00",
     },
   ],

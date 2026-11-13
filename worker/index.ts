@@ -1,9 +1,10 @@
+import { createPassCheckout, readPassCheckout, type CheckoutEnv } from "./checkout";
 import { phoneSignIn } from "./phoneSignin";
 import { quickSignIn, type QuickSignInEnv } from "./quickSignin";
 import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
 
-interface Env extends QuickSignInEnv {
+interface Env extends QuickSignInEnv, CheckoutEnv {
   ASSETS: { fetch(input: Request | string): Promise<Response> };
 }
 
@@ -45,6 +46,14 @@ export default {
     if (url.pathname === "/api/phone-signin") {
       const deps = programDeps(third);
       return phoneSignIn(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
+    }
+    if (url.pathname === "/api/checkout") {
+      const deps = programDeps(third);
+      return createPassCheckout(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
+    }
+    if (url.pathname === "/api/checkout/status") {
+      const deps = programDeps(third);
+      return readPassCheckout(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
     }
     if (!url.pathname.toLowerCase().endsWith(".mp4")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") {
