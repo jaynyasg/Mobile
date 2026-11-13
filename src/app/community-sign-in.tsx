@@ -20,6 +20,10 @@ export default function SignInScreen() {
   async function send() {
     try {
       setError(null);
+      if (!sent) {
+        const result = await auth.quickSignIn(email);
+        if (result === "session") return;
+      }
       await auth.sendCode(email);
       setSent(true);
     } catch (cause) {
@@ -42,10 +46,10 @@ export default function SignInScreen() {
       <Glass style={styles.pad}>
         <CrystalMark size="mark" />
         <T variant="title">Your email</T>
-        <T variant="small">A 6-digit code, kept in this app.</T>
+        <T variant="small">Enter your email. Most addresses get a 6-digit code.</T>
         <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="you@example.com" placeholderTextColor="rgba(245,241,232,0.62)" style={styles.input} accessibilityLabel="Email" />
         <Pressable accessibilityRole="button" onPress={send} style={[styles.button, shimmerStyle()]}>
-          <T variant="button" color={colors.ink}>Send code</T>
+          <T variant="button" color={colors.ink}>{sent ? "Send code" : "Continue"}</T>
         </Pressable>
         {sent ? (
           <>

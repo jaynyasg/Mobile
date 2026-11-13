@@ -18,6 +18,8 @@ export function previewActor(): Actor {
       avatarUrl: null,
       title: "Guest",
       company: "Harbor",
+      bio: "Here for the conversations.",
+      link: null,
       staff: true,
     },
   };
@@ -33,6 +35,8 @@ const mara: CommunityProfile = {
   avatarUrl: null,
   title: "Skipper",
   company: "North Light",
+  bio: "Crossing with the morning boat.",
+  link: "https://tatel.app",
   staff: false,
 };
 

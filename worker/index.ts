@@ -1,7 +1,8 @@
+import { quickSignIn, type QuickSignInEnv } from "./quickSignin";
 import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
 
-interface Env {
+interface Env extends QuickSignInEnv {
   ASSETS: { fetch(input: Request | string): Promise<Response> };
 }
 
@@ -35,6 +36,10 @@ export default {
     if (url.pathname === "/api/program") {
       const deps = programDeps(third);
       return serveProgram(request, deps.fetchImpl, deps.cache);
+    }
+    if (url.pathname === "/api/quick-signin") {
+      const deps = programDeps(third);
+      return quickSignIn(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
     }
     if (!url.pathname.toLowerCase().endsWith(".mp4")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") {

@@ -5,6 +5,8 @@ export const communityLimits = {
   name: 80,
   title: 80,
   company: 80,
+  bio: 280,
+  link: 200,
   report: 500,
   perMinute: 8,
 } as const;

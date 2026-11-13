@@ -12,6 +12,8 @@ function profileOf(row: Row | null): CommunityProfile {
     avatarUrl: typeof source.avatar_url === "string" ? source.avatar_url : null,
     title: typeof source.title === "string" ? source.title : null,
     company: typeof source.company === "string" ? source.company : null,
+    bio: typeof source.bio === "string" ? source.bio : null,
+    link: typeof source.link === "string" ? source.link : null,
     staff: false,
   };
 }
@@ -30,24 +32,52 @@ export async function ensureProfile(userId: string, email: string | null): Promi
   if (error) throw new Error(explainCommunityError(error));
 }
 
+export function profileLink(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (trimmed.length > communityLimits.link) throw new Error("Link is too long");
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    throw new Error("Link must start with https://");
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("Link must start with https://");
+  return url.toString();
+}
+
+export async function loadProfile(userId: string): Promise<CommunityProfile | null> {
+  const { data, error } = await supabase
+    .from("community_profiles")
+    .select("id, display_name, avatar_url, title, company, bio, link")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw new Error(explainCommunityError(error));
+  if (!data) return null;
+  return profileOf(data as Row);
+}
+
 export async function saveProfile(
   userId: string,
-  input: { displayName: string; title: string; company: string; avatarUrl?: string | null },
+  input: { displayName: string; title: string; company: string; bio: string; link: string; avatarUrl?: string | null },
 ): Promise<void> {
   const patch: Record<string, string | null> = {
+    id: userId,
     display_name: assertLength(input.displayName, communityLimits.name, "Name"),
     title: input.title.trim().slice(0, communityLimits.title) || null,
     company: input.company.trim().slice(0, communityLimits.company) || null,
+    bio: input.bio.trim().slice(0, communityLimits.bio) || null,
+    link: profileLink(input.link),
   };
   if (input.avatarUrl !== undefined) patch.avatar_url = input.avatarUrl;
-  const { error } = await supabase.from("community_profiles").update(patch).eq("id", userId);
+  const { error } = await supabase.from("community_profiles").upsert(patch, { onConflict: "id" });
   if (error) throw new Error(explainCommunityError(error));
 }
 
 export async function listPosts(userId: string): Promise<CommunityPost[]> {
   const { data, error } = await supabase
     .from("community_posts")
-    .select("id, body, photo_url, hidden, created_at, author:community_profiles!author_id(id, display_name, avatar_url, title, company), community_likes(user_id), community_comments(id)")
+    .select("id, body, photo_url, hidden, created_at, author:community_profiles!author_id(id, display_name, avatar_url, title, company, bio, link), community_likes(user_id), community_comments(id)")
     .order("created_at", { ascending: false })
     .limit(40);
   if (error) throw new Error(explainCommunityError(error));
@@ -99,7 +129,7 @@ export async function toggleLike(userId: string, postId: string, liked: boolean)
 export async function listComments(postId: string): Promise<CommunityComment[]> {
   const { data, error } = await supabase
     .from("community_comments")
-    .select("id, post_id, body, hidden, created_at, author:community_profiles!author_id(id, display_name, avatar_url, title, company)")
+    .select("id, post_id, body, hidden, created_at, author:community_profiles!author_id(id, display_name, avatar_url, title, company, bio, link)")
     .eq("post_id", postId)
     .order("created_at", { ascending: true });
   if (error) throw new Error(explainCommunityError(error));
@@ -154,7 +184,7 @@ export async function generalRoom(): Promise<CommunityRoom> {
 export async function listMessages(roomId: string, before?: string): Promise<CommunityMessage[]> {
   let query = supabase
     .from("community_messages")
-    .select("id, room_id, body, hidden, created_at, author:community_profiles!author_id(id, display_name, avatar_url, title, company)")
+    .select("id, room_id, body, hidden, created_at, author:community_profiles!author_id(id, display_name, avatar_url, title, company, bio, link)")
     .eq("room_id", roomId)
     .order("created_at", { ascending: false })
     .limit(40);

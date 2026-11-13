@@ -4,8 +4,10 @@ import { useAuth } from "@/community/auth";
 import { communityPreviewEnabled, supabase } from "@/community/client";
 import { deleteMessage, generalRoom, hideMessage, listMessages, sendMessage, sendReport } from "@/community/live";
 import { MemoryCommunity } from "@/community/memory";
-import type { CommunityMessage } from "@/community/types";
+import type { CommunityMessage, CommunityProfile } from "@/community/types";
 import { ChatImages } from "@/components/ChatImages";
+import { CommunityAvatar } from "@/components/CommunityAvatar";
+import { ProfileSheet } from "@/components/ProfileSheet";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -23,6 +25,7 @@ export default function CommunityRoomScreen() {
   const [error, setError] = useState<string | null>(null);
   const [offline, setOffline] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const listRef = useRef<FlatList<CommunityMessage>>(null);
   const pinned = useRef(true);
   const loadingOlder = useRef(false);
@@ -121,7 +124,10 @@ export default function CommunityRoomScreen() {
         scrollEventThrottle={200}
         renderItem={({ item }) => (
           <View style={styles.bubble}>
-            <T variant="meta" color={colors.turquoise}>{item.author.displayName}</T>
+            <Pressable accessibilityRole="button" accessibilityLabel={`Profile of ${item.author.displayName}`} onPress={() => setProfile(item.author)} style={styles.who}>
+              <CommunityAvatar name={item.author.displayName} url={item.author.avatarUrl} />
+              <T variant="meta" color={colors.gold}>{item.author.displayName}</T>
+            </Pressable>
             <T variant="small">{item.body}</T>
             <ChatImages text={item.body} photoUrl={item.photoUrl} label={`Photo from ${item.author.displayName}`} />
             <View style={styles.actions}>
@@ -163,6 +169,7 @@ export default function CommunityRoomScreen() {
         </Pressable>
       </View>
       {error ? <T variant="meta" style={styles.note}>{error}</T> : null}
+      <ProfileSheet profile={profile} onClose={() => setProfile(null)} />
     </Screen>
   );
 }
@@ -172,6 +179,7 @@ const styles = StyleSheet.create({
   note: { padding: pad },
   list: { padding: pad, gap: 8 },
   bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 16, ...nightGlass, gap: 2 },
+  who: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
   actions: { flexDirection: "row", gap: 16 },
   composer: { flexDirection: "row", gap: 8, padding: pad },
   input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", borderRadius: 14, backgroundColor: "rgba(7,27,42,0.62)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },

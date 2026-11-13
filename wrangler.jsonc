@@ -7,7 +7,10 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    // MP4s need range responses. /api/program proxies the published program file.
+    // MP4s need range responses. /api/* is the program proxy and quick sign-in.
     "run_worker_first": ["/api/*", "/*.mp4"]
+  },
+  "vars": {
+    "SUPABASE_URL": "https://oykwxnzlpxbrfcoejawt.supabase.co"
   }
 }

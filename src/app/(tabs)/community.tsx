@@ -8,7 +8,9 @@ import { supabase } from "@/community/client";
 import { createPost, deletePost, explainCommunityError, hidePost, listPosts, sendReport, toggleLike, uploadCommunityImage } from "@/community/live";
 import { pickCommunityPhoto } from "@/community/photo";
 import { MemoryCommunity } from "@/community/memory";
-import type { CommunityPost } from "@/community/types";
+import type { CommunityPost, CommunityProfile } from "@/community/types";
+import { CommunityAvatar } from "@/components/CommunityAvatar";
+import { ProfileSheet } from "@/components/ProfileSheet";
 import { TappablePhoto } from "@/components/TappablePhoto";
 import { CrystalMark } from "@/components/CrystalMark";
 import { Glass } from "@/components/Glass";
@@ -28,6 +30,7 @@ export default function CommunityScreen() {
   const [photoName, setPhotoName] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<{ file: Blob; extension: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const [offline, setOffline] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -139,13 +142,13 @@ export default function CommunityScreen() {
           </View>
           {posts.map((post) => (
             <Glass key={post.id} style={styles.card}>
-              <View style={styles.person}>
-                <View style={styles.avatar}><T variant="meta" color={colors.ivory}>{initials(post.author.displayName)}</T></View>
+              <Pressable accessibilityRole="button" accessibilityLabel={`Profile of ${post.author.displayName}`} onPress={() => setProfile(post.author)} style={styles.person}>
+                <CommunityAvatar name={post.author.displayName} url={post.author.avatarUrl} />
                 <View style={styles.copy}>
                   <T variant="rowTitle">{post.author.displayName}</T>
                   <T variant="meta">{[post.author.title, post.author.company].filter(Boolean).join(" · ")}</T>
                 </View>
-              </View>
+              </Pressable>
               <T variant="small">{post.body}</T>
               {post.photoUrl && post.photoUrl !== "preview" ? (
                 <TappablePhoto source={post.photoUrl} alt={`Photo from ${post.author.displayName}`} style={styles.photo} />
@@ -176,12 +179,9 @@ export default function CommunityScreen() {
           ))}
         </>
       )}
+      <ProfileSheet profile={profile} onClose={() => setProfile(null)} />
     </Screen>
   );
-}
-
-function initials(name: string): string {
-  return name.split(" ").slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase();
 }
 
 const styles = StyleSheet.create({
@@ -193,9 +193,8 @@ const styles = StyleSheet.create({
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
   photo: { width: "100%", height: 180, borderRadius: 14, backgroundColor: colors.muted },
   card: { marginHorizontal: 22, marginBottom: 18, gap: 6 },
-  person: { flexDirection: "row", gap: 10, alignItems: "center" },
+  person: { flexDirection: "row", gap: 10, alignItems: "center", minHeight: 44 },
   copy: { flex: 1, gap: 2 },
-  avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.turquoise, alignItems: "center", justifyContent: "center" },
   pill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8, minHeight: 44 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.ivory },
 });

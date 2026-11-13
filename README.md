@@ -60,6 +60,17 @@ npm run deploy
 
 `build:web` is the web export plus the PWA tags. `deploy` runs that build, then `wrangler deploy`. The machine that deploys needs `npx wrangler login`. This repo has no Cloudflare token, and a checkout does not publish the site.
 
+`POST /api/quick-signin` signs in an allowlisted email with no code. The list and the Supabase service role stay on the worker. Set them with wrangler, for project ref `oykwxnzlpxbrfcoejawt`:
+
+```bash
+npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+npx wrangler secret put QUICK_SIGNIN_EMAILS
+```
+
+`QUICK_SIGNIN_EMAILS` is a comma-separated list, compared after trim and lowercasing. Jay named `sansara13@gmail.com` and `jamerosg@gmail.com`. `SUPABASE_URL` is the public project URL already in `wrangler.jsonc`. Anyone who types an allowlisted address receives that account’s session. Every other address still gets the email code.
+
+Chat profiles add `bio` and `link` on `community_profiles` and reuse the `community-media` bucket. Apply `supabase/migrations/20261113_community_profile_bio.sql` in the SQL editor after `supabase/community.sql`. This repo does not apply it.
+
 The manifest `id`, `start_url`, and `scope` are `https://tatel.app/`. Icon and service-worker paths stay root-relative, so they resolve on that origin.
 
 Attach the apex after the first deploy. The zone `tatel.app` is already on the account:

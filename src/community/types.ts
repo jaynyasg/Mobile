@@ -6,6 +6,8 @@ export interface CommunityProfile {
   avatarUrl: string | null;
   title: string | null;
   company: string | null;
+  bio: string | null;
+  link: string | null;
   staff: boolean;
 }
 

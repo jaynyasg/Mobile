@@ -11,6 +11,7 @@ interface AuthValue {
   preview: boolean;
   sendCode: (email: string) => Promise<void>;
   verifyCode: (email: string, code: string) => Promise<void>;
+  quickSignIn: (email: string) => Promise<"session" | "code">;
   signOut: () => Promise<void>;
 }
 
@@ -61,6 +62,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       verifyCode: async (email, code) => {
         const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: "email" });
         if (error) throw error;
+      },
+      quickSignIn: async (email) => {
+        const response = await fetch("/api/quick-signin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        });
+        if (response.status === 403) return "code";
+        if (response.status === 429) throw new Error("Slow down for a minute, then try again.");
+        if (!response.ok) throw new Error("Sign-in is unavailable.");
+        const body = (await response.json()) as { access_token?: string; refresh_token?: string };
+        if (!body.access_token || !body.refresh_token) throw new Error("Sign-in is unavailable.");
+        const { error } = await supabase.auth.setSession({ access_token: body.access_token, refresh_token: body.refresh_token });
+        if (error) throw error;
+        return "session";
       },
       signOut: async () => {
         if (preview) return;
