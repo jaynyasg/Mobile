@@ -12,7 +12,7 @@ import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { TappablePhoto } from "@/components/TappablePhoto";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
-import { portraits } from "@/images";
+import { portraitFor } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
 import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
@@ -102,7 +102,7 @@ export default function SessionScreen() {
           <PersonRow
             key={person.id}
             name={person.name}
-            photo={person.photo ? portraits[person.photo] : undefined}
+            photo={portraitFor(person.photo)}
             meta={`${role ?? ""}\n${person.title} · ${person.company}`}
             href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
           />

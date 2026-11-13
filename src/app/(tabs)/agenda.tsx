@@ -10,7 +10,6 @@ import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { SessionRow } from "@/components/SessionRow";
 import { T } from "@/components/Text";
-import { TopicChip } from "@/components/TopicChip";
 import { Chip, EmptyState } from "@/components/ui";
 import { filterAgenda } from "@/logic/agenda";
 import { suggestedDayId } from "@/logic/phase";
@@ -103,7 +102,7 @@ export default function AgendaScreen() {
                 key={pillar.id}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
-                accessibilityLabel={selected ? `Clear ${pillar.island}` : `Show sessions on ${pillar.island}`}
+                accessibilityLabel={selected ? `Clear ${pillar.island}` : `Show sessions on ${pillar.island}, ${pillar.name}`}
                 onPress={() => setIsland(selected ? "all" : pillar.island)}
                 style={[styles.islandCard, selected && styles.islandOn]}
               >
@@ -111,8 +110,7 @@ export default function AgendaScreen() {
                   <Image source={{ uri: sceneForIsland(pillar.island) }} style={styles.islandPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 </View>
                 <View style={styles.islandCopy}>
-                  <TopicChip id={pillar.id} name={pillar.name} />
-                  <T variant="rowTitle" numberOfLines={1}>{pillar.island}</T>
+                  <T variant="rowTitle" numberOfLines={2}>{pillar.island} · {pillar.name}</T>
                 </View>
               </Pressable>
             );

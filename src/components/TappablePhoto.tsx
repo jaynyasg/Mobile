@@ -59,7 +59,7 @@ export function TappablePhoto({
     >
       <Image
         source={resolved}
-        style={StyleSheet.absoluteFill}
+        style={styles.image}
         resizeMode={resizeMode}
         accessible={false}
         accessibilityIgnoresInvertColors
@@ -71,4 +71,5 @@ export function TappablePhoto({
 
 const styles = StyleSheet.create({
   clip: { overflow: "hidden" },
+  image: { width: "100%", height: "100%" },
 });

@@ -5,11 +5,11 @@ import { displayCopy } from "@/content/display";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { TappablePhoto } from "@/components/TappablePhoto";
-import { portraits } from "@/images";
+import { Portrait } from "@/components/Portrait";
+import { portraitFor } from "@/images";
 import { formatRange } from "@/logic/time";
 import { useContent } from "@/content/provider";
-import { colors, pad } from "@/theme";
+import { colors } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
 
 export default function PanelistScreen() {
@@ -30,9 +30,9 @@ export default function PanelistScreen() {
   return (
     <Screen edge="none">
       <StackHeader title={person.name} />
-      {person.photo && portraits[person.photo] ? (
-        <TappablePhoto source={portraits[person.photo]} alt={person.name} style={styles.portrait} resizeMode="contain" />
-      ) : null}
+      <View style={styles.portrait}>
+        <Portrait name={person.name} source={portraitFor(person.photo)} size={220} />
+      </View>
       <View style={styles.pad}>
         <T variant="eyebrow">{person.company}</T>
         <T variant="title">{person.name}</T>
@@ -72,7 +72,7 @@ export default function PanelistScreen() {
 }
 
 const styles = StyleSheet.create({
-  portrait: { height: 280, backgroundColor: colors.muted, marginHorizontal: pad },
+  portrait: { alignItems: "center", paddingTop: 18, paddingBottom: 8 },
   pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
   section: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 14, ...nightGlass },
   session: {

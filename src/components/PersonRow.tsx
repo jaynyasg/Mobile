@@ -3,8 +3,8 @@ import { Pressable, StyleSheet, View } from "react-native";
 import type { ImageSourcePropType } from "react-native";
 import { colors } from "@/theme";
 import { Icon } from "./Icon";
+import { Portrait } from "./Portrait";
 import { T } from "./Text";
-import { TappablePhoto } from "./TappablePhoto";
 
 export function PersonRow({
   name,
@@ -19,12 +19,12 @@ export function PersonRow({
 }) {
   return (
     <View style={styles.row}>
-      {photo ? <TappablePhoto source={photo} alt={name} style={styles.photo} resizeMode="contain" /> : null}
+      <Portrait name={name} source={photo} size={64} />
       <Link href={href} asChild>
         <Pressable accessibilityRole="button" accessibilityLabel={name} style={({ pressed }) => [styles.main, pressed && styles.pressed]}>
           <View style={styles.copy}>
-            <T variant="rowTitle">{name}</T>
-            <T variant="meta">{meta}</T>
+            <T variant="rowTitle" numberOfLines={1}>{name}</T>
+            <T variant="meta" numberOfLines={2}>{meta}</T>
           </View>
           <Icon name="chevron" size={18} color={colors.gold} />
         </Pressable>
@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,224,138,0.48)",
     backgroundColor: "rgba(7,27,42,0.58)",
   },
-  photo: { width: 52, height: 64, backgroundColor: "rgba(7,27,42,0.5)" },
   main: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
   copy: { flex: 1, gap: 2 },
   pressed: { opacity: 0.72 },

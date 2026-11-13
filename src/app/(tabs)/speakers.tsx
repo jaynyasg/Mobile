@@ -5,7 +5,7 @@ import { PersonRow } from "@/components/PersonRow";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { EmptyState, PageHeader } from "@/components/ui";
-import { portraits } from "@/images";
+import { portraitFor } from "@/images";
 import { searchPanelists } from "@/logic/directory";
 import { backgrounds } from "@/components/backgrounds";
 import { pad } from "@/theme";
@@ -22,7 +22,7 @@ export default function PanelistsScreen() {
       <PageHeader
         kicker={`${panelists.length} panelists`}
         title="Panelists"
-        subtitle="Names, companies, and titles come from the website roster. A portrait appears when its file is already in the app."
+        subtitle="Names, companies, and titles come from the website roster."
       />
       <View style={{ paddingHorizontal: pad, paddingBottom: 8 }}>
         <SearchField value={query} onChange={setQuery} placeholder="Name, company, or title" />
@@ -36,7 +36,7 @@ export default function PanelistsScreen() {
             <PersonRow
               key={person.id}
               name={person.name}
-              photo={person.photo ? portraits[person.photo] : undefined}
+              photo={portraitFor(person.photo)}
               meta={`${person.title} · ${person.company}\n${pillar?.name || "Topic to be announced"} · ${person.proposedIsland || "Location TBC"}`}
               href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
             />
