@@ -26,3 +26,5 @@ create policy attendee_intake_update on public.attendee_intake
 for update to authenticated
 using (user_id = auth.uid())
 with check (user_id = auth.uid());
+
+grant select, insert, update on public.attendee_intake to authenticated;

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { dockClearance } from "@/components/Dock";
 import { BeaconBackground } from "@/components/BeaconBackground";
+import { nightGlass } from "@/components/nightGlass";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
 import { FeedCard } from "@/components/FeedCard";
 import { InstallHint } from "@/components/InstallHint";
@@ -123,21 +124,23 @@ export default function HomeScreen() {
           <>
             <View style={styles.guideHead}>
               <T variant="headline" color={colors.foam}>Your path</T>
-              <Pressable accessibilityRole="button" accessibilityLabel="What is TATEL" onPress={openStory} style={styles.what}>
-                <T variant="button" color={colors.gold}>What is TATEL</T>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Retake questions" onPress={() => setAsking(true)} style={styles.retake}>
-                <T variant="button" color={colors.foam}>Retake questions</T>
-              </Pressable>
+              <View style={styles.pills}>
+                <Pressable accessibilityRole="button" accessibilityLabel="What is TATEL" onPress={openStory} style={styles.what}>
+                  <T variant="button" color={colors.gold}>What is TATEL</T>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel="Retake questions" onPress={() => setAsking(true)} style={styles.retake}>
+                  <T variant="button" color={colors.foam}>Retake questions</T>
+                </Pressable>
+              </View>
             </View>
             {steps.map((step, index) => (
               <Pressable key={step.id} accessibilityRole="button" accessibilityLabel={step.title} onPress={() => openStep(step)} style={styles.path}>
                 <Image source={{ uri: stepPhoto[step.id] }} style={styles.pathPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 <View style={styles.pathShade} />
                 <View style={styles.pathCopy}>
-                  <T variant="meta" color={colors.gold}>{step.optional ? "Optional" : `Step ${index + 1}`}</T>
-                  <T variant="rowTitle" color={colors.foam} numberOfLines={2}>{step.title}</T>
-                  <T variant="meta" color={colors.foam} numberOfLines={2}>{step.line}</T>
+                  <T variant="meta" color={colors.gold} style={styles.stepLabel}>{step.optional ? "Optional" : `Step ${index + 1}`}</T>
+                  <T variant="rowTitle" color={colors.foam} numberOfLines={1} style={styles.stepTitle}>{step.title}</T>
+                  <T variant="meta" color={colors.foam} numberOfLines={1} style={styles.stepLine}>{step.line}</T>
                 </View>
                 {step.done ? <View style={styles.check}><T variant="button" color={colors.ink}>✓</T></View> : null}
               </Pressable>
@@ -198,24 +201,35 @@ const styles = StyleSheet.create({
   switch: { flexDirection: "row", alignSelf: "center", marginBottom: 8, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
-  guideHead: { marginHorizontal: 16, marginBottom: 8, gap: 10 },
+  guideHead: { marginHorizontal: 16, marginBottom: 6, gap: 6 },
+  pills: { flexDirection: "row", gap: 8 },
   what: {
-    alignSelf: "stretch",
-    minHeight: 48,
-    paddingHorizontal: 18,
+    minHeight: 44,
+    paddingHorizontal: 14,
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: colors.gold,
-    backgroundColor: "rgba(7,27,42,0.72)",
+    backgroundColor: "rgba(7,27,42,0.82)",
   },
-  retake: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", paddingHorizontal: 4 },
-  path: { height: 148, marginHorizontal: 12, marginBottom: 12, borderRadius: 18, overflow: "hidden", justifyContent: "flex-end" },
+  retake: {
+    ...nightGlass,
+    minHeight: 44,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(7,27,42,0.88)",
+  },
+  path: { height: 64, marginHorizontal: 12, marginBottom: 6, borderRadius: 14, overflow: "hidden", justifyContent: "center" },
   pathPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  pathShade: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.45)" },
-  pathCopy: { zIndex: 1, padding: 14, gap: 2 },
-  check: { position: "absolute", top: 12, right: 12, zIndex: 2, width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
+  pathShade: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.62)" },
+  pathCopy: { zIndex: 1, paddingHorizontal: 12, paddingVertical: 6, gap: 0 },
+  stepLabel: { fontSize: 11, lineHeight: 14 },
+  stepTitle: { fontSize: 16, lineHeight: 20 },
+  stepLine: { fontSize: 12, lineHeight: 16 },
+  check: { position: "absolute", top: 16, right: 10, zIndex: 2, width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   next: {
     marginHorizontal: 16,
     marginBottom: 14,
