@@ -5,7 +5,11 @@ import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
+import { useAuth } from "@/community/auth";
+import { ContactToggles } from "@/components/ContactPrefsCard";
 import { requestIntake } from "@/logic/intake";
+import { defaultContactPrefs, readContactPrefs, writeContactPrefs, type ContactPrefs } from "@/logic/contactPrefs";
+import { saveContactPrefsRemote } from "@/logic/contactPrefsSync";
 import { webStorage } from "@/welcome";
 import { useReels } from "@/reels/ReelHost";
 import { useApp } from "@/store";
@@ -15,9 +19,21 @@ import { nightGlass } from "@/components/nightGlass";
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
   const { replayIntro, openStory } = useReels();
+  const { userId, preview } = useAuth();
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [cleared, setCleared] = useState(false);
+  const [prefs, setPrefs] = useState<ContactPrefs>(() => readContactPrefs(webStorage()) ?? defaultContactPrefs());
+  const [prefsSaved, setPrefsSaved] = useState(false);
+
+  function saveNotifications(next: ContactPrefs) {
+    const existing = readContactPrefs(webStorage());
+    const record = { ...next, phone: existing?.phone ?? null, userId: userId ?? existing?.userId ?? null, saved: true };
+    writeContactPrefs(webStorage(), record);
+    setPrefs(record);
+    setPrefsSaved(true);
+    if (userId && !preview) void saveContactPrefsRemote(userId, record);
+  }
 
   function erase() {
     dispatch({ type: "deleteAllData" });
@@ -52,6 +68,11 @@ export default function SettingsScreen() {
         ) : (
           <PrimaryButton label="Opt in on this device" onPress={() => dispatch({ type: "setNetworkingOptIn", value: true })} />
         )}
+        <T variant="eyebrow">Notifications</T>
+        <T variant="small">These stay off until you turn them on. Saving keeps the choice on this device.</T>
+        <ContactToggles prefs={prefs} onChange={setPrefs} />
+        <PrimaryButton label="Save notifications" onPress={() => saveNotifications(prefs)} />
+        {prefsSaved ? <T variant="meta">Notification choices saved.</T> : null}
         <T variant="eyebrow">Intro</T>
         <T variant="small">Play the opening film again.</T>
         <SecondaryButton label="Replay intro" onPress={replayIntro} />

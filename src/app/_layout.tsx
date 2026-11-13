@@ -10,6 +10,7 @@ import { ContentProvider } from "@/content/provider";
 import { ImageViewerProvider } from "@/components/ImageViewer";
 import { listenForInstallPrompt } from "@/components/installPrompt";
 import { RegisterPwa } from "@/components/RegisterPwa";
+import { ContactPrompt } from "@/components/ContactPrompt";
 import { Dock } from "@/components/Dock";
 import { ReelHost } from "@/reels/ReelHost";
 import { AppProvider, useApp } from "@/store";
@@ -47,6 +48,7 @@ export default function RootLayout() {
                 }}
               />
               <Dock />
+              <ContactPrompt />
               <RegisterPwa />
             </ReelHost>
           </Frame>
