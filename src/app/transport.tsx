@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Linking, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
 import { Link } from "expo-router";
 import { credits, sessionById } from "@/content";
 import { useContent } from "@/content/provider";
@@ -23,6 +23,8 @@ import {
 } from "@/logic/transportPlan";
 import { colors } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
+import { CustomRoute } from "@/components/CustomRoute";
+import { sceneForIsland } from "@/theme";
 
 const MAP_HEIGHT: Record<string, number> = {
   "ferry-2027-01-26.png": 1662,
@@ -48,6 +50,7 @@ export default function TransportScreen() {
   const [selected, setSelected] = useState<string | null>(null);
   const [about, setAbout] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
+  const [view, setView] = useState<"sample" | "mine">("sample");
   const mode = transport.modes.find((item) => item.id === modeId) ?? transport.modes[0];
   const day = mode.days.find((item) => item.date === date) ?? mode.days[0];
   const dayMeta = forum.days.find((item) => item.id === day.date);
@@ -74,7 +77,15 @@ export default function TransportScreen() {
   return (
     <Screen edge="none" scroll={false}>
       <View style={styles.column}>
-        <StackHeader title="Sample transport" />
+        <StackHeader title="Transport" />
+        <View style={styles.choices}>
+          <ChoiceTile label="Sample routes" image={sceneForIsland("St. Thomas")} selected={view === "sample"} onPress={() => setView("sample")} />
+          <ChoiceTile label="Build my route" image={sceneForIsland("Jost Van Dyke")} selected={view === "mine"} onPress={() => setView("mine")} />
+        </View>
+        {view === "mine" ? (
+          <CustomRoute sessions={program.sessions} days={forum.days} modes={transport.modes} timeZone={forum.timezone} />
+        ) : (
+        <View style={styles.sample}>
         <View style={styles.sticky}>
           <View style={styles.segment}>
             {transport.modes.map((item) => {
@@ -190,6 +201,8 @@ export default function TransportScreen() {
             </View>
           ) : null}
         </ScrollView>
+        </View>
+        )}
         {creditsOpen ? (
           <View style={styles.sheetWrap}>
             <Pressable accessibilityRole="button" accessibilityLabel="Close map credits" onPress={() => setCreditsOpen(false)} style={styles.sheetBackdrop} />
@@ -208,6 +221,16 @@ export default function TransportScreen() {
         ) : null}
       </View>
     </Screen>
+  );
+}
+
+function ChoiceTile({ label, image, selected, onPress }: { label: string; image: string; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[styles.choice, selected && styles.choiceOn]}>
+      <Image source={{ uri: image }} style={styles.choicePhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
+      <View style={styles.choiceShade} />
+      <T variant="small" color={colors.foam} style={styles.choiceLabel}>{label}</T>
+    </Pressable>
   );
 }
 
@@ -269,6 +292,20 @@ function StopCard({
 
 const styles = StyleSheet.create({
   column: { flex: 1 },
+  sample: { flex: 1 },
+  choices: { flexDirection: "row", gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
+  choice: { flex: 1, height: 108, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  choiceOn: { borderColor: colors.gold },
+  choicePhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  choiceShade: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 64,
+    ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.92), rgba(6,14,24,0))" } as ViewStyle),
+  },
+  choiceLabel: { paddingHorizontal: 10, paddingBottom: 10 },
   fill: { flex: 1 },
   sticky: { paddingHorizontal: 12, paddingBottom: 8, gap: 8 },
   segment: { flexDirection: "row", gap: 4, padding: 4, borderRadius: 16, ...nightGlass },
