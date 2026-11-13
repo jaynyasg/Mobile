@@ -8,10 +8,8 @@ import {
   emailOtpRequest,
   emailVerifyRequest,
   isSixDigitCode,
-  isSmsUnavailable,
-  phoneOtpRequest,
   phoneUpdateAfterEmail,
-  phoneVerifyRequest,
+  shouldFallBackFromText,
   signInFields,
   startEmailSignIn,
   startPhoneSignIn,
@@ -81,37 +79,50 @@ describe("sign-in phone and code", () => {
     expect(calls).toContain("ada@example.com");
   });
 
-  it("offers email when the SMS provider is missing", async () => {
-    expect(isSmsUnavailable(new Error("Unsupported phone provider"))).toBe(true);
-    expect(isSmsUnavailable(new Error("SMS not configured"))).toBe(true);
-    expect(isSmsUnavailable(new Error("Invalid login"))).toBe(false);
+  it("offers email when Firebase phone auth fails", async () => {
+    expect(shouldFallBackFromText({ code: "auth/billing-not-enabled" })).toBe(true);
+    expect(shouldFallBackFromText({ code: "auth/unauthorized-domain" })).toBe(true);
+    expect(shouldFallBackFromText({ code: "auth/quota-exceeded" })).toBe(true);
+    expect(shouldFallBackFromText({ code: "auth/invalid-verification-code" })).toBe(false);
     const missing = await startPhoneSignIn(
       {
         sendPhoneCode: async () => {
-          throw new Error("Unsupported phone provider");
+          throw Object.assign(new Error("billing"), { code: "auth/billing-not-enabled" });
         },
       },
       "+13405550100",
     );
     expect(missing).toBe("sms-unavailable");
     expect(SMS_UNAVAILABLE_MESSAGE).toMatch(/email you a code/i);
-    await expect(startPhoneSignIn({ sendPhoneCode: async () => { throw new Error("Invalid phone"); } }, "+13405550100")).rejects.toThrow("Invalid phone");
+    const other = await startPhoneSignIn(
+      { sendPhoneCode: async () => { throw new Error("Invalid phone"); } },
+      "+13405550100",
+    );
+    expect(other).toBe("sms-unavailable");
   });
 
-  it("uses email and sms otp payloads and stores the phone without updateUser", () => {
+  it("uses the email code and Firebase for text, and stores the phone without updateUser", () => {
     expect(emailOtpRequest(" Ada@Example.com ")).toEqual({ email: "ada@example.com" });
     expect(emailVerifyRequest("ada@example.com", " 123456 ")).toEqual({ email: "ada@example.com", token: "123456", type: "email" });
-    expect(phoneOtpRequest("+13405550100")).toEqual({ phone: "+13405550100" });
-    expect(phoneVerifyRequest("+13405550100", "123456")).toEqual({ phone: "+13405550100", token: "123456", type: "sms" });
     expect(phoneUpdateAfterEmail()).toBe("contact_prefs");
     const auth = readFileSync("src/community/auth.tsx", "utf8");
     const screen = readFileSync("src/app/community-sign-in.tsx", "utf8");
+    const phone = readFileSync("src/community/firebasePhone.ts", "utf8");
+    const config = readFileSync("src/community/firebaseConfig.ts", "utf8");
     expect(auth).not.toContain("updateUser");
     expect(screen).not.toContain("updateUser");
+    expect(auth).not.toMatch(/from ["']firebase\//);
+    expect(screen).not.toMatch(/from ["']firebase\//);
     expect(auth).toContain("signInWithOtp(emailOtpRequest(email))");
     expect(auth).toContain("verifyOtp(emailVerifyRequest(email, code))");
-    expect(auth).toContain("signInWithOtp(phoneOtpRequest(phone))");
-    expect(auth).toContain("verifyOtp(phoneVerifyRequest(phone, code))");
+    expect(auth).toContain('import("@/community/firebasePhone")');
+    expect(auth).toContain('"/api/phone-signin"');
+    expect(phone).toContain('from "firebase/auth"');
+    expect(phone).toContain("signInWithPhoneNumber");
+    expect(phone).toContain('size: "invisible"');
+    expect(config).toContain("AIzaSyC8K49hGwU_UjiSqccWa9bwr1jcjW3b5d0");
+    expect(config).toContain("tatelapp.firebaseapp.com");
+    expect(config).toContain('process.env.EXPO_PUBLIC_FIREBASE_API_KEY');
     const store = memory();
     const first = rememberSignInPhone(store, "user-1", "+13405550100");
     expect(first).toMatchObject({ phone: "+13405550100", alerts: false, marketing: false, saved: false });

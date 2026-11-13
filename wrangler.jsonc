@@ -7,7 +7,7 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    // MP4s need range responses. /api/* is the program proxy and quick sign-in.
+    // MP4s need range responses. /api/* is the program proxy, quick sign-in, and phone sign-in.
     "run_worker_first": ["/api/*", "/*.mp4"]
   },
   "vars": {

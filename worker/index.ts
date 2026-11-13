@@ -1,3 +1,4 @@
+import { phoneSignIn } from "./phoneSignin";
 import { quickSignIn, type QuickSignInEnv } from "./quickSignin";
 import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
@@ -40,6 +41,10 @@ export default {
     if (url.pathname === "/api/quick-signin") {
       const deps = programDeps(third);
       return quickSignIn(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
+    }
+    if (url.pathname === "/api/phone-signin") {
+      const deps = programDeps(third);
+      return phoneSignIn(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
     }
     if (!url.pathname.toLowerCase().endsWith(".mp4")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") {

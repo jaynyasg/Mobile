@@ -16,6 +16,7 @@ import {
   SMS_UNAVAILABLE_MESSAGE,
   errorText,
   isSixDigitCode,
+  shouldFallBackFromText,
   signInFields,
   startEmailSignIn,
   startPhoneSignIn,
@@ -112,10 +113,15 @@ export default function SignInScreen() {
     setBusy(true);
     setError(null);
     try {
-      if (channel === "sms") await auth.verifyPhoneCode(fields.phone, code);
+      if (channel === "sms") await auth.verifyPhoneCode(fields.email, code);
       else await auth.verifyCode(fields.email, code);
       await finish(fields.phone);
     } catch (cause) {
+      if (channel === "sms" && shouldFallBackFromText(cause)) {
+        setStep("form");
+        setError(SMS_UNAVAILABLE_MESSAGE);
+        return;
+      }
       setError(errorText(cause) || "That code was not accepted");
     } finally {
       setBusy(false);

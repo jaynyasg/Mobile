@@ -1,0 +1,6 @@
+project_id = "oykwxnzlpxbrfcoejawt"
+
+# The worker calls this with a Firebase ID token, not a Supabase user JWT.
+# Deploy it with JWT verification off, the same way as tatel-quick-signin.
+[functions.tatel-phone-signin]
+verify_jwt = false

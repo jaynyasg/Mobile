@@ -1,12 +1,39 @@
 import { countryById, toE164 } from "./phone";
 
 /**
- * Text codes stay off until Auth has an SMS provider.
+ * Text codes stay off until Firebase Phone Auth is configured.
  * Set EXPO_PUBLIC_SMS_ENABLED=1 and rebuild to show "Text me a code".
  */
 export const SMS_ENABLED = process.env.EXPO_PUBLIC_SMS_ENABLED === "1";
 
-export const SMS_UNAVAILABLE_MESSAGE = "Text codes are not available yet. We can email you a code instead.";
+export const SMS_UNAVAILABLE_MESSAGE = "Text codes are not available right now. We can email you a code instead.";
+
+const TEXT_CODE_ERRORS = new Set([
+  "auth/invalid-verification-code",
+  "auth/missing-verification-code",
+  "auth/code-expired",
+  "auth/invalid-verification-id",
+]);
+
+export class PhoneSignInError extends Error {
+  readonly fallback: boolean;
+
+  constructor(message: string, fallback: boolean) {
+    super(message);
+    this.name = "PhoneSignInError";
+    this.fallback = fallback;
+  }
+}
+
+export function shouldFallBackFromText(error: unknown): boolean {
+  if (error instanceof PhoneSignInError) return error.fallback;
+  if (error instanceof Error && error.name === "PhoneSignInError" && "fallback" in error) {
+    return (error as PhoneSignInError).fallback;
+  }
+  const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "";
+  if (TEXT_CODE_ERRORS.has(code)) return false;
+  return true;
+}
 
 export type SignInChannel = "email" | "sms";
 
@@ -32,25 +59,12 @@ export function errorText(error: unknown): string {
   return "";
 }
 
-export function isSmsUnavailable(error: unknown): boolean {
-  const message = errorText(error).toLowerCase();
-  return message.includes("unsupported phone provider") || message.includes("sms not configured") || message.includes("sms provider");
-}
-
 export function emailOtpRequest(email: string): { email: string } {
   return { email: email.trim().toLowerCase() };
 }
 
 export function emailVerifyRequest(email: string, token: string): { email: string; token: string; type: "email" } {
   return { email: email.trim().toLowerCase(), token: token.trim(), type: "email" };
-}
-
-export function phoneOtpRequest(phone: string): { phone: string } {
-  return { phone };
-}
-
-export function phoneVerifyRequest(phone: string, token: string): { phone: string; token: string; type: "sms" } {
-  return { phone, token: token.trim(), type: "sms" };
 }
 
 /**
@@ -81,8 +95,7 @@ export async function startPhoneSignIn(
   try {
     await deps.sendPhoneCode(phone);
     return "code";
-  } catch (error) {
-    if (isSmsUnavailable(error)) return "sms-unavailable";
-    throw error;
+  } catch {
+    return "sms-unavailable";
   }
 }
