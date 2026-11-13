@@ -18,11 +18,15 @@ import {
   sessionReelStore,
   type ReelStore,
 } from "./gate";
+import { playReelNow, reelPlaybackSrc } from "./playback";
 
 interface PendingReel {
   id: ReelId;
   mode: "video" | "poster";
   href?: Href;
+  src: string;
+  /** play() started inside the tap, when there was one. */
+  play?: Promise<void>;
 }
 
 interface ReelApi {
@@ -69,7 +73,9 @@ export function ReelHost({ children }: { children: ReactNode }) {
   useEffect(() => {
     const mode = playbackMode(false);
     if (mode === "skip") return;
-    setPending({ id: "intro", mode });
+    const src = reelPlaybackSrc("intro");
+    const play = mode === "video" ? playReelNow(src) : undefined;
+    setPending({ id: "intro", mode, src, play });
   }, []);
 
   const bumpZone = useCallback((zoneId: string | undefined) => {
@@ -80,8 +86,10 @@ export function ReelHost({ children }: { children: ReactNode }) {
   }, []);
 
   const replayIntro = useCallback(() => {
-    const mode = playbackMode(true);
-    setPending({ id: "intro", mode: mode === "skip" ? "poster" : mode });
+    const mode = playbackMode(true) === "poster" ? "poster" : "video";
+    const src = reelPlaybackSrc("intro");
+    const play = mode === "video" ? playReelNow(src) : undefined;
+    setPending({ id: "intro", mode, src, play });
   }, []);
 
   const markZone = useCallback((zoneId: string) => {
@@ -95,8 +103,10 @@ export function ReelHost({ children }: { children: ReactNode }) {
       router.navigate(href);
       return;
     }
-    const mode = playbackMode(true);
-    setPending({ id, mode: mode === "skip" ? "video" : mode, href });
+    const mode = playbackMode(true) === "poster" ? "poster" : "video";
+    const src = reelPlaybackSrc(id);
+    const play = mode === "video" ? playReelNow(src) : undefined;
+    setPending({ id, mode, href, src, play });
   }, [bumpZone, router]);
 
   const zoneExplored = useCallback((zoneId: string) => isExplored(localReelStore(), zoneId), []);
@@ -132,7 +142,16 @@ export function ReelHost({ children }: { children: ReactNode }) {
     <ReelContext.Provider value={value}>
       <View style={{ flex: 1 }}>
         {children}
-        {pending ? <ReelPlayer reel={reels[pending.id]} mode={pending.mode} onDone={complete} /> : null}
+        {pending ? (
+          <ReelPlayer
+            key={`${pending.id}:${pending.src}`}
+            reel={reels[pending.id]}
+            mode={pending.mode}
+            src={pending.src}
+            play={pending.play}
+            onDone={complete}
+          />
+        ) : null}
       </View>
     </ReelContext.Provider>
   );

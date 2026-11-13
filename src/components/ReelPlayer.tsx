@@ -1,9 +1,10 @@
-import { createElement, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, showIntroTitle, type Reel } from "@/content/reels";
 import { colors } from "@/theme";
+import { armReel, hideReelVideo, reelVideoElement } from "@/reels/playback";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
 
@@ -12,17 +13,23 @@ export type ReelExit = "skip" | "enter" | "end";
 export function ReelPlayer({
   reel,
   mode,
+  src,
+  play,
   onDone,
 }: {
   reel: Reel;
   mode: "video" | "poster";
+  src: string;
+  play?: Promise<void>;
   onDone: (reason: ReelExit) => void;
 }) {
   const insets = useSafeAreaInsets();
   const [live, setLive] = useState(true);
   const [poster, setPoster] = useState(reel.poster);
-  const [src, setSrc] = useState(reel.mp4);
-  const [showVideo, setShowVideo] = useState(mode === "video" && Platform.OS === "web");
+  const [currentSrc, setCurrentSrc] = useState(src);
+  const [showVideo] = useState(mode === "video" && Platform.OS === "web");
+  const [blocked, setBlocked] = useState(false);
+  const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const onDoneRef = useRef(onDone);
@@ -32,12 +39,50 @@ export function ReelPlayer({
   function finish(reason: ReelExit) {
     if (finished.current) return;
     finished.current = true;
+    hideReelVideo();
     setLive(false);
     setTimeout(() => onDoneRef.current(reason), 280);
   }
 
   useEffect(() => {
     if (!showVideo) return;
+    const video = reelVideoElement();
+    if (!video) return;
+    let cancelled = false;
+    const onError = () => {
+      if (cancelled) return;
+      if (!video.src.endsWith(REEL_FALLBACK_MP4)) {
+        setPoster(REEL_FALLBACK_POSTER);
+        setCurrentSrc(REEL_FALLBACK_MP4);
+        return;
+      }
+      setBlocked(true);
+    };
+    const opened = Date.now();
+    const sync = () => {
+      if (cancelled) return;
+      if (!video.paused) {
+        setBlocked(false);
+        setPlaying(true);
+        return;
+      }
+      if (Date.now() - opened > 500) setBlocked(true);
+    };
+    video.addEventListener("error", onError);
+    video.addEventListener("playing", sync);
+    const attempt = currentSrc === src && play ? play : armReel(video, currentSrc);
+    attempt.then(sync).catch(sync);
+    const watch = window.setInterval(sync, 250);
+    return () => {
+      cancelled = true;
+      window.clearInterval(watch);
+      video.removeEventListener("error", onError);
+      video.removeEventListener("playing", sync);
+    };
+  }, [showVideo, play, currentSrc]);
+
+  useEffect(() => {
+    if (!playing) return;
     const started = Date.now();
     const tick = setInterval(() => {
       const elapsedMs = Date.now() - started;
@@ -49,54 +94,55 @@ export function ReelPlayer({
       clearInterval(tick);
       clearTimeout(end);
     };
-  }, [showVideo, reel.durationMs]);
+  }, [playing, reel.durationMs]);
+
+  function retry() {
+    const video = reelVideoElement();
+    if (!video) return;
+    armReel(video, currentSrc).then(() => {
+      if (video.paused) {
+        setBlocked(true);
+        return;
+      }
+      setBlocked(false);
+      setPlaying(true);
+    }).catch(() => {
+      if (video.paused) setBlocked(true);
+      else {
+        setBlocked(false);
+        setPlaying(true);
+      }
+    });
+  }
 
   const sheet = (
     <View
       accessibilityViewIsModal
       style={[styles.overlay, { opacity: live ? 1 : 0 }]}
     >
-      <Image
-        source={{ uri: poster }}
-        onError={() => {
-          if (poster !== REEL_FALLBACK_POSTER) setPoster(REEL_FALLBACK_POSTER);
-        }}
-        style={styles.media}
-        resizeMode="cover"
-        accessibilityIgnoresInvertColors
-      />
-      {showVideo
-        ? createElement(
-            "video",
-            {
-              key: src,
-              autoPlay: true,
-              muted: true,
-              playsInline: true,
-              poster,
-              preload: "metadata",
-              onError: () => {
-                if (src !== REEL_FALLBACK_MP4) setSrc(REEL_FALLBACK_MP4);
-                else setShowVideo(false);
-              },
-              ref: (node: HTMLVideoElement | null) => {
-                if (!node) return;
-                node.muted = true;
-                const attempt = node.play();
-                if (attempt) attempt.catch(() => setShowVideo(false));
-              },
-              style: {
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              },
-            },
-            createElement("source", { src, type: "video/mp4" }),
-          )
-        : null}
+      {!playing ? (
+        <Image
+          source={{ uri: poster }}
+          onError={() => {
+            if (poster !== REEL_FALLBACK_POSTER) setPoster(REEL_FALLBACK_POSTER);
+          }}
+          style={styles.media}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+        />
+      ) : null}
       <View pointerEvents="none" style={styles.shade} />
+      {blocked ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Play"
+          testID="reel-play"
+          onPress={retry}
+          style={styles.play}
+        >
+          <T variant="button" color={colors.ink}>Play</T>
+        </Pressable>
+      ) : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={reel.kind === "intro" ? "Skip intro" : "Skip"}
@@ -123,7 +169,7 @@ export function ReelPlayer({
           </Pressable>
         ) : null}
       </View>
-      {showVideo ? (
+      {playing ? (
         <View pointerEvents="none" style={styles.track}>
           <View style={[styles.bar, { width: `${Math.round(progress * 100)}%` }]} />
         </View>
@@ -144,8 +190,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    zIndex: 120,
-    backgroundColor: "#071421",
+    zIndex: 130,
+    backgroundColor: "transparent",
     ...({ transition: "opacity 280ms ease" } as ViewStyle),
   },
   media: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, width: "100%", height: "100%" },
@@ -156,6 +202,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     ...({ backgroundImage: "linear-gradient(to bottom, rgba(6,14,24,0.2) 18%, rgba(6,14,24,0.78) 100%)" } as ViewStyle),
+  },
+  play: {
+    position: "absolute",
+    top: "42%",
+    left: "50%",
+    zIndex: 3,
+    width: 112,
+    height: 112,
+    marginLeft: -56,
+    borderRadius: 56,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gold,
   },
   skip: {
     position: "absolute",
