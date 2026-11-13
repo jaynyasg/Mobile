@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { captionOverlapsCard, captionTop, firstUnfinished, guideSteps, hasSeenTour, markTourSeen, tourCaption, tourTitle, markGuide, readGuide, stepDone, type GuideStore } from "./path";
+import { captionOverlapsCard, captionTop, consumeWalkthrough, firstUnfinished, guideSteps, hasSeenTour, markTourSeen, requestWalkthrough, tourCaption, tourTitle, TOUR_DWELL_MS, markGuide, readGuide, stepDone, type GuideStore } from "./path";
 
 function memory(): GuideStore & { values: Map<string, string> } {
   const values = new Map<string, string>();
@@ -53,19 +53,30 @@ describe("home guide", () => {
     expect(firstUnfinished([true, true, true])).toBe(0);
   });
 
-  it("names each tutorial frame and remembers that the tour finished", () => {
-    expect(tourCaption(2)).toBe("Step 3 of 8 · Sessions: build your schedule");
+  it("names each walk-through frame and remembers that it finished", () => {
+    expect(tourCaption(1)).toBe("Steps Walk-through · Step 2 of 8 · Interests: pick your infrastructures");
+    expect(tourCaption(2)).toBe("Steps Walk-through · Step 3 of 8 · Sessions: select your session");
+    expect(guideSteps[1]?.headline).toBe("Pick your infrastructures");
+    expect(guideSteps[1]?.line).toContain("tailor your Sessions and route");
+    expect(guideSteps[2]?.headline).toBe("Select Your Session");
     expect(tourTitle(6)).toBe("Passport: get your stamps");
+    expect(TOUR_DWELL_MS).toBeGreaterThanOrEqual(7_000);
     const store = memory();
     expect(hasSeenTour(store)).toBe(false);
     markTourSeen(store);
     expect(hasSeenTour(store)).toBe(true);
+    expect(consumeWalkthrough(store)).toBe(false);
+    requestWalkthrough(store);
+    expect(consumeWalkthrough(store)).toBe(true);
+    expect(consumeWalkthrough(store)).toBe(false);
+    requestWalkthrough(null);
+    expect(consumeWalkthrough(null)).toBe(false);
   });
 
   it("keeps the tour caption off the spotlighted card", () => {
     expect(captionTop(72, 400, 714)).toBe(484);
     expect(captionOverlapsCard(72, 400, 714)).toBe(false);
-    expect(captionTop(280, 400, 714)).toBe(80);
+    expect(captionTop(280, 400, 714)).toBe(48);
     expect(captionOverlapsCard(280, 400, 714)).toBe(false);
   });
 });

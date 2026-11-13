@@ -2,6 +2,7 @@ import { Href, useRouter } from "expo-router";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, View } from "react-native";
 import { ReelPlayer, type ReelExit } from "@/components/ReelPlayer";
+import { TatelExplainer } from "@/components/TatelExplainer";
 import { reels, type Reel, type ReelId } from "@/content/reels";
 import { markGuide } from "@/guide/path";
 import { webTrackStore } from "@/guide/interests";
@@ -32,6 +33,7 @@ interface PendingReel {
 interface ReelApi {
   openChapter: (id: ReelId, href: Href) => void;
   replayIntro: () => void;
+  openStory: () => void;
   markZone: (zoneId: string) => void;
   zoneExplored: (zoneId: string) => boolean;
   exploredVersion: number;
@@ -66,6 +68,7 @@ function playbackMode(ignoreDay = false): "video" | "poster" | "skip" {
 export function ReelHost({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [pending, setPending] = useState<PendingReel | null>(null);
+  const [story, setStory] = useState(false);
   const [exploredVersion, setExploredVersion] = useState(0);
   const [guideTick, setGuideTick] = useState(0);
   const pendingRef = useRef(pending);
@@ -87,6 +90,8 @@ export function ReelHost({ children }: { children: ReactNode }) {
     if (addStamp(localReelStore(), islandStamp(zoneId))) pulse(prefersReducedMotion());
     setExploredVersion((version) => version + 1);
   }, []);
+
+  const openStory = useCallback(() => setStory(true), []);
 
   const replayIntro = useCallback(() => {
     const mode = playbackMode(true) === "poster" ? "poster" : "video";
@@ -120,6 +125,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
       markIntroPlayed(localReelStore());
       markGuide(webTrackStore(), "welcome");
       setGuideTick((tick) => tick + 1);
+      setStory(true);
     } else {
       markChapterSeen(chapterStore(), reel.id);
       bumpZone(reel.zoneId);
@@ -131,12 +137,13 @@ export function ReelHost({ children }: { children: ReactNode }) {
   const value = useMemo<ReelApi>(() => ({
     openChapter,
     replayIntro,
+    openStory,
     markZone,
     zoneExplored,
     exploredVersion,
     guideTick,
-    reelActive: pending !== null,
-  }), [openChapter, replayIntro, markZone, zoneExplored, exploredVersion, guideTick, pending]);
+    reelActive: pending !== null || story,
+  }), [openChapter, replayIntro, openStory, markZone, zoneExplored, exploredVersion, guideTick, pending, story]);
 
   return (
     <ReelContext.Provider value={value}>
@@ -152,6 +159,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
             onDone={(reason) => complete(reason, pending.nonce)}
           />
         ) : null}
+        {story ? <TatelExplainer onClose={() => setStory(false)} /> : null}
       </View>
     </ReelContext.Provider>
   );

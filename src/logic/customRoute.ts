@@ -69,8 +69,9 @@ export function writeRouteMode(store: RouteStore | null, modeId: string): void {
   store?.setItem(ROUTE_MODE_KEY, modeId);
 }
 
-export function routePicker<T extends { dayId: string; island: string }>(sessions: T[], dayId: string, island: string): T[] {
-  return sessions.filter((session) => session.dayId === dayId && (island === "all" || session.island === island));
+export function routePicker<T extends { dayId: string; island: string }>(sessions: T[], dayId: string, island: string | readonly string[]): T[] {
+  const allowed = island === "all" ? null : new Set(typeof island === "string" ? [island] : island);
+  return sessions.filter((session) => session.dayId === dayId && (allowed === null || allowed.has(session.island)));
 }
 
 export interface CreatedRoute {

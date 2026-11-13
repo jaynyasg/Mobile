@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Alert, Platform, StyleSheet, TextInput, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
+import { requestWalkthrough } from "@/guide/path";
+import { webTrackStore } from "@/guide/interests";
 import { useReels } from "@/reels/ReelHost";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
@@ -11,7 +14,8 @@ import { nightGlass } from "@/components/nightGlass";
 
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
-  const { replayIntro } = useReels();
+  const { replayIntro, openStory } = useReels();
+  const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [cleared, setCleared] = useState(false);
 
@@ -51,6 +55,13 @@ export default function SettingsScreen() {
         <T variant="eyebrow">Intro</T>
         <T variant="small">Play the opening film again.</T>
         <SecondaryButton label="Replay intro" onPress={replayIntro} />
+        <SecondaryButton label="What is TATEL" onPress={openStory} />
+        <T variant="eyebrow">Steps Walk-through</T>
+        <T variant="small">Play the eight steps again.</T>
+        <SecondaryButton label="Replay Steps Walk-through" onPress={() => {
+          requestWalkthrough(webTrackStore());
+          router.push("/");
+        }} />
         <T variant="eyebrow">Delete my data</T>
         <T variant="small">
           This removes favorites, local notes, guide history, notification reads, your opt-in, and your profile. The program draft remains.

@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { dockClearance } from "@/components/Dock";
+import { Icon } from "@/components/Icon";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
 import { FeedCard } from "@/components/FeedCard";
@@ -14,7 +15,7 @@ import { Welcome } from "@/components/Welcome";
 import { useContent } from "@/content/provider";
 import { islandTrackLabel } from "@/content/labels";
 import { readTracks, webTrackStore } from "@/guide/interests";
-import { captionOverlapsCard, firstUnfinished, guideSteps, hasSeenTour, markGuide, markTourSeen, readGuide, stepDone, tourCaption, tourTitle, TOUR_BUBBLE } from "@/guide/path";
+import { captionOverlapsCard, consumeWalkthrough, firstUnfinished, guideSteps, hasSeenTour, markGuide, markTourSeen, readGuide, stepDone, tourCaption, tourTitle, TOUR_BUBBLE, TOUR_DWELL_MS, WALKTHROUGH_NAME } from "@/guide/path";
 import { prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { suggestedDayId } from "@/logic/phase";
 import { INTRO_DAY_KEY, isExplored, localReelStore } from "@/reels/gate";
@@ -50,11 +51,12 @@ export default function HomeScreen() {
   const { forum, sessions } = program;
   const { state } = useApp();
   const router = useRouter();
-  const { openChapter, replayIntro, guideTick, reelActive } = useReels();
+  const { openChapter, replayIntro, openStory, guideTick, reelActive } = useReels();
   const scrollRef = useRef<{ scrollTo: (options: { y?: number; animated?: boolean }) => void; getScrollableNode?: () => HTMLElement | null } | null>(null);
   const cardNodes = useRef<Array<HTMLElement | null>>([]);
   const tourBoot = useRef(false);
   const [touring, setTouring] = useState(false);
+  const [tourHold, setTourHold] = useState(false);
   const [tourIndex, setTourIndex] = useState(0);
   const [spot, setSpot] = useState<Spot | null>(null);
   const [mode, setMode] = useState<"you" | "explore">("you");
@@ -84,6 +86,11 @@ export default function HomeScreen() {
 
   useFocusEffect(useCallback(() => {
     refresh();
+    if (consumeWalkthrough(webStorage())) {
+      setMode("you");
+      setTourIndex(0);
+      setTouring(true);
+    }
   }, [refresh]));
 
   function closeWelcome() {
@@ -178,14 +185,14 @@ export default function HomeScreen() {
   }, [touring, tourIndex]);
 
   useEffect(() => {
-    if (!touring) return;
+    if (!touring || tourHold || reelActive) return;
     if (prefersReducedMotion()) return;
     const timer = setTimeout(() => {
       if (tourIndex >= guideSteps.length - 1) finishTour();
       else setTourIndex(tourIndex + 1);
-    }, 2500);
+    }, TOUR_DWELL_MS);
     return () => clearTimeout(timer);
-  }, [touring, tourIndex]);
+  }, [touring, tourIndex, tourHold, reelActive]);
 
   function openStep(id: (typeof guideSteps)[number]["id"]) {
     if (touring) return;
@@ -230,9 +237,13 @@ export default function HomeScreen() {
         {mode === "you" ? (
           <>
             <View style={styles.guideHead}>
-              <T variant="headline" color={colors.foam} style={styles.guideTitle}>8 steps to get started</T>
-              <Pressable accessibilityRole="button" accessibilityLabel="Replay tour" onPress={replayTour} style={styles.replayTour}>
-                <T variant="meta" color={colors.gold}>Replay tour</T>
+              <T variant="headline" color={colors.foam} style={styles.guideTitle}>{WALKTHROUGH_NAME}</T>
+              <Pressable accessibilityRole="button" accessibilityLabel="Replay Steps Walk-through" onPress={replayTour} style={styles.replayTour}>
+                <Icon name="play" size={18} color={colors.ink} />
+                <T variant="button" color={colors.ink}>Replay Steps Walk-through</T>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="What is TATEL" onPress={openStory} style={styles.what}>
+                <T variant="button" color={colors.gold}>What is TATEL</T>
               </Pressable>
             </View>
             <T variant="meta" color={colors.gold} style={styles.progress}>{doneCount} of {guideSteps.length} done</T>
@@ -308,6 +319,8 @@ export default function HomeScreen() {
             if (tourIndex >= guideSteps.length - 1) finishTour();
             else setTourIndex((current) => current + 1);
           }}
+          onJump={(index) => setTourIndex(index)}
+          onHold={setTourHold}
           onSkip={finishTour}
         />
       ) : null}
@@ -324,9 +337,30 @@ const styles = StyleSheet.create({
   switch: { flexDirection: "row", alignSelf: "center", marginBottom: 8, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
-  guideHead: { marginHorizontal: 20, marginBottom: 2, gap: 2 },
-  guideTitle: { marginHorizontal: 0, marginBottom: 0 },
-  replayTour: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center" },
+  guideHead: { marginHorizontal: 16, marginBottom: 8, gap: 10 },
+  guideTitle: { marginHorizontal: 4, marginBottom: 0 },
+  replayTour: {
+    alignSelf: "stretch",
+    minHeight: 52,
+    paddingHorizontal: 18,
+    borderRadius: 999,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: colors.gold,
+  },
+  what: {
+    alignSelf: "stretch",
+    minHeight: 48,
+    paddingHorizontal: 18,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: colors.gold,
+    backgroundColor: "rgba(7,27,42,0.72)",
+  },
   progress: { marginLeft: 22, marginBottom: 6 },
   next: {
     marginHorizontal: 16,

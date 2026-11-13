@@ -12,7 +12,9 @@ import { SessionRow } from "@/components/SessionRow";
 import { T } from "@/components/Text";
 import { DayFilter } from "@/components/DayFilter";
 import { Chip, EmptyState } from "@/components/ui";
+import { readTracks, webTrackStore } from "@/guide/interests";
 import { filterAgenda } from "@/logic/agenda";
+import { activeTrackIds } from "@/logic/trackFilter";
 import { suggestedDayId } from "@/logic/phase";
 import { useApp } from "@/store";
 import { backgrounds } from "@/components/backgrounds";
@@ -30,6 +32,9 @@ export default function AgendaScreen() {
   const { program } = useContent();
   const { forum, panelists, sessions } = program;
   const { state } = useApp();
+  const openingTracks = activeTrackIds(readTracks(webTrackStore()), forum.pillars);
+  const [trackIds] = useState(openingTracks);
+  const [yourAreas, setYourAreas] = useState(openingTracks.length > 0 && !params.pillar);
   const [dayId, setDayId] = useState(params.day || suggestedDayId(new Date()));
   const [pillarId, setPillarId] = useState(params.pillar || "all");
   const [island, setIsland] = useState("all");
@@ -52,8 +57,10 @@ export default function AgendaScreen() {
         query,
         favoriteIds: state.favoriteIds,
         favoritesOnly: false,
+        trackIds: yourAreas ? trackIds : [],
+        pillars: forum.pillars,
       }),
-    [dayId, pillarId, island, kind, panelistId, query, state.favoriteIds],
+    [dayId, pillarId, island, kind, panelistId, query, state.favoriteIds, yourAreas, trackIds, sessions, panelists, forum.pillars],
   );
   const selectedPerson = panelistId === "all" ? undefined : panelistById(panelistId);
   const filterCount = [pillarId, island, kind, panelistId].filter((value) => value !== "all").length;
@@ -81,9 +88,9 @@ export default function AgendaScreen() {
         </View>
         <View style={styles.scroller}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.topics}>
-            <Chip label="All topics" selected={pillarId === "all"} onPress={() => setPillarId("all")} />
+            <Chip label="All topics" selected={pillarId === "all"} onPress={() => { setYourAreas(false); setPillarId("all"); }} />
             {forum.pillars.map((pillar) => (
-              <Chip key={pillar.id} label={pillar.name} selected={pillarId === pillar.id} onPress={() => setPillarId(pillar.id)} />
+              <Chip key={pillar.id} label={pillar.name} selected={!yourAreas && pillarId === pillar.id} onPress={() => { setYourAreas(false); setPillarId(pillar.id); }} />
             ))}
           </ScrollView>
           <View pointerEvents="none" style={styles.fade} />
@@ -103,7 +110,10 @@ export default function AgendaScreen() {
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 accessibilityLabel={selected ? `Clear ${pillar.island}` : `Show sessions on ${pillar.island}, ${pillar.name}`}
-                onPress={() => setIsland(selected ? "all" : pillar.island)}
+                onPress={() => {
+                  setYourAreas(false);
+                  setIsland(selected ? "all" : pillar.island);
+                }}
                 style={[styles.islandCard, selected && styles.islandOn]}
               >
                 <View style={styles.islandPhotoWrap}>
@@ -116,7 +126,12 @@ export default function AgendaScreen() {
             );
           })}
         </ScrollView>
-        {island !== "all" ? (
+        {yourAreas ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Your areas filter is on. Clear it." onPress={() => setYourAreas(false)} style={styles.activeChip}>
+            <T variant="meta" color={colors.foam}>Your areas</T>
+            <T variant="meta" color={colors.gold}>Clear</T>
+          </Pressable>
+        ) : island !== "all" ? (
           <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${island} filter`} onPress={() => setIsland("all")} style={styles.activeChip}>
             <T variant="meta" color={colors.foam}>{island}</T>
             <T variant="meta" color={colors.gold}>Clear</T>
@@ -143,15 +158,15 @@ export default function AgendaScreen() {
               ))}
             </ScrollView>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-              <Chip label="All topics" selected={pillarId === "all"} onPress={() => setPillarId("all")} />
+              <Chip label="All topics" selected={pillarId === "all"} onPress={() => { setYourAreas(false); setPillarId("all"); }} />
               {forum.pillars.map((pillar) => (
-                <Chip key={pillar.id} label={pillar.name} selected={pillarId === pillar.id} onPress={() => setPillarId(pillar.id)} />
+                <Chip key={pillar.id} label={pillar.name} selected={!yourAreas && pillarId === pillar.id} onPress={() => { setYourAreas(false); setPillarId(pillar.id); }} />
               ))}
             </ScrollView>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-              <Chip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
+              <Chip label="All islands" selected={!yourAreas && island === "all"} onPress={() => { setYourAreas(false); setIsland("all"); }} />
               {forum.pillars.map((pillar) => (
-                <Chip key={pillar.island} label={pillar.island} selected={island === pillar.island} onPress={() => setIsland(pillar.island)} />
+                <Chip key={pillar.island} label={pillar.island} selected={!yourAreas && island === pillar.island} onPress={() => { setYourAreas(false); setIsland(pillar.island); }} />
               ))}
             </ScrollView>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>

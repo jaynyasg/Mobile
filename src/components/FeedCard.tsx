@@ -56,7 +56,7 @@ export function FeedCard({
           </View>
         ) : null}
         <T variant="title" color={colors.foam} numberOfLines={2}>{headline}</T>
-        <T variant="small" color={colors.foam} numberOfLines={2}>{line}</T>
+        <T variant="small" color={colors.foam} numberOfLines={3}>{line}</T>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={cta}

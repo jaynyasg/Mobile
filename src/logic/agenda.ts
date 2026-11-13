@@ -11,12 +11,20 @@ export function filterAgenda(input: {
   query: string;
   favoriteIds: string[];
   favoritesOnly: boolean;
+  trackIds?: readonly string[];
+  pillars?: readonly { id: string; island: string }[];
 }): Session[] {
   const needle = input.query.trim().toLowerCase();
   const names = new Map(input.panelists.map((person) => [person.id, person.name.toLowerCase()]));
+  const trackIds = input.trackIds ?? [];
+  const wantedTracks = new Set(trackIds);
+  const wantedIslands = new Set(
+    (input.pillars ?? []).filter((pillar) => wantedTracks.has(pillar.id)).map((pillar) => pillar.island),
+  );
 
   return input.sessions
     .filter((session) => {
+      if (trackIds.length && !wantedTracks.has(session.pillarId) && !wantedIslands.has(session.island)) return false;
       if (input.dayId !== "all" && session.dayId !== input.dayId) return false;
       if (input.pillarId !== "all" && session.pillarId !== input.pillarId) return false;
       if (input.island !== "all" && session.island !== input.island) return false;

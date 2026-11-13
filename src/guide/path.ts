@@ -1,10 +1,15 @@
 export const GUIDE_KEY = "tatel.guide";
 export const TOUR_KEY = "tatel.tourSeen";
+export const WALKTHROUGH_REPLAY_KEY = "tatel.walkthroughReplay";
+export const WALKTHROUGH_NAME = "Steps Walk-through";
+
+/** Auto-advance dwell. The old beat was 2.5s; readers need at least 7s. */
+export const TOUR_DWELL_MS = 7_000;
 
 const tourLine: Record<string, string> = {
   welcome: "Welcome: watch the film",
-  tracks: "Tracks: pick your islands",
-  sessions: "Sessions: build your schedule",
+  tracks: "Interests: pick your infrastructures",
+  sessions: "Sessions: select your session",
   transport: "Transport: see the routes",
   stay: "Stays: find where you sleep",
   know: "Guide: know before you go",
@@ -26,8 +31,8 @@ export interface GuideStep {
 
 export const guideSteps = [
   { id: "welcome", headline: "Watch the welcome", line: "A short film, then you are in.", cta: "Play" },
-  { id: "tracks", headline: "Pick your islands", line: "Tech, AI, Travel, Entertainment, or Law.", cta: "Choose" },
-  { id: "sessions", headline: "Build your sessions", line: "Save the ones you want.", cta: "Open Sessions" },
+  { id: "tracks", headline: "Pick your infrastructures", line: "Tell us which areas you're into: Tech, AI, Travel, Entertainment, Law. We'll tailor your Sessions and route.", cta: "Choose" },
+  { id: "sessions", headline: "Select Your Session", line: "Save the ones you want.", cta: "Open Sessions" },
   { id: "transport", headline: "See how to get around", line: "Powerboat, ferries, or a yacht.", cta: "Open Transport" },
   { id: "stay", headline: "Find your stay", line: "Where you sleep on each island.", cta: "Open stays" },
   { id: "know", headline: "Know before you go", line: "Passports, boats, sun, and the clock.", cta: "Open" },
@@ -66,11 +71,21 @@ export function tourTitle(index: number): string {
 export function tourCaption(index: number): string {
   const step = guideSteps[index];
   if (!step) return "";
-  return `Step ${index + 1} of ${guideSteps.length} · ${tourLine[step.id]}`;
+  return `${WALKTHROUGH_NAME} · Step ${index + 1} of ${guideSteps.length} · ${tourLine[step.id]}`;
+}
+
+export function requestWalkthrough(store: GuideStore | null): void {
+  store?.setItem(WALKTHROUGH_REPLAY_KEY, "1");
+}
+
+export function consumeWalkthrough(store: GuideStore | null): boolean {
+  if (store?.getItem(WALKTHROUGH_REPLAY_KEY) !== "1") return false;
+  store.setItem(WALKTHROUGH_REPLAY_KEY, "");
+  return true;
 }
 
 /** Height of the tour caption, used so it can sit clear of the spotlighted card. */
-export const TOUR_BUBBLE = 188;
+export const TOUR_BUBBLE = 220;
 
 /** Place the caption under the card when it fits above the dock, otherwise above the card. */
 export function captionTop(cardTop: number, cardHeight: number, dockTop: number, insetTop = 8, bubbleHeight = TOUR_BUBBLE): number {

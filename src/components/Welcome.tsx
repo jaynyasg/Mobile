@@ -50,9 +50,9 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
   const tracks = (
     <View style={styles.overlay}>
       <ScrollView contentContainerStyle={[styles.trackScroll, { paddingTop: insets.top + 20 }]}>
-        <T variant="eyebrow" color={colors.gold}>Your tracks</T>
-        <T variant="title" color={colors.foam} style={styles.ask}>What do you want to explore?</T>
-        <T variant="small" color={colors.foam}>Pick one or more. You can change this later.</T>
+        <T variant="eyebrow" color={colors.gold}>Infrastructures</T>
+        <T variant="title" color={colors.foam} style={styles.ask}>Which infrastructure areas interest you?</T>
+        <T variant="small" color={colors.foam}>Pick one or more. We'll tailor Sessions and your route.</T>
         {forum.pillars.map((pillar) => {
           const on = picked.includes(pillar.id);
           return (
@@ -67,8 +67,8 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
               <Image source={{ uri: sceneForIsland(pillar.island) }} style={[styles.trackPhoto, pillar.island === "Scrub Island" && styles.trackPhotoCenter]} resizeMode="cover" accessibilityIgnoresInvertColors />
               <View style={styles.trackShade} />
               <View style={styles.trackCopy}>
-                <T variant="meta" color={colors.gold}>{pillar.island}</T>
                 <T variant="rowTitle" color={colors.foam}>{pillar.name}</T>
+                <T variant="meta" color={colors.gold}>{pillar.island}</T>
               </View>
               {on ? (
                 <View style={styles.check}>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.gold,
   },
-  ask: { letterSpacing: 0, fontSize: 34, lineHeight: 40 },
+  ask: { letterSpacing: 0, fontSize: 30, lineHeight: 36 },
   trackScroll: { paddingHorizontal: 20, paddingBottom: 16, gap: 10 },
   track: { height: 92, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", padding: 14, borderWidth: 2, borderColor: "transparent" },
   trackOn: { borderColor: colors.gold },

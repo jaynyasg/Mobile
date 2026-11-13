@@ -215,6 +215,8 @@ describe("custom route", () => {
     ];
     expect(routePicker(items, "2027-01-26", "St. Thomas").map((item) => item.id)).toEqual(["a"]);
     expect(routePicker(items, "2027-01-26", "all").map((item) => item.id)).toEqual(["a", "b"]);
+    expect(routePicker(items, "2027-01-26", ["St. Thomas", "Lovango"]).map((item) => item.id)).toEqual(["a", "b"]);
+    expect(routePicker(items, "2027-01-26", [])).toEqual([]);
   });
 
   it("skips a crossing when the next session stays on the island", () => {

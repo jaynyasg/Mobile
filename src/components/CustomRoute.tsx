@@ -23,6 +23,8 @@ import {
 import { RouteBoard } from "@/components/RouteBoard";
 import { sessionClock } from "@/logic/dayTheme";
 import { modeLabel } from "@/logic/transportPlan";
+import { readTracks, webTrackStore } from "@/guide/interests";
+import { islandsForTracks, sameIslands } from "@/logic/trackFilter";
 import { useApp } from "@/store";
 import { colors, sceneForIsland } from "@/theme";
 
@@ -58,7 +60,8 @@ export function CustomRoute({
   const [ids, setIds] = useState<string[] | null>(null);
   const [modeId, setModeId] = useState(modes[0]?.id ?? "powerboat");
   const [dayId, setDayId] = useState(days[0]?.id ?? "");
-  const [island, setIsland] = useState("all");
+  const presetIslands = islandsForTracks(readTracks(webTrackStore()), pillars);
+  const [island, setIsland] = useState<string[] | "all">(presetIslands.length ? [...presetIslands] : "all");
   const [editing, setEditing] = useState(false);
   const [view, setView] = useState<"edit" | "result">("edit");
   const islands = pillars.map((pillar) => pillar.island);
@@ -112,6 +115,15 @@ export function CustomRoute({
       writeRoutePlan(typeof localStorage === "undefined" ? null : localStorage, next);
       setEditing(true);
       return next;
+    });
+  }
+
+  const areasOn = island !== "all" && presetIslands.length > 0 && sameIslands(island, presetIslands);
+
+  function toggleIsland(name: string) {
+    setIsland((current) => {
+      if (current === "all") return [name];
+      return current.includes(name) ? current.filter((item) => item !== name) : [...current, name];
     });
   }
 
@@ -170,11 +182,17 @@ export function CustomRoute({
         </View>
         <View accessibilityLabel="Infrastructure" style={styles.infra}>
           <T variant="meta" color={colors.gold}>Infrastructure</T>
+          {areasOn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Your areas filter is on. Clear it." onPress={() => setIsland("all")} style={styles.areasChip}>
+              <T variant="meta" color={colors.ink}>Your areas</T>
+              <T variant="meta" color={colors.ink}>Clear</T>
+            </Pressable>
+          ) : null}
           <View style={styles.infraScroll}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.infraRow}>
               <IslandChip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
               {islands.map((name) => (
-                <IslandChip key={name} label={name} selected={island === name} onPress={() => setIsland(name)} />
+                <IslandChip key={name} label={name} selected={island !== "all" && island.includes(name)} onPress={() => toggleIsland(name)} />
               ))}
             </ScrollView>
             <View pointerEvents="none" style={styles.infraFade} />
@@ -296,6 +314,7 @@ const styles = StyleSheet.create({
   segmentOn: { backgroundColor: colors.gold },
   segmentLabel: { textAlign: "center" },
   infra: { gap: 6 },
+  areasChip: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
   infraScroll: {
     position: "relative",
     ...({
