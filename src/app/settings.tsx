@@ -5,8 +5,8 @@ import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
-import { requestWalkthrough } from "@/guide/path";
-import { webTrackStore } from "@/guide/interests";
+import { requestIntake } from "@/logic/intake";
+import { webStorage } from "@/welcome";
 import { useReels } from "@/reels/ReelHost";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
@@ -56,10 +56,10 @@ export default function SettingsScreen() {
         <T variant="small">Play the opening film again.</T>
         <SecondaryButton label="Replay intro" onPress={replayIntro} />
         <SecondaryButton label="What is TATEL" onPress={openStory} />
-        <T variant="eyebrow">Steps Walk-through</T>
-        <T variant="small">Play the eight steps again.</T>
-        <SecondaryButton label="Replay Steps Walk-through" onPress={() => {
-          requestWalkthrough(webTrackStore());
+        <T variant="eyebrow">Your path</T>
+        <T variant="small">Answer the three questions again.</T>
+        <SecondaryButton label="Retake questions" onPress={() => {
+          requestIntake(webStorage());
           router.push("/");
         }} />
         <T variant="eyebrow">Delete my data</T>

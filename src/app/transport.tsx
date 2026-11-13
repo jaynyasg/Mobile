@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { credits, sessionById } from "@/content";
 import { useContent } from "@/content/provider";
 import { displayCopy } from "@/content/display";
@@ -57,7 +57,8 @@ export default function TransportScreen() {
   const [selected, setSelected] = useState<string | null>(null);
   const [about, setAbout] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
-  const [view, setView] = useState<"sample" | "mine">("sample");
+  const params = useLocalSearchParams<{ build?: string }>();
+  const [view, setView] = useState<"sample" | "mine">(params.build === "1" ? "mine" : "sample");
   const mode = transport.modes.find((item) => item.id === modeId) ?? transport.modes[0];
   const day = mode.days.find((item) => item.date === date) ?? mode.days[0];
   const dayMeta = forum.days.find((item) => item.id === day.date);

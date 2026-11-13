@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Linking, Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
@@ -11,8 +11,16 @@ import { nightGlass } from "@/components/nightGlass";
 
 export default function StaysScreen() {
   const { program } = useContent();
-  const { stays } = program;
+  const { stays, forum } = program;
+  const params = useLocalSearchParams<{ areas?: string }>();
   const router = useRouter();
+  const wanted = new Set((params.areas ?? "").split(",").map((item) => item.trim()).filter(Boolean));
+  const islands = new Set(forum.pillars.filter((pillar) => wanted.has(pillar.id)).map((pillar) => pillar.island));
+  const groups = islands.size
+    ? stays.groups
+      .map((group) => ({ ...group, islands: group.islands.filter((island) => islands.has(island.island)) }))
+      .filter((group) => group.islands.length > 0)
+    : stays.groups;
   return (
     <Screen edge="none">
       <StackHeader title="Accommodations" />
@@ -20,13 +28,14 @@ export default function StaysScreen() {
         <T variant="eyebrow">Where you stay · five island stops</T>
         <T variant="title">Across the islands</T>
         <T variant="small">{stays.intro}</T>
+        {islands.size ? <T variant="meta" color={colors.gold}>Your islands</T> : null}
         {stays.brochureUrl ? (
           <Pressable accessibilityRole="link" accessibilityLabel="See partner stays" onPress={() => Linking.openURL(stays.brochureUrl).catch(() => undefined)} style={styles.open}>
             <T variant="button" color={colors.ink}>See partner stays</T>
           </Pressable>
         ) : null}
       </View>
-      {stays.groups.map((group) => (
+      {groups.map((group) => (
         <View key={group.heading}>
           <T variant="eyebrow" style={styles.group}>
             {group.heading}

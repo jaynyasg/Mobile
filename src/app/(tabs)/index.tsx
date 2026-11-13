@@ -1,227 +1,112 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { dockClearance } from "@/components/Dock";
-import { Icon } from "@/components/Icon";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
 import { FeedCard } from "@/components/FeedCard";
-import { StepTour } from "@/components/StepTour";
 import { InstallHint } from "@/components/InstallHint";
+import { Questions } from "@/components/Questions";
 import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
-import { Welcome } from "@/components/Welcome";
+import { useAuth } from "@/community/auth";
 import { useContent } from "@/content/provider";
 import { islandTrackLabel } from "@/content/labels";
-import { readTracks, webTrackStore } from "@/guide/interests";
-import { captionOverlapsCard, consumeWalkthrough, firstUnfinished, guideSteps, hasSeenTour, markGuide, markTourSeen, readGuide, stepDone, tourCaption, tourTitle, TOUR_BUBBLE, TOUR_DWELL_MS, WALKTHROUGH_NAME } from "@/guide/path";
-import { prefersReducedMotion, readStamps } from "@/guide/stamps";
+import { reels, zoneReelIds, type ReelId } from "@/content/reels";
+import { webTrackStore, writeTracks } from "@/guide/interests";
+import { consumeIntakeRequest, readIntake, writeIntake, type IntakeRecord } from "@/logic/intake";
+import { saveIntakeRemote } from "@/logic/intakeSync";
+import { buildPath, PASS_ATTEND_URL, type PathStep } from "@/logic/pathPlan";
 import { suggestedDayId } from "@/logic/phase";
-import { INTRO_DAY_KEY, isExplored, localReelStore } from "@/reels/gate";
+import { isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
-import { zoneReelIds, type ReelId } from "@/content/reels";
 import { colors, sceneForIsland } from "@/theme";
-import { hasSeenWelcome, markWelcomeSeen, webStorage } from "@/welcome";
-import { useApp } from "@/store";
+import { webStorage } from "@/welcome";
 
-const stepImage: Record<(typeof guideSteps)[number]["id"], string> = {
-  welcome: "/reels/tatel-welcome-intro-poster.jpg",
-  tracks: "/reels/venues.jpg",
-  sessions: "/reels/sessions.jpg",
-  transport: "/reels/transport.jpg",
-  stay: "/reels/stays.jpg",
-  know: "/reels/guide.jpg",
-  pass: "/reels/pass.jpg",
-  chat: "/reels/community.jpg",
+const stepPhoto: Record<PathStep["id"], string> = {
+  pass: reels.pass.poster,
+  sessions: reels.sessions.poster,
+  stay: reels.stays.poster,
+  route: reels.transport.poster,
+  chat: reels.community.poster,
 };
-
-type Spot = { top: number; left: number; width: number; height: number };
-
-function hostNode(value: unknown): HTMLElement | null {
-  if (!value || typeof window === "undefined") return null;
-  if (typeof (value as HTMLElement).getBoundingClientRect === "function") return value as HTMLElement;
-  const inner = (value as { getScrollableNode?: () => HTMLElement | null }).getScrollableNode?.();
-  return inner ?? null;
-}
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const { forum, sessions } = program;
-  const { state } = useApp();
+  const { forum, sessions, passes } = program;
   const router = useRouter();
-  const { openChapter, replayIntro, openStory, guideTick, reelActive } = useReels();
-  const scrollRef = useRef<{ scrollTo: (options: { y?: number; animated?: boolean }) => void; getScrollableNode?: () => HTMLElement | null } | null>(null);
-  const cardNodes = useRef<Array<HTMLElement | null>>([]);
-  const tourBoot = useRef(false);
-  const [touring, setTouring] = useState(false);
-  const [tourHold, setTourHold] = useState(false);
-  const [tourIndex, setTourIndex] = useState(0);
-  const [spot, setSpot] = useState<Spot | null>(null);
+  const { openChapter, replayIntro, openStory, reelActive } = useReels();
+  const { userId, preview } = useAuth();
   const [mode, setMode] = useState<"you" | "explore">("you");
-  const [welcome, setWelcome] = useState(false);
-  const [welcomeStart, setWelcomeStart] = useState<"arrival" | "tracks">("arrival");
   const [deck, setDeck] = useState(false);
-  const [tracks, setTracks] = useState<string[]>([]);
-  const [marked, setMarked] = useState<string[]>([]);
-  const [introPlayed, setIntroPlayed] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [intake, setIntake] = useState<IntakeRecord | null>(null);
   const [ready, setReady] = useState(false);
 
   const refresh = useCallback(() => {
-    const store = webTrackStore();
-    setTracks(readTracks(store));
-    setMarked(readGuide(store));
-    setIntroPlayed(localReelStore()?.getItem(INTRO_DAY_KEY) != null);
+    setIntake(readIntake(webStorage()));
     setReady(true);
   }, []);
 
   useEffect(() => {
     refresh();
-    if (!hasSeenWelcome(webStorage())) {
-      setWelcomeStart("arrival");
-      setWelcome(true);
-    }
-  }, [refresh, guideTick]);
+  }, [refresh]);
 
   useFocusEffect(useCallback(() => {
     refresh();
-    if (consumeWalkthrough(webStorage())) {
-      setMode("you");
-      setTourIndex(0);
-      setTouring(true);
-    }
+    if (consumeIntakeRequest(webStorage())) setAsking(true);
   }, [refresh]));
 
-  function closeWelcome() {
-    markWelcomeSeen(webStorage());
-    refresh();
-    setWelcome(false);
+  useEffect(() => {
+    if (!ready || reelActive || asking) return;
+    if (!readIntake(webStorage())) setAsking(true);
+  }, [ready, reelActive, asking]);
+
+  function storeAnswers(record: IntakeRecord) {
+    const store = webStorage();
+    writeIntake(store, record);
+    writeTracks(webTrackStore(), [...record.areas]);
+    setIntake(record);
+    setAsking(false);
+    if (userId && !preview) void saveIntakeRemote(userId, record);
+  }
+
+  function markStep(id: string) {
+    if (!intake || intake.completed.includes(id)) return;
+    storeAnswers({ ...intake, completed: [...intake.completed, id] });
+  }
+
+  function openStep(step: PathStep) {
+    if (step.id !== "stay" || intake?.needsStay !== "booked") markStep(step.id);
+    if (step.id === "pass") {
+      if (intake?.hasPass === "have") openChapter("pass", "/passport");
+      else Linking.openURL(passes.sourceUrl || PASS_ATTEND_URL).catch(() => undefined);
+      return;
+    }
+    if (step.id === "sessions") openChapter("sessions", "/agenda");
+    if (step.id === "stay") {
+      const areas = intake?.areas.join(",") ?? "";
+      router.push(areas && intake?.needsStay === "yes" ? { pathname: "/stays", params: { areas } } : "/stays");
+    }
+    if (step.id === "route") openChapter("transport", { pathname: "/transport", params: { build: "1" } });
+    if (step.id === "chat") openChapter("community", "/community");
   }
 
   const dayId = suggestedDayId(new Date());
   const next = sessions
     .filter((session) => session.dayId === dayId && session.start)
     .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))[0];
-  const stamps = readStamps(localReelStore());
-  const progress = {
-    marked,
-    introPlayed,
-    trackCount: tracks.length,
-    savedSessions: state.favoriteIds.length,
-    openedNotes: stamps.some((stamp) => stamp.startsWith("know:")),
-  };
-  const doneFlags = guideSteps.map((step) => stepDone(step.id, progress));
-  const doneCount = doneFlags.filter(Boolean).length;
-  const flagsRef = useRef(doneFlags);
-  flagsRef.current = doneFlags;
-
-  function placeSpotlight(index: number) {
-    const node = cardNodes.current[index];
-    const scroller = hostNode(scrollRef.current);
-    if (!node || !scroller) return;
-    const pad = index === 0 ? 72 : 20;
-    const host = scroller.getBoundingClientRect();
-    const dockTop = window.innerHeight - dockClearance(insets.bottom);
-    const rect = node.getBoundingClientRect();
-    const delta = rect.top - host.top - pad;
-    if (Math.abs(delta) > 1) scroller.scrollTop += delta;
-    let placed = node.getBoundingClientRect();
-    if (captionOverlapsCard(placed.top, placed.height, dockTop)) {
-      const above = 8 + TOUR_BUBBLE + 12;
-      scroller.scrollTop += placed.top - above;
-      placed = node.getBoundingClientRect();
-    }
-    setSpot({ top: placed.top, left: placed.left, width: placed.width, height: placed.height });
-  }
-
-  function finishTour() {
-    markTourSeen(webStorage());
-    setTouring(false);
-    setSpot(null);
-    const settle = firstUnfinished(flagsRef.current);
-    setTourIndex(settle);
-    const node = cardNodes.current[settle];
-    const scroller = hostNode(scrollRef.current);
-    if (node && scroller) {
-      const host = scroller.getBoundingClientRect();
-      scroller.scrollTop += node.getBoundingClientRect().top - host.top - 72;
-    }
-  }
-
-  function replayTour() {
-    setTourIndex(0);
-    setTouring(true);
-  }
-
-  useEffect(() => {
-    if (!ready || welcome || mode !== "you" || reelActive || tourBoot.current) return;
-    tourBoot.current = true;
-    if (!hasSeenTour(webStorage())) replayTour();
-  }, [ready, welcome, mode, reelActive]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    Object.values(stepImage).forEach((src) => {
-      const photo = new window.Image();
-      photo.src = src;
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!touring) return;
-    let cancelled = false;
-    const align = () => {
-      if (!cancelled) placeSpotlight(tourIndex);
-    };
-    align();
-    const frame = requestAnimationFrame(align);
-    const timer = setTimeout(align, 80);
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(frame);
-      clearTimeout(timer);
-    };
-  }, [touring, tourIndex]);
-
-  useEffect(() => {
-    if (!touring || tourHold || reelActive) return;
-    if (prefersReducedMotion()) return;
-    const timer = setTimeout(() => {
-      if (tourIndex >= guideSteps.length - 1) finishTour();
-      else setTourIndex(tourIndex + 1);
-    }, TOUR_DWELL_MS);
-    return () => clearTimeout(timer);
-  }, [touring, tourIndex, tourHold, reelActive]);
-
-  function openStep(id: (typeof guideSteps)[number]["id"]) {
-    if (touring) return;
-    if (id !== "welcome") {
-      markGuide(webTrackStore(), id);
-      setMarked(readGuide(webTrackStore()));
-    }
-    if (id === "welcome") replayIntro();
-    if (id === "tracks") {
-      setWelcomeStart("tracks");
-      setWelcome(true);
-    }
-    if (id === "sessions") openChapter("sessions", "/agenda");
-    if (id === "transport") openChapter("transport", "/transport");
-    if (id === "stay") router.push("/stays");
-    if (id === "know") setDeck(true);
-    if (id === "pass") openChapter("pass", "/passport");
-    if (id === "chat") router.push("/community");
-  }
+  const steps = intake ? buildPath(intake, forum.pillars, intake.completed) : [];
 
   return (
     <View style={styles.frame}>
       <BeaconBackground />
       <ScrollView
-        ref={scrollRef as never}
         style={styles.fill}
         contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: dockClearance(insets.bottom) + 48 }}
         keyboardShouldPersistTaps="handled"
-        scrollEnabled={!touring}
       >
         <View style={styles.install}>
           <InstallHint />
@@ -237,34 +122,26 @@ export default function HomeScreen() {
         {mode === "you" ? (
           <>
             <View style={styles.guideHead}>
-              <T variant="headline" color={colors.foam} style={styles.guideTitle}>{WALKTHROUGH_NAME}</T>
-              <Pressable accessibilityRole="button" accessibilityLabel="Replay Steps Walk-through" onPress={replayTour} style={styles.replayTour}>
-                <Icon name="play" size={18} color={colors.ink} />
-                <T variant="button" color={colors.ink}>Replay Steps Walk-through</T>
-              </Pressable>
+              <T variant="headline" color={colors.foam}>Your path</T>
               <Pressable accessibilityRole="button" accessibilityLabel="What is TATEL" onPress={openStory} style={styles.what}>
                 <T variant="button" color={colors.gold}>What is TATEL</T>
               </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Retake questions" onPress={() => setAsking(true)} style={styles.retake}>
+                <T variant="button" color={colors.foam}>Retake questions</T>
+              </Pressable>
             </View>
-            <T variant="meta" color={colors.gold} style={styles.progress}>{doneCount} of {guideSteps.length} done</T>
-            {guideSteps.map((step, index) => {
-              const done = doneFlags[index];
-              return (
-                <View key={step.id} pointerEvents={touring ? "none" : "auto"}>
-                  <FeedCard
-                    cardRef={(node) => { cardNodes.current[index] = hostNode(node); }}
-                    image={stepImage[step.id]}
-                    alt={step.headline}
-                    kicker={`Step ${index + 1} of ${guideSteps.length}`}
-                    headline={step.headline}
-                    line={step.line}
-                    cta={done && step.id === "welcome" ? "Replay" : step.cta}
-                    done={done}
-                    onPress={() => openStep(step.id)}
-                  />
+            {steps.map((step, index) => (
+              <Pressable key={step.id} accessibilityRole="button" accessibilityLabel={step.title} onPress={() => openStep(step)} style={styles.path}>
+                <Image source={{ uri: stepPhoto[step.id] }} style={styles.pathPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
+                <View style={styles.pathShade} />
+                <View style={styles.pathCopy}>
+                  <T variant="meta" color={colors.gold}>{step.optional ? "Optional" : `Step ${index + 1}`}</T>
+                  <T variant="rowTitle" color={colors.foam} numberOfLines={2}>{step.title}</T>
+                  <T variant="meta" color={colors.foam} numberOfLines={2}>{step.line}</T>
                 </View>
-              );
-            })}
+                {step.done ? <View style={styles.check}><T variant="button" color={colors.ink}>✓</T></View> : null}
+              </Pressable>
+            ))}
             {next ? (
               <Pressable
                 accessibilityRole="button"
@@ -303,28 +180,12 @@ export default function HomeScreen() {
           <T variant="meta" color={colors.gold}>Replay the welcome</T>
         </Pressable>
       </ScrollView>
-      {touring && mode === "you" && spot ? (
-        <StepTour
-          top={spot.top}
-          left={spot.left}
-          width={spot.width}
-          height={spot.height}
-          step={tourIndex}
-          total={guideSteps.length}
-          title={tourTitle(tourIndex)}
-          caption={tourCaption(tourIndex)}
-          canBack={tourIndex > 0}
-          onBack={() => setTourIndex((current) => Math.max(0, current - 1))}
-          onNext={() => {
-            if (tourIndex >= guideSteps.length - 1) finishTour();
-            else setTourIndex((current) => current + 1);
-          }}
-          onJump={(index) => setTourIndex(index)}
-          onHold={setTourHold}
-          onSkip={finishTour}
+      {asking && !reelActive ? (
+        <Questions
+          onDone={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
+          onSkip={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
         />
       ) : null}
-      {welcome ? <Welcome start={welcomeStart} onClose={closeWelcome} /> : null}
       {deck ? <EssentialsDeck onClose={() => setDeck(false)} /> : null}
     </View>
   );
@@ -338,18 +199,6 @@ const styles = StyleSheet.create({
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
   guideHead: { marginHorizontal: 16, marginBottom: 8, gap: 10 },
-  guideTitle: { marginHorizontal: 4, marginBottom: 0 },
-  replayTour: {
-    alignSelf: "stretch",
-    minHeight: 52,
-    paddingHorizontal: 18,
-    borderRadius: 999,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: colors.gold,
-  },
   what: {
     alignSelf: "stretch",
     minHeight: 48,
@@ -361,7 +210,12 @@ const styles = StyleSheet.create({
     borderColor: colors.gold,
     backgroundColor: "rgba(7,27,42,0.72)",
   },
-  progress: { marginLeft: 22, marginBottom: 6 },
+  retake: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", paddingHorizontal: 4 },
+  path: { height: 148, marginHorizontal: 12, marginBottom: 12, borderRadius: 18, overflow: "hidden", justifyContent: "flex-end" },
+  pathPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  pathShade: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.45)" },
+  pathCopy: { zIndex: 1, padding: 14, gap: 2 },
+  check: { position: "absolute", top: 12, right: 12, zIndex: 2, width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   next: {
     marginHorizontal: 16,
     marginBottom: 14,
