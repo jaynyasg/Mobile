@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { prefersReducedMotion } from "@/guide/stamps";
 import { PhotoShade } from "./PhotoShade";
 import { T } from "./Text";
-import { colors, scenePhotos } from "@/theme";
+import { colors, fonts, scenePhotos } from "@/theme";
 
 export function FeedCard({
   image,
@@ -50,7 +50,11 @@ export function FeedCard({
         </View>
       ) : null}
       <View style={styles.copy}>
-        {kicker ? <T variant="eyebrow" color={colors.gold}>{kicker}</T> : null}
+        {kicker ? (
+          <View style={styles.kickerPill}>
+            <T variant="button" color={colors.ink} style={styles.kickerText}>{kicker}</T>
+          </View>
+        ) : null}
         <T variant="title" color={colors.foam} numberOfLines={2}>{headline}</T>
         <T variant="small" color={colors.foam} numberOfLines={2}>{line}</T>
         <Pressable
@@ -91,6 +95,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.gold,
   },
+  kickerPill: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.gold },
+  kickerText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 18, letterSpacing: 0.6, textTransform: "uppercase" },
   copy: {
     gap: 8,
     padding: 16,

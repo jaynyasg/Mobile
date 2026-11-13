@@ -57,10 +57,32 @@ export function markGuide(store: GuideStore | null, id: string): void {
   store.setItem(GUIDE_KEY, [...next].join(","));
 }
 
+export function tourTitle(index: number): string {
+  const step = guideSteps[index];
+  if (!step) return "";
+  return tourLine[step.id];
+}
+
 export function tourCaption(index: number): string {
   const step = guideSteps[index];
   if (!step) return "";
   return `Step ${index + 1} of ${guideSteps.length} · ${tourLine[step.id]}`;
+}
+
+/** Height of the tour caption, used so it can sit clear of the spotlighted card. */
+export const TOUR_BUBBLE = 188;
+
+/** Place the caption under the card when it fits above the dock, otherwise above the card. */
+export function captionTop(cardTop: number, cardHeight: number, dockTop: number, insetTop = 8, bubbleHeight = TOUR_BUBBLE): number {
+  const gap = 12;
+  const below = cardTop + cardHeight + gap;
+  if (below + bubbleHeight <= dockTop - 8) return below;
+  return Math.max(insetTop, cardTop - bubbleHeight - gap);
+}
+
+export function captionOverlapsCard(cardTop: number, cardHeight: number, dockTop: number, insetTop = 8, bubbleHeight = TOUR_BUBBLE): boolean {
+  const top = captionTop(cardTop, cardHeight, dockTop, insetTop, bubbleHeight);
+  return top + bubbleHeight > cardTop && top < cardTop + cardHeight;
 }
 
 export function hasSeenTour(store: GuideStore | null): boolean {

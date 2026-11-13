@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { firstUnfinished, guideSteps, hasSeenTour, markTourSeen, tourCaption, markGuide, readGuide, stepDone, type GuideStore } from "./path";
+import { captionOverlapsCard, captionTop, firstUnfinished, guideSteps, hasSeenTour, markTourSeen, tourCaption, tourTitle, markGuide, readGuide, stepDone, type GuideStore } from "./path";
 
 function memory(): GuideStore & { values: Map<string, string> } {
   const values = new Map<string, string>();
@@ -55,9 +55,17 @@ describe("home guide", () => {
 
   it("names each tutorial frame and remembers that the tour finished", () => {
     expect(tourCaption(2)).toBe("Step 3 of 8 · Sessions: build your schedule");
+    expect(tourTitle(6)).toBe("Passport: get your stamps");
     const store = memory();
     expect(hasSeenTour(store)).toBe(false);
     markTourSeen(store);
     expect(hasSeenTour(store)).toBe(true);
+  });
+
+  it("keeps the tour caption off the spotlighted card", () => {
+    expect(captionTop(72, 400, 714)).toBe(484);
+    expect(captionOverlapsCard(72, 400, 714)).toBe(false);
+    expect(captionTop(280, 400, 714)).toBe(80);
+    expect(captionOverlapsCard(280, 400, 714)).toBe(false);
   });
 });

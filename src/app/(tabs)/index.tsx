@@ -14,7 +14,7 @@ import { Welcome } from "@/components/Welcome";
 import { useContent } from "@/content/provider";
 import { islandTrackLabel } from "@/content/labels";
 import { readTracks, webTrackStore } from "@/guide/interests";
-import { firstUnfinished, guideSteps, hasSeenTour, markGuide, markTourSeen, readGuide, stepDone, tourCaption } from "@/guide/path";
+import { captionOverlapsCard, firstUnfinished, guideSteps, hasSeenTour, markGuide, markTourSeen, readGuide, stepDone, tourCaption, tourTitle, TOUR_BUBBLE } from "@/guide/path";
 import { prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { suggestedDayId } from "@/logic/phase";
 import { INTRO_DAY_KEY, isExplored, localReelStore } from "@/reels/gate";
@@ -115,10 +115,16 @@ export default function HomeScreen() {
     if (!node || !scroller) return;
     const pad = index === 0 ? 72 : 20;
     const host = scroller.getBoundingClientRect();
+    const dockTop = window.innerHeight - dockClearance(insets.bottom);
     const rect = node.getBoundingClientRect();
     const delta = rect.top - host.top - pad;
     if (Math.abs(delta) > 1) scroller.scrollTop += delta;
-    const placed = node.getBoundingClientRect();
+    let placed = node.getBoundingClientRect();
+    if (captionOverlapsCard(placed.top, placed.height, dockTop)) {
+      const above = 8 + TOUR_BUBBLE + 12;
+      scroller.scrollTop += placed.top - above;
+      placed = node.getBoundingClientRect();
+    }
     setSpot({ top: placed.top, left: placed.left, width: placed.width, height: placed.height });
   }
 
@@ -238,7 +244,7 @@ export default function HomeScreen() {
                     cardRef={(node) => { cardNodes.current[index] = hostNode(node); }}
                     image={stepImage[step.id]}
                     alt={step.headline}
-                    kicker={done ? "Done" : `Step ${index + 1} of ${guideSteps.length}`}
+                    kicker={`Step ${index + 1} of ${guideSteps.length}`}
                     headline={step.headline}
                     line={step.line}
                     cta={done && step.id === "welcome" ? "Replay" : step.cta}
@@ -292,6 +298,9 @@ export default function HomeScreen() {
           left={spot.left}
           width={spot.width}
           height={spot.height}
+          step={tourIndex}
+          total={guideSteps.length}
+          title={tourTitle(tourIndex)}
           caption={tourCaption(tourIndex)}
           canBack={tourIndex > 0}
           onBack={() => setTourIndex((current) => Math.max(0, current - 1))}
