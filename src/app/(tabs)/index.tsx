@@ -20,19 +20,19 @@ import { suggestedDayId } from "@/logic/phase";
 import { INTRO_DAY_KEY, isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
 import { zoneReelIds, type ReelId } from "@/content/reels";
-import { colors, sceneForIsland, scenePhotos } from "@/theme";
+import { colors, sceneForIsland } from "@/theme";
 import { hasSeenWelcome, markWelcomeSeen, webStorage } from "@/welcome";
 import { useApp } from "@/store";
 
 const stepImage: Record<(typeof guideSteps)[number]["id"], string> = {
   welcome: "/reels/tatel-welcome-intro-poster.jpg",
-  tracks: "/venues/ritz-carlton-st-thomas/img_2650-640.webp",
-  sessions: "/venues/emerald-beach-resort/img_1438-640.webp",
-  transport: "/venues/ritz-carlton-st-thomas/img_2650-640.webp",
-  stay: "/venues/lovango-resort-beach-club/img_2668-640.webp",
-  know: "/venues/scrub-island-resort/img_2695-640.webp",
-  pass: "/venues/hideout-white-bay/img_2673-640.webp",
-  chat: scenePhotos.community,
+  tracks: "/reels/venues.jpg",
+  sessions: "/reels/sessions.jpg",
+  transport: "/reels/transport.jpg",
+  stay: "/reels/stays.jpg",
+  know: "/reels/guide.jpg",
+  pass: "/reels/pass.jpg",
+  chat: "/reels/community.jpg",
 };
 
 type Spot = { top: number; left: number; width: number; height: number };
