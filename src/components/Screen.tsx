@@ -30,7 +30,7 @@ export function Screen({
   const paddingTop = edge === "top" ? insets.top + 8 : 0;
   const clearance = dockClearance(insets.bottom);
   const body = scroll ? (
-    <ScrollView style={[styles.fill, { marginBottom: clearance }]} contentContainerStyle={{ paddingTop, paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
+    <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop, paddingBottom: clearance + 24 }} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (

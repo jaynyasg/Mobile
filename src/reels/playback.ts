@@ -39,6 +39,11 @@ export function armReel(video: ReelMedia, src: string): Promise<void> {
 }
 
 let shared: HTMLVideoElement | null = null;
+let generation = 0;
+
+export function reelGeneration(): number {
+  return generation;
+}
 
 export function reelVideoElement(): HTMLVideoElement | null {
   if (typeof document === "undefined") return null;
@@ -69,6 +74,7 @@ export function reelVideoElement(): HTMLVideoElement | null {
 export function playReelNow(src: string): Promise<void> {
   const video = reelVideoElement();
   if (!video) return Promise.resolve();
+  generation += 1;
   video.style.display = "block";
   video.style.visibility = "hidden";
   if (!video.isConnected) document.body.appendChild(video);
@@ -81,9 +87,11 @@ export function showReelFrame(visible: boolean): void {
   video.style.visibility = visible ? "visible" : "hidden";
 }
 
-export function hideReelVideo(): void {
+export function hideReelVideo(seen?: number): void {
+  if (seen != null && seen !== generation) return;
   const video = reelVideoElement();
   if (!video) return;
   video.pause();
   video.style.display = "none";
+  video.style.visibility = "hidden";
 }

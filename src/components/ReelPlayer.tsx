@@ -4,7 +4,7 @@ import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-n
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, showIntroTitle, type Reel } from "@/content/reels";
 import { colors } from "@/theme";
-import { armReel, hideReelVideo, reelVideoElement, showReelFrame } from "@/reels/playback";
+import { armReel, hideReelVideo, reelGeneration, reelVideoElement, showReelFrame } from "@/reels/playback";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
 
@@ -24,7 +24,6 @@ export function ReelPlayer({
   onDone: (reason: ReelExit) => void;
 }) {
   const insets = useSafeAreaInsets();
-  const [live, setLive] = useState(true);
   const [poster, setPoster] = useState(reel.poster);
   const [currentSrc, setCurrentSrc] = useState(src);
   const [showVideo] = useState(mode === "video" && Platform.OS === "web");
@@ -35,14 +34,22 @@ export function ReelPlayer({
   const onDoneRef = useRef(onDone);
   const finished = useRef(false);
   const motion = useRef({ lastTime: 0, lastMove: 0, advanced: false, retried: false, fellBack: false });
+  const seen = useRef<number | null>(null);
+  if (seen.current == null) seen.current = reelGeneration();
   onDoneRef.current = onDone;
+
+  useEffect(() => {
+    const token = seen.current ?? undefined;
+    return () => {
+      hideReelVideo(token);
+    };
+  }, []);
 
   function finish(reason: ReelExit) {
     if (finished.current) return;
     finished.current = true;
-    hideReelVideo();
-    setLive(false);
-    setTimeout(() => onDoneRef.current(reason), 280);
+    if (seen.current != null) hideReelVideo(seen.current);
+    onDoneRef.current(reason);
   }
 
   useEffect(() => {
@@ -158,7 +165,7 @@ export function ReelPlayer({
   const sheet = (
     <View
       accessibilityViewIsModal
-      style={[styles.overlay, { opacity: live ? 1 : 0 }]}
+      style={styles.overlay}
     >
       {!playing ? (
         <Image

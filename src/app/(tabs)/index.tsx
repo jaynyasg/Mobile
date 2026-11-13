@@ -150,7 +150,7 @@ export default function HomeScreen() {
       <ScrollView
         ref={scrollRef as never}
         style={[styles.fill, { marginBottom: dockClearance(insets.bottom) }]}
-        contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
         onTouchStart={() => {
           tourStop.current = true;
@@ -171,18 +171,6 @@ export default function HomeScreen() {
           <>
             <T variant="headline" color={colors.foam} style={styles.guideTitle}>8 steps to get started</T>
             <T variant="meta" color={colors.gold} style={styles.progress}>{doneCount} of {guideSteps.length} done</T>
-            {next ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Happening next, ${next.title}`}
-                onPress={() => router.push({ pathname: "/session/[id]", params: { id: next.id } })}
-                style={styles.next}
-              >
-                <T variant="meta" color={colors.gold}>Happening next</T>
-                <T variant="small" color={colors.foam} numberOfLines={1}>{next.title}</T>
-                <T variant="meta" color={colors.foam} numberOfLines={2}>{sessionWhen(next, forum.timezone)} · {next.island}</T>
-              </Pressable>
-            ) : null}
             {guideSteps.map((step, index) => {
               const done = doneFlags[index];
               return (
@@ -203,6 +191,18 @@ export default function HomeScreen() {
                 </View>
               );
             })}
+            {next ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Happening next, ${next.title}`}
+                onPress={() => router.push({ pathname: "/session/[id]", params: { id: next.id } })}
+                style={styles.next}
+              >
+                <T variant="meta" color={colors.gold}>Happening next</T>
+                <T variant="small" color={colors.foam} numberOfLines={2}>{next.title}</T>
+                <T variant="meta" color={colors.foam} numberOfLines={2}>{sessionWhen(next, forum.timezone)} · {next.island}</T>
+              </Pressable>
+            ) : null}
           </>
         ) : (
           forum.pillars.map((pillar) => {
@@ -238,12 +238,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
   fill: { flex: 1 },
-  install: { marginHorizontal: 16, marginBottom: 8 },
-  switch: { flexDirection: "row", alignSelf: "center", marginBottom: 14, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
+  install: { marginHorizontal: 16, marginBottom: 4 },
+  switch: { flexDirection: "row", alignSelf: "center", marginBottom: 8, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
-  guideTitle: { marginHorizontal: 20, marginBottom: 4 },
-  progress: { marginLeft: 22, marginBottom: 10 },
+  guideTitle: { marginHorizontal: 20, marginBottom: 0 },
+  progress: { marginLeft: 22, marginBottom: 6 },
   next: {
     marginHorizontal: 16,
     marginBottom: 14,

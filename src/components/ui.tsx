@@ -82,7 +82,7 @@ export function Chip({
       style={[styles.chip, selected && styles.chipOn]}
     >
       {swatch ? <View style={[styles.swatch, { backgroundColor: selected ? colors.ivory : swatch }]} /> : null}
-      <T variant="small" color={colors.foam} style={styles.chipLabel}>
+      <T variant="small" color={colors.foam} style={[styles.chipLabel, { whiteSpace: "nowrap" } as object]}>
         {label}
       </T>
     </Pressable>
@@ -176,17 +176,19 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.72 },
   chip: {
     flexDirection: "row",
+    flexGrow: 0,
+    flexShrink: 0,
     alignItems: "center",
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(255,224,138,0.42)",
     backgroundColor: "rgba(7,27,42,0.58)",
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 99,
   },
   chipOn: { backgroundColor: "rgba(16,52,68,0.92)", borderColor: colors.gold },
-  chipLabel: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 16 },
+  chipLabel: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 16, flexShrink: 0 },
   swatch: { width: 8, height: 8, borderRadius: 4 },
   empty: { paddingHorizontal: pad, paddingVertical: 28, gap: 8 },
   emptyTitle: { fontSize: 26 },

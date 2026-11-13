@@ -101,18 +101,19 @@ export function ReelHost({ children }: { children: ReactNode }) {
   }, [bumpZone]);
 
   const openChapter = useCallback((id: ReelId, href: Href) => {
+    router.navigate(href);
     const mode = playbackMode(true) === "poster" ? "poster" : "video";
     const src = reelPlaybackSrc(id);
     const play = mode === "video" ? playReelNow(src) : undefined;
     nonce.current += 1;
     setPending({ id, mode, href, src, play, nonce: nonce.current });
-  }, []);
+  }, [router]);
 
   const zoneExplored = useCallback((zoneId: string) => isExplored(localReelStore(), zoneId), []);
 
-  function complete(reason: ReelExit) {
+  function complete(reason: ReelExit, stamp: number) {
     const current = pendingRef.current;
-    if (!current) return;
+    if (!current || current.nonce !== stamp) return;
     const reel = reels[current.id] as Reel;
     if (addStamp(localReelStore(), reelStamp(reel.id))) pulse(prefersReducedMotion());
     if (reel.kind === "intro") {
@@ -122,7 +123,6 @@ export function ReelHost({ children }: { children: ReactNode }) {
     } else {
       markChapterSeen(chapterStore(), reel.id);
       bumpZone(reel.zoneId);
-      if (current.href) router.navigate(current.href);
     }
     void reason;
     setPending(null);
@@ -149,7 +149,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
             mode={pending.mode}
             src={pending.src}
             play={pending.play}
-            onDone={complete}
+            onDone={(reason) => complete(reason, pending.nonce)}
           />
         ) : null}
       </View>

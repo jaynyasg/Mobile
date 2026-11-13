@@ -37,7 +37,7 @@ export default function PanelistScreen() {
       <View style={styles.pad}>
         {person.company ? <T variant="eyebrow" numberOfLines={2}>{person.company}</T> : null}
         <T variant="title" numberOfLines={3}>{person.name}</T>
-        {person.title ? <T variant="small" numberOfLines={3}>{person.title}</T> : null}
+        {person.title ? <T variant="small">{person.title}</T> : null}
         <T variant="meta" numberOfLines={3}>
           {joinLine([
             person.keynote ? "Keynote speaker" : "",

@@ -79,12 +79,15 @@ export default function AgendaScreen() {
         <View style={styles.dayBar}>
           <DayFilter days={forum.days} dayId={dayId} onChange={setDayId} />
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.topics}>
-          <Chip label="All topics" selected={pillarId === "all"} onPress={() => setPillarId("all")} />
-          {forum.pillars.map((pillar) => (
-            <Chip key={pillar.id} label={pillar.name} selected={pillarId === pillar.id} onPress={() => setPillarId(pillar.id)} />
-          ))}
-        </ScrollView>
+        <View style={styles.scroller}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.topics}>
+            <Chip label="All topics" selected={pillarId === "all"} onPress={() => setPillarId("all")} />
+            {forum.pillars.map((pillar) => (
+              <Chip key={pillar.id} label={pillar.name} selected={pillarId === pillar.id} onPress={() => setPillarId(pillar.id)} />
+            ))}
+          </ScrollView>
+          <View pointerEvents="none" style={styles.fade} />
+        </View>
         <View style={styles.tools}>
           <Pressable accessibilityRole="button" onPress={() => setFiltersOpen(true)} style={styles.filter}>
             <T variant="meta">Filter{filterCount ? ` · ${filterCount}` : ""}</T>
@@ -177,7 +180,16 @@ const styles = StyleSheet.create({
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },
   filter: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.58)" },
   search: { flex: 1 },
-  topics: { paddingHorizontal: 22, gap: 8, paddingBottom: 8 },
+  scroller: { position: "relative" },
+  topics: { paddingLeft: 22, paddingRight: 36, gap: 8, paddingBottom: 8, flexGrow: 0 },
+  fade: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 8,
+    width: 28,
+    ...({ backgroundImage: "linear-gradient(to right, rgba(7,20,33,0), rgba(7,20,33,0.95))" } as object),
+  },
   carousel: { paddingHorizontal: 16, gap: 12, paddingVertical: 8 },
   islandCard: { width: 220, borderRadius: 16, overflow: "hidden", borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.58)" },
   islandOn: { borderColor: colors.gold, borderWidth: 2 },

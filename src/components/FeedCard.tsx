@@ -59,7 +59,7 @@ export function FeedCard({
 
 const styles = StyleSheet.create({
   card: {
-    height: 520,
+    height: 400,
     marginHorizontal: 12,
     marginBottom: 14,
     borderRadius: 22,

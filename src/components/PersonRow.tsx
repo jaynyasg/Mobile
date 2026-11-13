@@ -27,7 +27,7 @@ export function PersonRow({
             <View style={styles.copy}>
               <T variant="rowTitle" numberOfLines={2}>{name}</T>
               {meta.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => (
-                <T key={line} variant="meta" numberOfLines={3}>{line}</T>
+                <T key={line} variant="meta">{line}</T>
               ))}
             </View>
             <Icon name="chevron" size={18} color={colors.gold} />

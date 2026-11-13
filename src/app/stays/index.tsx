@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { Linking, Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
@@ -12,6 +12,7 @@ import { nightGlass } from "@/components/nightGlass";
 export default function StaysScreen() {
   const { program } = useContent();
   const { stays } = program;
+  const router = useRouter();
   return (
     <Screen edge="none">
       <StackHeader title="Accommodations" />
@@ -39,11 +40,14 @@ export default function StaysScreen() {
                 <T variant="eyebrow" numberOfLines={2}>{island.route}</T>
                 <T variant="rowTitle" numberOfLines={2}>{island.island}</T>
                 <T variant="meta" numberOfLines={3}>{island.dock}</T>
-                <Link href={{ pathname: "/stays/[id]", params: { id: island.id } }} asChild>
-                  <Pressable accessibilityRole="link" accessibilityLabel={`Open ${island.island}`} style={({ pressed }) => [styles.open, pressed && styles.pressed]}>
-                    <T variant="button" color={colors.ink}>Open</T>
-                  </Pressable>
-                </Link>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={`Open ${island.island}`}
+                  onPress={() => router.push({ pathname: "/stays/[id]", params: { id: island.id } })}
+                  style={({ pressed }) => [styles.open, pressed && styles.pressed]}
+                >
+                  <T variant="button" color={colors.ink}>Open</T>
+                </Pressable>
               </View>
             </View>
           ))}
