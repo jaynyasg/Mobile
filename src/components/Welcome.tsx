@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContent } from "@/content/provider";
 import { webTrackStore, writeTracks } from "@/guide/interests";
 import { beaconPoster } from "@/images";
+import { visitorEdition } from "@/content/labels";
 import { colors, sceneForIsland } from "@/theme";
 import { T } from "./Text";
 
@@ -43,7 +44,7 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
       <View style={[styles.copy, { paddingBottom: Math.max(insets.bottom, 24) + 16, paddingTop: insets.top + 24 }]}>
         {step === 0 ? (
           <>
-            <T variant="eyebrow" color={colors.gold}>{forum.edition}</T>
+            <T variant="eyebrow" color={colors.gold}>{visitorEdition(forum.edition)}</T>
             <T variant="title" color={colors.foam}>{forum.kicker}</T>
             <T variant="small" color={colors.foam}>{forum.dateLabel}</T>
             <Pressable accessibilityRole="button" accessibilityLabel="Continue" onPress={() => setStep(1)} style={styles.pill}>

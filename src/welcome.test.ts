@@ -35,7 +35,7 @@ describe("first-visit welcome", () => {
       passNote: "The pass is a design preview. No payment is collected.",
     });
     expect(pages.map((page) => page.id)).toEqual(["what", "islands", "sessions", "around", "together"]);
-    expect(pages[0]?.kicker).toBe("Conversations");
+    expect(pages[0]?.kicker).toBe("Sessions");
     expect(pages[0]?.title).toBe(forum.kicker);
     expect(pages[0]?.body).toContain(forum.dateLabel);
     expect(pages[1]?.body).toContain("St. Thomas");

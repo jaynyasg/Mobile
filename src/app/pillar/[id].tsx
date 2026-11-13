@@ -26,8 +26,8 @@ export default function PillarScreen() {
   if (!pillar) {
     return (
       <Screen edge="none">
-        <StackHeader title="Pillar" />
-        <T variant="body" style={{ padding: pad }}>This pillar is not in the draft.</T>
+        <StackHeader title="Track" />
+        <T variant="body" style={{ padding: pad }}>This track is not in the program.</T>
       </Screen>
     );
   }
@@ -43,7 +43,7 @@ export default function PillarScreen() {
         <View pointerEvents="none" style={styles.shade} />
         <View pointerEvents="none" style={styles.heroCopy}>
           <T variant="eyebrow" color={colors.gold}>
-            Planning home
+            {pillar.island}
           </T>
           <T variant="title" color={colors.ivory}>
             {pillar.name}

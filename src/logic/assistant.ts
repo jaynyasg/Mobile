@@ -72,7 +72,7 @@ const STOP = new Set([
 ]);
 
 const FALLBACK =
-  "I only know the TATEL Conversations draft on this device: proposed sessions, panelists, islands, sample transport, stays, and the pass preview. Try a name, a pillar, or an island.";
+  "I only know the TATEL sessions on this device: proposed sessions, panelists, islands, sample transport, stays, and the pass preview. Try a name, a track, or an island.";
 
 function tokens(value: string): string[] {
   return value

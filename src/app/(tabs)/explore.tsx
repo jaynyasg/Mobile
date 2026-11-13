@@ -4,6 +4,7 @@ import { FeedCard } from "@/components/FeedCard";
 import { ZoneMap } from "@/components/ZoneMap";
 import { T } from "@/components/Text";
 import { useContent } from "@/content/provider";
+import { islandTrackLabel } from "@/content/labels";
 import { zoneReelIds, type ReelId } from "@/content/reels";
 import { islandStamp, prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { isExplored, localReelStore } from "@/reels/gate";
@@ -40,7 +41,7 @@ export default function ExploreScreen() {
         <FeedCard
           image={sceneForIsland("St. Thomas")}
           alt="A route across the water"
-          kicker="How you move"
+          kicker="Transport"
           headline="Sample routes"
           line="Powerboat, ferries, or a yacht. Unconfirmed."
           cta="Open"
@@ -49,15 +50,16 @@ export default function ExploreScreen() {
         {forum.pillars.map((pillar) => {
           const zoneId = (zoneReelIds as readonly string[]).includes(pillar.id) ? (pillar.id as ReelId) : null;
           const explored = isExplored(localReelStore(), pillar.id);
+          const label = islandTrackLabel(pillar.island, pillar.name);
           return (
             <FeedCard
               key={pillar.id}
               image={sceneForIsland(pillar.island)}
-              alt={pillar.island}
-              kicker={explored ? "Explored" : "Island"}
-              headline={pillar.island}
-              line={pillar.name}
-              cta="Enter"
+              alt={label}
+              headline={label}
+              line={explored ? "You have opened this island." : "Open this island."}
+              cta="Open"
+              done={explored}
               onPress={() => {
                 if (zoneId) openChapter(zoneId, { pathname: "/pillar/[id]", params: { id: pillar.id } });
               }}

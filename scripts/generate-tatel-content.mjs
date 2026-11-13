@@ -240,7 +240,7 @@ const content = {
   forum: {
     id: "tatel",
     name: "TATEL",
-    edition: "Conversations",
+    edition: "Sessions",
     kicker: "The tech summit on water",
     dateLabel: "January 26 – 29, 2027",
     placeLabel: "Four days · across the Virgin Islands",

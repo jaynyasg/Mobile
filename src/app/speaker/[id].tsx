@@ -43,7 +43,7 @@ export default function PanelistScreen() {
         </T>
         {person.origin ? <T variant="meta">{person.origin}</T> : null}
         {person.bio ? <T variant="small">{displayCopy(person.bio)}</T> : null}
-        <T variant="meta">The island is the planning home for linked sessions. The specific venue is to be confirmed.</T>
+        <T variant="meta">The island is where these sessions are planned. The exact place is still to be confirmed.</T>
         <Link href={{ pathname: "/pillar/[id]", params: { id: person.proposedPillarId } }} asChild>
           <Pressable accessibilityRole="button">
             <T variant="small" color={colors.gold}>

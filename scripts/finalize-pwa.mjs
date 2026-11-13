@@ -8,9 +8,9 @@ const htmlPath = path.join(dist, "index.html");
 if (!existsSync(htmlPath)) throw new Error("dist/index.html is missing. Run expo export -p web first.");
 
 const manifest = {
-  name: "TATEL · Conversations",
+  name: "TATEL · Sessions",
   short_name: "TATEL",
-  description: "TATEL · Conversations. January 26–29, 2027, across the Virgin Islands.",
+  description: "TATEL · Sessions. January 26–29, 2027, across the Virgin Islands.",
   id: "https://tatel.app/",
   start_url: "https://tatel.app/",
   scope: "https://tatel.app/",

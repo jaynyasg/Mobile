@@ -1,3 +1,5 @@
+import { visitorEdition } from "@/content/labels";
+
 export const WELCOME_KEY = "tatel.welcomeSeen";
 
 interface WelcomeStorage {
@@ -43,7 +45,7 @@ export function welcomePages(input: {
   return [
     {
       id: "what",
-      kicker: input.edition,
+      kicker: visitorEdition(input.edition),
       title: input.kicker,
       body: `${input.name}. ${input.dateLabel}. ${input.placeLabel}.`,
     },

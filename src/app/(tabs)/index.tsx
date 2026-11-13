@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFocusEffect, useRouter } from "expo-router";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
 import { FeedCard } from "@/components/FeedCard";
@@ -9,83 +10,99 @@ import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
 import { Welcome } from "@/components/Welcome";
 import { useContent } from "@/content/provider";
-import { markUnlockSeen, readTracks, unlockSeen, webTrackStore } from "@/guide/interests";
-import { adventureLine, questsForProgram, readStamps } from "@/guide/stamps";
-import { forumPhase, suggestedDayId } from "@/logic/phase";
-import { isExplored, localReelStore } from "@/reels/gate";
+import { islandTrackLabel } from "@/content/labels";
+import { readTracks, webTrackStore } from "@/guide/interests";
+import { guideSteps, markGuide, readGuide, stepDone } from "@/guide/path";
+import { readStamps } from "@/guide/stamps";
+import { suggestedDayId } from "@/logic/phase";
+import { INTRO_DAY_KEY, isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
 import { zoneReelIds, type ReelId } from "@/content/reels";
-import { colors, sceneForIsland } from "@/theme";
+import { colors, sceneForIsland, scenePhotos } from "@/theme";
 import { hasSeenWelcome, markWelcomeSeen, webStorage } from "@/welcome";
-import { useRouter } from "expo-router";
+import { useApp } from "@/store";
+
+const stepImage: Record<(typeof guideSteps)[number]["id"], string> = {
+  welcome: "/reels/tatel-welcome-intro-poster.jpg",
+  tracks: sceneForIsland("St. Thomas"),
+  sessions: sceneForIsland("St. John"),
+  transport: sceneForIsland("St. Thomas"),
+  stay: sceneForIsland("Lovango"),
+  know: sceneForIsland("Scrub Island"),
+  pass: sceneForIsland("Jost Van Dyke"),
+  chat: scenePhotos.community,
+};
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
   const { forum, sessions } = program;
+  const { state } = useApp();
   const router = useRouter();
-  const { openChapter, replayIntro } = useReels();
+  const { openChapter, replayIntro, guideTick } = useReels();
   const [mode, setMode] = useState<"you" | "explore">("you");
   const [welcome, setWelcome] = useState(false);
   const [welcomeStart, setWelcomeStart] = useState<"arrival" | "tracks">("arrival");
   const [deck, setDeck] = useState(false);
   const [tracks, setTracks] = useState<string[]>([]);
-  const [seenUnlock, setSeenUnlock] = useState(true);
-  const phase = forumPhase(new Date());
-  const dayId = suggestedDayId(new Date());
+  const [marked, setMarked] = useState<string[]>([]);
+  const [introPlayed, setIntroPlayed] = useState(false);
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     const store = webTrackStore();
     setTracks(readTracks(store));
-    setSeenUnlock(unlockSeen(store));
+    setMarked(readGuide(store));
+    setIntroPlayed(localReelStore()?.getItem(INTRO_DAY_KEY) != null);
+  }, []);
+
+  useEffect(() => {
+    refresh();
     if (!hasSeenWelcome(webStorage())) {
       setWelcomeStart("arrival");
       setWelcome(true);
     }
-  }, []);
+  }, [refresh, guideTick]);
+
+  useFocusEffect(useCallback(() => {
+    refresh();
+  }, [refresh]));
 
   function closeWelcome() {
     markWelcomeSeen(webStorage());
-    const store = webTrackStore();
-    setTracks(readTracks(store));
-    setSeenUnlock(unlockSeen(store));
+    refresh();
     setWelcome(false);
   }
 
-  const chosen = tracks.length ? forum.pillars.filter((pillar) => tracks.includes(pillar.id)) : forum.pillars;
+  const dayId = suggestedDayId(new Date());
   const next = sessions
-    .filter((session) => session.dayId === dayId && session.start && (tracks.length === 0 || tracks.includes(session.pillarId)))
+    .filter((session) => session.dayId === dayId && session.start)
     .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))[0];
-  const showUnlock = tracks.length > 0 && !seenUnlock;
-  const dayMeta = forum.days.find((day) => day.id === dayId);
-  const quests = questsForProgram({
-    dayId,
-    sessions,
-    modes: program.transport.modes,
-    weekAgenda: forum.weekAgenda,
-  });
-  const adventure = adventureLine(
-    quests,
-    readStamps(localReelStore()),
-    next ? `${sessionWhen(next, forum.timezone)} · ${next.island}` : dayMeta?.phase ?? forum.placeLabel,
-  );
+  const stamps = readStamps(localReelStore());
+  const progress = {
+    marked,
+    introPlayed,
+    trackCount: tracks.length,
+    savedSessions: state.favoriteIds.length,
+    openedNotes: stamps.some((stamp) => stamp.startsWith("know:")),
+  };
+  const doneCount = guideSteps.filter((step) => stepDone(step.id, progress)).length;
 
-  function openAdventure() {
-    const stamp = adventure.stamp ?? "";
-    if (stamp.startsWith("session:")) {
-      router.push({ pathname: "/session/[id]", params: { id: stamp.slice("session:".length) } });
-      return;
+  function openStep(id: (typeof guideSteps)[number]["id"]) {
+    if (id !== "welcome") {
+      markGuide(webTrackStore(), id);
+      setMarked(readGuide(webTrackStore()));
     }
-    if (stamp.startsWith("island:")) {
-      const id = stamp.slice("island:".length) as ReelId;
-      openChapter(id, { pathname: "/pillar/[id]", params: { id } });
-      return;
+    if (id === "welcome") replayIntro();
+    if (id === "tracks") {
+      setWelcomeStart("tracks");
+      setWelcome(true);
     }
-    if (stamp === "reel:transport") {
-      openChapter("transport", "/transport");
-      return;
-    }
-    if (next) router.push({ pathname: "/session/[id]", params: { id: next.id } });
+    if (id === "sessions") openChapter("sessions", "/agenda");
+    if (id === "transport") openChapter("transport", "/transport");
+    if (id === "stay") router.push("/stays");
+    if (id === "know") setDeck(true);
+    if (id === "pass") openChapter("pass", "/passport");
+    if (id === "chat") router.push("/community");
   }
 
   return (
@@ -105,80 +122,32 @@ export default function HomeScreen() {
         </View>
         {mode === "you" ? (
           <>
-            <FeedCard
-              image={sceneForIsland("St. Thomas")}
-              alt="Today's water"
-              kicker={phase.phase === "live" ? "Today's adventure" : dayMeta?.label ?? "The crossing"}
-              headline={adventure.title}
-              line={adventure.line}
-              cta="Open"
-              onPress={openAdventure}
-            />
-            {showUnlock ? (
-              <FeedCard
-                image={sceneForIsland(chosen[0]?.island)}
-                alt="Open water"
-                kicker="Unlocked"
-                headline="Your islands are open"
-                line={chosen.map((pillar) => pillar.name).join(" · ")}
-                cta="See them"
-                onPress={() => {
-                  markUnlockSeen(webTrackStore());
-                  setSeenUnlock(true);
-                  setMode("explore");
-                }}
-              />
+            <T variant="meta" color={colors.gold} style={styles.progress}>{doneCount} of {guideSteps.length} done</T>
+            {next ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Happening next, ${next.title}`}
+                onPress={() => router.push({ pathname: "/session/[id]", params: { id: next.id } })}
+                style={styles.next}
+              >
+                <T variant="meta" color={colors.gold}>Happening next</T>
+                <T variant="small" color={colors.foam} numberOfLines={1}>{next.title}</T>
+                <T variant="meta" color={colors.foam} numberOfLines={1}>{sessionWhen(next, forum.timezone)} · {next.island}</T>
+              </Pressable>
             ) : null}
-            {tracks.length === 0 ? (
-              <FeedCard
-                image={sceneForIsland(forum.pillars[0]?.island)}
-                alt="The coast"
-                kicker={forum.edition}
-                headline="Choose your tracks"
-                line="Tech, AI, travel, entertainment, or law."
-                cta="Continue"
-                onPress={() => {
-                  setWelcomeStart("tracks");
-                  setWelcome(true);
-                }}
-              />
-            ) : null}
-            <FeedCard
-              image={sceneForIsland("St. John")}
-              alt="Island water"
-              kicker={phase.phase === "live" ? "Today" : forum.dateLabel}
-              headline={next ? next.title : "Need to know"}
-              line={next ? `${sessionWhen(next, forum.timezone)} · ${next.island}` : "Passports, boats, sun, and the clock."}
-              cta={next ? "Open" : "Open"}
-              onPress={() => {
-                if (next) router.push({ pathname: "/session/[id]", params: { id: next.id } });
-                else setDeck(true);
-              }}
-            />
-            <FeedCard
-              image={sceneForIsland("St. Thomas")}
-              alt="A harbor"
-              kicker="Before you fly"
-              headline="Need to know"
-              line="Short cards. Check anything that can change."
-              cta="Open"
-              onPress={() => setDeck(true)}
-            />
-            {chosen.map((pillar) => {
-              const zoneId = (zoneReelIds as readonly string[]).includes(pillar.id) ? (pillar.id as ReelId) : null;
-              const explored = isExplored(localReelStore(), pillar.id);
+            {guideSteps.map((step, index) => {
+              const done = stepDone(step.id, progress);
               return (
                 <FeedCard
-                  key={pillar.id}
-                  image={sceneForIsland(pillar.island)}
-                  alt={pillar.island}
-                  kicker={explored ? "Explored" : "For you"}
-                  headline={pillar.island}
-                  line={pillar.name}
-                  cta="Enter"
-                  onPress={() => {
-                    if (zoneId) openChapter(zoneId, { pathname: "/pillar/[id]", params: { id: pillar.id } });
-                  }}
+                  key={step.id}
+                  image={stepImage[step.id]}
+                  alt={step.headline}
+                  kicker={done ? "Done" : `Step ${index + 1} of ${guideSteps.length}`}
+                  headline={step.headline}
+                  line={step.line}
+                  cta={done && step.id === "welcome" ? "Replay" : step.cta}
+                  done={done}
+                  onPress={() => openStep(step.id)}
                 />
               );
             })}
@@ -187,15 +156,16 @@ export default function HomeScreen() {
           forum.pillars.map((pillar) => {
             const zoneId = (zoneReelIds as readonly string[]).includes(pillar.id) ? (pillar.id as ReelId) : null;
             const explored = isExplored(localReelStore(), pillar.id);
+            const label = islandTrackLabel(pillar.island, pillar.name);
             return (
               <FeedCard
                 key={pillar.id}
                 image={sceneForIsland(pillar.island)}
-                alt={pillar.island}
-                kicker={explored ? "Explored" : "A zone"}
-                headline={pillar.island}
-                line={pillar.name}
-                cta="Enter"
+                alt={label}
+                headline={label}
+                line={explored ? "You have opened this island." : "Open this island."}
+                cta="Open"
+                done={explored}
                 onPress={() => {
                   if (zoneId) openChapter(zoneId, { pathname: "/pillar/[id]", params: { id: pillar.id } });
                 }}
@@ -203,8 +173,8 @@ export default function HomeScreen() {
             );
           })
         )}
-        <Pressable accessibilityRole="button" accessibilityLabel="Replay intro" onPress={replayIntro} style={styles.replay}>
-          <T variant="meta" color={colors.gold}>Replay arrival</T>
+        <Pressable accessibilityRole="button" accessibilityLabel="Replay the welcome" onPress={replayIntro} style={styles.replay}>
+          <T variant="meta" color={colors.gold}>Replay the welcome</T>
         </Pressable>
       </ScrollView>
       {welcome ? <Welcome start={welcomeStart} onClose={closeWelcome} /> : null}
@@ -220,5 +190,17 @@ const styles = StyleSheet.create({
   switch: { flexDirection: "row", alignSelf: "center", marginBottom: 14, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
+  progress: { marginLeft: 22, marginBottom: 10 },
+  next: {
+    marginHorizontal: 16,
+    marginBottom: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    gap: 2,
+    backgroundColor: "rgba(7,27,42,0.58)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(255,224,138,0.48)",
+  },
   replay: { alignSelf: "center", minHeight: 44, justifyContent: "center", marginBottom: 12 },
 });

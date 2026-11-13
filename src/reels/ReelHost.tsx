@@ -3,6 +3,8 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 import { Platform, View } from "react-native";
 import { ReelPlayer, type ReelExit } from "@/components/ReelPlayer";
 import { reels, type Reel, type ReelId } from "@/content/reels";
+import { markGuide } from "@/guide/path";
+import { webTrackStore } from "@/guide/interests";
 import { addStamp, islandStamp, pulse, prefersReducedMotion, reelStamp } from "@/guide/stamps";
 import {
   hasSeenChapter,
@@ -29,6 +31,7 @@ interface ReelApi {
   markZone: (zoneId: string) => void;
   zoneExplored: (zoneId: string) => boolean;
   exploredVersion: number;
+  guideTick: number;
 }
 
 const ReelContext = createContext<ReelApi | null>(null);
@@ -59,6 +62,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [pending, setPending] = useState<PendingReel | null>(null);
   const [exploredVersion, setExploredVersion] = useState(0);
+  const [guideTick, setGuideTick] = useState(0);
   const pendingRef = useRef(pending);
   pendingRef.current = pending;
 
@@ -104,6 +108,8 @@ export function ReelHost({ children }: { children: ReactNode }) {
     if (addStamp(localReelStore(), reelStamp(reel.id))) pulse(prefersReducedMotion());
     if (reel.kind === "intro") {
       markIntroPlayed(localReelStore());
+      markGuide(webTrackStore(), "welcome");
+      setGuideTick((tick) => tick + 1);
     } else {
       markChapterSeen(chapterStore(), reel.id);
       bumpZone(reel.zoneId);
@@ -119,7 +125,8 @@ export function ReelHost({ children }: { children: ReactNode }) {
     markZone,
     zoneExplored,
     exploredVersion,
-  }), [openChapter, replayIntro, markZone, zoneExplored, exploredVersion]);
+    guideTick,
+  }), [openChapter, replayIntro, markZone, zoneExplored, exploredVersion, guideTick]);
 
   return (
     <ReelContext.Provider value={value}>

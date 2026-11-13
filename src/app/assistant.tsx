@@ -49,7 +49,7 @@ export default function AssistantScreen() {
         <TextInput
           value={draft}
           onChangeText={setDraft}
-          placeholder="Ask about a panelist, pillar, or route"
+          placeholder="Ask about a panelist, a track, or a route"
           placeholderTextColor="rgba(245,241,232,0.62)"
           style={styles.input}
           accessibilityLabel="Question"

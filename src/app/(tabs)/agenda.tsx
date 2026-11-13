@@ -63,7 +63,7 @@ export default function AgendaScreen() {
       ? `No ${topicName} sessions for this day. Clear the topic, or pick another day.`
       : island !== "all"
         ? `No sessions on ${island} for this day. Clear the island, or pick another day.`
-        : "Nothing in this cut. Clear a filter. The draft is still here.";
+        : "Nothing matches. Clear a filter.";
 
   return (
     <View style={styles.frame}>
@@ -127,7 +127,7 @@ export default function AgendaScreen() {
           <T variant="meta">{visible.length} sessions</T>
         </Glass>
         {visible.length === 0 ? (
-          <EmptyState title="This cut is quiet" body={emptyBody} />
+          <EmptyState title="Nothing on this day" body={emptyBody} />
         ) : (
           visible.map((session) => <SessionRow key={session.id} session={session} />)
         )}

@@ -1,5 +1,6 @@
 import type { Panelist, ProgramData, Session, SessionVenue, Venue } from "./types";
 import { bundle } from "./bundle";
+import { visitorEdition } from "./labels";
 
 export type ParseResult = { ok: true; program: ProgramData } | { ok: false; error: string };
 
@@ -58,6 +59,7 @@ function normalizeApp(input: Record<string, unknown>, base: ProgramData): ParseR
   if (input.forum !== undefined) {
     if (!isRecord(input.forum)) return { ok: false, error: "forum is not an object" };
     program.forum = { ...base.forum, ...(input.forum as unknown as ProgramData["forum"]) };
+    program.forum.edition = visitorEdition(program.forum.edition);
   }
   if (input.venues !== undefined) {
     if (!Array.isArray(input.venues)) return { ok: false, error: "venues must be a list" };
@@ -94,6 +96,7 @@ function normalizeApp(input: Record<string, unknown>, base: ProgramData): ParseR
   if (isRecord(input.sampleModel) && typeof input.sampleModel.src === "string") {
     program.sampleModel = { src: input.sampleModel.src, label: text(input.sampleModel.label, base.sampleModel.label) };
   }
+  program.forum.edition = visitorEdition(program.forum.edition);
   return { ok: true, program };
 }
 
@@ -216,7 +219,7 @@ function normalizeSite(input: Record<string, unknown>, base: ProgramData): Parse
     });
   }
 
-  const forum = { ...base.forum };
+  const forum = { ...base.forum, edition: visitorEdition(base.forum.edition) };
   if (typeof siteProgram.timezone === "string") forum.timezoneLabel = siteProgram.timezone;
   if (typeof siteProgram.timingNote === "string") forum.timingNote = siteProgram.timingNote;
   if (Array.isArray(siteProgram.weekAgenda)) forum.weekAgenda = siteProgram.weekAgenda as ProgramData["forum"]["weekAgenda"];

@@ -12,6 +12,7 @@ export function FeedCard({
   headline,
   line,
   cta,
+  done = false,
   onPress,
 }: {
   image: string;
@@ -20,6 +21,7 @@ export function FeedCard({
   headline: string;
   line: string;
   cta: string;
+  done?: boolean;
   onPress: () => void;
 }) {
   const [reduce, setReduce] = useState(true);
@@ -29,6 +31,11 @@ export function FeedCard({
     <View style={[styles.card, !reduce && pressed && styles.pressed]}>
       <Image source={{ uri: image }} accessibilityLabel={alt} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <PhotoShade />
+      {done ? (
+        <View style={styles.check} accessibilityLabel="Done">
+          <T variant="button" color={colors.ink}>✓</T>
+        </View>
+      ) : null}
       <View style={styles.copy}>
         {kicker ? <T variant="eyebrow" color={colors.gold}>{kicker}</T> : null}
         <T variant="title" color={colors.foam} numberOfLines={2}>{headline}</T>
@@ -59,6 +66,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#071421",
   },
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  check: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 2,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gold,
+  },
   copy: {
     gap: 8,
     padding: 18,

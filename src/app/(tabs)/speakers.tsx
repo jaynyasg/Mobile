@@ -13,7 +13,7 @@ import { View } from "react-native";
 
 export default function PanelistsScreen() {
   const { program } = useContent();
-  const { forum, panelists } = program;
+  const { panelists } = program;
   const [query, setQuery] = useState("");
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
 
@@ -44,7 +44,7 @@ export default function PanelistsScreen() {
         })
       )}
       <View style={{ height: 12 }} />
-      <PageHeader kicker="Planning homes" title={forum.edition} subtitle="Scene choice and profile choice stay independent. A portrait does not confirm a venue." />
+      <PageHeader title="Where sessions meet" subtitle="The island is the plan. The exact place is still to be confirmed." />
     </Screen>
   );
 }

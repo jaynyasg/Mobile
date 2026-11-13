@@ -66,7 +66,14 @@ describe("reel gate", () => {
       expect(reels[id].durationMs).toBeLessThanOrEqual(8_000);
       expect(reels[id].mp4.startsWith("/reels/")).toBe(true);
     }
-    expect(zoneReelIds.map((id) => reels[id].title)).toEqual(["Tech", "AI", "Travel", "Entertainment", "Law"]);
+    expect(zoneReelIds.map((id) => reels[id].title)).toEqual([
+      "St. Thomas · Tech",
+      "St. John · AI",
+      "Scrub Island · Travel",
+      "Jost Van Dyke · Entertainment",
+      "Lovango · Law",
+    ]);
+    expect(zoneReelIds.map((id) => reels[id].kicker).join(" ")).not.toMatch(/zone/i);
     expect(zoneReelIds.map((id) => reels[id].poster)).toEqual([
       "/reels/tech-poster.jpg",
       "/reels/ai-poster.jpg",
