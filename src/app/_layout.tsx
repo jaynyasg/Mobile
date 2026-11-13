@@ -1,8 +1,9 @@
+import { freshReset } from "@/fresh";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Platform, View } from "react-native";
 import { AuthProvider } from "@/community/auth";
 import { ContentProvider } from "@/content/provider";
@@ -19,6 +20,18 @@ listenForInstallPrompt();
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
+  const [resetting, setResetting] = useState(freshReset != null);
+  useEffect(() => {
+    if (!freshReset) return;
+    let live = true;
+    freshReset.finally(() => {
+      if (live) setResetting(false);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (resetting) return null;
   return (
     <AppProvider>
       <ContentProvider>
