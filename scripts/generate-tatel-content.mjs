@@ -4,10 +4,12 @@
  *   TATEL_SOURCE=/path/to/tatel-site node scripts/generate-tatel-content.mjs
  *
  * Canonical input: raw/public/tatel/downloads/tatel-2027-program.json
- * Accommodations: venues.json
- * Portraits are copied only when the file already exists under assets/tatel/portraits.
+ * When that file is missing, the published program is downloaded.
+ * Accommodations: venues.json, or the venues already in src/content/tatel.json.
+ * Missing raster portraits are downloaded and saved as optimized .webp.
+ * SVG files and placeholder stems are skipped.
  */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,6 +18,8 @@ const sourceRoot = path.resolve(process.env.TATEL_SOURCE ?? "/tmp/tatel-site");
 const programPath = path.join(sourceRoot, "raw/public/tatel/downloads/tatel-2027-program.json");
 const venuesPath = path.join(sourceRoot, "venues.json");
 const portraitDir = path.join(repoRoot, "assets/tatel/portraits");
+const publishedProgramUrl = "https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json";
+const portraitOrigin = "https://tatel.18seventy8.com/tatel/";
 
 function slug(value) {
   return value
@@ -26,12 +30,87 @@ function slug(value) {
     .replace(/^-|-$/g, "");
 }
 
-const downloaded = JSON.parse(readFileSync(programPath, "utf8"));
-const venueFile = JSON.parse(readFileSync(venuesPath, "utf8"));
+function venuesFromBundle() {
+  const bundledPath = path.join(repoRoot, "src/content/tatel.json");
+  if (!existsSync(bundledPath)) throw new Error("venues.json is missing, and there is no previous bundle to reuse");
+  const bundled = JSON.parse(readFileSync(bundledPath, "utf8"));
+  const bvi = bundled.stays?.groups?.find((group) => group.heading === "British Virgin Islands");
+  return {
+    source: {
+      intro: bundled.stays?.intro ?? "",
+      brochure: bundled.stays?.brochureUrl ?? "",
+      sourcePagesNote: bundled.stays?.brochureNote ?? "",
+      bviIntro: bvi?.intro ?? "",
+    },
+    islands: bundled.venues.map((venue) => ({
+      island: venue.island,
+      region: venue.region,
+      route: venue.route,
+      dock: venue.dock,
+      image: { src: venue.photos?.[0]?.src ?? "", alt: venue.photos?.[0]?.alt ?? venue.island },
+      onTheBoat: (venue.boat ?? []).map((stay) => ({
+        name: stay.name,
+        url: stay.href,
+        linkType: stay.localDeck ? "pdf-preview" : "web",
+      })),
+      onTheBeachOrLand: (venue.land ?? []).map((stay) => ({
+        name: stay.name,
+        url: stay.href,
+        linkType: stay.localDeck ? "pdf-preview" : "web",
+      })),
+      notes: { onTheBoat: venue.noteBoat ?? "", onTheBeachOrLand: venue.noteLand ?? "" },
+    })),
+  };
+}
+
+async function loadProgram() {
+  if (existsSync(programPath)) return JSON.parse(readFileSync(programPath, "utf8"));
+  const response = await fetch(publishedProgramUrl);
+  if (!response.ok) throw new Error(`Could not download the program (${response.status})`);
+  return response.json();
+}
+
+function skipPortrait(photoPath) {
+  const base = path.basename(photoPath ?? "");
+  if (!base) return true;
+  const lower = base.toLowerCase();
+  if (lower.endsWith(".svg")) return true;
+  const stem = lower.replace(/\.[^.]+$/, "");
+  return stem.includes("placeholder");
+}
+
+async function ensurePortrait(photoPath) {
+  if (skipPortrait(photoPath)) return "";
+  const base = path.basename(photoPath);
+  const stem = base.replace(/\.[^.]+$/, "");
+  const webp = `${stem}.webp`;
+  const dest = path.join(portraitDir, webp);
+  if (existsSync(dest)) return webp;
+  if (existsSync(path.join(portraitDir, base))) return base;
+  const url = new URL(String(photoPath).replace(/^\//, ""), portraitOrigin).href;
+  const response = await fetch(url);
+  if (!response.ok) {
+    console.warn(`portrait not downloaded ${url} (${response.status})`);
+    return "";
+  }
+  const bytes = Buffer.from(await response.arrayBuffer());
+  mkdirSync(portraitDir, { recursive: true });
+  const sharp = (await import("sharp")).default;
+  await sharp(bytes).rotate().resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true }).webp({ quality: 78 }).toFile(dest);
+  console.log(`portrait saved ${webp}`);
+  return webp;
+}
+
+const downloaded = await loadProgram();
+const venueFile = existsSync(venuesPath) ? JSON.parse(readFileSync(venuesPath, "utf8")) : venuesFromBundle();
 const { program, sessions: sessionsRaw, agendas, presenters } = downloaded;
 
-if (sessionsRaw.length !== 205) throw new Error(`Expected 205 sessions, found ${sessionsRaw.length}`);
-if (presenters.length !== 49) throw new Error(`Expected 49 presenters, found ${presenters.length}`);
+if (!Array.isArray(sessionsRaw) || sessionsRaw.length < 150 || sessionsRaw.length > 400) {
+  throw new Error(`Expected a session list, found ${sessionsRaw?.length ?? 0}`);
+}
+if (!Array.isArray(presenters) || presenters.length < 20 || presenters.length > 120) {
+  throw new Error(`Expected between 20 and 120 presenters, found ${presenters?.length ?? 0}`);
+}
 
 const used = new Map();
 function uniqueSlug(name) {
@@ -139,16 +218,6 @@ const sessions = sessionsRaw.map((session) => {
   };
 });
 
-function portraitFile(photoPath) {
-  const base = path.basename(photoPath ?? "");
-  if (!base || base.toLowerCase().endsWith(".svg")) return "";
-  const stem = base.replace(/\.[^.]+$/, "");
-  const webp = `${stem}.webp`;
-  if (stem && existsSync(path.join(portraitDir, webp))) return webp;
-  if (base && existsSync(path.join(portraitDir, base))) return base;
-  return "";
-}
-
 const firstSession = new Map();
 for (const session of sessions) {
   for (const id of session.speakerIds) {
@@ -156,11 +225,12 @@ for (const session of sessions) {
   }
 }
 
-const panelists = presenters.map((person) => {
+const panelists = [];
+for (const person of presenters) {
   const id = idByName.get(person.name);
   const home = firstSession.get(id);
-  const photo = portraitFile(person.photo);
-  return {
+  const photo = person.photoPlaceholder === true ? "" : await ensurePortrait(person.photo);
+  panelists.push({
     id,
     name: person.name,
     displayName: person.displayName ?? null,
@@ -174,8 +244,8 @@ const panelists = presenters.map((person) => {
     keynote: person.keynote === true,
     proposedPillarId: home?.pillarId ?? "",
     proposedIsland: home?.island ?? "",
-  };
-});
+  });
+}
 
 const transport = {
   checked: agendas.checked,
@@ -234,6 +304,16 @@ function stayIsland(venue) {
   };
 }
 
+function keptAgenda(programAgenda) {
+  if (Array.isArray(programAgenda)) return programAgenda;
+  const bundledPath = path.join(repoRoot, "src/content/tatel.json");
+  if (!existsSync(bundledPath)) return [];
+  const agenda = JSON.parse(readFileSync(bundledPath, "utf8")).forum?.weekAgenda;
+  return Array.isArray(agenda) ? agenda : [];
+}
+
+const weekAgenda = keptAgenda(program.weekAgenda);
+
 const content = {
   generatedFrom: "TATEL website raw/public/tatel/downloads/tatel-2027-program.json plus venues.json",
   contentUrl: "/api/program",
@@ -244,13 +324,13 @@ const content = {
     kicker: "The tech summit on water",
     dateLabel: "January 26 – 29, 2027",
     placeLabel: "Four days · across the Virgin Islands",
-    startDate: program.weekAgenda?.[0]?.date ?? days[0].date,
-    endDate: program.weekAgenda?.[program.weekAgenda.length - 1]?.date ?? days[days.length - 1].date,
+    startDate: weekAgenda[0]?.date ?? days[0].date,
+    endDate: weekAgenda.at(-1)?.date ?? days[days.length - 1].date,
     timezone: "America/Virgin",
     timezoneLabel: program.timezone,
     draftNotice: "January 26–29, 2027 · Four days across the Virgin Islands.",
     timingNote: program.timingNote ?? "",
-    weekAgenda: program.weekAgenda ?? [],
+    weekAgenda,
     featuredStaffing: "Each session has one lead. Timed appearances are conflict-free; untimed activities still require scheduling.",
     participation: {
       featured: "Session lead",

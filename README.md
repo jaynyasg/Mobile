@@ -1,6 +1,6 @@
 # TATEL · Sessions
 
-A mobile preview of TATEL · Sessions, January 26–29, 2027, across the Virgin Islands. The website export is the source of truth: 205 sessions, 49 panelists, and five island accommodation stops. Specific venues, some clock times, and some leads are still unconfirmed, and the app says so the same way the site does. The word “Proposed” is kept out of the interface.
+A mobile preview of TATEL · Sessions, January 26–29, 2027, across the Virgin Islands. The website export is the source of truth: 205 sessions, 48 panelists, and five island accommodation stops. Specific venues, some clock times, and some leads are still unconfirmed, and the app says so the same way the site does. The word “Proposed” is kept out of the interface.
 
 The app is Expo SDK 58 with React Native and TypeScript. The install path is the web app. Android and iOS builds still open in Expo Go.
 
@@ -24,7 +24,7 @@ Regenerate the bundle from an extracted website archive:
 TATEL_SOURCE=/path/to/tatel-site npm run generate
 ```
 
-The canonical input is `raw/public/tatel/downloads/tatel-2027-program.json`, plus `venues.json`. Portraits are referenced only when the file is already in `assets/tatel/portraits`.
+The canonical input is `raw/public/tatel/downloads/tatel-2027-program.json`, plus `venues.json`. If the program file is not on disk, generate downloads `https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json`. A missing raster portrait is downloaded from that host and saved as an optimized `.webp`. SVG files and placeholder stems stay blank, and the app shows a monogram.
 
 ## Run it
 
@@ -103,7 +103,7 @@ Bottom tabs: **Home**, **Agenda**, **Panelists**, **Network**, **More**.
 
 From the website export:
 
-- 205 sessions (200 core, 5 supplementary) and 49 panelists
+- 205 sessions (200 core, 5 supplementary) and 48 panelists
 - Leads after `schedule-assignments.js`, including AI-KEYNOTE-D1
 - Five accommodation stops and their provider links
 - The draft notice and the timing note

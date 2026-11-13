@@ -131,21 +131,43 @@
   },
   "panelists": [
     {
-      "id": "malik-elizee",
-      "name": "Malik Elizee",
-      "displayName": null,
-      "company": "Microsoft",
-      "title": "Engineer Manager and Team Lead – Azure IaaS at Microsoft",
-      "photo": "p19-malik-elizee.webp",
-      "bio": "Engineer Manager and Team Lead – Azure IaaS at Microsoft. Professional background includes Azure IaaS at Microsoft, AI CALIX.",
+      "id": "sansara-cannon",
+      "name": "Sansara Cannon",
+      "displayName": "Sansara A. Cannon, Esq.",
+      "company": "TATEL",
+      "title": "Founder Chief Legal Counsel, Executive Director, CEO, CIO, Technologist, Digital and System Development, Analytics, Federal Compliance, Transactions, Corporate Development, Producer and Production Manager, Associate Attorney Advisor, Senior Counsel, Senior Investigative Attorney, Special Assistant Legislative Committee, Executive Branch Government House Legal Counsel, Assistant United States Attorney, Assistant District Attorney, Criminal Defense Attorney, IP Legal, Civil Litigation & Municipal Prosecutor, Victims Advocate Specialist, CLE Provider, Speaker, and AI Professor",
+      "photo": "sansara-cannon.webp",
+      "bio": "Founder Chief Legal Counsel, Executive Director, CEO, CIO, Technologist, Digital and System Development, Analytics, Federal Compliance, Transactions, Corporate Development, Producer and Production Manager, Associate Attorney Advisor, Senior Counsel, Senior Investigative Attorney, Special Assistant Legislative Committee, Executive Branch Government House Legal Counsel, Assistant United States Attorney, Assistant District Attorney, Criminal Defense Attorney, IP Legal, Civil Litigation & Municipal Prosecutor, Victims Advocate Specialist, CLE Provider, Speaker, and AI Professor. Professional background includes TATEL, The Center for Educational Grown, Inc, Blue Tarp Productions, LLC, 1878, LLC, ClearVantage Business Solutions LLC, Interior Office of Inspector General, Pandemic Response Committee, Council of Inspectors General on Integrity and Efficiency, U.S. International Development Finance Corporation, Peace Corps and Office of Inspector General, Council of Inspectors General on Integrity and Efficiency Legislative Committee, Government of the U.S. Virgin Islands, Government House, U.S. Department of Justice, United States Attorney’s Office, Bronx County District Attorney’s Office, New York City Government, Cardozo School of Law Defense Clinic, Legal Aid Society Manhattan, DaCheng Law Firms, Shanghai China Branch, City of Newark, U.S. Virgin Islands Department of Human Services, American Bar Association - Criminal Justice Section, Superior Court of the Virgin Islands, George Washington University.",
       "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "Original Virgin Islander",
+      "origin": "",
       "affiliations": [
-        "Azure IaaS at Microsoft",
-        "AI CALIX"
+        "TATEL",
+        "The Center for Educational Grown, Inc",
+        "Blue Tarp Productions, LLC",
+        "1878, LLC",
+        "ClearVantage Business Solutions LLC",
+        "Interior Office of Inspector General",
+        "Pandemic Response Committee",
+        "Council of Inspectors General on Integrity and Efficiency",
+        "U.S. International Development Finance Corporation",
+        "Peace Corps and Office of Inspector General",
+        "Council of Inspectors General on Integrity and Efficiency Legislative Committee",
+        "Government of the U.S. Virgin Islands, Government House",
+        "U.S. Department of Justice",
+        "United States Attorney’s Office",
+        "Bronx County District Attorney’s Office",
+        "New York City Government",
+        "Cardozo School of Law Defense Clinic",
+        "Legal Aid Society Manhattan",
+        "DaCheng Law Firms, Shanghai China Branch",
+        "City of Newark",
+        "U.S. Virgin Islands Department of Human Services",
+        "American Bar Association - Criminal Justice Section",
+        "Superior Court of the Virgin Islands",
+        "George Washington University"
       ],
-      "keynote": false,
-      "proposedPillarId": "tech",
+      "keynote": true,
+      "proposedPillarId": "entertainment",
       "proposedIsland": "St. Thomas"
     },
     {
@@ -162,9 +184,208 @@
         "Amazon",
         "Arent Fox"
       ],
+      "keynote": true,
+      "proposedPillarId": "law",
+      "proposedIsland": "Lovango"
+    },
+    {
+      "id": "artra-watlington-francis-mba",
+      "name": "Artra Watlington-Francis, MBA",
+      "displayName": null,
+      "company": "International Capital & Management Company",
+      "title": "Deputy Director of Finance and Compliance and Senior Financial Analyst",
+      "photo": "p13-artra-watlington-francis-mba.webp",
+      "bio": "Deputy Director of Finance and Compliance and Senior Financial Analyst. Professional background includes International Capital & Management Company, Innovative Telephone Corporation, ACE Group, Fannie Mae.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "Original Virgin Islander",
+      "affiliations": [
+        "International Capital & Management Company",
+        "Innovative Telephone Corporation",
+        "ACE Group",
+        "Fannie Mae"
+      ],
+      "keynote": true,
+      "proposedPillarId": "travel",
+      "proposedIsland": "Scrub Island"
+    },
+    {
+      "id": "tk-petersen",
+      "name": "TK Petersen",
+      "displayName": null,
+      "company": "TGS – The Gathering Spot Private Members Club",
+      "title": "Founder The Gathering Spot ATL & DC",
+      "photo": "p18-tk-petersen.webp",
+      "bio": "Founder The Gathering Spot ATL & DC. Professional background includes TGS - The Gathering Spot Private Members Club.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "Original Virgin Islander",
+      "affiliations": [
+        "TGS - The Gathering Spot Private Members Club"
+      ],
+      "keynote": true,
+      "proposedPillarId": "travel",
+      "proposedIsland": "Scrub Island"
+    },
+    {
+      "id": "cedric-campbell",
+      "name": "Cedric Campbell",
+      "displayName": null,
+      "company": "PRAC",
+      "title": "Attorney/Consultant, Leadership and Artificial Intelligence",
+      "photo": "cedric-campbell.webp",
+      "bio": "Attorney/Consultant, Leadership and Artificial Intelligence. Professional background includes PRAC, NASA.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "",
+      "affiliations": [
+        "PRAC",
+        "NASA"
+      ],
+      "keynote": true,
+      "proposedPillarId": "law",
+      "proposedIsland": "Lovango"
+    },
+    {
+      "id": "deshawn-plair",
+      "name": "Deshawn Plair",
+      "displayName": null,
+      "company": "MegaMind Media",
+      "title": "Producer | Writer | Director | Speaker",
+      "photo": "deshawn-plair-transparent.webp",
+      "bio": "Deshawn Plair is a writer, producer, director and creative executive, and VP of Content & Partnerships at MegaMind Media. A three-time NAACP Image Award winner and Peabody Award winner, she works across scripted and unscripted television, documentaries, digital media and branded content. Her credits include Hulu’s Freaknik: The Wildest Party Never Told, Showtime’s We Need to Talk About Cosby, ALLBLK’s For the Love of Jason and the Tubi film Glamping. She directed First Day Back and co-created the Auntie Cousin Podcast. Her work centers authentic voices, cultural storytelling and collaboration.",
+      "bioSourceLabel": "MegaMind Media biography",
+      "origin": "",
+      "affiliations": [
+        "Tubi",
+        "TVOne",
+        "BET+",
+        "HULU",
+        "MANSA"
+      ],
+      "keynote": true,
+      "proposedPillarId": "entertainment",
+      "proposedIsland": "Jost Van Dyke"
+    },
+    {
+      "id": "alex-harris",
+      "name": "Alex Harris",
+      "displayName": null,
+      "company": "LATAM",
+      "title": "Enterprise Customer Success Manager, Solutions and Partnership Manager, Market Research, Research and Teaching - Career Prep Fellow",
+      "photo": "alex-harris.webp",
+      "bio": "Enterprise Customer Success Manager, Solutions and Partnership Manager, Market Research, Research and Teaching - Career Prep Fellow. Professional background includes LATAM, Navan, META, Walt Disney, Texas Tech University, MLT.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "",
+      "affiliations": [
+        "LATAM",
+        "Navan",
+        "META",
+        "Walt Disney",
+        "Texas Tech University",
+        "MLT"
+      ],
+      "keynote": true,
+      "proposedPillarId": "travel",
+      "proposedIsland": "Scrub Island"
+    },
+    {
+      "id": "chris-ly",
+      "name": "Chris Ly",
+      "displayName": null,
+      "company": "",
+      "title": "CEO",
+      "photo": "chris-ly.webp",
+      "bio": "",
+      "bioSourceLabel": "",
+      "origin": "",
+      "affiliations": [
+        "Board of Directors",
+        "Traveling Stories",
+        "Baylor University",
+        "Georgetown University"
+      ],
+      "keynote": true,
+      "proposedPillarId": "ai",
+      "proposedIsland": "St. John"
+    },
+    {
+      "id": "jay-godfrey",
+      "name": "Jay Godfrey",
+      "displayName": null,
+      "company": "FBGM Limited Liability Company",
+      "title": "Founder & CEO, CIO, Engineer – AI, Software, Cloud, Virtualization, Network, Storage, Disaster Recovery, Systems, Automation, Security, QA, Solutions Architect, Project Manager, IT Manager, Client & Customer Success Manager, Consultant",
+      "photo": "jay-godfrey-transparent.webp",
+      "bio": "Founder & CEO, CIO, Engineer – AI, Software, Cloud, Virtualization, Network, Storage, Disaster Recovery, Systems, Automation, Security, QA, Solutions Architect, Project Manager, IT Manager, Client & Customer Success Manager, Consultant. Professional background includes FBGM Limited Liability Company, TATEL, Accenture, Sheppard Mullin Richter Hampton, SuperBuilders, Prime Communications, University of Texas at Austin, University of Houston.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "",
+      "affiliations": [
+        "FBGM Limited Liability Company",
+        "TATEL",
+        "Accenture",
+        "Sheppard Mullin Richter Hampton",
+        "SuperBuilders",
+        "Prime Communications",
+        "University of Texas at Austin",
+        "University of Houston"
+      ],
+      "keynote": false,
+      "proposedPillarId": "ai",
+      "proposedIsland": "St. John"
+    },
+    {
+      "id": "honorable-george-w-cannon-jr",
+      "name": "Honorable George W. Cannon Jr.",
+      "displayName": null,
+      "company": "Federal District Court - Judiciary",
+      "title": "United States Judge for the District Court of the Virgin Islands (from 2012 - 2021) 24 year Attorney and 18 year Judge",
+      "photo": "honorable-george-w-cannon-jr.webp",
+      "bio": "United States Judge for the District Court of the Virgin Islands (from 2012 - 2021) 24 year Attorney and 18 year Judge. Professional background includes Federal District Court - Judiciary, AG, Legal Aid.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "",
+      "affiliations": [
+        "Federal District Court - Judiciary",
+        "AG",
+        "Legal Aid"
+      ],
       "keynote": false,
       "proposedPillarId": "law",
       "proposedIsland": "Lovango"
+    },
+    {
+      "id": "george-cannon",
+      "name": "George Cannon",
+      "displayName": null,
+      "company": "Blue Tarp Productions",
+      "title": "Filmmaker, Director, Content Manager, Videographer, Marketing Communications Specialist, Destination Marketer",
+      "photo": "p05-george-cannon.webp",
+      "bio": "Filmmaker, Director, Content Manager, Videographer, Marketing Communications Specialist, Destination Marketer. Professional background includes Blue Tarp Productions, AMIkids, Food Network, Development Counselors international.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "Original Virgin Islander",
+      "affiliations": [
+        "Blue Tarp Productions",
+        "AMIkids",
+        "Food Network",
+        "Development Counselors international"
+      ],
+      "keynote": false,
+      "proposedPillarId": "entertainment",
+      "proposedIsland": "Jost Van Dyke"
+    },
+    {
+      "id": "malik-elizee",
+      "name": "Malik Elizee",
+      "displayName": null,
+      "company": "Microsoft",
+      "title": "Engineer Manager and Team Lead – Azure IaaS at Microsoft",
+      "photo": "p19-malik-elizee.webp",
+      "bio": "Engineer Manager and Team Lead – Azure IaaS at Microsoft. Professional background includes Azure IaaS at Microsoft, AI CALIX.",
+      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "origin": "Original Virgin Islander",
+      "affiliations": [
+        "Azure IaaS at Microsoft",
+        "AI CALIX"
+      ],
+      "keynote": false,
+      "proposedPillarId": "tech",
+      "proposedIsland": "St. Thomas"
     },
     {
       "id": "travis-long",
@@ -253,26 +474,6 @@
       "proposedIsland": "Scrub Island"
     },
     {
-      "id": "artra-watlington-francis-mba",
-      "name": "Artra Watlington-Francis, MBA",
-      "displayName": null,
-      "company": "International Capital & Management Company",
-      "title": "Deputy Director of Finance and Compliance and Senior Financial Analyst",
-      "photo": "p13-artra-watlington-francis-mba.webp",
-      "bio": "Deputy Director of Finance and Compliance and Senior Financial Analyst. Professional background includes International Capital & Management Company, Innovative Telephone Corporation, ACE Group, Fannie Mae.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "Original Virgin Islander",
-      "affiliations": [
-        "International Capital & Management Company",
-        "Innovative Telephone Corporation",
-        "ACE Group",
-        "Fannie Mae"
-      ],
-      "keynote": false,
-      "proposedPillarId": "travel",
-      "proposedIsland": "Scrub Island"
-    },
-    {
       "id": "kyle-fleming",
       "name": "Kyle Fleming",
       "displayName": null,
@@ -352,26 +553,6 @@
       "proposedIsland": "St. Thomas"
     },
     {
-      "id": "george-cannon",
-      "name": "George Cannon",
-      "displayName": null,
-      "company": "Blue Tarp Productions",
-      "title": "Filmmaker, Director, Content Manager, Videographer, Marketing Communications Specialist, Destination Marketer",
-      "photo": "p05-george-cannon.webp",
-      "bio": "Filmmaker, Director, Content Manager, Videographer, Marketing Communications Specialist, Destination Marketer. Professional background includes Blue Tarp Productions, AMIkids, Food Network, Development Counselors international.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "Original Virgin Islander",
-      "affiliations": [
-        "Blue Tarp Productions",
-        "AMIkids",
-        "Food Network",
-        "Development Counselors international"
-      ],
-      "keynote": false,
-      "proposedPillarId": "entertainment",
-      "proposedIsland": "Jost Van Dyke"
-    },
-    {
       "id": "chris-gordon-cpa-cgma",
       "name": "Chris Gordon, CPA, CGMA",
       "displayName": null,
@@ -393,12 +574,12 @@
     {
       "id": "elizabeth-sweetland",
       "name": "Elizabeth Sweetland",
-      "displayName": null,
+      "displayName": "Elizabeth “Liz” Sweetland",
       "company": "Valley Lawyer Alliance",
       "title": "At Large Board Member, Senior Assistant Legal Counsel, Advisory Board",
       "photo": "p07-elizabeth-sweetland.webp",
-      "bio": "At Large Board Member, Senior Assistant Legal Counsel, Advisory Board. Professional background includes Valley Lawyer Alliance, Peace Corps, Council of the Inspector General, National Science Foundation, Export Import Bank, USAID, JAG Corps.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
+      "bio": "Elizabeth “Liz” Sweetland has been an attorney for nearly forty years. She has worked in the federal inspector general community space since 2012. Her focus on compliance with the Inspector General Act includes work on federal audits, inspections, investigations and the varied administrative requirements that bind these oversight functions together. More recently, she has addressed other attorneys by presenting on two statutory developments: the Epstein Files Transparency Act and the Administrative False Claims Act. Liz, a graduate of the University of Virginia School of Law, began her legal career as a law clerk for the Court of Appeals of Virginia. Liz later joined the Army Judge Advocate General’s Corps, where she served on active duty for twenty-two years and eventually attained the rank of Lieutenant Colonel. Since 2024, she has served as a Board member for a regional state Bar association, the Virginia Mountain/Valley Lawyer’s Alliance. On a more personal note, Liz is especially proud of having won a chili contest in Texas; she also raised a son who is now a fine young adult.",
+      "bioSourceLabel": "Bio supplied by Elizabeth Sweetland",
       "origin": "",
       "affiliations": [
         "Valley Lawyer Alliance",
@@ -410,8 +591,8 @@
         "JAG Corps"
       ],
       "keynote": false,
-      "proposedPillarId": "ai",
-      "proposedIsland": "St. John"
+      "proposedPillarId": "tech",
+      "proposedIsland": "St. Thomas"
     },
     {
       "id": "lajuan-leon-mba",
@@ -485,23 +666,6 @@
       "proposedIsland": "St. John"
     },
     {
-      "id": "tk-petersen",
-      "name": "TK Petersen",
-      "displayName": null,
-      "company": "TGS – The Gathering Spot Private Members Club",
-      "title": "Founder The Gathering Spot ATL & DC",
-      "photo": "p18-tk-petersen.webp",
-      "bio": "Founder The Gathering Spot ATL & DC. Professional background includes TGS - The Gathering Spot Private Members Club.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "Original Virgin Islander",
-      "affiliations": [
-        "TGS - The Gathering Spot Private Members Club"
-      ],
-      "keynote": false,
-      "proposedPillarId": "travel",
-      "proposedIsland": "Scrub Island"
-    },
-    {
       "id": "zahra-jackson-ma",
       "name": "Zahra Jackson, MA",
       "displayName": null,
@@ -542,30 +706,6 @@
       "proposedIsland": "Lovango"
     },
     {
-      "id": "jay-godfrey",
-      "name": "Jay Godfrey",
-      "displayName": null,
-      "company": "FBGM Limited Liability Company",
-      "title": "Founder & CEO, CIO, Engineer – AI, Software, Cloud, Virtualization, Network, Storage, Disaster Recovery, Systems, Automation, Security, QA, Solutions Architect, Project Manager, IT Manager, Client & Customer Success Manager, Consultant",
-      "photo": "jay-godfrey-transparent.webp",
-      "bio": "Founder & CEO, CIO, Engineer – AI, Software, Cloud, Virtualization, Network, Storage, Disaster Recovery, Systems, Automation, Security, QA, Solutions Architect, Project Manager, IT Manager, Client & Customer Success Manager, Consultant. Professional background includes FBGM Limited Liability Company, TATEL, Accenture, Sheppard Mullin Richter Hampton, SuperBuilders, Prime Communications, University of Texas at Austin, University of Houston.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "",
-      "affiliations": [
-        "FBGM Limited Liability Company",
-        "TATEL",
-        "Accenture",
-        "Sheppard Mullin Richter Hampton",
-        "SuperBuilders",
-        "Prime Communications",
-        "University of Texas at Austin",
-        "University of Houston"
-      ],
-      "keynote": false,
-      "proposedPillarId": "ai",
-      "proposedIsland": "St. John"
-    },
-    {
       "id": "daniel-lee",
       "name": "Daniel Lee",
       "displayName": null,
@@ -579,45 +719,6 @@
       "keynote": false,
       "proposedPillarId": "law",
       "proposedIsland": "Lovango"
-    },
-    {
-      "id": "cedric-campbell",
-      "name": "Cedric Campbell",
-      "displayName": null,
-      "company": "PRAC",
-      "title": "Attorney/Consultant, Leadership and Artificial Intelligence",
-      "photo": "cedric-campbell.webp",
-      "bio": "Attorney/Consultant, Leadership and Artificial Intelligence. Professional background includes PRAC, NASA.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "",
-      "affiliations": [
-        "PRAC",
-        "NASA"
-      ],
-      "keynote": false,
-      "proposedPillarId": "law",
-      "proposedIsland": "Lovango"
-    },
-    {
-      "id": "deshawn-plair",
-      "name": "Deshawn Plair",
-      "displayName": null,
-      "company": "MegaMind Media",
-      "title": "Producer | Writer | Director | Speaker",
-      "photo": "deshawn-plair-transparent.webp",
-      "bio": "Deshawn Plair is a writer, producer, director and creative executive, and VP of Content & Partnerships at MegaMind Media. A three-time NAACP Image Award winner and Peabody Award winner, she works across scripted and unscripted television, documentaries, digital media and branded content. Her credits include Hulu’s Freaknik: The Wildest Party Never Told, Showtime’s We Need to Talk About Cosby, ALLBLK’s For the Love of Jason and the Tubi film Glamping. She directed First Day Back and co-created the Auntie Cousin Podcast. Her work centers authentic voices, cultural storytelling and collaboration.",
-      "bioSourceLabel": "MegaMind Media biography",
-      "origin": "",
-      "affiliations": [
-        "Tubi",
-        "TVOne",
-        "BET+",
-        "HULU",
-        "MANSA"
-      ],
-      "keynote": true,
-      "proposedPillarId": "entertainment",
-      "proposedIsland": "Jost Van Dyke"
     },
     {
       "id": "athena-castillo",
@@ -709,88 +810,6 @@
       "proposedIsland": "Jost Van Dyke"
     },
     {
-      "id": "alex-harris",
-      "name": "Alex Harris",
-      "displayName": null,
-      "company": "LATAM",
-      "title": "Enterprise Customer Success Manager, Solutions and Partnership Manager, Market Research, Research and Teaching - Career Prep Fellow",
-      "photo": "alex-harris.webp",
-      "bio": "Enterprise Customer Success Manager, Solutions and Partnership Manager, Market Research, Research and Teaching - Career Prep Fellow. Professional background includes LATAM, Navan, META, Walt Disney, Texas Tech University, MLT.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "",
-      "affiliations": [
-        "LATAM",
-        "Navan",
-        "META",
-        "Walt Disney",
-        "Texas Tech University",
-        "MLT"
-      ],
-      "keynote": false,
-      "proposedPillarId": "travel",
-      "proposedIsland": "Scrub Island"
-    },
-    {
-      "id": "chris-ly",
-      "name": "Chris Ly",
-      "displayName": null,
-      "company": "",
-      "title": "CEO",
-      "photo": "chris-ly.webp",
-      "bio": "",
-      "bioSourceLabel": "",
-      "origin": "",
-      "affiliations": [
-        "Board of Directors",
-        "Traveling Stories",
-        "Baylor University",
-        "Georgetown University"
-      ],
-      "keynote": true,
-      "proposedPillarId": "ai",
-      "proposedIsland": "St. John"
-    },
-    {
-      "id": "sansara-cannon",
-      "name": "Sansara Cannon",
-      "displayName": "Sansara A. Cannon, Esq.",
-      "company": "TATEL",
-      "title": "Founder Chief Legal Counsel, Executive Director, CEO, CIO, Technologist, Digital and System Development, Analytics, Federal Compliance, Transactions, Corporate Development, Producer and Production Manager, Associate Attorney Advisor, Senior Counsel, Senior Investigative Attorney, Special Assistant Legislative Committee, Executive Branch Government House Legal Counsel, Assistant United States Attorney, Assistant District Attorney, Criminal Defense Attorney, IP Legal, Civil Litigation & Municipal Prosecutor, Victims Advocate Specialist, CLE Provider, Speaker, and AI Professor",
-      "photo": "sansara-cannon.webp",
-      "bio": "Founder Chief Legal Counsel, Executive Director, CEO, CIO, Technologist, Digital and System Development, Analytics, Federal Compliance, Transactions, Corporate Development, Producer and Production Manager, Associate Attorney Advisor, Senior Counsel, Senior Investigative Attorney, Special Assistant Legislative Committee, Executive Branch Government House Legal Counsel, Assistant United States Attorney, Assistant District Attorney, Criminal Defense Attorney, IP Legal, Civil Litigation & Municipal Prosecutor, Victims Advocate Specialist, CLE Provider, Speaker, and AI Professor. Professional background includes TATEL, The Center for Educational Grown, Inc, Blue Tarp Productions, LLC, 1878, LLC, ClearVantage Business Solutions LLC, Interior Office of Inspector General, Pandemic Response Committee, Council of Inspectors General on Integrity and Efficiency, U.S. International Development Finance Corporation, Peace Corps and Office of Inspector General, Council of Inspectors General on Integrity and Efficiency Legislative Committee, Government of the U.S. Virgin Islands, Government House, U.S. Department of Justice, United States Attorney’s Office, Bronx County District Attorney’s Office, New York City Government, Cardozo School of Law Defense Clinic, Legal Aid Society Manhattan, DaCheng Law Firms, Shanghai China Branch, City of Newark, U.S. Virgin Islands Department of Human Services, American Bar Association - Criminal Justice Section, Superior Court of the Virgin Islands, George Washington University.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "",
-      "affiliations": [
-        "TATEL",
-        "The Center for Educational Grown, Inc",
-        "Blue Tarp Productions, LLC",
-        "1878, LLC",
-        "ClearVantage Business Solutions LLC",
-        "Interior Office of Inspector General",
-        "Pandemic Response Committee",
-        "Council of Inspectors General on Integrity and Efficiency",
-        "U.S. International Development Finance Corporation",
-        "Peace Corps and Office of Inspector General",
-        "Council of Inspectors General on Integrity and Efficiency Legislative Committee",
-        "Government of the U.S. Virgin Islands, Government House",
-        "U.S. Department of Justice",
-        "United States Attorney’s Office",
-        "Bronx County District Attorney’s Office",
-        "New York City Government",
-        "Cardozo School of Law Defense Clinic",
-        "Legal Aid Society Manhattan",
-        "DaCheng Law Firms, Shanghai China Branch",
-        "City of Newark",
-        "U.S. Virgin Islands Department of Human Services",
-        "American Bar Association - Criminal Justice Section",
-        "Superior Court of the Virgin Islands",
-        "George Washington University"
-      ],
-      "keynote": false,
-      "proposedPillarId": "law",
-      "proposedIsland": "Lovango"
-    },
-    {
       "id": "zihao-zhang",
       "name": "Zihao Zhang",
       "displayName": null,
@@ -808,8 +827,8 @@
         "Tech for Change ASU Media and Immersive Experience"
       ],
       "keynote": false,
-      "proposedPillarId": "entertainment",
-      "proposedIsland": "Jost Van Dyke"
+      "proposedPillarId": "ai",
+      "proposedIsland": "St. John"
     },
     {
       "id": "benji-schwartz",
@@ -950,23 +969,6 @@
       "proposedIsland": "St. John"
     },
     {
-      "id": "hacina-hendricks",
-      "name": "Hacina Hendricks",
-      "displayName": null,
-      "company": "VIA",
-      "title": "Team Lead, Operational Specialist, Salesforce, MailChimp, ZenDesk, Textile, Talkdesk",
-      "photo": "",
-      "bio": "Team Lead, Operational Specialist, Salesforce, MailChimp, ZenDesk, Textile, Talkdesk. Professional background includes VIA.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "",
-      "affiliations": [
-        "VIA"
-      ],
-      "keynote": false,
-      "proposedPillarId": "tech",
-      "proposedIsland": "St. Thomas"
-    },
-    {
       "id": "el-vonda-jacobs",
       "name": "El Vonda Jacobs",
       "displayName": null,
@@ -1066,25 +1068,6 @@
       "keynote": false,
       "proposedPillarId": "travel",
       "proposedIsland": "Scrub Island"
-    },
-    {
-      "id": "honorable-george-w-cannon-jr",
-      "name": "Honorable George W. Cannon Jr.",
-      "displayName": null,
-      "company": "Federal District Court - Judiciary",
-      "title": "United States Judge for the District Court of the Virgin Islands (from 2012 - 2021) 24 year Attorney and 18 year Judge",
-      "photo": "honorable-george-w-cannon-jr.webp",
-      "bio": "United States Judge for the District Court of the Virgin Islands (from 2012 - 2021) 24 year Attorney and 18 year Judge. Professional background includes Federal District Court - Judiciary, AG, Legal Aid.",
-      "bioSourceLabel": "Speaker information supplied by TATEL",
-      "origin": "",
-      "affiliations": [
-        "Federal District Court - Judiciary",
-        "AG",
-        "Legal Aid"
-      ],
-      "keynote": false,
-      "proposedPillarId": "law",
-      "proposedIsland": "Lovango"
     },
     {
       "id": "enam-hoque",
@@ -2053,9 +2036,9 @@
     },
     {
       "id": "T5-D1",
-      "title": "Why Local Commerce Still Breaks at Checkout",
-      "description": "Prototype a traceable commerce transaction using test payments and explicit handoffs.",
-      "outcome": "Trace merchant onboarding, payment, reconciliation, and delivery friction.",
+      "title": "The FAR, Un-puzzled: Where Federal Funding Goes Wrong",
+      "description": "Federal money can launch island tech, and the Federal Acquisition Regulation (FAR) and federal grant rules decide who gets to keep it. From the inspector general’s side of audits, inspections and investigations, Liz Sweetland walks through the Do’s and Don’ts that first-time federal contractors and grantees most often get wrong.",
+      "outcome": "Name the five compliance traps most likely to catch an island team’s first federal contract or grant.",
       "dayId": "2027-01-26",
       "start": "2027-01-26T13:00:00-04:00",
       "end": "2027-01-26T14:00:00-04:00",
@@ -2066,17 +2049,17 @@
       "island": "St. Thomas",
       "region": "USVI",
       "phase": "The Problem",
-      "format": "Problem panel and evidence clinic",
+      "format": "Do’s and Don’ts session · oversight perspective",
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "hacina-hendricks"
+        "elizabeth-sweetland"
       ],
       "candidateIds": [],
       "roles": {
-        "hacina-hendricks": "Session lead"
+        "elizabeth-sweetland": "Session lead"
       },
-      "specialists": "Local merchant; bank/payment-rail specialist; payments engineer",
+      "specialists": "Federal contracting officer; grants compliance specialist; inspector general auditor or investigator",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -2091,9 +2074,9 @@
     },
     {
       "id": "F-AI-A-D1",
-      "title": "Why One Answer Takes Five Offices",
-      "description": "Help people navigate approved public information with sources, permissions, and a clear human handoff.",
-      "outcome": "Collect representative service questions and identify missing or contradictory information.",
+      "title": "Real Places, No Digital Map",
+      "description": "Island hotels still run on staff directions: Lindbergh Bay has no virtual map yet, and Emerald Beach guests find their way by paths and signs. Zihao Zhang (Orbitour AI, WanderLens Lab, HarvardXR) and CFEG’s Technology Mill XR, AI and spatial-mapping students show what spatial computing and AI could change for real Virgin Islands places.",
+      "outcome": "Agree the guest and staff questions a walkable 3D map of an island property should answer first.",
       "dayId": "2027-01-26",
       "start": "2027-01-26T13:00:00-04:00",
       "end": "2027-01-26T13:45:00-04:00",
@@ -2104,17 +2087,17 @@
       "island": "St. John",
       "region": "USVI",
       "phase": "The Problem",
-      "format": "Featured problem forum",
+      "format": "XR panel and hands-on lab",
       "featured": true,
       "featureRole": "Circuit feature",
       "speakerIds": [
-        "elizabeth-sweetland"
+        "zihao-zhang"
       ],
       "candidateIds": [],
       "roles": {
-        "elizabeth-sweetland": "Session lead"
+        "zihao-zhang": "Session lead"
       },
-      "specialists": "Public-records custodian; evaluation/privacy specialist",
+      "specialists": "Spatial-capture technician; licensed drone pilot; hotel operations lead; XR developer",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -2205,35 +2188,35 @@
     },
     {
       "id": "E5-D1",
-      "title": "The Island Is the Backdrop; Who Owns the World?",
-      "description": "Build one small playable scene from approved island assets rather than promise a complete game.",
-      "outcome": "Identify missing local control in digital representations of a place and choose one scene to explore.",
+      "title": "Building Collective Legacy",
+      "description": "Developing a creative economy a whole territory can own. Hollywood taught the session lead to wait for the call; he stopped waiting. His path, from performer to writer, director, founder and label, told to a room of Caribbean creators, builders and investors, in a territory building the schools, studios and rights frameworks to keep that work at home. At the center: how does a creator stop waiting on opportunities controlled by others and start building an industry of their own?",
+      "outcome": "An ownership checklist for every project before it’s shot.",
       "dayId": "2027-01-26",
-      "start": "2027-01-26T13:00:00-04:00",
-      "end": "2027-01-26T14:00:00-04:00",
+      "start": "2027-01-26T10:00:00-04:00",
+      "end": "2027-01-26T10:55:00-04:00",
       "timeLabel": null,
       "supplemental": false,
       "optional": false,
       "pillarId": "entertainment",
-      "island": "Jost Van Dyke",
+      "island": "St. Thomas",
       "region": "BVI",
       "phase": "The Problem",
-      "format": "Problem panel and evidence clinic",
-      "featured": false,
-      "featureRole": null,
+      "format": "Keynote · 40 minutes, then a 15-minute conversation",
+      "featured": true,
+      "featureRole": "Keynote",
       "speakerIds": [
-        "zihao-zhang"
+        "sansara-cannon"
       ],
       "candidateIds": [],
       "roles": {
-        "zihao-zhang": "Session lead"
+        "sansara-cannon": "Keynote speaker"
       },
-      "specialists": "Game/XR developer; local place steward; asset-capture specialist",
+      "specialists": "Caribbean creators, builders and investors",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
-        "island": "Jost Van Dyke",
-        "venueId": "jost-van-dyke",
+        "island": "St. Thomas",
+        "venueId": "st-thomas",
         "specific": null,
         "label": "to be confirmed"
       },
@@ -3282,11 +3265,11 @@
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "enam-hoque"
+        "sansara-cannon"
       ],
       "candidateIds": [],
       "roles": {
-        "enam-hoque": "Session lead"
+        "sansara-cannon": "Session lead"
       },
       "specialists": "Agency data steward; privacy specialist; data engineer",
       "status": "Proposed",
@@ -3945,9 +3928,9 @@
     },
     {
       "id": "T5-D2",
-      "title": "Design the Local Transaction Layer",
-      "description": "Prototype a traceable commerce transaction using test payments and explicit handoffs.",
-      "outcome": "Specify test-payment states, receipt records, reconciliation, and recovery from failure.",
+      "title": "The FAR, Un-puzzled: Plan a Bid That Holds Up",
+      "description": "Do’s and Don’ts for going after federal work: reading a solicitation, eligibility and small-business set-asides, allowable costs, conflicts of interest, and the records to keep from day one.",
+      "outcome": "A one-page compliance plan for a real federal funding opportunity.",
       "dayId": "2027-01-27",
       "start": "2027-01-27T13:00:00-04:00",
       "end": "2027-01-27T14:00:00-04:00",
@@ -3958,17 +3941,17 @@
       "island": "St. Thomas",
       "region": "USVI",
       "phase": "The Plan / Solution",
-      "format": "Solution workshop",
+      "format": "Do’s and Don’ts session · oversight perspective",
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "hacina-hendricks"
+        "elizabeth-sweetland"
       ],
       "candidateIds": [],
       "roles": {
-        "hacina-hendricks": "Session lead"
+        "elizabeth-sweetland": "Session lead"
       },
-      "specialists": "Local merchant; bank/payment-rail specialist; payments engineer",
+      "specialists": "Federal contracting officer; grants compliance specialist; inspector general auditor or investigator",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -3983,9 +3966,9 @@
     },
     {
       "id": "F-AI-A-D2",
-      "title": "Design an AI Guide People Can Trust",
-      "description": "Help people navigate approved public information with sources, permissions, and a clear human handoff.",
-      "outcome": "Define an approved knowledge set, citation rules, refusal cases, and human escalation.",
+      "title": "Plan the Capture: Phones, Scanners and Drones",
+      "description": "Plan the capture of a real island site: phone scans with Scaniverse and Polycam, survey-grade scans with XGRIDS, and aerials with DJI and Antigravity 360. Decide the routes, rooms and views, and agree permission and privacy with the people who work there.",
+      "outcome": "A capture plan for one property: routes, spaces, aerial views, consent and privacy.",
       "dayId": "2027-01-27",
       "start": "2027-01-27T13:00:00-04:00",
       "end": "2027-01-27T13:45:00-04:00",
@@ -3996,17 +3979,17 @@
       "island": "St. John",
       "region": "USVI",
       "phase": "The Plan / Solution",
-      "format": "Featured solution review",
+      "format": "XR panel and hands-on lab",
       "featured": true,
       "featureRole": "Circuit feature",
       "speakerIds": [
-        "elizabeth-sweetland"
+        "zihao-zhang"
       ],
       "candidateIds": [],
       "roles": {
-        "elizabeth-sweetland": "Session lead"
+        "zihao-zhang": "Session lead"
       },
-      "specialists": "Public-records custodian; evaluation/privacy specialist",
+      "specialists": "Spatial-capture technician; licensed drone pilot; hotel operations lead; XR developer",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -4097,35 +4080,31 @@
     },
     {
       "id": "E5-D2",
-      "title": "Design a Small Caribbean Open World",
-      "description": "Build one small playable scene from approved island assets rather than promise a complete game.",
-      "outcome": "Storyboard a playable slice, select permitted assets, and define local review and attribution.",
+      "title": "Creating Immersive Experiences",
+      "description": "Island stories, captured at home, opened as worlds. Builders and students bring a real Virgin Islands story and the place it happened. the session lead runs the room while a filmmaker, technologist, lawyer, music-rights lead and investor decide how that capture becomes a world audiences enter, and how it gets paid and travels. One film, six decisions: financing, ownership and credits, distribution, soundtrack licensing, immersive extension and audience.",
+      "outcome": "A reusable creator-to-market roadmap and a shortlist of follow-up projects, with the session lead invited to add two or three people from his network to the table.",
       "dayId": "2027-01-27",
-      "start": "2027-01-27T13:00:00-04:00",
-      "end": "2027-01-27T14:00:00-04:00",
+      "start": "2027-01-27T10:00:00-04:00",
+      "end": "2027-01-27T11:15:00-04:00",
       "timeLabel": null,
       "supplemental": false,
       "optional": false,
       "pillarId": "entertainment",
-      "island": "Jost Van Dyke",
+      "island": "St. Thomas",
       "region": "BVI",
       "phase": "The Plan / Solution",
-      "format": "Solution workshop",
-      "featured": false,
+      "format": "75-minute working panel · the session lead moderates",
+      "featured": true,
       "featureRole": null,
-      "speakerIds": [
-        "zihao-zhang"
-      ],
+      "speakerIds": [],
       "candidateIds": [],
-      "roles": {
-        "zihao-zhang": "Session lead"
-      },
-      "specialists": "Game/XR developer; local place steward; asset-capture specialist",
+      "roles": {},
+      "specialists": "Invited, not yet confirmed: Caribbean filmmaker; entertainment lawyer; distributor or platform executive; music-rights specialist; creative technologist; investor",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
-        "island": "Jost Van Dyke",
-        "venueId": "jost-van-dyke",
+        "island": "St. Thomas",
+        "venueId": "st-thomas",
         "specific": null,
         "label": "to be confirmed"
       },
@@ -4342,11 +4321,11 @@
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "sansara-cannon"
+        "enam-hoque"
       ],
       "candidateIds": [],
       "roles": {
-        "sansara-cannon": "Session lead"
+        "enam-hoque": "Session lead"
       },
       "specialists": "Local nonprofit/community organization; authorized public partner; local counsel",
       "status": "Proposed",
@@ -5837,9 +5816,9 @@
     },
     {
       "id": "T5-D3",
-      "title": "Connect the Order, Payment, and Receipt",
-      "description": "Prototype a traceable commerce transaction using test payments and explicit handoffs.",
-      "outcome": "Build a sandbox transaction linked to a sample supplier and order.",
+      "title": "The FAR, Un-puzzled: Build the Compliance File",
+      "description": "Build what an auditor will ask for: timekeeping, invoices, subcontract flow-down clauses, data rights and certifications, and why a careless certification can bring the Administrative False Claims Act into play.",
+      "outcome": "A working compliance checklist and records file an island team can keep current.",
       "dayId": "2027-01-28",
       "start": "2027-01-28T13:00:00-04:00",
       "end": "2027-01-28T14:00:00-04:00",
@@ -5850,17 +5829,17 @@
       "island": "St. Thomas",
       "region": "USVI",
       "phase": "Build",
-      "format": "Facilitated build lab",
+      "format": "Do’s and Don’ts session · oversight perspective",
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "hacina-hendricks"
+        "elizabeth-sweetland"
       ],
       "candidateIds": [],
       "roles": {
-        "hacina-hendricks": "Session lead"
+        "elizabeth-sweetland": "Session lead"
       },
-      "specialists": "Local merchant; bank/payment-rail specialist; payments engineer",
+      "specialists": "Federal contracting officer; grants compliance specialist; inspector general auditor or investigator",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -5875,9 +5854,9 @@
     },
     {
       "id": "F-AI-A-D3",
-      "title": "Build the Island Answer Desk",
-      "description": "Help people navigate approved public information with sources, permissions, and a clear human handoff.",
-      "outcome": "Connect prepared public documents to a bounded question-answer prototype.",
+      "title": "Build the Walkthrough: From Scan to AI-Guided Tour",
+      "description": "Hands-on with WanderLens Lab and CFEG students: turn the captures into an Orbitour AI walkthrough with an AI guide, live tours and virtual staging.",
+      "outcome": "A walkable 3D tour of one island space, with an AI guide that answers a guest’s questions.",
       "dayId": "2027-01-28",
       "start": "2027-01-28T13:00:00-04:00",
       "end": "2027-01-28T13:45:00-04:00",
@@ -5888,17 +5867,17 @@
       "island": "St. John",
       "region": "USVI",
       "phase": "Build",
-      "format": "Featured live build",
+      "format": "XR panel and hands-on lab",
       "featured": true,
       "featureRole": "Circuit feature",
       "speakerIds": [
-        "elizabeth-sweetland"
+        "zihao-zhang"
       ],
       "candidateIds": [],
       "roles": {
-        "elizabeth-sweetland": "Session lead"
+        "zihao-zhang": "Session lead"
       },
-      "specialists": "Public-records custodian; evaluation/privacy specialist",
+      "specialists": "Spatial-capture technician; licensed drone pilot; hotel operations lead; XR developer",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -5989,35 +5968,31 @@
     },
     {
       "id": "E5-D3",
-      "title": "Build One Playable Island Scene",
-      "description": "Build one small playable scene from approved island assets rather than promise a complete game.",
-      "outcome": "Assemble an explorable sample scene with a specialist developer and a visible credit trail.",
+      "title": "Idea to Owner",
+      "description": "A CFEG × FOGV creator lab. Students bring a short in progress, and the session lead takes it from idea through festival, rights, buyer talks and monetization. Scheduled after the morning crossing to the BVI, with buffer.",
+      "outcome": "A creator-to-market roadmap, from production and festivals to ownership, licensing and new audience experiences.",
       "dayId": "2027-01-28",
-      "start": "2027-01-28T13:00:00-04:00",
-      "end": "2027-01-28T14:00:00-04:00",
+      "start": "2027-01-28T14:00:00-04:00",
+      "end": "2027-01-28T15:30:00-04:00",
       "timeLabel": null,
       "supplemental": false,
-      "optional": false,
+      "optional": true,
       "pillarId": "entertainment",
-      "island": "Jost Van Dyke",
+      "island": "Scrub Island",
       "region": "BVI",
       "phase": "Build",
-      "format": "Facilitated build lab",
+      "format": "Optional · 90-minute working session",
       "featured": false,
       "featureRole": null,
-      "speakerIds": [
-        "zihao-zhang"
-      ],
+      "speakerIds": [],
       "candidateIds": [],
-      "roles": {
-        "zihao-zhang": "Session lead"
-      },
-      "specialists": "Game/XR developer; local place steward; asset-capture specialist",
+      "roles": {},
+      "specialists": "CFEG and Film Over Gun Violence (FOGV) student filmmakers",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
-        "island": "Jost Van Dyke",
-        "venueId": "jost-van-dyke",
+        "island": "Scrub Island",
+        "venueId": "scrub-island",
         "specific": null,
         "label": "to be confirmed"
       },
@@ -6082,11 +6057,11 @@
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "lamin-jackson"
+        "sansara-cannon"
       ],
       "candidateIds": [],
       "roles": {
-        "lamin-jackson": "Session lead"
+        "sansara-cannon": "Session lead"
       },
       "specialists": "Local educator; workforce partner; learning-systems specialist",
       "status": "Proposed",
@@ -6234,11 +6209,11 @@
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "sansara-cannon"
+        "lamin-jackson"
       ],
       "candidateIds": [],
       "roles": {
-        "sansara-cannon": "Session lead"
+        "lamin-jackson": "Session lead"
       },
       "specialists": "Local nonprofit/community organization; authorized public partner; local counsel",
       "status": "Proposed",
@@ -7729,9 +7704,9 @@
     },
     {
       "id": "T5-D4",
-      "title": "Follow the Dollar Through the Place OS",
-      "description": "Prototype a traceable commerce transaction using test payments and explicit handoffs.",
-      "outcome": "Show a reconciled test transaction and its exception path without moving real funds.",
+      "title": "The FAR, Un-puzzled: Live Oversight Review",
+      "description": "Teams present their plans and files, and Liz reviews them the way an inspector general’s office would: what passes, what gets flagged, and how to fix it before applying.",
+      "outcome": "A green, amber or red oversight review for each team, with the fixes to make first.",
       "dayId": "2027-01-29",
       "start": "2027-01-29T13:00:00-04:00",
       "end": "2027-01-29T14:00:00-04:00",
@@ -7742,17 +7717,17 @@
       "island": "St. Thomas",
       "region": "USVI",
       "phase": "Showcase",
-      "format": "Demo and adoption review",
+      "format": "Do’s and Don’ts session · oversight perspective",
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "hacina-hendricks"
+        "elizabeth-sweetland"
       ],
       "candidateIds": [],
       "roles": {
-        "hacina-hendricks": "Session lead"
+        "elizabeth-sweetland": "Session lead"
       },
-      "specialists": "Local merchant; bank/payment-rail specialist; payments engineer",
+      "specialists": "Federal contracting officer; grants compliance specialist; inspector general auditor or investigator",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -7767,9 +7742,9 @@
     },
     {
       "id": "F-AI-A-D4",
-      "title": "Ask It Live: Does the AI Know—or Guess?",
-      "description": "Help people navigate approved public information with sources, permissions, and a clear human handoff.",
-      "outcome": "Test audience questions and show sources, uncertainty, failures, and escalation.",
+      "title": "Walk Through the Islands: XR Showcase",
+      "description": "CFEG students present their Lindbergh Bay and Emerald Beach spatial-mapping projects; the properties, WanderLens Lab and HarvardXR respond, and the panel names what it takes to put a tour live.",
+      "outcome": "Live tours of real island places, with feedback from the hotels and a next step for each team.",
       "dayId": "2027-01-29",
       "start": "2027-01-29T13:00:00-04:00",
       "end": "2027-01-29T13:45:00-04:00",
@@ -7780,17 +7755,17 @@
       "island": "St. John",
       "region": "USVI",
       "phase": "Showcase",
-      "format": "Featured showcase",
+      "format": "XR panel and hands-on lab",
       "featured": true,
       "featureRole": "Circuit feature",
       "speakerIds": [
-        "elizabeth-sweetland"
+        "zihao-zhang"
       ],
       "candidateIds": [],
       "roles": {
-        "elizabeth-sweetland": "Session lead"
+        "zihao-zhang": "Session lead"
       },
-      "specialists": "Public-records custodian; evaluation/privacy specialist",
+      "specialists": "Spatial-capture technician; licensed drone pilot; hotel operations lead; XR developer",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
@@ -7881,35 +7856,31 @@
     },
     {
       "id": "E5-D4",
-      "title": "Step Into a World Its Makers Can Recognize",
-      "description": "Build one small playable scene from approved island assets rather than promise a complete game.",
-      "outcome": "Demonstrate the scene and show its provenance, limitations, and proposed distribution path.",
+      "title": "And the Telling of More Stories Everyone Can Access and Step Into",
+      "description": "How to share, expand across geographic spaces, and gain access to canvases that allow for opportunity share across geographic spaces. A St. Croix street, a Scrub Island marina, a painting from the session lead studio: captured in 3D and rebuilt as worlds people walk through. the session lead co-hosts with CFEG and FOGV, introducing the work and the people who made it, with WanderLens Lab, before the 3 PM closing finale.",
+      "outcome": "One immersive storytelling concept, cleared for IP and tested for feasibility.",
       "dayId": "2027-01-29",
-      "start": "2027-01-29T13:00:00-04:00",
-      "end": "2027-01-29T14:00:00-04:00",
+      "start": "2027-01-29T11:00:00-04:00",
+      "end": "2027-01-29T12:00:00-04:00",
       "timeLabel": null,
       "supplemental": false,
       "optional": false,
       "pillarId": "entertainment",
-      "island": "Jost Van Dyke",
+      "island": "Scrub Island",
       "region": "BVI",
       "phase": "Showcase",
-      "format": "Demo and adoption review",
-      "featured": false,
+      "format": "Creative showcase + tech demo · 45–60 minutes · co-hosted",
+      "featured": true,
       "featureRole": null,
-      "speakerIds": [
-        "zihao-zhang"
-      ],
+      "speakerIds": [],
       "candidateIds": [],
-      "roles": {
-        "zihao-zhang": "Session lead"
-      },
-      "specialists": "Game/XR developer; local place steward; asset-capture specialist",
+      "roles": {},
+      "specialists": "CFEG, Film Over Gun Violence (FOGV) and WanderLens Lab",
       "status": "Proposed",
       "sourceNote": null,
       "venue": {
-        "island": "Jost Van Dyke",
-        "venueId": "jost-van-dyke",
+        "island": "Scrub Island",
+        "venueId": "scrub-island",
         "specific": null,
         "label": "to be confirmed"
       },
@@ -8126,11 +8097,11 @@
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "sansara-cannon"
+        "alex-harris"
       ],
       "candidateIds": [],
       "roles": {
-        "sansara-cannon": "Session lead"
+        "alex-harris": "Session lead"
       },
       "specialists": "Local nonprofit/community organization; authorized public partner; local counsel",
       "status": "Proposed",
@@ -8278,11 +8249,11 @@
       "featured": false,
       "featureRole": null,
       "speakerIds": [
-        "alex-harris"
+        "sansara-cannon"
       ],
       "candidateIds": [],
       "roles": {
-        "alex-harris": "Session lead"
+        "sansara-cannon": "Session lead"
       },
       "specialists": "Resident/worker representatives; ferry employer liaison; accessibility specialist",
       "status": "Proposed",

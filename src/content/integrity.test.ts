@@ -6,10 +6,15 @@ import { displayCopy } from "./display";
 import { credits, forum, panelists, sessions, venues } from "./index";
 
 describe("website program", () => {
-  it("bundles 205 sessions, 49 panelists, and five island venues", () => {
+  it("bundles 205 sessions, 48 panelists, and five island venues", () => {
     expect(sessions).toHaveLength(205);
     expect(sessions.filter((session) => session.supplemental)).toHaveLength(5);
-    expect(panelists).toHaveLength(49);
+    expect(panelists).toHaveLength(48);
+    expect(panelists.some((person) => person.name === "Hacina Hendricks")).toBe(false);
+    expect(panelists.filter((person) => !person.photo).map((person) => person.name).sort()).toEqual([
+      "Antonette Boynes",
+      "Charlie Brown",
+    ]);
     expect(venues).toHaveLength(5);
     expect(forum.draftNotice).not.toMatch(/\bProposed\b/);
     expect(displayCopy("Proposed midday arrival")).toBe("midday arrival");
@@ -17,7 +22,8 @@ describe("website program", () => {
     expect(keynote?.timeLabel).toBe("Opening · Time TBC");
     expect(keynote?.start).toBeNull();
     expect(keynote?.speakerIds).toEqual(["chris-ly"]);
-    expect(sessions.filter((session) => session.speakerIds.length === 0)).toHaveLength(10);
+    expect(sessions.filter((session) => session.speakerIds.length === 0)).toHaveLength(13);
+    expect(sessions.filter((session) => session.id.startsWith("T5-")).every((session) => session.speakerIds.includes("elizabeth-sweetland"))).toBe(true);
     for (const session of sessions) {
       expect(session.venue.specific).toBeNull();
       expect(session.venue.label).toBe("to be confirmed");
