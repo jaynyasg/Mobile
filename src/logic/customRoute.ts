@@ -1,5 +1,5 @@
 import type { TransportMode } from "@/content/types";
-import { legEnds, modeLabel, underwayMinutes } from "./transportPlan";
+import { ISLAND_ON_MAP, legEnds, modeLabel, underwayMinutes } from "./transportPlan";
 
 export const ROUTE_KEY = "tatel.route.v1";
 export const ROUTE_MODE_KEY = "tatel.route.mode";
@@ -100,14 +100,15 @@ export function canCreateRoute(ids: string[] | null): boolean {
   return (ids?.length ?? 0) > 0;
 }
 
-/** Spread the islands enough to read on a phone, keeping west-to-east order. */
-const PIN_LAYOUT: Record<string, { x: number; y: number }> = {
-  "st. thomas": { x: 0.16, y: 0.72 },
-  lovango: { x: 0.36, y: 0.4 },
-  "st. john": { x: 0.5, y: 0.74 },
-  "jost van dyke": { x: 0.68, y: 0.28 },
-  "scrub island": { x: 0.86, y: 0.52 },
-};
+function pinSpot(island: string): { x: number; y: number } {
+  const named = ISLAND_ON_MAP[island];
+  if (named) return named;
+  const key = normIsland(island);
+  for (const [name, spot] of Object.entries(ISLAND_ON_MAP)) {
+    if (normIsland(name) === key) return spot;
+  }
+  return { x: 0.5, y: 0.5 };
+}
 
 export interface RoutePin {
   n: number;
@@ -125,13 +126,13 @@ export function routePins(days: PlanDay[]): RoutePin[] {
       const key = normIsland(stop.session.island);
       const count = seen.get(key) ?? 0;
       seen.set(key, count + 1);
-      const spot = PIN_LAYOUT[key] ?? { x: 0.5, y: 0.5 };
+      const spot = pinSpot(stop.session.island);
       pins.push({
         n: pins.length + 1,
         island: stop.session.island,
         dayId: day.dayId,
-        x: Math.min(0.92, spot.x + (count % 2) * 0.06),
-        y: Math.max(0.14, spot.y - Math.floor(count / 2) * 0.1),
+        x: Math.min(0.94, Math.max(0.06, spot.x + (count % 2) * 0.035)),
+        y: Math.min(0.9, Math.max(0.1, spot.y - Math.floor(count / 2) * 0.05)),
       });
     }
   }

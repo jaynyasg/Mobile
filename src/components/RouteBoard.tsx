@@ -1,12 +1,17 @@
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import Svg, { Polyline } from "react-native-svg";
 import type { Day } from "@/content/types";
 import { displayCopy } from "@/content/display";
 import { T } from "@/components/Text";
 import { nightGlass } from "@/components/nightGlass";
+import { routeMaps } from "@/images";
 import { describeStop, routePins, type PlanDay } from "@/logic/customRoute";
 import { sessionClock } from "@/logic/dayTheme";
+import { MAP_CROP } from "@/logic/transportPlan";
 import { colors } from "@/theme";
+
+const BASE_MAP = routeMaps["powerboat-2027-01-26.png"];
+const BASE_HEIGHT = 1842;
 
 export function RouteBoard({
   plan,
@@ -32,6 +37,12 @@ export function RouteBoard({
         <T variant="meta" color={colors.gold}>Edit picks</T>
       </Pressable>
       <View style={styles.map} accessibilityLabel={`${modeName} route map`}>
+        <Image
+          source={BASE_MAP}
+          resizeMode="stretch"
+          accessibilityIgnoresInvertColors
+          style={[styles.mapImage, { height: `${(BASE_HEIGHT / MAP_CROP) * 100}%` }]}
+        />
         {pins.length > 1 ? (
           <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={styles.lines}>
             <Polyline points={line} fill="none" stroke={colors.gold} strokeWidth={1.4} strokeLinejoin="round" strokeLinecap="round" />
@@ -89,6 +100,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(255,224,138,0.48)",
   },
+  mapImage: { position: "absolute", top: 0, left: 0, width: "100%" },
   lines: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   pin: {
     position: "absolute",

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Day, Pillar, Session, TransportMode } from "@/content/types";
@@ -170,12 +170,15 @@ export function CustomRoute({
         </View>
         <View accessibilityLabel="Infrastructure" style={styles.infra}>
           <T variant="meta" color={colors.gold}>Infrastructure</T>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.infraRow}>
-            <IslandChip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
-            {islands.map((name) => (
-              <IslandChip key={name} label={name} selected={island === name} onPress={() => setIsland(name)} />
-            ))}
-          </ScrollView>
+          <View style={styles.infraScroll}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.infraRow}>
+              <IslandChip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
+              {islands.map((name) => (
+                <IslandChip key={name} label={name} selected={island === name} onPress={() => setIsland(name)} />
+              ))}
+            </ScrollView>
+            <View pointerEvents="none" style={styles.infraFade} />
+          </View>
         </View>
       </View>
       <Pressable
@@ -280,7 +283,7 @@ export function CustomRoute({
 function IslandChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[styles.chip, selected && styles.chipOn]}>
-      <T variant="meta" color={selected ? colors.ink : colors.foam}>{label}</T>
+      <T variant="meta" color={selected ? colors.ink : colors.foam} style={styles.chipLabel}>{label}</T>
     </Pressable>
   );
 }
@@ -293,10 +296,27 @@ const styles = StyleSheet.create({
   segmentOn: { backgroundColor: colors.gold },
   segmentLabel: { textAlign: "center" },
   infra: { gap: 6 },
-  infraRow: { gap: 8, paddingRight: 12 },
+  infraScroll: {
+    position: "relative",
+    ...({
+      maskImage: "linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%)",
+      WebkitMaskImage: "linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent 100%)",
+    } as ViewStyle),
+  },
+  infraRow: { gap: 8, paddingRight: 48, flexGrow: 0 },
+  infraFade: {
+    position: "absolute",
+    top: 0,
+    right: -12,
+    bottom: 0,
+    width: 88,
+    zIndex: 2,
+    ...({ backgroundImage: "linear-gradient(to right, rgba(7,20,33,0) 0%, rgba(6,14,24,0.82) 28%, rgba(6,14,24,0.96) 62%)" } as ViewStyle),
+  },
   create: { marginHorizontal: 12, marginBottom: 8, minHeight: 48, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   createOff: { opacity: 0.4 },
-  chip: { minHeight: 44, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.86)" },
+  chip: { flexGrow: 0, flexShrink: 0, alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.86)" },
+  chipLabel: { flexShrink: 0, ...({ whiteSpace: "nowrap" } as ViewStyle) },
   chipOn: { backgroundColor: colors.gold, borderColor: colors.gold },
   scroll: { paddingHorizontal: 12, gap: 12 },
   empty: { padding: 16, gap: 8, borderRadius: 18, ...nightGlass },
