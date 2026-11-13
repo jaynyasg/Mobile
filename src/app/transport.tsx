@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Image, Linking, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import { credits, sessionById } from "@/content";
 import { useContent } from "@/content/provider";
@@ -15,7 +16,6 @@ import { sessionWhen } from "@/components/SessionRow";
 import {
   ISLAND_ON_MAP,
   MAP_CROP,
-  MAP_WIDTH,
   modeLabel,
   routeStops,
   routeSummary,
@@ -24,7 +24,13 @@ import {
 import { colors } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
 import { CustomRoute } from "@/components/CustomRoute";
-import { sceneForIsland } from "@/theme";
+import { dockClearance } from "@/components/Dock";
+
+const SAMPLE_TILE = "/venues/ritz-carlton-st-thomas/img_1377-640.webp";
+const BUILD_TILE = "/venues/hideout-white-bay/img_2673-640.webp";
+const MAP_FALLBACK = "/venues/hideout-white-bay/img_2673-640.webp";
+/** Short enough that the first stop starts above the dock on a 390-wide phone. */
+const MAP_FRAME = 200;
 
 const MAP_HEIGHT: Record<string, number> = {
   "ferry-2027-01-26.png": 1662,
@@ -45,6 +51,7 @@ export default function TransportScreen() {
   const { program } = useContent();
   const { forum, transport } = program;
   const viewer = useImageViewer();
+  const insets = useSafeAreaInsets();
   const [modeId, setModeId] = useState(transport.modes[0].id);
   const [date, setDate] = useState(transport.modes[0].days[0].date);
   const [selected, setSelected] = useState<string | null>(null);
@@ -79,8 +86,8 @@ export default function TransportScreen() {
       <View style={styles.column}>
         <StackHeader title="Transport" />
         <View style={styles.choices}>
-          <ChoiceTile label="Sample routes" image={sceneForIsland("St. Thomas")} selected={view === "sample"} onPress={() => setView("sample")} />
-          <ChoiceTile label="Build my route" image={sceneForIsland("Jost Van Dyke")} selected={view === "mine"} onPress={() => setView("mine")} />
+          <ChoiceTile label="Sample routes" image={SAMPLE_TILE} fallback={BUILD_TILE} selected={view === "sample"} onPress={() => setView("sample")} />
+          <ChoiceTile label="Build my route" image={BUILD_TILE} fallback={SAMPLE_TILE} selected={view === "mine"} onPress={() => setView("mine")} />
         </View>
         {view === "mine" ? (
           <CustomRoute sessions={program.sessions} days={forum.days} modes={transport.modes} timeZone={forum.timezone} />
@@ -133,7 +140,7 @@ export default function TransportScreen() {
           <T variant="small" color={colors.foam}>{summary}</T>
           {dayMeta ? <T variant="meta" color={colors.gold}>{dayMeta.phase}</T> : null}
         </View>
-        <ScrollView style={styles.fill} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, { paddingBottom: dockClearance(insets.bottom) }]} keyboardShouldPersistTaps="handled">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`View ${day.mapDescription}`}
@@ -141,12 +148,7 @@ export default function TransportScreen() {
             onPress={openMap}
             style={styles.mapFrame}
           >
-            <Image
-              source={routeMaps[day.map]}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-              style={[styles.mapImage, { height: `${(mapHeight / MAP_CROP) * 100}%` }]}
-            />
+            <RouteMap source={routeMaps[day.map]} height={mapHeight} />
             {active?.island && ISLAND_ON_MAP[active.island] ? (
               <View
                 pointerEvents="none"
@@ -224,13 +226,36 @@ export default function TransportScreen() {
   );
 }
 
-function ChoiceTile({ label, image, selected, onPress }: { label: string; image: string; selected: boolean; onPress: () => void }) {
+function ChoiceTile({ label, image, fallback, selected, onPress }: { label: string; image: string; fallback: string; selected: boolean; onPress: () => void }) {
+  const [src, setSrc] = useState(image);
   return (
     <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[styles.choice, selected && styles.choiceOn]}>
-      <Image source={{ uri: image }} style={styles.choicePhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
+      <Image
+        source={{ uri: src }}
+        style={styles.choicePhoto}
+        resizeMode="cover"
+        accessibilityIgnoresInvertColors
+        onError={() => setSrc((current) => (current === fallback ? current : fallback))}
+      />
       <View style={styles.choiceShade} />
       <T variant="small" color={colors.foam} style={styles.choiceLabel}>{label}</T>
     </Pressable>
+  );
+}
+
+function RouteMap({ source, height }: { source: (typeof routeMaps)[string]; height: number }) {
+  const [failed, setFailed] = useState(false);
+  const posterHeight = `${(height / MAP_CROP) * 100}%`;
+  return failed ? (
+    <Image source={{ uri: MAP_FALLBACK }} style={styles.mapFill} resizeMode="cover" accessibilityIgnoresInvertColors />
+  ) : (
+    <Image
+      source={source}
+      resizeMode="stretch"
+      accessibilityIgnoresInvertColors
+      onError={() => setFailed(true)}
+      style={[styles.mapImage, { height: posterHeight }]}
+    />
   );
 }
 
@@ -312,17 +337,18 @@ const styles = StyleSheet.create({
   segmentItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", paddingHorizontal: 4, paddingVertical: 6, borderRadius: 12 },
   segmentOn: { backgroundColor: colors.gold },
   segmentLabel: { textAlign: "center" },
-  scroll: { paddingHorizontal: 12, paddingBottom: 28, gap: 8 },
+  scroll: { paddingHorizontal: 12, gap: 8 },
   mapFrame: {
     width: "100%",
-    aspectRatio: MAP_WIDTH / MAP_CROP,
+    height: MAP_FRAME,
     borderRadius: 16,
     overflow: "hidden",
     backgroundColor: "#071421",
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(255,224,138,0.48)",
   },
-  mapImage: { width: "100%", position: "absolute", top: 0, left: 0 },
+  mapImage: { position: "absolute", top: 0, left: 0, width: "100%" },
+  mapFill: { width: "100%", height: "100%" },
   ring: {
     position: "absolute",
     width: 36,

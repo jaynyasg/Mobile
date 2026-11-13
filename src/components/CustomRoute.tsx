@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Day, Session, TransportMode } from "@/content/types";
 import { displayCopy } from "@/content/display";
 import { DayFilter } from "@/components/DayFilter";
 import { Icon } from "@/components/Icon";
 import { T } from "@/components/Text";
 import { nightGlass } from "@/components/nightGlass";
+import { dockClearance } from "@/components/Dock";
 import {
   buildRoute,
   readRoutePlan,
@@ -42,6 +44,7 @@ export function CustomRoute({
   timeZone: string;
 }) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { state, hydrated } = useApp();
   const [ids, setIds] = useState<string[] | null>(null);
   const [dayId, setDayId] = useState(days[0]?.id ?? "all");
@@ -78,7 +81,7 @@ export function CustomRoute({
   }
 
   return (
-    <ScrollView style={styles.fill} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+    <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, { paddingBottom: dockClearance(insets.bottom) }]} keyboardShouldPersistTaps="handled">
       {ids !== null && ids.length === 0 ? (
         <View style={styles.empty}>
           <T variant="rowTitle" color={colors.foam}>No sessions yet</T>
@@ -168,7 +171,7 @@ export function CustomRoute({
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  scroll: { paddingHorizontal: 12, paddingBottom: 28, gap: 12 },
+  scroll: { paddingHorizontal: 12, gap: 12 },
   empty: { padding: 16, gap: 8, borderRadius: 18, ...nightGlass },
   open: { alignSelf: "flex-start", minHeight: 48, marginTop: 4, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   change: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center" },
