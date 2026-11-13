@@ -1,5 +1,9 @@
 import { Session } from "@supabase/supabase-js";
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import { rememberSignInPhone } from "@/logic/contactPrefs";
+import { saveContactPrefsRemote } from "@/logic/contactPrefsSync";
+import { emailOtpRequest, emailVerifyRequest, phoneOtpRequest, phoneVerifyRequest } from "@/logic/signIn";
+import { webStorage } from "@/welcome";
 import { communityPreviewEnabled, supabase } from "./client";
 import { previewActor } from "./memory";
 
@@ -11,7 +15,10 @@ interface AuthValue {
   preview: boolean;
   sendCode: (email: string) => Promise<void>;
   verifyCode: (email: string, code: string) => Promise<void>;
+  sendPhoneCode: (phone: string) => Promise<void>;
+  verifyPhoneCode: (phone: string, code: string) => Promise<void>;
   quickSignIn: (email: string) => Promise<"session" | "code">;
+  savePhone: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -56,12 +63,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       staff,
       preview,
       sendCode: async (email) => {
-        const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } });
+        const { error } = await supabase.auth.signInWithOtp(emailOtpRequest(email));
         if (error) throw error;
       },
       verifyCode: async (email, code) => {
-        const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: "email" });
+        const { error } = await supabase.auth.verifyOtp(emailVerifyRequest(email, code));
         if (error) throw error;
+      },
+      sendPhoneCode: async (phone) => {
+        const { error } = await supabase.auth.signInWithOtp(phoneOtpRequest(phone));
+        if (error) throw error;
+      },
+      verifyPhoneCode: async (phone, code) => {
+        const { error } = await supabase.auth.verifyOtp(phoneVerifyRequest(phone, code));
+        if (error) throw error;
+      },
+      savePhone: async (phone) => {
+        const { data } = await supabase.auth.getSession();
+        const userId = data.session?.user.id;
+        if (!userId || preview) return;
+        const record = rememberSignInPhone(webStorage(), userId, phone);
+        await saveContactPrefsRemote(userId, record);
       },
       quickSignIn: async (email) => {
         const response = await fetch("/api/quick-signin", {

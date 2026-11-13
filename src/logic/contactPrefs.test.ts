@@ -8,8 +8,12 @@ import {
   NEWS_LABEL,
   defaultContactPrefs,
   prefsAfterSkip,
+  prefsForPrompt,
   readContactPrefs,
+  rememberSignInPhone,
   shouldAskContactPrefs,
+  shouldOpenContactPrompt,
+  stageSignInPhone,
   writeContactPrefs,
   type ContactStore,
 } from "./contactPrefs";
@@ -41,6 +45,36 @@ describe("contact preferences", () => {
     store.setItem("tatel.contactPrefs.prompt", "1");
     expect(shouldAskContactPrefs(store, null)).toBe(true);
     expect(store.values.get(CONTACT_PREFS_KEY)).toContain("\"alerts\":false");
+  });
+
+  it("keeps the phone from sign-in and still asks for notification choices", () => {
+    const store = memory();
+    stageSignInPhone(store, "+13405550100");
+    const record = rememberSignInPhone(store, "user-1", "+13405550100");
+    expect(record.saved).toBe(false);
+    expect(shouldOpenContactPrompt({
+      userId: "user-1",
+      local: readContactPrefs(store),
+      remote: { alerts: false, marketing: false, phone: "+13405550100" },
+      stagedPhone: "+13405550100",
+      forced: false,
+    })).toBe(true);
+    expect(prefsForPrompt(readContactPrefs(store), null, "+13405550100", "user-1").phone).toBe("+13405550100");
+    writeContactPrefs(store, { ...record, saved: true });
+    expect(shouldOpenContactPrompt({
+      userId: "user-1",
+      local: readContactPrefs(store),
+      remote: { alerts: false, marketing: false, phone: "+13405550100" },
+      stagedPhone: null,
+      forced: false,
+    })).toBe(false);
+    expect(shouldOpenContactPrompt({
+      userId: "user-2",
+      local: null,
+      remote: { alerts: false, marketing: false, phone: "+13405550100" },
+      stagedPhone: null,
+      forced: false,
+    })).toBe(false);
   });
 
   it("matches the contact_prefs migration", () => {

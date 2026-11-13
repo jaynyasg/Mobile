@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/community/auth";
 import {
   clearContactPrompt,
+  clearStagedPhone,
   defaultContactPrefs,
-  prefsAfterSkip,
+  prefsForPrompt,
   readContactPrefs,
-  shouldAskContactPrefs,
+  readStagedPhone,
+  shouldOpenContactPrompt,
   writeContactPrefs,
   type ContactPrefs,
 } from "@/logic/contactPrefs";
@@ -21,8 +23,9 @@ export function ContactPrompt() {
   useEffect(() => {
     if (!ready) return;
     const store = webStorage();
-    if (shouldAskContactPrefs(store, null) && store?.getItem("tatel.contactPrefs.prompt") === "1") {
-      setInitial(readContactPrefs(store) ?? defaultContactPrefs());
+    const forced = store?.getItem("tatel.contactPrefs.prompt") === "1";
+    if (forced) {
+      setInitial(prefsForPrompt(readContactPrefs(store), null, readStagedPhone(store), userId));
       setOpen(true);
       return;
     }
@@ -30,14 +33,23 @@ export function ContactPrompt() {
     let live = true;
     loadContactPrefsRemote(userId).then((remote) => {
       if (!live) return;
-      if (remote) {
-        writeContactPrefs(store, { ...remote, userId, saved: true });
+      const local = readContactPrefs(store);
+      const stagedPhone = readStagedPhone(store);
+      if (!shouldOpenContactPrompt({ userId, local, remote, stagedPhone, forced: false })) {
+        if (remote) {
+          writeContactPrefs(store, {
+            alerts: remote.alerts,
+            marketing: remote.marketing,
+            phone: local?.phone ?? remote.phone,
+            userId,
+            saved: true,
+          });
+        }
         clearContactPrompt(store);
         setOpen(false);
         return;
       }
-      if (!shouldAskContactPrefs(store, userId)) return;
-      setInitial(defaultContactPrefs());
+      setInitial(prefsForPrompt(local, remote, stagedPhone, userId));
       setOpen(true);
     });
     return () => {
@@ -47,10 +59,13 @@ export function ContactPrompt() {
 
   function persist(prefs: ContactPrefs) {
     const store = webStorage();
-    writeContactPrefs(store, { ...prefs, userId: userId ?? null, saved: true });
+    const phone = prefs.phone ?? readStagedPhone(store);
+    const record = { ...prefs, phone, userId: userId ?? null, saved: true };
+    writeContactPrefs(store, record);
+    clearStagedPhone(store);
     clearContactPrompt(store);
     setOpen(false);
-    if (userId && !preview) void saveContactPrefsRemote(userId, prefs);
+    if (userId && !preview) void saveContactPrefsRemote(userId, record);
   }
 
   if (!open) return null;
@@ -58,7 +73,7 @@ export function ContactPrompt() {
     <ContactPrefsCard
       initial={initial}
       onSave={persist}
-      onSkip={() => persist(prefsAfterSkip())}
+      onSkip={() => persist({ alerts: false, marketing: false, phone: initial.phone })}
     />
   );
 }
