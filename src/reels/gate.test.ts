@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { chapterReelIds, reels, zoneReelIds } from "@/content/reels";
+import { chapterReelIds, reels, showIntroTitle, zoneReelIds } from "@/content/reels";
 import {
   CHAPTER_KEY,
   EXPLORED_KEY,
@@ -55,14 +55,25 @@ describe("reel gate", () => {
   });
 
   it("lists a placeholder reel for the intro, each area, and each track", () => {
-    expect(reels.intro.durationMs).toBeGreaterThanOrEqual(12_000);
-    expect(reels.intro.durationMs).toBeLessThanOrEqual(18_000);
+    expect(reels.intro.mp4).toBe("/reels/tatel-welcome-intro.mp4");
+    expect(reels.intro.poster).toBe("/reels/tatel-welcome-intro-poster.jpg");
+    expect(reels.intro.durationMs).toBe(17_500);
+    expect(showIntroTitle(14_000, reels.intro.durationMs)).toBe(true);
+    expect(showIntroTitle(14_500, reels.intro.durationMs)).toBe(false);
     for (const id of chapterReelIds) {
       expect(reels[id].kind).toBe("chapter");
       expect(reels[id].durationMs).toBeGreaterThanOrEqual(6_000);
       expect(reels[id].durationMs).toBeLessThanOrEqual(8_000);
       expect(reels[id].mp4.startsWith("/reels/")).toBe(true);
     }
+    expect(zoneReelIds.map((id) => reels[id].title)).toEqual(["Tech", "AI", "Travel", "Entertainment", "Law"]);
+    expect(zoneReelIds.map((id) => reels[id].poster)).toEqual([
+      "/reels/tech-poster.jpg",
+      "/reels/ai-poster.jpg",
+      "/reels/travel-poster.jpg",
+      "/reels/entertainment-poster.jpg",
+      "/reels/law-poster.jpg",
+    ]);
     expect(zoneReelIds.map((id) => reels[id].zoneId)).toEqual(["tech", "ai", "travel", "entertainment", "law"]);
   });
 
@@ -70,6 +81,7 @@ describe("reel gate", () => {
     const source = readFileSync(new URL("../../public/sw.js", import.meta.url), "utf8");
     const shell = source.slice(source.indexOf("const SHELL"), source.indexOf("];") + 2);
     expect(shell).not.toMatch(/\.mp4\b|\.webm\b/);
+    expect(shell).not.toMatch(/\/reels\//);
     expect(source).toMatch(/mp4\|webm/);
   });
 });

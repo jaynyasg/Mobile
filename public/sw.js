@@ -25,7 +25,7 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  // Reels and the coastal loop stay network-only. Do not precache mp4 or webm.
+  // Reels under /reels/ and the coastal loop stay network-only. Do not precache mp4 or webm.
   if (/\.(mp4|webm)$/i.test(url.pathname)) {
     event.respondWith(fetch(request));
     return;

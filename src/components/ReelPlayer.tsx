@@ -2,7 +2,7 @@ import { createElement, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, type Reel } from "@/content/reels";
+import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, showIntroTitle, type Reel } from "@/content/reels";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
@@ -24,6 +24,7 @@ export function ReelPlayer({
   const [src, setSrc] = useState(reel.mp4);
   const [showVideo, setShowVideo] = useState(mode === "video" && Platform.OS === "web");
   const [progress, setProgress] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
   const onDoneRef = useRef(onDone);
   const finished = useRef(false);
   onDoneRef.current = onDone;
@@ -39,7 +40,9 @@ export function ReelPlayer({
     if (!showVideo) return;
     const started = Date.now();
     const tick = setInterval(() => {
-      setProgress(Math.min(1, (Date.now() - started) / reel.durationMs));
+      const elapsedMs = Date.now() - started;
+      setElapsed(elapsedMs);
+      setProgress(Math.min(1, elapsedMs / reel.durationMs));
     }, 100);
     const end = setTimeout(() => finish("end"), reel.durationMs);
     return () => {
@@ -105,7 +108,9 @@ export function ReelPlayer({
       </Pressable>
       <View style={[styles.copy, { bottom: Math.max(insets.bottom, 16) + 28 }]}>
         <T variant="eyebrow" color={colors.gold}>{reel.kicker}</T>
-        <T variant="title" color={colors.foam}>{reel.title}</T>
+        {reel.kind !== "intro" || showIntroTitle(elapsed, reel.durationMs) ? (
+          <T variant="title" color={colors.foam}>{reel.title}</T>
+        ) : null}
         {reel.kind === "chapter" ? (
           <Pressable
             accessibilityRole="button"

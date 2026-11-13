@@ -1,8 +1,15 @@
 import { homeMedia } from "@/components/homeMedia";
 
-/** Stand-in until the real reels land in public/reels/. */
+/** Used only when a reel file is missing. */
 export const REEL_FALLBACK_MP4 = homeMedia.mp4;
 export const REEL_FALLBACK_POSTER = homeMedia.poster;
+
+/** The intro burns TATEL into the last three seconds, so the overlay title steps aside. */
+export const INTRO_TITLE_HOLD_MS = 3_000;
+
+export function showIntroTitle(elapsedMs: number, durationMs: number): boolean {
+  return elapsedMs < durationMs - INTRO_TITLE_HOLD_MS;
+}
 
 export interface Reel {
   id: string;
@@ -22,9 +29,9 @@ export const reels = {
     id: "intro",
     title: "TATEL",
     kicker: "The tech summit on water",
-    mp4: "/reels/intro.mp4",
-    poster: "/reels/intro.jpg",
-    durationMs: 15_000,
+    mp4: "/reels/tatel-welcome-intro.mp4",
+    poster: "/reels/tatel-welcome-intro-poster.jpg",
+    durationMs: 17_500,
     kind: "intro",
   },
   sessions: {
@@ -83,50 +90,50 @@ export const reels = {
   },
   tech: {
     id: "tech",
-    title: "St. Thomas · Tech",
+    title: "Tech",
     kicker: "A zone to explore",
     mp4: "/reels/tech.mp4",
-    poster: "/reels/tech.jpg",
+    poster: "/reels/tech-poster.jpg",
     durationMs: 7_000,
     kind: "chapter",
     zoneId: "tech",
   },
   ai: {
     id: "ai",
-    title: "St. John · AI",
+    title: "AI",
     kicker: "A zone to explore",
     mp4: "/reels/ai.mp4",
-    poster: "/reels/ai.jpg",
+    poster: "/reels/ai-poster.jpg",
     durationMs: 7_000,
     kind: "chapter",
     zoneId: "ai",
   },
   travel: {
     id: "travel",
-    title: "Scrub Island · Travel",
+    title: "Travel",
     kicker: "A zone to explore",
     mp4: "/reels/travel.mp4",
-    poster: "/reels/travel.jpg",
+    poster: "/reels/travel-poster.jpg",
     durationMs: 7_000,
     kind: "chapter",
     zoneId: "travel",
   },
   entertainment: {
     id: "entertainment",
-    title: "Jost Van Dyke · Entertainment",
+    title: "Entertainment",
     kicker: "A zone to explore",
     mp4: "/reels/entertainment.mp4",
-    poster: "/reels/entertainment.jpg",
+    poster: "/reels/entertainment-poster.jpg",
     durationMs: 7_000,
     kind: "chapter",
     zoneId: "entertainment",
   },
   law: {
     id: "law",
-    title: "Lovango · Law",
+    title: "Law",
     kicker: "A zone to explore",
     mp4: "/reels/law.mp4",
-    poster: "/reels/law.jpg",
+    poster: "/reels/law-poster.jpg",
     durationMs: 7_000,
     kind: "chapter",
     zoneId: "law",
