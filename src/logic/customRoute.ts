@@ -100,10 +100,21 @@ export function canCreateRoute(ids: string[] | null): boolean {
   return (ids?.length ?? 0) > 0;
 }
 
+/**
+ * Land on the sample poster crop (1440×1020), not the number badges.
+ * Jost, Lovango, and St. John badges sit in the water beside the islands.
+ */
+const PIN_ON_LAND: Record<string, { x: number; y: number }> = {
+  "jost van dyke": { x: 805 / 1440, y: 535 / 1020 },
+  lovango: { x: 647 / 1440, y: 716 / 1020 },
+  "st. john": { x: 712 / 1440, y: 789 / 1020 },
+};
+
 function pinSpot(island: string): { x: number; y: number } {
+  const key = normIsland(island);
+  if (PIN_ON_LAND[key]) return PIN_ON_LAND[key];
   const named = ISLAND_ON_MAP[island];
   if (named) return named;
-  const key = normIsland(island);
   for (const [name, spot] of Object.entries(ISLAND_ON_MAP)) {
     if (normIsland(name) === key) return spot;
   }

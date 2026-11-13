@@ -162,6 +162,21 @@ describe("custom route", () => {
     expect(pins.map((pin) => pin.n)).toEqual([1, 2]);
     expect(pins[0].island).toBe("St. Thomas");
     expect(pins[1].x).toBeGreaterThan(pins[0].x);
+    const placed = routePins([
+      {
+        dayId: "2027-01-26",
+        stops: ["Jost Van Dyke", "Lovango", "St. John"].map((island, index) => ({
+          session: plan({ id: String(index), dayId: "2027-01-26", island, start: `2027-01-26T0${index}:00:00-04:00` }),
+          leg: null,
+          clash: false,
+        })),
+      },
+    ]);
+    const jost = placed.find((pin) => pin.island === "Jost Van Dyke");
+    expect(jost && jost.x).toBeGreaterThan(0.54);
+    expect(jost && jost.y).toBeLessThan(0.56);
+    expect(placed.find((pin) => pin.island === "Lovango")?.y).toBeGreaterThan(0.68);
+    expect(placed.find((pin) => pin.island === "St. John")?.x).toBeGreaterThan(0.48);
     const first = describeStop(days[0].stops[0], "9:00 – 9:45 AM AST", tech!.title);
     expect(first[0]).toBe("Start at St. Thomas.");
     expect(first.join(" ")).toContain(tech!.title);
