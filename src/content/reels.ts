@@ -40,7 +40,7 @@ export const reels = {
     kicker: "Sessions",
     mp4: "/reels/sessions.mp4",
     poster: "/reels/sessions.jpg",
-    durationMs: 7_000,
+    durationMs: 7_042,
     kind: "chapter",
   },
   venues: {
@@ -49,7 +49,7 @@ export const reels = {
     kicker: "The islands",
     mp4: "/reels/venues.mp4",
     poster: "/reels/venues.jpg",
-    durationMs: 7_000,
+    durationMs: 7_042,
     kind: "chapter",
   },
   stays: {
@@ -58,7 +58,7 @@ export const reels = {
     kicker: "Where you sleep",
     mp4: "/reels/stays.mp4",
     poster: "/reels/stays.jpg",
-    durationMs: 7_000,
+    durationMs: 7_042,
     kind: "chapter",
   },
   transport: {
@@ -67,7 +67,7 @@ export const reels = {
     kicker: "Sample routes",
     mp4: "/reels/transport.mp4",
     poster: "/reels/transport.jpg",
-    durationMs: 7_000,
+    durationMs: 7_042,
     kind: "chapter",
   },
   community: {
@@ -76,7 +76,7 @@ export const reels = {
     kicker: "Chat",
     mp4: "/reels/community.mp4",
     poster: "/reels/community.jpg",
-    durationMs: 7_000,
+    durationMs: 7_042,
     kind: "chapter",
   },
   pass: {
@@ -85,7 +85,7 @@ export const reels = {
     kicker: "Your pass",
     mp4: "/reels/pass.mp4",
     poster: "/reels/pass.jpg",
-    durationMs: 7_000,
+    durationMs: 7_042,
     kind: "chapter",
   },
   tech: {

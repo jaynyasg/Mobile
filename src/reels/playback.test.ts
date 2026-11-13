@@ -19,16 +19,17 @@ function fakeVideo(play: () => Promise<void> | undefined): ReelMedia & { calls: 
 }
 
 describe("reel playback", () => {
-  it("uses a track film when one exists and the coastal loop otherwise", () => {
+  it("uses each section film and the coastal loop only for an unknown id", () => {
     expect(reelPlaybackSrc("intro")).toBe("/reels/tatel-welcome-intro.mp4");
     expect(reelPlaybackSrc("tech")).toBe("/reels/tech.mp4");
     expect(reelPlaybackSrc("ai")).toBe("/reels/ai.mp4");
-    expect(reelPlaybackSrc("sessions")).toBe(REEL_FALLBACK_MP4);
-    expect(reelPlaybackSrc("venues")).toBe(REEL_FALLBACK_MP4);
-    expect(reelPlaybackSrc("stays")).toBe(REEL_FALLBACK_MP4);
-    expect(reelPlaybackSrc("transport")).toBe(REEL_FALLBACK_MP4);
-    expect(reelPlaybackSrc("community")).toBe(REEL_FALLBACK_MP4);
-    expect(reelPlaybackSrc("pass")).toBe(REEL_FALLBACK_MP4);
+    expect(reelPlaybackSrc("sessions")).toBe("/reels/sessions.mp4");
+    expect(reelPlaybackSrc("venues")).toBe("/reels/venues.mp4");
+    expect(reelPlaybackSrc("stays")).toBe("/reels/stays.mp4");
+    expect(reelPlaybackSrc("transport")).toBe("/reels/transport.mp4");
+    expect(reelPlaybackSrc("community")).toBe("/reels/community.mp4");
+    expect(reelPlaybackSrc("pass")).toBe("/reels/pass.mp4");
+    expect(reelPlaybackSrc("missing")).toBe(REEL_FALLBACK_MP4);
   });
 
   it("calls play() synchronously after muting and setting the source", async () => {

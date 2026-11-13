@@ -1,7 +1,7 @@
-import { REEL_FALLBACK_MP4, reels, zoneReelIds, type ReelId } from "@/content/reels";
+import { chapterReelIds, REEL_FALLBACK_MP4, reels, type ReelId } from "@/content/reels";
 
-/** Films that exist under public/reels/. Other chapters stand in with the coastal loop. */
-const OWN_FILM = new Set<string>(["intro", ...zoneReelIds]);
+/** Films that exist under public/reels/. Anything else stands in with the coastal loop. */
+const OWN_FILM = new Set<string>(["intro", ...chapterReelIds]);
 
 export interface ReelMedia {
   muted: boolean;
