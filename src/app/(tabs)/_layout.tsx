@@ -10,20 +10,20 @@ import { T } from "@/components/Text";
 import { useApp } from "@/store";
 import { colors } from "@/theme";
 
-const visible = ["index", "agenda", "community", "places", "more"] as const;
+const visible = ["index", "agenda", "explore", "passport", "more"] as const;
 
-const tabChapter: Partial<Record<string, { id: ReelId; href: "/agenda" | "/community" | "/places" }>> = {
+const tabChapter: Partial<Record<string, { id: ReelId; href: "/agenda" | "/explore" | "/passport" | "/community" | "/places" }>> = {
   agenda: { id: "sessions", href: "/agenda" },
-  community: { id: "community", href: "/community" },
-  places: { id: "venues", href: "/places" },
+  explore: { id: "venues", href: "/explore" },
+  passport: { id: "pass", href: "/passport" },
 };
 
 const icons: Record<string, IconName> = {
   index: "home",
   agenda: "calendar",
-  community: "chat",
-  places: "pin",
-  more: "menu",
+  explore: "pin",
+  passport: "ticket",
+  more: "people",
 };
 
 export default function TabLayout() {
@@ -38,9 +38,11 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="agenda" options={{ title: "Sessions" }} />
+      <Tabs.Screen name="explore" options={{ title: "Explore" }} />
+      <Tabs.Screen name="passport" options={{ title: "Passport" }} />
+      <Tabs.Screen name="more" options={{ title: "Me" }} />
       <Tabs.Screen name="community" options={{ title: "Community" }} />
       <Tabs.Screen name="places" options={{ title: "Venues" }} />
-      <Tabs.Screen name="more" options={{ title: "More" }} />
       <Tabs.Screen name="speakers" options={{ title: "Panelists" }} />
       <Tabs.Screen name="network" options={{ title: "Network" }} />
     </Tabs>
@@ -68,7 +70,7 @@ function GlassTabBar({
           {routes.map((route) => {
             const active = state.routes[state.index]?.key === route.key;
             const color = active ? colors.gold : colors.foam;
-            const label = route.name === "agenda" ? "Sessions" : route.name === "index" ? "Home" : route.name === "community" ? "Community" : route.name === "places" ? "Venues" : "More";
+            const label = route.name === "agenda" ? "Sessions" : route.name === "index" ? "Home" : route.name === "explore" ? "Explore" : route.name === "passport" ? "Passport" : "Me";
             const chapter = tabChapter[route.name];
             return (
               <Pressable

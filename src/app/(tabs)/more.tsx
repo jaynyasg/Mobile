@@ -13,12 +13,13 @@ export default function MoreScreen() {
   const unread = notifications.filter((note) => !state.readNotificationIds.includes(note.id)).length;
   const groups: { title: string; items: { href: Href; label: string; detail?: string; badge?: number; reelId?: ReelId }[] }[] = [
     {
-      title: "Your copy of the draft",
+      title: "You",
       items: [
         { href: "/schedule", label: "My schedule", detail: "Favorites saved on this device" },
-        { href: "/ticket", label: "Pass preview", detail: "Prices shown as a demo. No payment.", reelId: "pass" },
+        { href: "/passport", label: "Passport", detail: "Your pass preview. No payment.", reelId: "pass" },
         { href: "/notifications", label: "Notifications", detail: "Notices taken from the source", badge: unread || undefined },
         { href: "/assistant", label: "Guide", detail: "Answers from the program, on this device" },
+        { href: "/community", label: "Community", detail: "Live chat", reelId: "community" },
         { href: "/speakers", label: "Panelists", detail: "Roster from the website" },
         { href: "/network", label: "Network", detail: "Opt-in introductions" },
       ],
@@ -38,7 +39,7 @@ export default function MoreScreen() {
 
   return (
     <Screen docked photo={backgrounds.more.day} night={backgrounds.more.night} phase={backgrounds.more.phase}>
-      <PageHeader kicker="TATEL" title="More" />
+      <PageHeader kicker="TATEL" title="Me" />
       {groups.map((group) => (
         <ViewSection key={group.title} title={group.title} items={group.items} />
       ))}

@@ -8,7 +8,6 @@ import { formatRange } from "@/logic/time";
 import { sessionTopic } from "@/logic/topic";
 import { useApp } from "@/store";
 import { colors, sceneForIsland } from "@/theme";
-import { nightGlass } from "./nightGlass";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 import { TopicChip } from "./TopicChip";
@@ -27,44 +26,44 @@ export function SessionRow({ session }: { session: Session }) {
   const when = sessionWhen(session, program.forum.timezone);
 
   return (
-    <View style={styles.row}>
-      <View style={styles.thumb}>
-        <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
-      </View>
-      <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
-        <Pressable accessibilityRole="button" accessibilityLabel={session.title} style={styles.main}>
-          {topic ? <TopicChip id={topic.id} name={topic.name} /> : null}
-          <T variant="rowTitle" numberOfLines={2}>{displayCopy(session.title)}</T>
-          <T variant="meta" color={colors.gold} numberOfLines={1} style={styles.when}>{when} · {session.island}</T>
-        </Pressable>
-      </Link>
+    <View style={styles.card}>
+      <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
+      <View style={styles.shade} />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={favored ? `Remove ${session.title} from favorites` : `Save ${session.title}`}
-        hitSlop={8}
         onPress={() => dispatch({ type: "toggleFavorite", id: session.id })}
         style={styles.heart}
       >
-        <Icon name={favored ? "heartFill" : "heart"} color={favored ? colors.gold : colors.foam} />
+        <Icon name={favored ? "heartFill" : "heart"} color={colors.gold} />
       </Pressable>
+      <View style={styles.copy}>
+        {topic ? <TopicChip id={topic.id} name={topic.name} /> : null}
+        <T variant="rowTitle" color={colors.foam} numberOfLines={2}>{displayCopy(session.title)}</T>
+        <T variant="meta" color={colors.gold} numberOfLines={1}>{when} · {session.island}</T>
+        <Link href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Open ${session.title}`} style={styles.pill}>
+            <T variant="button" color={colors.ink}>Open</T>
+          </Pressable>
+        </Link>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
-    ...nightGlass,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
+  card: {
+    height: 220,
     marginHorizontal: 16,
-    marginBottom: 10,
-    padding: 12,
-    borderRadius: 16,
+    marginBottom: 12,
+    borderRadius: 18,
+    overflow: "hidden",
+    justifyContent: "flex-end",
+    backgroundColor: "#071421",
   },
-  thumb: { width: 84, height: 84, borderRadius: 12, overflow: "hidden" },
-  photo: { width: 84, height: 84 },
-  main: { flex: 1, minWidth: 0, gap: 4, justifyContent: "center" },
-  when: { overflow: "hidden" },
-  heart: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  shade: { position: "absolute", left: 0, right: 0, bottom: 0, height: "78%", backgroundColor: "rgba(6,14,24,0.45)" },
+  heart: { position: "absolute", top: 8, right: 8, width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  copy: { gap: 4, padding: 12, zIndex: 1 },
+  pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });
