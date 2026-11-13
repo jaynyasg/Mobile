@@ -20,7 +20,7 @@ export default function MoreScreen() {
         { href: "/notifications", label: "Notifications", detail: "Summit notes on this device", badge: unread || undefined },
         { href: "/assistant", label: "Guide", detail: "Answers from the program, on this device" },
         { href: "/community", label: "Community", detail: "Live chat", reelId: "community" },
-        { href: "/speakers", label: "Panelists", detail: "Roster from the website" },
+        { href: "/speakers", label: "Panelists", detail: "Roster from the website", reelId: "panelists" },
         { href: "/network", label: "Network", detail: "Opt-in introductions" },
       ],
     },

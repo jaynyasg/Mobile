@@ -88,6 +88,24 @@ export const reels = {
     durationMs: 7_042,
     kind: "chapter",
   },
+  panelists: {
+    id: "panelists",
+    title: "Panelists",
+    kicker: "Panelists",
+    mp4: "/reels/panelists.mp4",
+    poster: "/reels/panelists.jpg",
+    durationMs: 7_000,
+    kind: "chapter",
+  },
+  guide: {
+    id: "guide",
+    title: "Guide",
+    kicker: "Need to know",
+    mp4: "/reels/guide.mp4",
+    poster: "/reels/guide.jpg",
+    durationMs: 7_000,
+    kind: "chapter",
+  },
   tech: {
     id: "tech",
     title: "St. Thomas · Tech",
@@ -151,6 +169,8 @@ export const chapterReelIds = [
   "transport",
   "community",
   "pass",
+  "panelists",
+  "guide",
   ...zoneReelIds,
 ] as const satisfies readonly ReelId[];
 

@@ -34,8 +34,8 @@ const rows: DockItem[][] = [
   ],
   [
     { href: "/community", label: "Chat", icon: "chat", chapter: "community", active: (path) => path.startsWith("/community") },
-    { href: "/speakers", label: "Panelists", icon: "mic", active: (path) => path.startsWith("/speaker") },
-    { href: "/know", label: "Guide", icon: "menu", active: (path) => path.startsWith("/know") },
+    { href: "/speakers", label: "Panelists", icon: "mic", chapter: "panelists", active: (path) => path.startsWith("/speaker") },
+    { href: "/know", label: "Guide", icon: "menu", chapter: "guide", active: (path) => path.startsWith("/know") },
     { href: "/transport", label: "Transport", icon: "boat", chapter: "transport", active: (path) => path.startsWith("/transport") },
     { href: "/stays", label: "Stays", icon: "seat", chapter: "stays", active: (path) => path.startsWith("/stays") },
   ],

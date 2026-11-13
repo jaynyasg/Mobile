@@ -29,6 +29,8 @@ describe("reel playback", () => {
     expect(reelPlaybackSrc("transport")).toBe("/reels/transport.mp4");
     expect(reelPlaybackSrc("community")).toBe("/reels/community.mp4");
     expect(reelPlaybackSrc("pass")).toBe("/reels/pass.mp4");
+    expect(reelPlaybackSrc("panelists")).toBe("/reels/panelists.mp4");
+    expect(reelPlaybackSrc("guide")).toBe("/reels/guide.mp4");
     expect(reelPlaybackSrc("missing")).toBe(REEL_FALLBACK_MP4);
   });
 
