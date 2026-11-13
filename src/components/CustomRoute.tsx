@@ -2,20 +2,27 @@ import { useEffect, useMemo, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { Day, Session, TransportMode } from "@/content/types";
+import type { Day, Pillar, Session, TransportMode } from "@/content/types";
 import { displayCopy } from "@/content/display";
-import { DayFilter } from "@/components/DayFilter";
 import { Icon } from "@/components/Icon";
 import { T } from "@/components/Text";
 import { nightGlass } from "@/components/nightGlass";
 import { dockClearance } from "@/components/Dock";
 import {
   buildRoute,
+  canCreateRoute,
+  readCreatedRoute,
+  readRouteMode,
   readRoutePlan,
+  routePicker,
+  writeCreatedRoute,
+  writeRouteMode,
   writeRoutePlan,
   type PlanSession,
 } from "@/logic/customRoute";
+import { RouteBoard } from "@/components/RouteBoard";
 import { sessionClock } from "@/logic/dayTheme";
+import { modeLabel } from "@/logic/transportPlan";
 import { useApp } from "@/store";
 import { colors, sceneForIsland } from "@/theme";
 
@@ -36,39 +43,67 @@ export function CustomRoute({
   sessions,
   days,
   modes,
+  pillars,
   timeZone,
 }: {
   sessions: Session[];
   days: Day[];
   modes: TransportMode[];
+  pillars: Pillar[];
   timeZone: string;
 }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { state, hydrated } = useApp();
   const [ids, setIds] = useState<string[] | null>(null);
-  const [dayId, setDayId] = useState(days[0]?.id ?? "all");
+  const [modeId, setModeId] = useState(modes[0]?.id ?? "powerboat");
+  const [dayId, setDayId] = useState(days[0]?.id ?? "");
+  const [island, setIsland] = useState("all");
   const [editing, setEditing] = useState(false);
+  const [view, setView] = useState<"edit" | "result">("edit");
+  const islands = pillars.map((pillar) => pillar.island);
 
   useEffect(() => {
     if (!hydrated || ids !== null) return;
     const store = typeof localStorage === "undefined" ? null : localStorage;
+    const created = readCreatedRoute(store);
     const saved = readRoutePlan(store);
+    const savedMode = readRouteMode(store);
+    if (created && modes.some((mode) => mode.id === created.modeId)) {
+      setModeId(created.modeId);
+      setIds(created.ids);
+      setView("result");
+      return;
+    }
+    if (savedMode && modes.some((mode) => mode.id === savedMode)) setModeId(savedMode);
     const next = saved ?? state.favoriteIds;
     setIds(next);
     if (!saved) writeRoutePlan(store, next);
-  }, [hydrated, ids, state.favoriteIds]);
+  }, [hydrated, ids, modes, state.favoriteIds]);
 
   const picked = useMemo(() => {
     const chosen = new Set(ids ?? []);
     return sessions.filter((session) => chosen.has(session.id)).map(asPlan);
   }, [ids, sessions]);
-  const plan = useMemo(() => buildRoute(picked, modes), [picked, modes]);
-  const visible = sessions
-    .filter((session) => dayId === "all" || session.dayId === dayId)
+  const plan = useMemo(() => buildRoute(picked, modes, undefined, modeId), [picked, modes, modeId]);
+  const dayPlan = plan.find((day) => day.dayId === dayId);
+  const visible = routePicker(sessions, dayId, island)
     .slice()
     .sort((a, b) => (a.start ?? "9999").localeCompare(b.start ?? "9999") || a.title.localeCompare(b.title));
-  const showPicker = editing || (ids !== null && ids.length === 0);
+  const showPicker = editing || island !== "all" || !dayPlan?.stops.length;
+
+  function createRoute() {
+    if (!canCreateRoute(ids)) return;
+    const store = typeof localStorage === "undefined" ? null : localStorage;
+    writeCreatedRoute(store, { ids: ids ?? [], modeId });
+    writeRouteMode(store, modeId);
+    setView("result");
+  }
+
+  function chooseMode(id: string) {
+    setModeId(id);
+    writeRouteMode(typeof localStorage === "undefined" ? null : localStorage, id);
+  }
 
   function toggle(id: string) {
     setIds((current) => {
@@ -80,7 +115,79 @@ export function CustomRoute({
     });
   }
 
+  const ready = canCreateRoute(ids);
+  const boat = modeLabel(modes.find((mode) => mode.id === modeId) ?? modes[0]);
+  if (view === "result") {
+    return (
+      <RouteBoard
+        plan={plan}
+        days={days}
+        modeName={boat}
+        timeZone={timeZone}
+        onEdit={() => setView("edit")}
+        bottom={dockClearance(insets.bottom)}
+      />
+    );
+  }
+
   return (
+    <View style={styles.fill}>
+      <View style={styles.controls}>
+        <View style={styles.segment}>
+          {modes.map((mode) => {
+            const on = mode.id === modeId;
+            const label = modeLabel(mode);
+            return (
+              <Pressable
+                key={mode.id}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                accessibilityLabel={label}
+                onPress={() => chooseMode(mode.id)}
+                style={[styles.segmentItem, on && styles.segmentOn]}
+              >
+                <T variant="meta" color={on ? colors.ink : colors.foam} numberOfLines={2} style={styles.segmentLabel}>{label}</T>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View style={styles.segment}>
+          {days.map((day) => {
+            const on = day.id === dayId;
+            return (
+              <Pressable
+                key={day.id}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                accessibilityLabel={day.label}
+                onPress={() => setDayId(day.id)}
+                style={[styles.segmentItem, on && styles.segmentOn]}
+              >
+                <T variant="meta" color={on ? colors.ink : colors.foam} style={styles.segmentLabel}>{day.label}</T>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View accessibilityLabel="Infrastructure" style={styles.infra}>
+          <T variant="meta" color={colors.gold}>Infrastructure</T>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.infraRow}>
+            <IslandChip label="All islands" selected={island === "all"} onPress={() => setIsland("all")} />
+            {islands.map((name) => (
+              <IslandChip key={name} label={name} selected={island === name} onPress={() => setIsland(name)} />
+            ))}
+          </ScrollView>
+        </View>
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Create my route"
+        accessibilityState={{ disabled: !ready }}
+        disabled={!ready}
+        onPress={createRoute}
+        style={[styles.create, !ready && styles.createOff]}
+      >
+        <T variant="button" color={colors.ink}>Create my route</T>
+      </Pressable>
     <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, { paddingBottom: dockClearance(insets.bottom) }]} keyboardShouldPersistTaps="handled">
       {ids !== null && ids.length === 0 ? (
         <View style={styles.empty}>
@@ -98,7 +205,7 @@ export function CustomRoute({
       ) : null}
       {showPicker ? (
         <View style={styles.picker}>
-          <DayFilter days={days} dayId={dayId} onChange={setDayId} />
+          {visible.length === 0 ? <T variant="small" color={colors.foam}>No sessions for this day.</T> : null}
           {visible.map((session) => {
             const on = ids?.includes(session.id) ?? false;
             return (
@@ -125,7 +232,7 @@ export function CustomRoute({
           })}
         </View>
       ) : null}
-      {plan.map((day) => {
+      {dayPlan ? [dayPlan].map((day) => {
         const meta = days.find((item) => item.id === day.dayId);
         return (
           <View key={day.dayId} style={styles.day}>
@@ -164,13 +271,33 @@ export function CustomRoute({
             ))}
           </View>
         );
-      })}
+      }) : null}
     </ScrollView>
+    </View>
+  );
+}
+
+function IslandChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[styles.chip, selected && styles.chipOn]}>
+      <T variant="meta" color={selected ? colors.ink : colors.foam}>{label}</T>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  controls: { paddingHorizontal: 12, paddingBottom: 8, gap: 8 },
+  segment: { flexDirection: "row", gap: 4, padding: 4, borderRadius: 16, ...nightGlass },
+  segmentItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", paddingHorizontal: 4, paddingVertical: 6, borderRadius: 12 },
+  segmentOn: { backgroundColor: colors.gold },
+  segmentLabel: { textAlign: "center" },
+  infra: { gap: 6 },
+  infraRow: { gap: 8, paddingRight: 12 },
+  create: { marginHorizontal: 12, marginBottom: 8, minHeight: 48, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
+  createOff: { opacity: 0.4 },
+  chip: { minHeight: 44, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.86)" },
+  chipOn: { backgroundColor: colors.gold, borderColor: colors.gold },
   scroll: { paddingHorizontal: 12, gap: 12 },
   empty: { padding: 16, gap: 8, borderRadius: 18, ...nightGlass },
   open: { alignSelf: "flex-start", minHeight: 48, marginTop: 4, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },

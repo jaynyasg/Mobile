@@ -2,6 +2,8 @@ import type { TransportMode } from "@/content/types";
 import { legEnds, modeLabel, underwayMinutes } from "./transportPlan";
 
 export const ROUTE_KEY = "tatel.route.v1";
+export const ROUTE_MODE_KEY = "tatel.route.mode";
+export const ROUTE_CREATED_KEY = "tatel.route.created";
 /** Arrive this many minutes before the session starts. */
 export const ARRIVE_BUFFER = 20;
 
@@ -24,6 +26,7 @@ export interface PlanLeg {
   from: string;
   to: string;
   depart: string | null;
+  arrive: string | null;
   mode: string;
   duration: string;
   estimated: boolean;
@@ -55,6 +58,104 @@ export function readRoutePlan(store: RouteStore | null): string[] | null {
 
 export function writeRoutePlan(store: RouteStore | null, ids: string[]): void {
   store?.setItem(ROUTE_KEY, JSON.stringify(ids));
+}
+
+export function readRouteMode(store: RouteStore | null): string | null {
+  const raw = store?.getItem(ROUTE_MODE_KEY);
+  return raw && raw.trim() ? raw : null;
+}
+
+export function writeRouteMode(store: RouteStore | null, modeId: string): void {
+  store?.setItem(ROUTE_MODE_KEY, modeId);
+}
+
+export function routePicker<T extends { dayId: string; island: string }>(sessions: T[], dayId: string, island: string): T[] {
+  return sessions.filter((session) => session.dayId === dayId && (island === "all" || session.island === island));
+}
+
+export interface CreatedRoute {
+  ids: string[];
+  modeId: string;
+}
+
+export function readCreatedRoute(store: RouteStore | null): CreatedRoute | null {
+  const raw = store?.getItem(ROUTE_CREATED_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { ids?: unknown; modeId?: unknown };
+    if (!parsed || !Array.isArray(parsed.ids) || typeof parsed.modeId !== "string" || !parsed.modeId.trim()) return null;
+    const ids = parsed.ids.filter((item): item is string => typeof item === "string");
+    if (!ids.length) return null;
+    return { ids, modeId: parsed.modeId };
+  } catch {
+    return null;
+  }
+}
+
+export function writeCreatedRoute(store: RouteStore | null, route: CreatedRoute): void {
+  store?.setItem(ROUTE_CREATED_KEY, JSON.stringify({ ids: route.ids, modeId: route.modeId }));
+}
+
+export function canCreateRoute(ids: string[] | null): boolean {
+  return (ids?.length ?? 0) > 0;
+}
+
+/** Spread the islands enough to read on a phone, keeping west-to-east order. */
+const PIN_LAYOUT: Record<string, { x: number; y: number }> = {
+  "st. thomas": { x: 0.16, y: 0.72 },
+  lovango: { x: 0.36, y: 0.4 },
+  "st. john": { x: 0.5, y: 0.74 },
+  "jost van dyke": { x: 0.68, y: 0.28 },
+  "scrub island": { x: 0.86, y: 0.52 },
+};
+
+export interface RoutePin {
+  n: number;
+  island: string;
+  dayId: string;
+  x: number;
+  y: number;
+}
+
+export function routePins(days: PlanDay[]): RoutePin[] {
+  const seen = new Map<string, number>();
+  const pins: RoutePin[] = [];
+  for (const day of days) {
+    for (const stop of day.stops) {
+      const key = normIsland(stop.session.island);
+      const count = seen.get(key) ?? 0;
+      seen.set(key, count + 1);
+      const spot = PIN_LAYOUT[key] ?? { x: 0.5, y: 0.5 };
+      pins.push({
+        n: pins.length + 1,
+        island: stop.session.island,
+        dayId: day.dayId,
+        x: Math.min(0.92, spot.x + (count % 2) * 0.06),
+        y: Math.max(0.14, spot.y - Math.floor(count / 2) * 0.1),
+      });
+    }
+  }
+  return pins;
+}
+
+/** Plain-language lines for one stop, in the order a traveler needs them. */
+export function describeStop(stop: PlanStop, when: string, title: string): string[] {
+  const lines: string[] = [];
+  const place = stop.session.venue?.trim() || stop.session.island;
+  if (!stop.leg) {
+    lines.push(`Start at ${place}.`);
+    lines.push(`${title} runs ${when}.`);
+    lines.push(`Arrive ${ARRIVE_BUFFER} minutes early.`);
+  } else {
+    lines.push(stop.leg.depart ? `Leave ${stop.leg.from} by ${stop.leg.depart}.` : `Leave ${stop.leg.from}.`);
+    const estimate = stop.leg.estimated ? " This is an estimate." : "";
+    lines.push(`${stop.leg.mode} from ${stop.leg.from} to ${stop.leg.to} takes ${stop.leg.duration}.${estimate}`);
+    if (stop.leg.arrive) lines.push(`Arrive by ${stop.leg.arrive}. That leaves ${ARRIVE_BUFFER} minutes before the session.`);
+    lines.push(`${title} runs ${when}.`);
+  }
+  if (stop.clash) lines.push("These overlap.");
+  if (stop.leg?.tight) lines.push("Tight connection.");
+  return lines;
 }
 
 export function clockMinutes(iso: string | null): number | null {
@@ -123,9 +224,10 @@ function better(next: Candidate, current: Candidate): boolean {
   return (modeRank[next.modeId] ?? 9) < (modeRank[current.modeId] ?? 9);
 }
 
-function findCrossing(modes: TransportMode[], dayId: string, from: string, to: string): Candidate | null {
+function findCrossing(modes: TransportMode[], dayId: string, from: string, to: string, modeId?: string): Candidate | null {
   let best: Candidate | null = null;
-  for (const mode of modes) {
+  const pool = modeId ? modes.filter((mode) => mode.id === modeId) : modes;
+  for (const mode of pool) {
     for (const day of mode.days) {
       for (const item of day.items) {
         if (item.kind !== "leg") continue;
@@ -146,11 +248,12 @@ function findCrossing(modes: TransportMode[], dayId: string, from: string, to: s
   return best;
 }
 
-function crossing(modes: TransportMode[], dayId: string, from: string, to: string): { mode: string; minutes: [number, number]; estimated: boolean } {
-  const found = findCrossing(modes, dayId, from, to);
+function crossing(modes: TransportMode[], dayId: string, from: string, to: string, modeId?: string): { mode: string; minutes: [number, number]; estimated: boolean } {
+  const found = findCrossing(modes, dayId, from, to, modeId);
   if (found) return { mode: found.modeName, minutes: found.minutes, estimated: false };
   const guess = ESTIMATES[pairKey(from, to)] ?? [45, 75];
-  return { mode: "Water taxi", minutes: guess, estimated: true };
+  const chosen = modeId ? modes.find((mode) => mode.id === modeId) : undefined;
+  return { mode: chosen ? modeLabel(chosen) : "Water taxi", minutes: guess, estimated: true };
 }
 
 function byTime(a: PlanSession, b: PlanSession): number {
@@ -159,7 +262,7 @@ function byTime(a: PlanSession, b: PlanSession): number {
   return a.title.localeCompare(b.title);
 }
 
-export function buildRoute(picks: PlanSession[], modes: TransportMode[], buffer = ARRIVE_BUFFER): PlanDay[] {
+export function buildRoute(picks: PlanSession[], modes: TransportMode[], buffer = ARRIVE_BUFFER, modeId?: string): PlanDay[] {
   const byDay = new Map<string, PlanSession[]>();
   for (const session of picks) {
     const list = byDay.get(session.dayId) ?? [];
@@ -183,11 +286,12 @@ export function buildRoute(picks: PlanSession[], modes: TransportMode[], buffer 
         stops.push({ session, leg: null, clash });
         return;
       }
-      const ride = crossing(modes, dayId, previous.island, session.island);
+      const ride = crossing(modes, dayId, previous.island, session.island, modeId);
       const gap = previousEnd != null && nextStart != null ? nextStart - previousEnd : null;
       const needed = ride.minutes[1] + buffer;
       const tight = !clash && gap != null && gap < needed;
       const depart = nextStart == null ? null : nextStart - buffer - ride.minutes[1];
+      const arrive = nextStart == null ? null : nextStart - buffer;
       stops.push({
         session,
         clash,
@@ -195,6 +299,7 @@ export function buildRoute(picks: PlanSession[], modes: TransportMode[], buffer 
           from: previous.island,
           to: session.island,
           depart: depart == null ? null : depart < 0 ? "The night before" : formatClock(depart),
+          arrive: arrive == null ? null : formatClock(arrive),
           mode: ride.mode,
           duration: minuteLabel(ride.minutes),
           estimated: ride.estimated,

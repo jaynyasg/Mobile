@@ -43,7 +43,7 @@ export default function ExploreScreen() {
           image={sceneForIsland("St. Thomas")}
           alt="A route across the water"
           kicker="Transport"
-          headline="Sample routes"
+          headline="Sample/Custom Routes"
           line="Powerboat, ferries, or a yacht."
           cta="Open"
           onPress={() => openChapter("transport", "/transport")}

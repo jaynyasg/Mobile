@@ -90,7 +90,7 @@ export default function TransportScreen() {
           <ChoiceTile label="Build my route" image={BUILD_TILE} fallback={SAMPLE_TILE} selected={view === "mine"} onPress={() => setView("mine")} />
         </View>
         {view === "mine" ? (
-          <CustomRoute sessions={program.sessions} days={forum.days} modes={transport.modes} timeZone={forum.timezone} />
+          <CustomRoute sessions={program.sessions} days={forum.days} modes={transport.modes} pillars={forum.pillars} timeZone={forum.timezone} />
         ) : (
         <View style={styles.sample}>
         <View style={styles.sticky}>

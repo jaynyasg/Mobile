@@ -64,7 +64,7 @@ export const reels = {
   transport: {
     id: "transport",
     title: "Transport",
-    kicker: "Sample routes",
+    kicker: "Sample/Custom Routes",
     mp4: "/reels/transport.mp4",
     poster: "/reels/transport.jpg",
     durationMs: 7_042,
