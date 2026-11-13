@@ -1,4 +1,3 @@
-import { forum } from "@/content";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { SessionRow } from "@/components/SessionRow";
@@ -17,7 +16,7 @@ export default function ScheduleScreen() {
     <Screen edge="none">
       <StackHeader title="My schedule" />
       {mine.length === 0 ? (
-        <EmptyState title="Nothing saved" body={`Favorites from the ${forum.edition} draft appear here. They stay on this device.`} />
+        <EmptyState title="Nothing saved yet" body="Save a session and it waits here, on this device." />
       ) : (
         mine.map((session) => <SessionRow key={session.id} session={session} />)
       )}

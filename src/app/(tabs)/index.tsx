@@ -10,6 +10,7 @@ import { T } from "@/components/Text";
 import { Welcome } from "@/components/Welcome";
 import { useContent } from "@/content/provider";
 import { markUnlockSeen, readTracks, unlockSeen, webTrackStore } from "@/guide/interests";
+import { adventureLine, questsForProgram, readStamps } from "@/guide/stamps";
 import { forumPhase, suggestedDayId } from "@/logic/phase";
 import { isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
@@ -56,6 +57,36 @@ export default function HomeScreen() {
     .filter((session) => session.dayId === dayId && session.start && (tracks.length === 0 || tracks.includes(session.pillarId)))
     .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))[0];
   const showUnlock = tracks.length > 0 && !seenUnlock;
+  const dayMeta = forum.days.find((day) => day.id === dayId);
+  const quests = questsForProgram({
+    dayId,
+    sessions,
+    modes: program.transport.modes,
+    weekAgenda: forum.weekAgenda,
+  });
+  const adventure = adventureLine(
+    quests,
+    readStamps(localReelStore()),
+    next ? `${sessionWhen(next, forum.timezone)} · ${next.island}` : dayMeta?.phase ?? forum.placeLabel,
+  );
+
+  function openAdventure() {
+    const stamp = adventure.stamp ?? "";
+    if (stamp.startsWith("session:")) {
+      router.push({ pathname: "/session/[id]", params: { id: stamp.slice("session:".length) } });
+      return;
+    }
+    if (stamp.startsWith("island:")) {
+      const id = stamp.slice("island:".length) as ReelId;
+      openChapter(id, { pathname: "/pillar/[id]", params: { id } });
+      return;
+    }
+    if (stamp === "reel:transport") {
+      openChapter("transport", "/transport");
+      return;
+    }
+    if (next) router.push({ pathname: "/session/[id]", params: { id: next.id } });
+  }
 
   return (
     <View style={styles.frame}>
@@ -74,6 +105,15 @@ export default function HomeScreen() {
         </View>
         {mode === "you" ? (
           <>
+            <FeedCard
+              image={sceneForIsland("St. Thomas")}
+              alt="Today's water"
+              kicker={phase.phase === "live" ? "Today's adventure" : dayMeta?.label ?? "The crossing"}
+              headline={adventure.title}
+              line={adventure.line}
+              cta="Open"
+              onPress={openAdventure}
+            />
             {showUnlock ? (
               <FeedCard
                 image={sceneForIsland(chosen[0]?.island)}

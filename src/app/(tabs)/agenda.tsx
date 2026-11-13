@@ -127,7 +127,7 @@ export default function AgendaScreen() {
           <T variant="meta">{visible.length} sessions</T>
         </Glass>
         {visible.length === 0 ? (
-          <EmptyState title="No sessions in this cut" body={emptyBody} />
+          <EmptyState title="This cut is quiet" body={emptyBody} />
         ) : (
           visible.map((session) => <SessionRow key={session.id} session={session} />)
         )}

@@ -3,6 +3,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, 
 import { Platform, View } from "react-native";
 import { ReelPlayer, type ReelExit } from "@/components/ReelPlayer";
 import { reels, type Reel, type ReelId } from "@/content/reels";
+import { addStamp, islandStamp, pulse, prefersReducedMotion, reelStamp } from "@/guide/stamps";
 import {
   hasSeenChapter,
   introPlayback,
@@ -70,6 +71,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
   const bumpZone = useCallback((zoneId: string | undefined) => {
     if (!zoneId) return;
     markExplored(localReelStore(), zoneId);
+    if (addStamp(localReelStore(), islandStamp(zoneId))) pulse(prefersReducedMotion());
     setExploredVersion((version) => version + 1);
   }, []);
 
@@ -99,6 +101,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
     const current = pendingRef.current;
     if (!current) return;
     const reel = reels[current.id] as Reel;
+    if (addStamp(localReelStore(), reelStamp(reel.id))) pulse(prefersReducedMotion());
     if (reel.kind === "intro") {
       markIntroPlayed(localReelStore());
     } else {

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { essentials } from "@/guide/essentials";
+import { addStamp, knowStamp, pulse, prefersReducedMotion } from "@/guide/stamps";
+import { localReelStore } from "@/reels/gate";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
@@ -29,7 +31,10 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={open ? "Hide details" : "More"}
-                onPress={() => setMoreId(open ? null : item.id)}
+                onPress={() => {
+                  if (!open && addStamp(localReelStore(), knowStamp(item.id))) pulse(prefersReducedMotion());
+                  setMoreId(open ? null : item.id);
+                }}
                 style={styles.more}
               >
                 <T variant="button" color={colors.ink}>{open ? "Hide" : "More"}</T>

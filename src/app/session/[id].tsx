@@ -1,5 +1,8 @@
 import { Link, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { addStamp, pulse, prefersReducedMotion, sessionStamp } from "@/guide/stamps";
+import { localReelStore } from "@/reels/gate";
 import { dayById, forum, panelistById, participationLabel, pillarById, placesForIsland, sessionById, venueById } from "@/content";
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { PersonRow } from "@/components/PersonRow";
@@ -23,6 +26,10 @@ export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   useContent();
   const session = sessionById(id ?? "");
+  useEffect(() => {
+    if (!session) return;
+    if (addStamp(localReelStore(), sessionStamp(session.id))) pulse(prefersReducedMotion());
+  }, [session]);
   const { state, dispatch } = useApp();
   if (!session) {
     return (

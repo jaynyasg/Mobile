@@ -7,6 +7,8 @@ import type { Session } from "@/content/types";
 import { formatRange } from "@/logic/time";
 import { sessionTopic } from "@/logic/topic";
 import { useApp } from "@/store";
+import { addStamp, pulse, prefersReducedMotion, sessionStamp } from "@/guide/stamps";
+import { localReelStore } from "@/reels/gate";
 import { colors, sceneForIsland } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
@@ -32,7 +34,11 @@ export function SessionRow({ session }: { session: Session }) {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={favored ? `Remove ${session.title} from favorites` : `Save ${session.title}`}
-        onPress={() => dispatch({ type: "toggleFavorite", id: session.id })}
+        onPress={() => {
+          const next = !favored;
+          dispatch({ type: "toggleFavorite", id: session.id });
+          if (next && addStamp(localReelStore(), sessionStamp(session.id))) pulse(prefersReducedMotion());
+        }}
         style={styles.heart}
       >
         <Icon name={favored ? "heartFill" : "heart"} color={colors.gold} />
