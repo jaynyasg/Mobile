@@ -14,7 +14,7 @@ import { ContactPrompt } from "@/components/ContactPrompt";
 import { Dock } from "@/components/Dock";
 import { ReelHost } from "@/reels/ReelHost";
 import { AppProvider, useApp } from "@/store";
-import { colors } from "@/theme";
+import { shellColor } from "@/shell";
 import "@/global.css";
 
 listenForInstallPrompt();
@@ -44,7 +44,7 @@ export default function RootLayout() {
               <Stack
                 screenOptions={{
                   headerShown: false,
-                  contentStyle: { backgroundColor: "transparent" },
+                  contentStyle: { backgroundColor: shellColor },
                 }}
               />
               <Dock />
@@ -75,18 +75,22 @@ function Boot({ children }: { children: ReactNode }) {
   }, [loaded, error, hydrated]);
 
   useEffect(() => {
-    SystemUI.setBackgroundColorAsync(colors.paper).catch(() => undefined);
+    SystemUI.setBackgroundColorAsync(shellColor).catch(() => undefined);
   }, []);
 
   if ((!loaded && !error) || !hydrated) return null;
   return children;
 }
 
+export function SuspenseFallback() {
+  return <View style={{ flex: 1, backgroundColor: shellColor }} />;
+}
+
 function Frame({ children }: { children: ReactNode }) {
   if (Platform.OS !== "web") return children;
   return (
-    <View style={{ flex: 1, backgroundColor: colors.stage, alignItems: "center" }}>
-      <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: "#E7F3F4" }}>{children}</View>
+    <View style={{ flex: 1, backgroundColor: shellColor, alignItems: "center" }}>
+      <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: shellColor }}>{children}</View>
     </View>
   );
 }

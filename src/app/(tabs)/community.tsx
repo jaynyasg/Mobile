@@ -60,6 +60,11 @@ export default function CommunityScreen() {
   }, [refresh]);
 
   useEffect(() => {
+    // The sign-in route is its own chunk. Start it while Chat is open so the form is ready on tap.
+    void import("../community-sign-in");
+  }, []);
+
+  useEffect(() => {
     if (preview || !auth.userId) return;
     const channel = supabase.channel("community-feed");
     channel.on("postgres_changes" as never, { event: "*", schema: "public", table: "community_posts" } as never, () => {
