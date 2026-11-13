@@ -23,11 +23,11 @@ export function PersonRow({
       <Portrait name={name} source={photo} size={64} />
       <View style={styles.main}>
         <Link href={href} asChild>
-          <Pressable accessibilityRole="button" accessibilityLabel={name} style={({ pressed }) => [styles.hit, pressed && styles.pressed]}>
+          <Pressable accessibilityRole="button" accessibilityLabel={[name, meta.replaceAll("\n", ", ")].filter(Boolean).join(", ")} style={({ pressed }) => [styles.hit, pressed && styles.pressed]}>
             <View style={styles.copy}>
               <T variant="rowTitle" numberOfLines={2}>{name}</T>
               {meta.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => (
-                <T key={line} variant="meta">{line}</T>
+                <T key={line} variant="meta" numberOfLines={2}>{line}</T>
               ))}
             </View>
             <Icon name="chevron" size={18} color={colors.gold} />
