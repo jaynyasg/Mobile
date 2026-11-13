@@ -1,7 +1,9 @@
 import { Tabs } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { type ReelId } from "@/content/reels";
 import { useContent } from "@/content/provider";
+import { useReels } from "@/reels/ReelHost";
 import { Glass } from "@/components/Glass";
 import { Icon, IconName } from "@/components/Icon";
 import { T } from "@/components/Text";
@@ -9,6 +11,12 @@ import { useApp } from "@/store";
 import { colors } from "@/theme";
 
 const visible = ["index", "agenda", "community", "places", "more"] as const;
+
+const tabChapter: Partial<Record<string, { id: ReelId; href: "/agenda" | "/community" | "/places" }>> = {
+  agenda: { id: "sessions", href: "/agenda" },
+  community: { id: "community", href: "/community" },
+  places: { id: "venues", href: "/places" },
+};
 
 const icons: Record<string, IconName> = {
   index: "home",
@@ -49,6 +57,7 @@ function GlassTabBar({
   unread: number;
 }) {
   const insets = useSafeAreaInsets();
+  const { openChapter } = useReels();
   const focused = state.routes[state.index]?.name;
   const dark = focused === "index";
   const routes = state.routes.filter((route) => (visible as readonly string[]).includes(route.name));
@@ -60,13 +69,17 @@ function GlassTabBar({
             const active = state.routes[state.index]?.key === route.key;
             const color = active ? colors.gold : colors.foam;
             const label = route.name === "agenda" ? "Sessions" : route.name === "index" ? "Home" : route.name === "community" ? "Community" : route.name === "places" ? "Venues" : "More";
+            const chapter = tabChapter[route.name];
             return (
               <Pressable
                 key={route.key}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
                 accessibilityLabel={label}
-                onPress={() => navigateToTab(route.key)}
+                onPress={() => {
+                  if (chapter && !active) openChapter(chapter.id, chapter.href);
+                  else navigateToTab(route.key);
+                }}
                 style={styles.tab}
               >
                 <Icon name={icons[route.name] ?? "menu"} color={color} size={20} />

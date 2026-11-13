@@ -9,6 +9,7 @@ import { ContentProvider } from "@/content/provider";
 import { ImageViewerProvider } from "@/components/ImageViewer";
 import { listenForInstallPrompt } from "@/components/installPrompt";
 import { RegisterPwa } from "@/components/RegisterPwa";
+import { ReelHost } from "@/reels/ReelHost";
 import { AppProvider, useApp } from "@/store";
 import { colors } from "@/theme";
 import "@/global.css";
@@ -24,13 +25,15 @@ export default function RootLayout() {
       <Boot>
         <ImageViewerProvider>
           <Frame>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: "transparent" },
-              }}
-            />
-            <RegisterPwa />
+            <ReelHost>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: "transparent" },
+                }}
+              />
+              <RegisterPwa />
+            </ReelHost>
           </Frame>
         </ImageViewerProvider>
       </Boot>

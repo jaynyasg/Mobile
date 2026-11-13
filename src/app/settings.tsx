@@ -4,12 +4,14 @@ import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
+import { useReels } from "@/reels/ReelHost";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
 
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
+  const { replayIntro } = useReels();
   const [confirming, setConfirming] = useState(false);
   const [cleared, setCleared] = useState(false);
 
@@ -46,6 +48,9 @@ export default function SettingsScreen() {
         ) : (
           <PrimaryButton label="Opt in on this device" onPress={() => dispatch({ type: "setNetworkingOptIn", value: true })} />
         )}
+        <T variant="eyebrow">Intro</T>
+        <T variant="small">Play the opening film again.</T>
+        <SecondaryButton label="Replay intro" onPress={replayIntro} />
         <T variant="eyebrow">Delete my data</T>
         <T variant="small">
           This removes favorites, local notes, guide history, notification reads, your opt-in, and your profile. The program draft remains.

@@ -1,6 +1,9 @@
 import { Link, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { credits, pillarById, scenes, stayIslands } from "@/content";
+import { zoneReelIds } from "@/content/reels";
+import { useReels } from "@/reels/ReelHost";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { SessionRow } from "@/components/SessionRow";
@@ -15,7 +18,11 @@ export default function PillarScreen() {
   const { program } = useContent();
   const { sessions } = program;
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { markZone } = useReels();
   const pillar = pillarById(id ?? "");
+  useEffect(() => {
+    if (id && (zoneReelIds as readonly string[]).includes(id)) markZone(id);
+  }, [id, markZone]);
   if (!pillar) {
     return (
       <Screen edge="none">

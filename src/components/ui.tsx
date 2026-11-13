@@ -1,5 +1,7 @@
 import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
+import { type ReelId } from "@/content/reels";
+import { useReels } from "@/reels/ReelHost";
 import { colors, fonts, pad } from "@/theme";
 import { CrystalMark } from "./CrystalMark";
 import { Glass } from "./Glass";
@@ -102,30 +104,41 @@ export function LinkRow({
   label,
   detail,
   badge,
+  reelId,
 }: {
   href: Href;
   label: string;
   detail?: string;
   badge?: number;
+  reelId?: ReelId;
 }) {
+  const { openChapter } = useReels();
+  const row = (
+    <Pressable
+      accessibilityRole="button"
+      onPress={reelId ? () => openChapter(reelId, href) : undefined}
+      style={({ pressed }) => pressed && styles.pressed}
+    >
+      <View style={styles.linkRow}>
+        <View style={styles.linkCopy}>
+          <T variant="rowTitle">{label}</T>
+          {detail ? <T variant="meta">{detail}</T> : null}
+        </View>
+        {badge ? (
+          <View style={styles.badge}>
+            <T variant="meta" color={colors.ivory} style={styles.badgeText}>
+              {badge}
+            </T>
+          </View>
+        ) : null}
+        <Icon name="chevron" size={18} color={colors.gold} />
+      </View>
+    </Pressable>
+  );
+  if (reelId) return row;
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={({ pressed }) => pressed && styles.pressed}>
-        <View style={styles.linkRow}>
-          <View style={styles.linkCopy}>
-            <T variant="rowTitle">{label}</T>
-            {detail ? <T variant="meta">{detail}</T> : null}
-          </View>
-          {badge ? (
-            <View style={styles.badge}>
-              <T variant="meta" color={colors.ivory} style={styles.badgeText}>
-                {badge}
-              </T>
-            </View>
-          ) : null}
-          <Icon name="chevron" size={18} color={colors.gold} />
-        </View>
-      </Pressable>
+      {row}
     </Link>
   );
 }

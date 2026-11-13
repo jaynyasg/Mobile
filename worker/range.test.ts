@@ -49,6 +49,16 @@ describe("mp4 range responses", () => {
     expect(response.headers.get("Content-Range")).toBe("bytes */10");
   });
 
+  it("returns 206 for a reel under /reels/", async () => {
+    const response = await worker.fetch(
+      new Request("https://tatel.app/reels/intro.mp4", { headers: { Range: "bytes=0-2" } }),
+      env([]),
+    );
+    expect(response.status).toBe(206);
+    expect(response.headers.get("Content-Range")).toBe("bytes 0-2/10");
+    expect(response.headers.get("Accept-Ranges")).toBe("bytes");
+  });
+
   it("leaves other files to the asset binding", async () => {
     const fetch = vi.fn(async () => new Response("shell"));
     const response = await worker.fetch(new Request("https://tatel.app/sw.js"), { ASSETS: { fetch } });
