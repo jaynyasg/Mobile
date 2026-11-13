@@ -43,7 +43,7 @@ export default function PillarScreen() {
 
   return (
     <Screen edge="none" scroll={false}>
-      <ScrollView stickyHeaderIndices={[3]} contentContainerStyle={{ paddingBottom: insets.bottom + 108 }} keyboardShouldPersistTaps="handled">
+      <ScrollView stickyHeaderIndices={[3]} contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} keyboardShouldPersistTaps="handled">
       <StackHeader title={pillar.name} />
       <View style={styles.hero}>
         <TappablePhoto source={sceneImages[scene.image]} alt={scene.name} style={styles.image} />

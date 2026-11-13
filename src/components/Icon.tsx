@@ -17,7 +17,8 @@ export type IconName =
   | "chevron"
   | "send"
   | "seat"
-  | "chat";
+  | "chat"
+  | "boat";
 
 type Props = { name: IconName; size?: number; color?: string };
 
@@ -78,6 +79,7 @@ export function Icon({ name, size = 22, color = colors.ink }: Props) {
       {name === "send" ? <Path {...stroke} d="m4 12 16-8-6 16-2.4-6.2L4 12Z" /> : null}
       {name === "seat" ? <Path {...stroke} d="M7 11V7.5A2.5 2.5 0 0 1 9.5 5h5A2.5 2.5 0 0 1 17 7.5V11M6 11h12v4a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-4ZM8 17v2.5M16 17v2.5" /> : null}
       {name === "chat" ? <Path {...stroke} d="M5 16.5 4 20l3.8-1.4A8.5 8.5 0 1 0 5 16.5Z" /> : null}
+      {name === "boat" ? <Path {...stroke} d="M3 15h18l-1.5 3.5a3 3 0 0 1-2.7 1.7H7.2a3 3 0 0 1-2.7-1.7L3 15Zm3.5-1 2-5h4l1.5 5M12 9V4" /> : null}
     </Svg>
   );
 }

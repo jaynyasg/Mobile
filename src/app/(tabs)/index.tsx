@@ -108,7 +108,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 120 }} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 150 }} keyboardShouldPersistTaps="handled">
         <View style={styles.install}>
           <InstallHint />
         </View>

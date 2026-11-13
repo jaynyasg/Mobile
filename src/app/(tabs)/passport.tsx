@@ -33,7 +33,7 @@ export default function PassportScreen() {
   return (
     <View style={styles.frame}>
       <Image source={{ uri: sceneForIsland("Jost Van Dyke") }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 120 }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 150 }}>
         <View style={styles.book}>
           <T variant="eyebrow" color={colors.gold}>Your passport</T>
           <T variant="small" color={colors.foam}>Collect a stamp on each island and at each session you attend. Fill your passport during the summit.</T>

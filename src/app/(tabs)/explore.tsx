@@ -31,7 +31,7 @@ export default function ExploreScreen() {
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 120 }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 150 }}>
         <T variant="eyebrow" color={colors.gold} style={styles.kicker}>Explore</T>
         <ZoneMap
           progress={progress}

@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { loopFor } from "./backgrounds";
 import { SceneBackground } from "./Scene";
+import { DOCK_PILL } from "./Dock";
 import { scenePhotos } from "@/theme";
 
 export function Screen({
@@ -14,7 +15,6 @@ export function Screen({
   photo = scenePhotos.day,
   night,
   phase,
-  docked = false,
 }: {
   children: ReactNode;
   scroll?: boolean;
@@ -28,13 +28,13 @@ export function Screen({
   const loop = loopFor(phase);
   const insets = useSafeAreaInsets();
   const paddingTop = edge === "top" ? insets.top + 8 : 0;
-  const paddingBottom = (docked ? 108 : 28) + insets.bottom;
+  const paddingBottom = DOCK_PILL + 16 + insets.bottom;
   const body = scroll ? (
     <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop, paddingBottom }} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.fill, { paddingTop, paddingBottom: docked ? paddingBottom : insets.bottom }]}>{children}</View>
+    <View style={[styles.fill, { paddingTop, paddingBottom }]}>{children}</View>
   );
   return (
     <View style={styles.fill}>

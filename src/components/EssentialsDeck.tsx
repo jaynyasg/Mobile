@@ -4,6 +4,7 @@ import { essentials } from "@/guide/essentials";
 import { addStamp, knowStamp, pulse, prefersReducedMotion } from "@/guide/stamps";
 import { localReelStore } from "@/reels/gate";
 import { colors } from "@/theme";
+import { DOCK_PILL } from "./Dock";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
 
@@ -56,7 +57,7 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  overlay: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, zIndex: 40, justifyContent: "flex-end", backgroundColor: "rgba(6,14,24,0.45)", paddingBottom: 24 },
+  overlay: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, zIndex: 40, justifyContent: "flex-end", backgroundColor: "rgba(6,14,24,0.45)", paddingBottom: DOCK_PILL + 16 },
   bar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, marginBottom: 8 },
   close: { minHeight: 44, justifyContent: "center", paddingHorizontal: 8 },
   row: { paddingHorizontal: 16, gap: 12 },
