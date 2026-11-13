@@ -56,14 +56,17 @@ export function T({
   color,
   foil: gilded = false,
   style,
+  numberOfLines,
   ...rest
 }: TextProps & { variant?: Variant; color?: string; foil?: boolean }) {
   const shade = !gilded && (color === colors.onDark || color === colors.onDarkSoft || color === colors.gold);
   return (
     <Text
       {...rest}
+      numberOfLines={numberOfLines}
       style={[
         variants[variant],
+        numberOfLines ? clamp : null,
         color && !gilded ? { color } : null,
         shade
           ? { textShadowColor: "rgba(6,14,24,0.9)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 8 }
@@ -74,4 +77,6 @@ export function T({
     />
   );
 }
+
+const clamp: TextStyle = { flexShrink: 1, minWidth: 0, maxWidth: "100%" };
 

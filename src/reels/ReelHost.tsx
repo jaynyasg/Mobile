@@ -7,7 +7,6 @@ import { markGuide } from "@/guide/path";
 import { webTrackStore } from "@/guide/interests";
 import { addStamp, islandStamp, pulse, prefersReducedMotion, reelStamp } from "@/guide/stamps";
 import {
-  hasSeenChapter,
   introPlayback,
   isExplored,
   localReelStore,
@@ -25,6 +24,7 @@ interface PendingReel {
   mode: "video" | "poster";
   href?: Href;
   src: string;
+  nonce: number;
   /** play() started inside the tap, when there was one. */
   play?: Promise<void>;
 }
@@ -36,6 +36,7 @@ interface ReelApi {
   zoneExplored: (zoneId: string) => boolean;
   exploredVersion: number;
   guideTick: number;
+  reelActive: boolean;
 }
 
 const ReelContext = createContext<ReelApi | null>(null);
@@ -68,6 +69,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
   const [exploredVersion, setExploredVersion] = useState(0);
   const [guideTick, setGuideTick] = useState(0);
   const pendingRef = useRef(pending);
+  const nonce = useRef(0);
   pendingRef.current = pending;
 
   useEffect(() => {
@@ -75,7 +77,8 @@ export function ReelHost({ children }: { children: ReactNode }) {
     if (mode === "skip") return;
     const src = reelPlaybackSrc("intro");
     const play = mode === "video" ? playReelNow(src) : undefined;
-    setPending({ id: "intro", mode, src, play });
+    nonce.current += 1;
+    setPending({ id: "intro", mode, src, play, nonce: nonce.current });
   }, []);
 
   const bumpZone = useCallback((zoneId: string | undefined) => {
@@ -89,7 +92,8 @@ export function ReelHost({ children }: { children: ReactNode }) {
     const mode = playbackMode(true) === "poster" ? "poster" : "video";
     const src = reelPlaybackSrc("intro");
     const play = mode === "video" ? playReelNow(src) : undefined;
-    setPending({ id: "intro", mode, src, play });
+    nonce.current += 1;
+    setPending({ id: "intro", mode, src, play, nonce: nonce.current });
   }, []);
 
   const markZone = useCallback((zoneId: string) => {
@@ -97,17 +101,12 @@ export function ReelHost({ children }: { children: ReactNode }) {
   }, [bumpZone]);
 
   const openChapter = useCallback((id: ReelId, href: Href) => {
-    const reel = reels[id] as Reel;
-    if (hasSeenChapter(chapterStore(), id)) {
-      bumpZone(reel.zoneId);
-      router.navigate(href);
-      return;
-    }
     const mode = playbackMode(true) === "poster" ? "poster" : "video";
     const src = reelPlaybackSrc(id);
     const play = mode === "video" ? playReelNow(src) : undefined;
-    setPending({ id, mode, href, src, play });
-  }, [bumpZone, router]);
+    nonce.current += 1;
+    setPending({ id, mode, href, src, play, nonce: nonce.current });
+  }, []);
 
   const zoneExplored = useCallback((zoneId: string) => isExplored(localReelStore(), zoneId), []);
 
@@ -136,7 +135,8 @@ export function ReelHost({ children }: { children: ReactNode }) {
     zoneExplored,
     exploredVersion,
     guideTick,
-  }), [openChapter, replayIntro, markZone, zoneExplored, exploredVersion, guideTick]);
+    reelActive: pending !== null,
+  }), [openChapter, replayIntro, markZone, zoneExplored, exploredVersion, guideTick, pending]);
 
   return (
     <ReelContext.Provider value={value}>
@@ -144,7 +144,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
         {children}
         {pending ? (
           <ReelPlayer
-            key={`${pending.id}:${pending.src}`}
+            key={`${pending.id}:${pending.src}:${pending.nonce}`}
             reel={reels[pending.id]}
             mode={pending.mode}
             src={pending.src}

@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { type ReelId } from "@/content/reels";
 import { useReels } from "@/reels/ReelHost";
 import { colors } from "@/theme";
+import { clip } from "./clip";
 import { TILE_TOP, nightGlass } from "./nightGlass";
 import { Icon, IconName } from "./Icon";
 import { T } from "./Text";
@@ -37,8 +38,8 @@ export function ActionTile({
           <Icon name={icon} size={20} color={colors.pine} />
         </View>
         <View style={styles.copy}>
-          <T variant="rowTitle">{label}</T>
-          <T variant="meta" numberOfLines={2}>{detail}</T>
+          <T variant="rowTitle" numberOfLines={2}>{label}</T>
+          <T variant="meta" numberOfLines={3}>{detail}</T>
         </View>
         <Icon name="chevron" size={18} color={colors.gold} />
       </View>
@@ -63,6 +64,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 16,
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
     ...({
       backgroundImage: `linear-gradient(180deg, ${TILE_TOP} 0%, rgba(7,27,42,0.58) 100%)`,
     } as ViewStyle),
@@ -77,5 +81,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.gold,
   },
-  copy: { flex: 1, gap: 2 },
+  copy: { ...clip, gap: 2 },
 });

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
 import type { ImageSourcePropType } from "react-native";
 import { colors } from "@/theme";
@@ -14,10 +15,11 @@ export function Portrait({
   size?: number;
 }) {
   const radius = size / 2;
+  const [failed, setFailed] = useState(false);
   return (
     <View style={[styles.ring, { width: size, height: size, borderRadius: radius }]}>
-      {source ? (
-        <TappablePhoto source={source} alt={name} style={{ width: size, height: size, borderRadius: radius }} resizeMode="cover" />
+      {source && !failed ? (
+        <TappablePhoto source={source} alt={name} focus="center 18%" onError={() => setFailed(true)} style={{ width: size, height: size, borderRadius: radius }} resizeMode="cover" />
       ) : (
         <Monogram name={name} size={size} />
       )}

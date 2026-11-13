@@ -10,6 +10,7 @@ import { localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
 import { passPayload } from "@/logic/state";
 import { colors, sceneForIsland } from "@/theme";
+import { dockClearance } from "@/components/Dock";
 import { nightGlass } from "@/components/nightGlass";
 
 const ways = ["Visit an island", "Open a session", "Finish a step on For you"];
@@ -33,7 +34,7 @@ export default function PassportScreen() {
   return (
     <View style={styles.frame}>
       <Image source={{ uri: sceneForIsland("Jost Van Dyke") }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 150 }}>
+      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}>
         <View style={styles.book}>
           <T variant="eyebrow" color={colors.gold}>Your passport</T>
           <T variant="small" color={colors.foam}>Collect a stamp on each island and at each session you attend. Fill your passport during the summit.</T>

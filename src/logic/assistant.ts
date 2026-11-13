@@ -13,6 +13,7 @@ import {
   transport,
 } from "../content";
 import { getProgram } from "../content/active";
+import { joinLine } from "../content/labels";
 import { sessionDateLine } from "./dayTheme";
 
 export interface Citation {
@@ -165,7 +166,7 @@ function buildCorpus(): GuideDoc[] {
       id: `stay-${island.id}`,
       title: `${island.island} accommodations`,
       keywords: ["stay", "hotel", island.dock],
-      body: `${island.island}, ${island.route}. ${island.dock}. Providers from brochure pages 21–22: ${providers}.`,
+      body: `${island.island}, ${island.route}. ${island.dock}. Places to stay: ${providers}.`,
       citation: { title: island.island, kind: "screen", id: `stay:${island.id}` },
     });
   }
@@ -195,7 +196,7 @@ function buildCorpus(): GuideDoc[] {
       id: `panelist-${person.id}`,
       title: person.name,
       keywords: [person.company, person.title, person.proposedIsland],
-      body: `${person.name}, ${person.title}, ${person.company}. ${pillar?.name ?? "Topic to be announced"} · ${person.proposedIsland || "Location TBC"}. Linked sessions: ${lines.join("; ")}.`,
+      body: `${joinLine([person.name, person.title, person.company])}. ${joinLine([pillar?.name ?? "Topic to be announced", person.proposedIsland || "Location TBC"])}. Linked sessions: ${lines.join("; ")}.`,
       citation: { title: person.name, kind: "panelist", id: person.id },
     });
   }

@@ -11,6 +11,11 @@ import { T } from "./Text";
 /** Height of the two-row pill, not counting the home-indicator inset. */
 export const DOCK_PILL = 112;
 
+/** Space the page should leave so the dock never covers the last line. */
+export function dockClearance(bottomInset: number): number {
+  return DOCK_PILL + 12 + Math.max(bottomInset, 6);
+}
+
 type DockItem = {
   href: Href;
   label: string;

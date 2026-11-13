@@ -34,8 +34,8 @@ export default function VenuesTab() {
                 <PhotoShade />
                 <Link href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
                   <Pressable accessibilityRole="button" accessibilityLabel={place.name} style={styles.copy}>
-                    <T variant="rowTitle" color={colors.onDark}>{place.name}</T>
-                    <T variant="meta" color={colors.gold}>{place.photos.length} photos{place.models.length ? " · 3D" : ""}</T>
+                    <T variant="rowTitle" color={colors.onDark} numberOfLines={2}>{place.name}</T>
+                    <T variant="meta" color={colors.gold} numberOfLines={2}>{place.photos.length} photos{place.models.length ? " · 3D" : ""}</T>
                   </Pressable>
                 </Link>
               </View>
@@ -56,5 +56,5 @@ const styles = StyleSheet.create({
   island: { alignSelf: "flex-start", marginLeft: 22, marginTop: 8, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
   card: { marginHorizontal: 22, marginBottom: 14, height: 168, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  copy: { padding: 14, gap: 2, zIndex: 1 },
+  copy: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, gap: 2, zIndex: 1, minWidth: 0 },
 });

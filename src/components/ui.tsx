@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { type ReelId } from "@/content/reels";
 import { useReels } from "@/reels/ReelHost";
 import { colors, fonts, pad } from "@/theme";
+import { clip } from "./clip";
 import { CrystalMark } from "./CrystalMark";
 import { Glass } from "./Glass";
 import { shimmerStyle } from "./gloss";
@@ -121,8 +122,8 @@ export function LinkRow({
     >
       <View style={styles.linkRow}>
         <View style={styles.linkCopy}>
-          <T variant="rowTitle">{label}</T>
-          {detail ? <T variant="meta">{detail}</T> : null}
+          <T variant="rowTitle" numberOfLines={2}>{label}</T>
+          {detail ? <T variant="meta" numberOfLines={3}>{detail}</T> : null}
         </View>
         {badge ? (
           <View style={styles.badge}>
@@ -204,8 +205,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255,224,138,0.48)",
     backgroundColor: "rgba(7,27,42,0.58)",
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
   },
-  linkCopy: { flex: 1, gap: 2 },
+  linkCopy: { ...clip, gap: 2 },
   badge: {
     minWidth: 22,
     height: 22,

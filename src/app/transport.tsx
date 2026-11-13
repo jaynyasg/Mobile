@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Link } from "expo-router";
 import { credits, sessionById } from "@/content";
 import { useContent } from "@/content/provider";
@@ -181,9 +181,11 @@ export default function TransportScreen() {
               <T variant="meta">{transport.borderNote}</T>
               <T variant="meta">{day.start}</T>
               <T variant="meta">Overnight: {day.overnight}</T>
-              <T variant="eyebrow" color={colors.gold}>Source schedules</T>
+              <T variant="eyebrow" color={colors.gold}>Schedules</T>
               {transport.sources.map((source) => (
-                <T key={source.url} variant="meta">{source.title}</T>
+                <Pressable key={source.url} accessibilityRole="link" accessibilityLabel={source.title} onPress={() => Linking.openURL(source.url).catch(() => undefined)} style={styles.schedule}>
+                  <T variant="button" color={colors.ink} numberOfLines={2}>{source.title}</T>
+                </Pressable>
               ))}
             </View>
           ) : null}
@@ -246,7 +248,7 @@ function StopCard({
       {stop.sessionId && stop.title ? (
         <Link href={{ pathname: "/session/[id]", params: { id: stop.sessionId } }} asChild>
           <Pressable accessibilityRole="link" accessibilityLabel={stop.title} style={styles.sessionLink}>
-            <T variant="rowTitle" style={styles.sessionTitle}>{displayCopy(stop.title)}</T>
+            <T variant="rowTitle" numberOfLines={3} style={styles.sessionTitle}>{displayCopy(stop.title)}</T>
             <Icon name="chevron" size={18} color={colors.gold} />
           </Pressable>
         </Link>
@@ -299,15 +301,16 @@ const styles = StyleSheet.create({
   stop: { padding: 12, gap: 8, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.28)", ...nightGlass },
   stopOn: { borderColor: colors.gold, borderWidth: 1 },
   stopHead: { flexDirection: "row", alignItems: "center", gap: 10 },
-  stopHeadCopy: { flex: 1, gap: 2 },
+  stopHeadCopy: { flexGrow: 1, flexShrink: 1, minWidth: 0, gap: 2 },
   num: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: colors.gold },
   sessionLink: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
-  sessionTitle: { flex: 1 },
+  sessionTitle: { flexGrow: 1, flexShrink: 1, minWidth: 0 },
   leg: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
   legCopy: { flex: 1, gap: 2 },
   about: { minHeight: 52, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", ...nightGlass },
-  aboutBody: { padding: 14, gap: 8, borderRadius: 16, ...nightGlass },
+  aboutBody: { padding: 16, gap: 8, borderRadius: 16, ...nightGlass },
+  schedule: { alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   sheetWrap: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, justifyContent: "flex-end" },
   sheetBackdrop: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.55)" },
   sheet: { margin: 12, padding: 16, gap: 8, borderRadius: 18, ...nightGlass },

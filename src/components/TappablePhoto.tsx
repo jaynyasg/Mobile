@@ -1,4 +1,5 @@
-import { Image, Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import type { ImageResizeMode, ImageSourcePropType } from "react-native";
 import type { ViewerPhoto } from "@/viewer/photos";
 import { useImageViewer } from "./ImageViewer";
@@ -24,6 +25,8 @@ export function TappablePhoto({
   index = 0,
   style,
   resizeMode = "cover",
+  focus = "center",
+  onError,
 }: {
   source: ImageSourcePropType | string;
   alt: string;
@@ -31,8 +34,11 @@ export function TappablePhoto({
   index?: number;
   style?: StyleProp<ViewStyle>;
   resizeMode?: ImageResizeMode;
+  focus?: string;
+  onError?: () => void;
 }) {
   const viewer = useImageViewer();
+  const [broken, setBroken] = useState(false);
   const label = alt.trim() || "Photo";
   function open() {
     const items = (gallery?.length ? gallery : [{ source, alt: label }])
@@ -57,19 +63,26 @@ export function TappablePhoto({
       }}
       style={[style, styles.clip]}
     >
-      <Image
-        source={resolved}
-        style={styles.image}
-        resizeMode={resizeMode}
-        accessible={false}
-        accessibilityIgnoresInvertColors
-        importantForAccessibility="no"
-      />
+      {broken ? <View style={[styles.image, styles.fallback]} /> : (
+        <Image
+          source={resolved}
+          style={[styles.image, { objectPosition: focus } as object]}
+          resizeMode={resizeMode}
+          onError={() => {
+            setBroken(true);
+            onError?.();
+          }}
+          accessible={false}
+          accessibilityIgnoresInvertColors
+          importantForAccessibility="no"
+        />
+      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  clip: { overflow: "hidden" },
+  clip: { overflow: "hidden", backgroundColor: "#123044" },
   image: { width: "100%", height: "100%" },
+  fallback: { backgroundColor: "#123044" },
 });

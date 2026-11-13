@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Linking, Pressable, StyleSheet, View } from "react-native";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -14,13 +14,13 @@ export default function KnowScreen() {
   return (
     <Screen edge="none">
       <StackHeader title="Need to know" />
-      <T variant="small" style={styles.lead}>Short notes before you travel. Open one for the source.</T>
+      <T variant="small" style={styles.lead}>A few things to know before you travel.</T>
       {essentials.map((item) => {
         const open = openId === item.id;
         return (
           <View key={item.id} style={[styles.card, nightGlass]}>
-            <T variant="rowTitle" color={colors.foam}>{item.title}</T>
-            <T variant="small" color={colors.foam}>{item.line}</T>
+            <T variant="rowTitle" color={colors.foam} numberOfLines={3}>{item.title}</T>
+            <T variant="small" color={colors.foam} numberOfLines={3}>{item.line}</T>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={open ? `Hide ${item.title}` : `More on ${item.title}`}
@@ -32,7 +32,16 @@ export default function KnowScreen() {
             >
               <T variant="button" color={colors.ink}>{open ? "Hide" : "More"}</T>
             </Pressable>
-            {open ? <T variant="meta" color={colors.foam}>{item.more}</T> : null}
+            {open ? (
+              <>
+                <T variant="meta" color={colors.foam}>{item.more}</T>
+                {item.sources.map((source) => (
+                  <Pressable key={source.url} accessibilityRole="link" accessibilityLabel={source.title} onPress={() => Linking.openURL(source.url).catch(() => undefined)} style={styles.more}>
+                    <T variant="button" color={colors.ink} numberOfLines={2}>{source.title}</T>
+                  </Pressable>
+                ))}
+              </>
+            ) : null}
           </View>
         );
       })}
@@ -42,6 +51,6 @@ export default function KnowScreen() {
 
 const styles = StyleSheet.create({
   lead: { marginHorizontal: 20, marginBottom: 8 },
-  card: { marginHorizontal: 16, marginBottom: 10, padding: 14, gap: 6, borderRadius: 18 },
+  card: { marginHorizontal: 16, marginBottom: 10, paddingHorizontal: 16, paddingVertical: 16, gap: 8, borderRadius: 18 },
   more: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });

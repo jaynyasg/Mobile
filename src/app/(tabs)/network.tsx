@@ -7,6 +7,7 @@ import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { T } from "@/components/Text";
 import { EmptyState, PageHeader, PrimaryButton, SecondaryButton } from "@/components/ui";
+import { joinLine } from "@/content/labels";
 import { portraitFor } from "@/images";
 import { searchPanelists } from "@/logic/directory";
 import { useApp } from "@/store";
@@ -52,7 +53,7 @@ export default function NetworkScreen() {
                   key={person.id}
                   name={person.name}
                   photo={portraitFor(person.photo)}
-                  meta={`${person.company} · ${pillar?.name ?? person.proposedIsland}`}
+                  meta={joinLine([person.company, pillar?.name ?? person.proposedIsland])}
                   href={{ pathname: "/chat/[id]", params: { id: person.id } }}
                 />
               );

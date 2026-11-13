@@ -5,6 +5,7 @@ import { PersonRow } from "@/components/PersonRow";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { EmptyState, PageHeader } from "@/components/ui";
+import { joinLine } from "@/content/labels";
 import { portraitFor } from "@/images";
 import { searchPanelists } from "@/logic/directory";
 import { backgrounds } from "@/components/backgrounds";
@@ -37,7 +38,10 @@ export default function PanelistsScreen() {
               key={person.id}
               name={person.name}
               photo={portraitFor(person.photo)}
-              meta={`${person.title} · ${person.company}\n${pillar?.name || "Topic to be announced"} · ${person.proposedIsland || "Location TBC"}`}
+              meta={[
+                joinLine([person.title, person.company]),
+                joinLine([pillar?.name || "Topic to be announced", person.proposedIsland || "Location TBC"]),
+              ].filter(Boolean).join("\n")}
               href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
             />
           );

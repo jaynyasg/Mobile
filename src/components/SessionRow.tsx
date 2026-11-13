@@ -69,6 +69,6 @@ const styles = StyleSheet.create({
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   shade: { position: "absolute", left: 0, right: 0, bottom: 0, height: "78%", backgroundColor: "rgba(6,14,24,0.45)" },
   heart: { position: "absolute", top: 8, right: 8, width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  copy: { gap: 4, padding: 12, zIndex: 1 },
+  copy: { gap: 4, padding: 12, zIndex: 1, width: "100%", minWidth: 0 },
   pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });

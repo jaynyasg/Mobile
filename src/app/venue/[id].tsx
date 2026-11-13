@@ -2,6 +2,7 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { placeById, placesForIsland, venueById } from "@/content";
+import { joinLine } from "@/content/labels";
 import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
 import { PhotoShade } from "@/components/PhotoShade";
@@ -32,8 +33,8 @@ export default function VenueScreen() {
       <StackHeader title={venue.island} />
       <Glass style={styles.intro}>
         <T variant="eyebrow" color={colors.gold}>{venue.route}</T>
-        <T variant="title">{venue.island}</T>
-        <T variant="meta">Dock · {venue.dock}</T>
+        <T variant="title" numberOfLines={2}>{venue.island}</T>
+        {venue.dock ? <T variant="meta" numberOfLines={2}>{joinLine(["Dock", venue.dock])}</T> : null}
       </Glass>
       {places.map((item) => {
         const hero = item.photos.find((photo) => photo.hero) ?? item.photos[0];
@@ -45,8 +46,8 @@ export default function VenueScreen() {
             <PhotoShade />
             <Link href={{ pathname: "/venue/[id]", params: { id: item.id } }} asChild>
               <Pressable accessibilityRole="button" accessibilityLabel={item.name} style={styles.copy}>
-                <T variant="rowTitle" color={colors.onDark}>{item.name}</T>
-                <T variant="meta" color={colors.gold}>{item.photos.length} photos{item.models.length ? " · 3D" : ""}</T>
+                <T variant="rowTitle" color={colors.onDark} numberOfLines={2}>{item.name}</T>
+                <T variant="meta" color={colors.gold} numberOfLines={2}>{joinLine([`${item.photos.length} photos`, item.models.length ? "3D" : ""])}</T>
               </Pressable>
             </Link>
           </View>
@@ -78,8 +79,7 @@ function PlaceScreen({ placeId }: { placeId: string }) {
       <View style={styles.heroSpace} />
       <Glass style={styles.intro}>
         <T variant="eyebrow" color={colors.gold}>{place.island}</T>
-        <T variant="title">{place.name}</T>
-        <T variant="meta">A candidate place. Not assigned to a session yet.</T>
+        <T variant="title" numberOfLines={3}>{place.name}</T>
         {place.models.length ? (
             <Pressable accessibilityRole="button" onPress={() => setShowModels((open) => !open)} style={[styles.gold, shimmerStyle()]}>
             <T variant="button" color={colors.ink}>{showModels ? "Hide 3D" : "View in 3D"}</T>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   intro: { paddingHorizontal: 22, paddingTop: 28, gap: 6, paddingBottom: 8 },
   card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  copy: { padding: 12, gap: 2, zIndex: 1 },
+  copy: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, gap: 2, zIndex: 1, minWidth: 0 },
   note: { paddingHorizontal: 22, paddingBottom: 12, gap: 6 },
   heroSpace: { height: 280 },
   model: { marginHorizontal: 22, marginBottom: 16, gap: 8 },

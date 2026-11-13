@@ -5,6 +5,7 @@ import { addStamp, pulse, prefersReducedMotion, sessionStamp } from "@/guide/sta
 import { localReelStore } from "@/reels/gate";
 import { dayById, forum, panelistById, participationLabel, pillarById, placesForIsland, sessionById, venueById } from "@/content";
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
+import { joinLine } from "@/content/labels";
 import { PersonRow } from "@/components/PersonRow";
 import { sessionWhen } from "@/components/SessionRow";
 import { TopicChip } from "@/components/TopicChip";
@@ -56,9 +57,9 @@ export default function SessionScreen() {
       <Glass style={styles.pad}>
         <T variant="eyebrow" color={colors.gold}>{session.optional ? `${kind} · Optional` : kind}</T>
         {pillar ? <TopicChip id={pillar.id} name={pillar.name} /> : null}
-        <T variant="title">{displayCopy(session.title)}</T>
-        <T variant="meta">
-          {pillar?.name} · {session.island} · {session.region}
+        <T variant="title" numberOfLines={3}>{displayCopy(session.title)}</T>
+        <T variant="meta" numberOfLines={3}>
+          {joinLine([pillar?.name, session.island, session.region])}
         </T>
         <T variant="small">{sessionWhen(session)}</T>
         {timed && session.start && session.end ? (
@@ -95,7 +96,7 @@ export default function SessionScreen() {
             <PhotoShade />
             <Link href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
               <Pressable accessibilityRole="button" accessibilityLabel={place.name} style={styles.placeCopy}>
-                <T variant="rowTitle" color={colors.onDark}>{place.name}</T>
+                <T variant="rowTitle" color={colors.onDark} numberOfLines={2}>{place.name}</T>
               </Pressable>
             </Link>
           </View>
@@ -110,7 +111,7 @@ export default function SessionScreen() {
             key={person.id}
             name={person.name}
             photo={portraitFor(person.photo)}
-            meta={`${role ?? ""}\n${person.title} · ${person.company}`}
+            meta={[role ?? "", joinLine([person.title, person.company])].map((line) => line.trim()).filter(Boolean).join("\n")}
             href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
           />
         );
@@ -124,5 +125,5 @@ const styles = StyleSheet.create({
   actions: { marginTop: 8, alignSelf: "flex-start" },
   place: { marginHorizontal: 22, marginBottom: 12, height: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   placePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, padding: 12, zIndex: 1 },
+  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, zIndex: 1, minWidth: 0 },
 });

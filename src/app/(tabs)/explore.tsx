@@ -10,6 +10,7 @@ import { islandStamp, prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
 import { colors, sceneForIsland } from "@/theme";
+import { dockClearance } from "@/components/Dock";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { useApp } from "@/store";
 
@@ -31,7 +32,7 @@ export default function ExploreScreen() {
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 150 }}>
+      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}>
         <T variant="eyebrow" color={colors.gold} style={styles.kicker}>Explore</T>
         <ZoneMap
           progress={progress}
@@ -43,7 +44,7 @@ export default function ExploreScreen() {
           alt="A route across the water"
           kicker="Transport"
           headline="Sample routes"
-          line="Powerboat, ferries, or a yacht. Unconfirmed."
+          line="Powerboat, ferries, or a yacht."
           cta="Open"
           onPress={() => openChapter("transport", "/transport")}
         />

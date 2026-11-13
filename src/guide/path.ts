@@ -45,6 +45,11 @@ export function markGuide(store: GuideStore | null, id: string): void {
   store.setItem(GUIDE_KEY, [...next].join(","));
 }
 
+export function firstUnfinished(done: readonly boolean[]): number {
+  const index = done.findIndex((item) => !item);
+  return index < 0 ? 0 : index;
+}
+
 export function stepDone(id: string, progress: GuideProgress): boolean {
   if (progress.marked.includes(id)) return true;
   if (id === "welcome") return progress.introPlayed;

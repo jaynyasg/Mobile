@@ -2,6 +2,7 @@ import { Link, useLocalSearchParams } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { forum, panelistById, participationLabel, pillarById, sessionsForPanelist } from "@/content";
 import { displayCopy } from "@/content/display";
+import { joinLine } from "@/content/labels";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
@@ -34,12 +35,15 @@ export default function PanelistScreen() {
         <Portrait name={person.name} source={portraitFor(person.photo)} size={220} />
       </View>
       <View style={styles.pad}>
-        <T variant="eyebrow">{person.company}</T>
-        <T variant="title">{person.name}</T>
-        <T variant="small">{person.title}</T>
-        <T variant="meta">
-          {person.keynote ? "Keynote speaker · " : ""}
-          {pillar?.name || "Topic to be announced"} · {person.proposedIsland || "Location TBC"}
+        {person.company ? <T variant="eyebrow" numberOfLines={2}>{person.company}</T> : null}
+        <T variant="title" numberOfLines={3}>{person.name}</T>
+        {person.title ? <T variant="small" numberOfLines={3}>{person.title}</T> : null}
+        <T variant="meta" numberOfLines={3}>
+          {joinLine([
+            person.keynote ? "Keynote speaker" : "",
+            pillar?.name || "Topic to be announced",
+            person.proposedIsland || "Location TBC",
+          ])}
         </T>
         {person.origin ? <T variant="meta">{person.origin}</T> : null}
         {person.bio ? <T variant="small">{displayCopy(person.bio)}</T> : null}
@@ -59,9 +63,9 @@ export default function PanelistScreen() {
         <Link key={session.id} href={{ pathname: "/session/[id]", params: { id: session.id } }} asChild>
           <Pressable accessibilityRole="button" style={styles.session}>
             <T variant="eyebrow">{session.supplemental ? "Supplementary" : session.featured ? "Featured" : "Session"}</T>
-            <T variant="rowTitle">{displayCopy(session.title)}</T>
-            <T variant="meta">
-              {sessionWhen(session, forum.timezone)} · {session.island}
+            <T variant="rowTitle" numberOfLines={3}>{displayCopy(session.title)}</T>
+            <T variant="meta" numberOfLines={2}>
+              {joinLine([sessionWhen(session, forum.timezone), session.island])}
             </T>
             <T variant="meta">{participationLabel(session, person.id)}</T>
           </Pressable>

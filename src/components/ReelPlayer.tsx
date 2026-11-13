@@ -4,7 +4,7 @@ import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-n
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, showIntroTitle, type Reel } from "@/content/reels";
 import { colors } from "@/theme";
-import { armReel, hideReelVideo, reelVideoElement } from "@/reels/playback";
+import { armReel, hideReelVideo, reelVideoElement, showReelFrame } from "@/reels/playback";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
 
@@ -34,6 +34,7 @@ export function ReelPlayer({
   const [elapsed, setElapsed] = useState(0);
   const onDoneRef = useRef(onDone);
   const finished = useRef(false);
+  const motion = useRef({ lastTime: 0, lastMove: 0, advanced: false, retried: false, fellBack: false });
   onDoneRef.current = onDone;
 
   function finish(reason: ReelExit) {
@@ -49,37 +50,82 @@ export function ReelPlayer({
     const video = reelVideoElement();
     if (!video) return;
     let cancelled = false;
-    const onError = () => {
-      if (cancelled) return;
-      if (!video.src.endsWith(REEL_FALLBACK_MP4)) {
-        setPoster(REEL_FALLBACK_POSTER);
-        setCurrentSrc(REEL_FALLBACK_MP4);
-        return;
-      }
+    let gaveUpOnce = false;
+    const clock = motion.current;
+    clock.lastTime = video.currentTime;
+    clock.lastMove = Date.now();
+    clock.advanced = false;
+    clock.retried = false;
+    const reveal = () => {
+      if (cancelled || video.paused || video.currentTime <= clock.lastTime + 0.01) return;
+      clock.lastTime = video.currentTime;
+      clock.lastMove = Date.now();
+      clock.advanced = true;
+      gaveUpOnce = false;
+      setBlocked(false);
+      setPlaying(true);
+      showReelFrame(true);
+    };
+    const giveUp = () => {
+      if (cancelled || gaveUpOnce) return;
+      gaveUpOnce = true;
+      setPlaying(false);
       setBlocked(true);
+      showReelFrame(false);
     };
-    const opened = Date.now();
-    const sync = () => {
+    const fallback = () => {
       if (cancelled) return;
-      if (!video.paused) {
-        setBlocked(false);
-        setPlaying(true);
+      if (clock.fellBack || video.src.endsWith(REEL_FALLBACK_MP4)) {
+        giveUp();
         return;
       }
-      if (Date.now() - opened > 500) setBlocked(true);
+      clock.fellBack = true;
+      clock.retried = false;
+      clock.advanced = false;
+      clock.lastMove = Date.now();
+      setPoster(REEL_FALLBACK_POSTER);
+      setCurrentSrc(REEL_FALLBACK_MP4);
     };
-    video.addEventListener("error", onError);
-    video.addEventListener("playing", sync);
+    const onEnded = () => {
+      if (!cancelled) finish("end");
+    };
+    video.addEventListener("error", fallback);
+    video.addEventListener("ended", onEnded);
+    video.addEventListener("timeupdate", reveal);
+    video.addEventListener("playing", reveal);
     const attempt = currentSrc === src && play ? play : armReel(video, currentSrc);
-    attempt.then(sync).catch(sync);
-    const watch = window.setInterval(sync, 250);
+    attempt.catch(() => undefined);
+    const watch = window.setInterval(() => {
+      if (cancelled) return;
+      if (video.currentTime > clock.lastTime + 0.01) {
+        reveal();
+        return;
+      }
+      const quiet = Date.now() - clock.lastMove;
+      if (!clock.advanced && quiet >= 2000) {
+        giveUp();
+        return;
+      }
+      if (clock.advanced && quiet >= 2000) {
+        if (!clock.retried) {
+          clock.retried = true;
+          clock.lastMove = Date.now();
+          video.load();
+          void video.play()?.catch(() => undefined);
+          return;
+        }
+        fallback();
+      }
+    }, 250);
     return () => {
       cancelled = true;
       window.clearInterval(watch);
-      video.removeEventListener("error", onError);
-      video.removeEventListener("playing", sync);
+      video.removeEventListener("error", fallback);
+      video.removeEventListener("ended", onEnded);
+      video.removeEventListener("timeupdate", reveal);
+      video.removeEventListener("playing", reveal);
     };
-  }, [showVideo, play, currentSrc]);
+  }, [showVideo, play, currentSrc, src]);
 
   useEffect(() => {
     if (!playing) return;
@@ -99,20 +145,14 @@ export function ReelPlayer({
   function retry() {
     const video = reelVideoElement();
     if (!video) return;
-    armReel(video, currentSrc).then(() => {
-      if (video.paused) {
-        setBlocked(true);
-        return;
-      }
-      setBlocked(false);
-      setPlaying(true);
-    }).catch(() => {
-      if (video.paused) setBlocked(true);
-      else {
-        setBlocked(false);
-        setPlaying(true);
-      }
-    });
+    const clock = motion.current;
+    clock.lastMove = Date.now();
+    clock.advanced = false;
+    clock.retried = false;
+    showReelFrame(false);
+    setBlocked(false);
+    setPlaying(false);
+    armReel(video, currentSrc).catch(() => undefined);
   }
 
   const sheet = (

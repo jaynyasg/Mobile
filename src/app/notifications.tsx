@@ -17,7 +17,7 @@ export default function NotificationsScreen() {
     <Screen edge="none">
       <StackHeader title="Notifications" />
       <View style={styles.pad}>
-        <T variant="meta">These notes are copied from the source draft. They are not push messages.</T>
+        <T variant="meta">Summit notes saved on this device. They are not phone alerts.</T>
         <Pressable
           accessibilityRole="button"
           onPress={() => dispatch({ type: "markAllNotificationsRead", ids: notifications.map((note) => note.id) })}
@@ -36,8 +36,8 @@ export default function NotificationsScreen() {
             onPress={() => dispatch({ type: "markNotificationRead", id: note.id })}
             style={[styles.note, !read && styles.unread]}
           >
-            <T variant="rowTitle">{note.title}</T>
-            <T variant="small">{note.body}</T>
+            <T variant="rowTitle" numberOfLines={3}>{note.title}</T>
+            <T variant="small" numberOfLines={4}>{note.body}</T>
             <T variant="meta">{formatStamp(note.sentAt, forum.timezone)}</T>
           </Pressable>
         );

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
+import { dockClearance } from "@/components/Dock";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
 import { FeedCard } from "@/components/FeedCard";
@@ -12,8 +13,8 @@ import { Welcome } from "@/components/Welcome";
 import { useContent } from "@/content/provider";
 import { islandTrackLabel } from "@/content/labels";
 import { readTracks, webTrackStore } from "@/guide/interests";
-import { guideSteps, markGuide, readGuide, stepDone } from "@/guide/path";
-import { readStamps } from "@/guide/stamps";
+import { firstUnfinished, guideSteps, markGuide, readGuide, stepDone } from "@/guide/path";
+import { prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { suggestedDayId } from "@/logic/phase";
 import { INTRO_DAY_KEY, isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
@@ -39,7 +40,12 @@ export default function HomeScreen() {
   const { forum, sessions } = program;
   const { state } = useApp();
   const router = useRouter();
-  const { openChapter, replayIntro, guideTick } = useReels();
+  const { openChapter, replayIntro, guideTick, reelActive } = useReels();
+  const scrollRef = useRef<{ scrollTo: (options: { y?: number; animated?: boolean }) => void } | null>(null);
+  const cardY = useRef<number[]>([]);
+  const tourOnce = useRef(false);
+  const tourStop = useRef(false);
+  const [spotlight, setSpotlight] = useState<number | null>(null);
   const [mode, setMode] = useState<"you" | "explore">("you");
   const [welcome, setWelcome] = useState(false);
   const [welcomeStart, setWelcomeStart] = useState<"arrival" | "tracks">("arrival");
@@ -47,12 +53,14 @@ export default function HomeScreen() {
   const [tracks, setTracks] = useState<string[]>([]);
   const [marked, setMarked] = useState<string[]>([]);
   const [introPlayed, setIntroPlayed] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const refresh = useCallback(() => {
     const store = webTrackStore();
     setTracks(readTracks(store));
     setMarked(readGuide(store));
     setIntroPlayed(localReelStore()?.getItem(INTRO_DAY_KEY) != null);
+    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -85,7 +93,38 @@ export default function HomeScreen() {
     savedSessions: state.favoriteIds.length,
     openedNotes: stamps.some((stamp) => stamp.startsWith("know:")),
   };
-  const doneCount = guideSteps.filter((step) => stepDone(step.id, progress)).length;
+  const doneFlags = guideSteps.map((step) => stepDone(step.id, progress));
+  const doneCount = doneFlags.filter(Boolean).length;
+  const flagsRef = useRef(doneFlags);
+  flagsRef.current = doneFlags;
+
+  useEffect(() => {
+    if (!ready || welcome || mode !== "you" || reelActive || tourOnce.current) return;
+    tourOnce.current = true;
+    const settle = firstUnfinished(flagsRef.current);
+    if (prefersReducedMotion()) {
+      setSpotlight(settle);
+      return;
+    }
+    let index = 0;
+    setSpotlight(0);
+    const timer = setInterval(() => {
+      if (tourStop.current) {
+        clearInterval(timer);
+        return;
+      }
+      index += 1;
+      if (index >= guideSteps.length) {
+        clearInterval(timer);
+        setSpotlight(settle);
+        scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[settle] ?? 0) - 12), animated: true });
+        return;
+      }
+      setSpotlight(index);
+      scrollRef.current?.scrollTo({ y: Math.max(0, (cardY.current[index] ?? 0) - 12), animated: true });
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [ready, welcome, mode, reelActive]);
 
   function openStep(id: (typeof guideSteps)[number]["id"]) {
     if (id !== "welcome") {
@@ -108,7 +147,15 @@ export default function HomeScreen() {
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 150 }} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        ref={scrollRef as never}
+        style={[styles.fill, { marginBottom: dockClearance(insets.bottom) }]}
+        contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: 24 }}
+        keyboardShouldPersistTaps="handled"
+        onTouchStart={() => {
+          tourStop.current = true;
+        }}
+      >
         <View style={styles.install}>
           <InstallHint />
         </View>
@@ -122,6 +169,7 @@ export default function HomeScreen() {
         </View>
         {mode === "you" ? (
           <>
+            <T variant="headline" color={colors.foam} style={styles.guideTitle}>8 steps to get started</T>
             <T variant="meta" color={colors.gold} style={styles.progress}>{doneCount} of {guideSteps.length} done</T>
             {next ? (
               <Pressable
@@ -136,19 +184,23 @@ export default function HomeScreen() {
               </Pressable>
             ) : null}
             {guideSteps.map((step, index) => {
-              const done = stepDone(step.id, progress);
+              const done = doneFlags[index];
               return (
-                <FeedCard
-                  key={step.id}
-                  image={stepImage[step.id]}
-                  alt={step.headline}
-                  kicker={done ? "Done" : `Step ${index + 1} of ${guideSteps.length}`}
-                  headline={step.headline}
-                  line={step.line}
-                  cta={done && step.id === "welcome" ? "Replay" : step.cta}
-                  done={done}
-                  onPress={() => openStep(step.id)}
-                />
+                <View key={step.id} onLayout={(event) => {
+                  cardY.current[index] = event.nativeEvent.layout.y;
+                }}>
+                  <FeedCard
+                    image={stepImage[step.id]}
+                    alt={step.headline}
+                    kicker={done ? "Done" : `Step ${index + 1} of ${guideSteps.length}`}
+                    headline={step.headline}
+                    line={step.line}
+                    cta={done && step.id === "welcome" ? "Replay" : step.cta}
+                    done={done}
+                    lit={spotlight === index}
+                    onPress={() => openStep(step.id)}
+                  />
+                </View>
               );
             })}
           </>
@@ -190,6 +242,7 @@ const styles = StyleSheet.create({
   switch: { flexDirection: "row", alignSelf: "center", marginBottom: 14, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
+  guideTitle: { marginHorizontal: 20, marginBottom: 4 },
   progress: { marginLeft: 22, marginBottom: 10 },
   next: {
     marginHorizontal: 16,

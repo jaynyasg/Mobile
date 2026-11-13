@@ -13,6 +13,7 @@ export function FeedCard({
   line,
   cta,
   done = false,
+  lit = false,
   onPress,
 }: {
   image: string;
@@ -22,13 +23,14 @@ export function FeedCard({
   line: string;
   cta: string;
   done?: boolean;
+  lit?: boolean;
   onPress: () => void;
 }) {
   const [reduce, setReduce] = useState(true);
   const [pressed, setPressed] = useState(false);
   useEffect(() => setReduce(prefersReducedMotion()), []);
   return (
-    <View style={[styles.card, !reduce && pressed && styles.pressed]}>
+    <View style={[styles.card, lit && styles.lit, !reduce && pressed && styles.pressed]}>
       <Image source={{ uri: image }} accessibilityLabel={alt} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <PhotoShade />
       {done ? (
@@ -80,11 +82,14 @@ const styles = StyleSheet.create({
   },
   copy: {
     gap: 8,
-    padding: 18,
+    padding: 16,
     zIndex: 1,
+    width: "100%",
+    minWidth: 0,
     ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.2), rgba(6,14,24,0))" } as ViewStyle),
   },
   pressed: { transform: [{ scale: 0.985 }] },
+  lit: { borderWidth: 2, borderColor: colors.gold },
   pill: {
     alignSelf: "flex-start",
     minHeight: 44,

@@ -39,8 +39,18 @@ describe("reel playback", () => {
     expect(video.playsInline).toBe(true);
     expect(video.autoplay).toBe(true);
     expect(video.src).toBe("/reels/tech.mp4");
+    expect(video.calls.indexOf("play")).toBeGreaterThan(-1);
     expect(video.calls).toEqual(expect.arrayContaining(["muted", "playsinline", "webkit-playsinline"]));
     await pending;
+  });
+
+  it("reloads before play so a stuck frame can start again", () => {
+    const video = fakeVideo(() => Promise.resolve());
+    video.load = () => video.calls.push("load");
+    video.src = "/reels/tech.mp4";
+    armReel(video, "/reels/tech.mp4");
+    expect(video.calls.indexOf("load")).toBeGreaterThanOrEqual(0);
+    expect(video.calls.indexOf("play")).toBeGreaterThan(video.calls.indexOf("load"));
   });
 
   it("returns the rejection so the player can show a play button", async () => {

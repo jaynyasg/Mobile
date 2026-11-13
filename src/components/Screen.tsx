@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { loopFor } from "./backgrounds";
 import { SceneBackground } from "./Scene";
-import { DOCK_PILL } from "./Dock";
+import { dockClearance } from "./Dock";
 import { scenePhotos } from "@/theme";
 
 export function Screen({
@@ -28,13 +28,13 @@ export function Screen({
   const loop = loopFor(phase);
   const insets = useSafeAreaInsets();
   const paddingTop = edge === "top" ? insets.top + 8 : 0;
-  const paddingBottom = DOCK_PILL + 16 + insets.bottom;
+  const clearance = dockClearance(insets.bottom);
   const body = scroll ? (
-    <ScrollView style={styles.fill} contentContainerStyle={{ paddingTop, paddingBottom }} keyboardShouldPersistTaps="handled">
+    <ScrollView style={[styles.fill, { marginBottom: clearance }]} contentContainerStyle={{ paddingTop, paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.fill, { paddingTop, paddingBottom }]}>{children}</View>
+    <View style={[styles.fill, { paddingTop, marginBottom: clearance }]}>{children}</View>
   );
   return (
     <View style={styles.fill}>

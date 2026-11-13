@@ -11,6 +11,7 @@ export interface ReelMedia {
   src: string;
   setAttribute: (name: string, value: string) => void;
   play: () => Promise<void> | undefined;
+  load?: () => void;
 }
 
 /** A chapter with no film of its own plays the coastal loop instead of a missing file. */
@@ -31,13 +32,10 @@ export function armReel(video: ReelMedia, src: string): Promise<void> {
   video.setAttribute("muted", "");
   video.setAttribute("playsinline", "");
   video.setAttribute("webkit-playsinline", "");
-  if (!sameSrc(video.src, src)) video.src = src;
+  video.src = src;
+  video.load?.();
   const attempt = video.play();
   return attempt ?? Promise.resolve();
-}
-
-function sameSrc(current: string, next: string): boolean {
-  return current === next || current.endsWith(next);
 }
 
 let shared: HTMLVideoElement | null = null;
@@ -51,6 +49,7 @@ export function reelVideoElement(): HTMLVideoElement | null {
     video.playsInline = true;
     video.autoplay = true;
     video.preload = "auto";
+    video.loop = false;
     video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
@@ -71,8 +70,15 @@ export function playReelNow(src: string): Promise<void> {
   const video = reelVideoElement();
   if (!video) return Promise.resolve();
   video.style.display = "block";
+  video.style.visibility = "hidden";
   if (!video.isConnected) document.body.appendChild(video);
   return armReel(video, src);
+}
+
+export function showReelFrame(visible: boolean): void {
+  const video = reelVideoElement();
+  if (!video) return;
+  video.style.visibility = visible ? "visible" : "hidden";
 }
 
 export function hideReelVideo(): void {

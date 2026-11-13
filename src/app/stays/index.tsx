@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Linking, Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
@@ -19,8 +19,11 @@ export default function StaysScreen() {
         <T variant="eyebrow">Where you stay · five island stops</T>
         <T variant="title">Across the islands</T>
         <T variant="small">{stays.intro}</T>
-        <T variant="meta">{stays.brochureNote}</T>
-        <T variant="meta">{stays.brochureUrl}</T>
+        {stays.brochureUrl ? (
+          <Pressable accessibilityRole="link" accessibilityLabel="See partner stays" onPress={() => Linking.openURL(stays.brochureUrl).catch(() => undefined)} style={styles.open}>
+            <T variant="button" color={colors.ink}>See partner stays</T>
+          </Pressable>
+        ) : null}
       </View>
       {stays.groups.map((group) => (
         <View key={group.heading}>
@@ -32,16 +35,16 @@ export default function StaysScreen() {
           {group.islands.map((island) => (
             <View key={island.id} style={styles.card}>
               <TappablePhoto source={sceneImages[island.image]} alt={island.imageAlt || island.island} style={styles.image} />
-              <Link href={{ pathname: "/stays/[id]", params: { id: island.id } }} asChild>
-                <Pressable accessibilityRole="link" accessibilityLabel={island.island} style={({ pressed }) => [styles.copy, pressed && styles.pressed]}>
-                  <View style={styles.copyText}>
-                    <T variant="eyebrow">{island.route}</T>
-                    <T variant="rowTitle">{island.island}</T>
-                    <T variant="meta">{island.dock}</T>
-                  </View>
-                  <T variant="button" color={colors.gold}>Open</T>
-                </Pressable>
-              </Link>
+              <View style={styles.copy}>
+                <T variant="eyebrow" numberOfLines={2}>{island.route}</T>
+                <T variant="rowTitle" numberOfLines={2}>{island.island}</T>
+                <T variant="meta" numberOfLines={3}>{island.dock}</T>
+                <Link href={{ pathname: "/stays/[id]", params: { id: island.id } }} asChild>
+                  <Pressable accessibilityRole="link" accessibilityLabel={`Open ${island.island}`} style={({ pressed }) => [styles.open, pressed && styles.pressed]}>
+                    <T variant="button" color={colors.ink}>Open</T>
+                  </Pressable>
+                </Link>
+              </View>
             </View>
           ))}
         </View>
@@ -54,9 +57,9 @@ const styles = StyleSheet.create({
   pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
   group: { marginHorizontal: 12, marginTop: 8, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, ...nightGlass },
   groupIntro: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, ...nightGlass },
-  card: { marginHorizontal: 12, marginBottom: 12, borderRadius: 16, overflow: "hidden", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(11,27,43,0.12)", ...nightGlass },
-  image: { height: 140, width: "100%" },
-  copy: { minHeight: 56, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 12 },
-  copyText: { flex: 1, gap: 2 },
+  card: { marginHorizontal: 12, marginBottom: 12, borderRadius: 16, overflow: "hidden", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", ...nightGlass },
+  image: { height: 168, width: "100%" },
+  copy: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 16, gap: 6, minWidth: 0 },
+  open: { alignSelf: "flex-start", minHeight: 44, marginTop: 8, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   pressed: { opacity: 0.78 },
 });

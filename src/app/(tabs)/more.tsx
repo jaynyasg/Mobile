@@ -17,7 +17,7 @@ export default function MoreScreen() {
       items: [
         { href: "/schedule", label: "My schedule", detail: "Favorites saved on this device" },
         { href: "/passport", label: "Passport", detail: "Your pass preview. No payment.", reelId: "pass" },
-        { href: "/notifications", label: "Notifications", detail: "Notices taken from the source", badge: unread || undefined },
+        { href: "/notifications", label: "Notifications", detail: "Summit notes on this device", badge: unread || undefined },
         { href: "/assistant", label: "Guide", detail: "Answers from the program, on this device" },
         { href: "/community", label: "Community", detail: "Live chat", reelId: "community" },
         { href: "/speakers", label: "Panelists", detail: "Roster from the website" },
@@ -27,8 +27,8 @@ export default function MoreScreen() {
     {
       title: "The islands",
       items: [
-        { href: "/transport", label: "Sample transport", detail: "Powerboat, ferries, and yacht. Unconfirmed.", reelId: "transport" },
-        { href: "/stays", label: "Accommodations", detail: "Brochure pages 21–22", reelId: "stays" },
+        { href: "/transport", label: "Sample transport", detail: "Powerboat, ferries, and a yacht.", reelId: "transport" },
+        { href: "/stays", label: "Accommodations", detail: "Where you sleep on each island.", reelId: "stays" },
       ],
     },
     {

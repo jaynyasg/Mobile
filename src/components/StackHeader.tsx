@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { clip } from "./clip";
 import { nightGlass } from "./nightGlass";
 import { colors, pad } from "@/theme";
 import { Icon } from "./Icon";
@@ -23,7 +24,7 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
       </Pressable>
       <View style={styles.title}>
         {title ? (
-          <T variant="small" numberOfLines={1}>
+          <T variant="small" numberOfLines={2}>
             {title}
           </T>
         ) : null}
@@ -47,5 +48,5 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(255,224,138,0.45)",
   },
   back: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  title: { flex: 1 },
+  title: { ...clip },
 });

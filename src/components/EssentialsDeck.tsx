@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { essentials } from "@/guide/essentials";
 import { addStamp, knowStamp, pulse, prefersReducedMotion } from "@/guide/stamps";
 import { localReelStore } from "@/reels/gate";
@@ -44,7 +44,9 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
                 <ScrollView style={styles.detail}>
                   <T variant="meta" color={colors.foam}>{item.more}</T>
                   {item.sources.map((source) => (
-                    <T key={source.url} variant="meta" color={colors.gold}>{source.title}</T>
+                    <Pressable key={source.url} accessibilityRole="link" accessibilityLabel={source.title} onPress={() => Linking.openURL(source.url).catch(() => undefined)} style={styles.more}>
+                      <T variant="button" color={colors.ink} numberOfLines={2}>{source.title}</T>
+                    </Pressable>
                   ))}
                 </ScrollView>
               ) : null}

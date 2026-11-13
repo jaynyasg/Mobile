@@ -13,6 +13,7 @@ import { CommunityAvatar } from "@/components/CommunityAvatar";
 import { ProfileSheet } from "@/components/ProfileSheet";
 import { TappablePhoto } from "@/components/TappablePhoto";
 import { CrystalMark } from "@/components/CrystalMark";
+import { clip } from "@/components/clip";
 import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
@@ -145,11 +146,11 @@ export default function CommunityScreen() {
               <Pressable accessibilityRole="button" accessibilityLabel={`Profile of ${post.author.displayName}`} onPress={() => setProfile(post.author)} style={styles.person}>
                 <CommunityAvatar name={post.author.displayName} url={post.author.avatarUrl} />
                 <View style={styles.copy}>
-                  <T variant="rowTitle">{post.author.displayName}</T>
-                  <T variant="meta">{[post.author.title, post.author.company].filter(Boolean).join(" · ")}</T>
+                  <T variant="rowTitle" numberOfLines={2}>{post.author.displayName}</T>
+                  <T variant="meta" numberOfLines={2}>{[post.author.title, post.author.company].filter(Boolean).join(" · ")}</T>
                 </View>
               </Pressable>
-              <T variant="small">{post.body}</T>
+              <T variant="small" numberOfLines={6}>{post.body}</T>
               {post.photoUrl && post.photoUrl !== "preview" ? (
                 <TappablePhoto source={post.photoUrl} alt={`Photo from ${post.author.displayName}`} style={styles.photo} />
               ) : null}
@@ -193,8 +194,8 @@ const styles = StyleSheet.create({
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
   photo: { width: "100%", height: 180, borderRadius: 14, backgroundColor: colors.muted },
   card: { marginHorizontal: 22, marginBottom: 18, gap: 6 },
-  person: { flexDirection: "row", gap: 10, alignItems: "center", minHeight: 44 },
-  copy: { flex: 1, gap: 2 },
+  person: { flexDirection: "row", gap: 10, alignItems: "center", minHeight: 44, minWidth: 0 },
+  copy: { ...clip, gap: 2 },
   pill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8, minHeight: 44 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.ivory },
 });

@@ -1,4 +1,4 @@
-const CACHE = "tatel-shell-v6";
+const CACHE = "tatel-shell-v7";
 const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/favicon.ico", "/apple-touch-icon.png", "/beacon/coast/white-bay-day.jpg"];
 
 self.addEventListener("install", (event) => {
@@ -25,11 +25,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  // Reels under /reels/ and the coastal loop stay network-only. Do not precache mp4 or webm.
-  if (/\.(mp4|webm)$/i.test(url.pathname)) {
-    event.respondWith(fetch(request));
-    return;
-  }
+  // Let the browser fetch video itself. A service worker in the middle drops Range
+  // responses on Android Chrome and the film stays on the first frame.
+  if (/\.(mp4|webm)$/i.test(url.pathname)) return;
   event.respondWith(
     fetch(request)
       .then((response) => {

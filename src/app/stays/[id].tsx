@@ -18,7 +18,7 @@ export default function StayScreen() {
     return (
       <Screen edge="none">
         <StackHeader title="Stay" />
-        <T variant="body" style={{ padding: pad }}>This stop is not in the brochure extract.</T>
+        <T variant="body" style={{ padding: pad }}>That stay is not on the list.</T>
       </Screen>
     );
   }
@@ -38,24 +38,23 @@ export default function StayScreen() {
           <T variant="eyebrow">{section.heading}</T>
           {section.providers.map((provider) =>
             provider.localDeck ? (
-              <Link key={provider.name} href="/deck" asChild>
-                <Pressable accessibilityRole="button" style={styles.link}>
-                  <T variant="rowTitle">{provider.name}</T>
-                  <T variant="meta">Local page images from the supplied deck. The original PDF was not in this export.</T>
-                </Pressable>
-              </Link>
+              <View key={provider.name} style={styles.link}>
+                <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
+                <Link href="/deck" asChild>
+                  <Pressable accessibilityRole="button" accessibilityLabel={`See ${provider.name}`} style={styles.open}>
+                    <T variant="button" color={colors.ink}>See the boat</T>
+                  </Pressable>
+                </Link>
+              </View>
             ) : (
-              <Pressable
-                key={provider.name}
-                accessibilityRole="link"
-                style={styles.link}
-                onPress={() => {
-                  if (provider.href) Linking.openURL(provider.href).catch(() => undefined);
-                }}
-              >
-                <T variant="rowTitle">{provider.name}</T>
-                {provider.href ? <T variant="meta">{provider.href}</T> : null}
-              </Pressable>
+              <View key={provider.name} style={styles.link}>
+                <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
+                {provider.href ? (
+                  <Pressable accessibilityRole="link" accessibilityLabel={`Visit ${provider.name}`} onPress={() => Linking.openURL(provider.href!).catch(() => undefined)} style={styles.open}>
+                    <T variant="button" color={colors.ink}>Visit website</T>
+                  </Pressable>
+                ) : null}
+              </View>
             ),
           )}
           {section.notes.map((note) => (
@@ -73,5 +72,6 @@ const styles = StyleSheet.create({
   image: { height: 200, width: "100%" },
   pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
   section: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
-  link: { minHeight: 44, justifyContent: "center", paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line, gap: 2 },
+  link: { gap: 8, paddingVertical: 8 },
+  open: { alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold, gap: 4 },
 });
