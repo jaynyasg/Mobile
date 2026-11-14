@@ -14,7 +14,7 @@ describe("pass checkout", () => {
       new Request("https://tatel.app/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json", "CF-Connecting-IP": "1.1.1.1" },
-        body: JSON.stringify({ tier: "vip", quantity: 1, amount: 100, email: " Ada@Example.com " }),
+        body: JSON.stringify({ tier: "beach", quantity: 1, amount: 100, email: " Ada@Example.com " }),
       }),
       env,
       fetchImpl,
@@ -32,12 +32,12 @@ describe("pass checkout", () => {
     const params = new URLSearchParams(String(init?.body));
     expect(params.get("mode")).toBe("payment");
     expect(params.get("ui_mode")).toBe(STRIPE_UI_MODE);
-    expect(params.get("line_items[0][price]")).toBe("price_1UbToURqnFhvQ1qEunY1AOnL");
-    expect(DEFAULT_PASS_PRICES.beach).toBe("price_1UbToMRqnFhvQ1qEsP0qj1b8");
+    expect(params.get("line_items[0][price]")).toBe(DEFAULT_PASS_PRICES.beach);
     expect(DEFAULT_PASS_PRICES.boat).toBe("price_1UbToRRqnFhvQ1qEqvHiOHHo");
-    expect(params.get("line_items[0][quantity]")).toBe("8");
+    expect(DEFAULT_PASS_PRICES.vip).toBe("price_1UbToURqnFhvQ1qEunY1AOnL");
+    expect(params.get("line_items[0][quantity]")).toBe("1");
     expect(params.get("metadata[event]")).toBe("tatel_2027");
-    expect(params.get("metadata[tier]")).toBe("vip");
+    expect(params.get("metadata[tier]")).toBe("beach");
     expect(params.get("customer_email")).toBe("ada@example.com");
     expect(params.get("return_url")).toBe(CHECKOUT_RETURN_URL);
     expect(params.get("branding_settings[background_color]")).toBe("#071421");
@@ -75,7 +75,7 @@ describe("pass checkout", () => {
   it("does not call Stripe without a secret or a known tier", async () => {
     const fetchImpl = vi.fn(async () => sessionResponse());
     const missing = await createPassCheckout(
-      new Request("https://tatel.app/api/checkout", { method: "POST", body: JSON.stringify({ tier: "vip" }) }),
+      new Request("https://tatel.app/api/checkout", { method: "POST", body: JSON.stringify({ tier: "beach" }) }),
       {},
       fetchImpl,
       { hits: new Map() },
@@ -91,19 +91,18 @@ describe("pass checkout", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
-  it("uses STRIPE_PRICE_VIP when that var is set and still charges eight guests", async () => {
-    const fetchImpl = vi.fn(async (_url: string, _init?: RequestInit) => sessionResponse());
+  it("refuses a single VIP checkout so the group booking owns those shares", async () => {
+    const fetchImpl = vi.fn(async () => sessionResponse());
     const response = await createPassCheckout(
-      new Request("https://tatel.app/api/checkout", { method: "POST", body: JSON.stringify({ tier: "vip", quantity: 1 }) }),
-      { STRIPE_SECRET_KEY: "sk_live_test_only", STRIPE_PRICE_VIP: "price_custom_vip" },
+      new Request("https://tatel.app/api/checkout", { method: "POST", body: JSON.stringify({ tier: "vip", quantity: 8 }) }),
+      env,
       fetchImpl,
       { hits: new Map() },
       4_000,
     );
-    expect(response.status).toBe(200);
-    const params = new URLSearchParams(String(fetchImpl.mock.calls[0][1]?.body));
-    expect(params.get("line_items[0][price]")).toBe("price_custom_vip");
-    expect(params.get("line_items[0][quantity]")).toBe("8");
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "group" });
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it("reads session status without returning the client secret", async () => {
@@ -120,7 +119,7 @@ describe("pass checkout", () => {
       fetchImpl,
     );
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ status: "complete", paymentStatus: "paid", tier: "boat" });
+    expect(await response.json()).toEqual({ status: "complete", paymentStatus: "paid", tier: "boat", bookingId: null, shares: null });
     expect(fetchImpl.mock.calls[0][0]).toBe("https://api.stripe.com/v1/checkout/sessions/cs_paid_1");
     const bad = await readPassCheckout(
       new Request("https://tatel.app/api/checkout/status?session_id=pi_not_a_session"),

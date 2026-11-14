@@ -98,6 +98,7 @@ export async function createPassCheckout(
   const record = payload && typeof payload === "object" ? (payload as { tier?: unknown; email?: unknown }) : {};
   const tier = passTier(record.tier);
   if (!tier) return json({ error: "tier" }, 400);
+  if (tier === "vip") return json({ error: "group" }, 400);
   if (!consumeRate(book, `checkout:${clientKey(request)}`, now)) return json({ error: "rate" }, 429);
   const email = normalizeEmail(record.email);
   const fields = checkoutFields(tier, email, passPrices(env));
@@ -129,18 +130,23 @@ export async function readPassCheckout(
     method: "GET",
     headers: stripeHeaders(env.STRIPE_SECRET_KEY),
   });
-  let session: { status?: string; payment_status?: string; metadata?: { tier?: string } } = {};
+  let session: { status?: string; payment_status?: string; metadata?: { tier?: string; booking_id?: string; shares?: string } } = {};
   try {
-    session = (await response.json()) as { status?: string; payment_status?: string; metadata?: { tier?: string } };
+    session = (await response.json()) as { status?: string; payment_status?: string; metadata?: { tier?: string; booking_id?: string; shares?: string } };
   } catch {
     session = {};
   }
   if (!response.ok || (session.status !== "complete" && session.status !== "open" && session.status !== "expired")) {
     return json({ error: "unavailable" }, 502);
   }
+  const shares = typeof session.metadata?.shares === "string" && /^\d+$/.test(session.metadata.shares)
+    ? Number(session.metadata.shares)
+    : null;
   return json({
     status: session.status,
     paymentStatus: session.payment_status ?? null,
     tier: passTier(session.metadata?.tier),
+    bookingId: typeof session.metadata?.booking_id === "string" ? session.metadata.booking_id : null,
+    shares,
   }, 200);
 }

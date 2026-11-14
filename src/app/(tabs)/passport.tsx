@@ -11,8 +11,12 @@ import { zoneReelIds, type ReelId } from "@/content/reels";
 import { islandStamp, prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
+import { readContactPrefs } from "@/logic/contactPrefs";
 import { CHECKOUT_SOON, canEmbedCheckout, passOffer, passTier, type PassTier } from "@/logic/passPay";
 import { passPayload } from "@/logic/state";
+import { useApp } from "@/store";
+import { webStorage } from "@/welcome";
+import { VipStart } from "@/components/VipStart";
 import { colors, sceneForIsland } from "@/theme";
 import { dockClearance } from "@/components/Dock";
 import { nightGlass } from "@/components/nightGlass";
@@ -36,7 +40,8 @@ export default function PassportScreen() {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
   const { openChapter } = useReels();
-  const { email } = useAuth();
+  const { email, userId } = useAuth();
+  const { state } = useApp();
   const params = useLocalSearchParams<{ checkout?: string; tier?: string; session_id?: string }>();
   const { passes } = program;
   const [passId, setPassId] = useState(passes.items[0]?.id ?? "");
@@ -45,7 +50,13 @@ export default function PassportScreen() {
   const [paying, setPaying] = useState<PassTier | null>(() => {
     if (typeof window === "undefined") return null;
     const search = new URLSearchParams(window.location.search);
-    return search.get("checkout") === "preview" ? passTier(search.get("tier")) : null;
+    if (search.get("checkout") !== "preview" || search.get("tier") === "vip") return null;
+    return passTier(search.get("tier"));
+  });
+  const [starting, setStarting] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const search = new URLSearchParams(window.location.search);
+    return search.get("checkout") === "preview" && search.get("tier") === "vip";
   });
   const [booked, setBooked] = useState(false);
   const [cancelled, setCancelled] = useState(false);
@@ -61,6 +72,10 @@ export default function PassportScreen() {
     if (typeof window === "undefined") return;
     const search = new URLSearchParams(window.location.search);
     if (search.get("checkout") !== "preview") return;
+    if (search.get("tier") === "vip") {
+      setStarting(true);
+      return;
+    }
     const tier = passTier(search.get("tier"));
     if (tier) setPaying(tier);
   }, []);
@@ -88,6 +103,10 @@ export default function PassportScreen() {
   function buy(id: string) {
     const tier = passTier(id);
     if (!tier || !checkoutReady) return;
+    if (tier === "vip") {
+      setStarting(true);
+      return;
+    }
     setPassId(id);
     setCancelled(false);
     setPaying(tier);
@@ -142,16 +161,21 @@ export default function PassportScreen() {
                 key={item.id}
                 accessibilityRole="button"
                 accessibilityState={{ disabled: !checkoutReady }}
-                accessibilityLabel={checkoutReady ? `Pay for ${item.name}` : `${CHECKOUT_SOON}, ${item.name}`}
+                accessibilityLabel={checkoutReady ? (item.id === "vip" ? "Start a VIP group booking" : `Pay for ${item.name}`) : `${CHECKOUT_SOON}, ${item.name}`}
                 disabled={!checkoutReady}
                 onPress={() => buy(item.id)}
                 style={styles.passCard}
               >
-                <T variant="rowTitle" color={colors.foam}>{item.name}</T>
+                {item.id === "vip" ? (
+                  <>
+                    <T variant="rowTitle" color={colors.foam}>STAY onboard</T>
+                    <T variant="rowTitle" color={colors.foam}>All-inclusive VIP</T>
+                  </>
+                ) : <T variant="rowTitle" color={colors.foam}>{item.name}</T>}
                 <T variant="small" color={colors.foam}>{item.id === "vip" ? `${offer.guests} · ${offer.total}` : `${item.price} ${item.unit}`}</T>
-                {item.id === "vip" ? <T variant="meta" color={colors.gold}>$5,000 per guest. Quantity is fixed at 8.</T> : null}
+                {item.id === "vip" ? <T variant="meta" color={colors.gold}>$5,000 a share. A full boat is 8 shares.</T> : null}
                 <View style={[styles.pill, !checkoutReady && styles.pillOff]}>
-                  <T variant="button" color={colors.ink}>{checkoutReady ? "Pay" : CHECKOUT_SOON}</T>
+                  <T variant="button" color={colors.ink}>{checkoutReady ? (item.id === "vip" ? "Start a group booking" : "Pay") : CHECKOUT_SOON}</T>
                 </View>
               </Pressable>
             );
@@ -211,11 +235,11 @@ export default function PassportScreen() {
           </View>
         ) : null}
       </ScrollView>
-      {paying && payingPass ? (
+      {paying && payingPass && paying !== "vip" ? (
         <PassCheckout
           tier={paying}
           title={payingPass.name}
-          detail={paying === "vip" ? "8 guests · $40,000 total" : `${payingPass.price} ${payingPass.unit}`}
+          detail={`${payingPass.price} ${payingPass.unit}`}
           email={email}
           preview={checkoutQuery.checkout === "preview"}
           onClose={() => setPaying(null)}
@@ -223,6 +247,15 @@ export default function PassportScreen() {
             setPaying(null);
             setBooked(true);
           }}
+        />
+      ) : null}
+      {starting ? (
+        <VipStart
+          email={email}
+          name={state.profile.name}
+          phone={readContactPrefs(webStorage())?.phone ?? null}
+          userId={userId}
+          onClose={() => setStarting(false)}
         />
       ) : null}
       {booked ? (

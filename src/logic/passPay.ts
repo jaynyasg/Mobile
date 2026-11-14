@@ -15,7 +15,7 @@ export function canEmbedCheckout(key = stripePublishableKey()): boolean {
   return key.startsWith("pk_");
 }
 
-/** VIP is eight guests at the $5,000 price. The worker charges that quantity. */
+/** VIP is eight shares at the $5,000 price. Guests pay those shares on a group booking. */
 export function passOffer(id: string, price: string): { guests: string; total: string } {
   if (id === "vip") return { guests: "8 guests", total: "$40,000 total" };
   return { guests: "1 guest", total: price };

@@ -3,8 +3,9 @@ import { phoneSignIn } from "./phoneSignin";
 import { quickSignIn, type QuickSignInEnv } from "./quickSignin";
 import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
+import { handleStripeWebhook, handleVipRequest, notePaidFromStatus, sendDueReminders, type VipEnv } from "./vipBooking";
 
-interface Env extends QuickSignInEnv, CheckoutEnv {
+interface Env extends QuickSignInEnv, CheckoutEnv, VipEnv {
   ASSETS: { fetch(input: Request | string): Promise<Response> };
 }
 
@@ -53,7 +54,25 @@ export default {
     }
     if (url.pathname === "/api/checkout/status") {
       const deps = programDeps(third);
-      return readPassCheckout(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
+      const fetchImpl = deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined;
+      const response = await readPassCheckout(request, env, fetchImpl);
+      if (response.ok) {
+        try {
+          const body = await response.clone().json() as { status?: string; paymentStatus?: string | null; bookingId?: string | null; shares?: number | null };
+          await notePaidFromStatus(env, url.searchParams.get("session_id") ?? "", body, { fetchImpl });
+        } catch {
+          // Status still returns. The webhook can record the same session.
+        }
+      }
+      return response;
+    }
+    if (url.pathname === "/api/stripe/webhook") {
+      const deps = programDeps(third);
+      return handleStripeWebhook(request, env, { fetchImpl: deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined });
+    }
+    if (url.pathname === "/api/vip-booking" || url.pathname.startsWith("/api/vip-booking/")) {
+      const deps = programDeps(third);
+      return handleVipRequest(request, env, { fetchImpl: deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined });
     }
     if (!url.pathname.toLowerCase().endsWith(".mp4")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") {
@@ -81,5 +100,11 @@ export default {
     headers.set("Content-Length", String(range.end - range.start + 1));
     const slice = body.slice(range.start, range.end + 1);
     return new Response(request.method === "HEAD" ? null : slice, { status: 206, headers });
+  },
+
+  async scheduled(_event: unknown, env: Env, ctx?: { waitUntil?: (promise: Promise<unknown>) => void }) {
+    const job = sendDueReminders(env);
+    if (ctx?.waitUntil) ctx.waitUntil(job);
+    else await job;
   },
 };
