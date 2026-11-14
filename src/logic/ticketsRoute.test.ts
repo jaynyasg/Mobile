@@ -36,6 +36,7 @@ describe("tickets route", () => {
     expect(booking).toContain("/pass/vip/");
     expect(readFileSync("src/app/(tabs)/more.tsx", "utf8")).toContain('label: "Tickets"');
     expect(readFileSync("src/app/(tabs)/index.tsx", "utf8")).toContain('"/tickets"');
-    expect(readFileSync("src/logic/pathPlan.ts", "utf8")).toContain('line: "Open Tickets."');
+    expect(readFileSync("src/app/(tabs)/tickets.tsx", "utf8")).toContain('hold.owned ? "Your pass" : "Choose a pass"');
+    expect(readFileSync("src/logic/pathPlan.ts", "utf8")).not.toMatch(/Add your pass|Get your pass|get a pass/i);
   });
 });

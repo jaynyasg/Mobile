@@ -29,6 +29,12 @@ describe("pass purchase", () => {
     expect(readIntake(store)).toEqual({ hasPass: "have", areas: [], needsStay: "browsing", completed: ["pass"] });
   });
 
+  it("keeps a skipped question as skipped", () => {
+    const store = memory();
+    writeIntake(store, { hasPass: "skipped", areas: [], needsStay: "skipped", completed: [] });
+    expect(readIntake(store)).toEqual({ hasPass: "skipped", areas: [], needsStay: "skipped", completed: [] });
+  });
+
   it("lets a retake replace the purchased answer", () => {
     const store = memory();
     notePassPurchased(store);

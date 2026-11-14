@@ -121,14 +121,13 @@ const styles = StyleSheet.create({
     ...({
       backgroundImage: "linear-gradient(100deg, #E4C56A 0%, #FFE08A 42%, #F4D78A 58%, #E4C56A 100%)",
       backgroundSize: "200% 100%",
-      animation: "tatel-shimmer 3.2s ease infinite",
+      animationDuration: "3.2s",
+      animationTimingFunction: "ease",
+      animationIterationCount: "infinite",
+      animationKeyframes: {
+        from: { backgroundPosition: "100% 0" },
+        to: { backgroundPosition: "-100% 0" },
+      },
     } as ViewStyle),
   },
 });
-
-if (typeof document !== "undefined" && !document.getElementById("tatel-shimmer")) {
-  const style = document.createElement("style");
-  style.id = "tatel-shimmer";
-  style.textContent = "@keyframes tatel-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } } @keyframes tatel-stamp { from { transform: scale(0.82); } to { transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [style*='tatel-shimmer'], [style*='tatel-stamp'] { animation: none !important; } }";
-  document.head.appendChild(style);
-}

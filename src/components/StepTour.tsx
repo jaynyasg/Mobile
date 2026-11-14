@@ -132,7 +132,14 @@ export function StepTour({
 }
 
 const fixed = { position: "fixed" } as unknown as ViewStyle;
-const pop = { animation: "tatel-step-pop 280ms ease-out" } as ViewStyle;
+const pop = {
+  animationDuration: "280ms",
+  animationTimingFunction: "ease-out",
+  animationKeyframes: {
+    from: { transform: "scale(0.82)" },
+    to: { transform: "scale(1)" },
+  },
+} as ViewStyle;
 
 const styles = StyleSheet.create({
   overlay: { ...fixed, top: 0, right: 0, bottom: 0, left: 0, zIndex: 80 },
@@ -168,9 +175,3 @@ const styles = StyleSheet.create({
   next: { minHeight: 44, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 2, backgroundColor: colors.gold },
 });
 
-if (typeof document !== "undefined" && !document.getElementById("tatel-step-pop")) {
-  const style = document.createElement("style");
-  style.id = "tatel-step-pop";
-  style.textContent = "@keyframes tatel-step-pop { from { transform: scale(0.82); } to { transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [style*='tatel-step-pop'] { animation: none !important; } }";
-  document.head.appendChild(style);
-}

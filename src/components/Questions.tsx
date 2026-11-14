@@ -39,7 +39,7 @@ export function Questions({
   }
 
   function skip() {
-    onSkip({ hasPass: hasPass ?? "unsure", areas, needsStay: needsStay ?? "browsing" });
+    onSkip({ hasPass: hasPass ?? "skipped", areas, needsStay: needsStay ?? "skipped" });
   }
 
   const photo = step === 0 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
