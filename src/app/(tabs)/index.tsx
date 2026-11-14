@@ -55,6 +55,13 @@ export default function HomeScreen() {
     refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onOwned = () => refresh();
+    window.addEventListener("tatel-pass-owned", onOwned);
+    return () => window.removeEventListener("tatel-pass-owned", onOwned);
+  }, [refresh]);
+
   useFocusEffect(useCallback(() => {
     refresh();
     if (consumeIntakeRequest(webStorage())) setAsking(true);

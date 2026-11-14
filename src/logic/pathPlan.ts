@@ -42,7 +42,33 @@ export function buildPath(answers: IntakeAnswers, pillars: readonly PathPillar[]
     { id: "chat", title: "Join the chat", line: "Talk with people at TATEL.", optional: false, done: false },
   ];
   const finished = new Set(completed);
-  return steps.map((step) => ({ ...step, done: step.done || finished.has(step.id) || stayBooked && step.id === "stay" }));
+  const marked = steps.map((step) => ({ ...step, done: step.done || finished.has(step.id) || stayBooked && step.id === "stay" }));
+  return orderPath(marked, answers);
+}
+
+/**
+ * Lower ranks first.
+ * A stay they still need, then a pass they do not have, then sessions and the route.
+ * A pass they already hold, chat, and optional browsing follow.
+ * Finished steps stay on the list, at the bottom, in their original order.
+ */
+export function pathRank(step: PathStep, answers: IntakeAnswers): number {
+  if (step.done) return 100;
+  if (step.id === "stay" && answers.needsStay === "yes") return 10;
+  if (step.id === "pass" && answers.hasPass !== "have") return 20;
+  if (step.id === "sessions") return 30;
+  if (step.id === "route") return 40;
+  if (step.id === "pass") return 50;
+  if (step.id === "chat") return 60;
+  if (step.id === "stay") return 70;
+  return 80;
+}
+
+export function orderPath(steps: readonly PathStep[], answers: IntakeAnswers): PathStep[] {
+  return steps
+    .map((step, index) => ({ step, index }))
+    .sort((a, b) => pathRank(a.step, answers) - pathRank(b.step, answers) || a.index - b.index)
+    .map((item) => item.step);
 }
 
 export const PASS_ATTEND_URL = "https://www.tatelexclusive.com/attend";

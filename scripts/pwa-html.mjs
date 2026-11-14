@@ -1,3 +1,13 @@
+const APPLE_TOUCH_ICON = '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />';
+
+function ensureAppleTouchIcon(html) {
+  const pattern = /<link\s+[^>]*rel=["']apple-touch-icon["'][^>]*>/i;
+  const match = html.match(pattern);
+  if (!match) return insertBeforeHeadEnd(html, APPLE_TOUCH_ICON);
+  if (/sizes=["']180x180["']/.test(match[0]) && match[0].includes("/apple-touch-icon.png")) return html;
+  return html.replace(match[0], APPLE_TOUCH_ICON);
+}
+
 function insertBeforeHeadEnd(html, tag) {
   if (!html.includes("</head>")) return `${html}\n${tag}\n`;
   return html.replace("</head>", `  ${tag}\n</head>`);
@@ -29,9 +39,7 @@ export function patchPwaHtml(html) {
   if (!/name=["']mobile-web-app-capable["']/.test(next)) {
     next = insertBeforeHeadEnd(next, '<meta name="mobile-web-app-capable" content="yes" />');
   }
-  if (!next.includes("apple-touch-icon")) {
-    next = insertBeforeHeadEnd(next, '<link rel="apple-touch-icon" href="/apple-touch-icon.png" />');
-  }
+  next = ensureAppleTouchIcon(next);
   if (!next.includes("apple-mobile-web-app-title")) {
     next = insertBeforeHeadEnd(next, '<meta name="apple-mobile-web-app-title" content="TATEL" />');
   }

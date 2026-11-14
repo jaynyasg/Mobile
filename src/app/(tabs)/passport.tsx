@@ -12,6 +12,7 @@ import { islandStamp, prefersReducedMotion, readStamps } from "@/guide/stamps";
 import { localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
 import { readContactPrefs } from "@/logic/contactPrefs";
+import { notePassPurchased } from "@/logic/intake";
 import { CHECKOUT_SOON, canEmbedCheckout, passOffer, passTier, type PassTier } from "@/logic/passPay";
 import { passPayload } from "@/logic/state";
 import { useApp } from "@/store";
@@ -79,6 +80,11 @@ export default function PassportScreen() {
     const tier = passTier(search.get("tier"));
     if (tier) setPaying(tier);
   }, []);
+
+  useEffect(() => {
+    if (!booked) return;
+    notePassPurchased(webStorage());
+  }, [booked]);
 
   useEffect(() => {
     if (checkoutQuery.checkout !== "return" || !checkoutQuery.sessionId) return;
