@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_PASS_PRICES, STRIPE_UI_MODE } from "./checkout";
 import { SHARED_BOAT_SUBJECT, verifyStripeSignature } from "../src/logic/vipGroup";
 import { handleStripeWebhook, handleVipRequest, sendDueReminders, shareCheckoutFields } from "./vipBooking";
-import { memoryVipStore } from "./vipStore";
+import { memoryVipStore, remoteVipStore } from "./vipStore";
 import type { MailMessage } from "./vipBooking";
 
 const NOW = Date.parse("2026-11-14T01:17:00.000Z");
@@ -245,6 +245,51 @@ describe("VIP group booking", () => {
     }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, mail: mail.mail, now: NOW });
     expect(paid.status).toBe(200);
     expect((await store.get(booking.code, NOW))?.paidShares).toBe(1);
+  });
+
+  it("returns 5xx so Stripe retries when the booking store rejects a release or a payment", async () => {
+    const failing = vi.fn(async () => new Response(JSON.stringify({ error: "unavailable" }), { status: 500 }));
+    const store = remoteVipStore({ SUPABASE_URL: "https://example.supabase.co", VIP_BOOKING_SECRET: "secret" }, failing);
+    expect(store).toBeTruthy();
+    if (!store) return;
+    const bookingId = "11111111-1111-4111-8111-111111111111";
+    await expect(store.release("cs_fail")).rejects.toThrow();
+    const failed = JSON.stringify({
+      type: "checkout.session.async_payment_failed",
+      data: { object: { id: "cs_fail", metadata: { booking_id: bookingId } } },
+    });
+    const failedHeader = await signed(failed, "whsec_test", Math.floor(NOW / 1000));
+    const release = await handleStripeWebhook(new Request("https://tatel.app/api/stripe/webhook", {
+      method: "POST",
+      headers: { "Stripe-Signature": failedHeader },
+      body: failed,
+    }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, now: NOW });
+    expect(release.status).toBe(502);
+
+    await expect(store.record({
+      sessionId: "cs_paid_fail",
+      quantity: 1,
+      payerEmail: "ada@example.com",
+      bookingId,
+      now: NOW,
+    })).rejects.toThrow();
+    const paid = JSON.stringify({
+      type: "checkout.session.completed",
+      data: { object: { id: "cs_paid_fail", payment_status: "paid", metadata: { booking_id: bookingId, shares: "1" } } },
+    });
+    const paidHeader = await signed(paid, "whsec_test", Math.floor(NOW / 1000));
+    const recorded = await handleStripeWebhook(new Request("https://tatel.app/api/stripe/webhook", {
+      method: "POST",
+      headers: { "Stripe-Signature": paidHeader },
+      body: paid,
+    }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, now: NOW });
+    expect(recorded.status).toBe(502);
+
+    const okStore = remoteVipStore(
+      { SUPABASE_URL: "https://example.supabase.co", VIP_BOOKING_SECRET: "secret" },
+      vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 })),
+    );
+    await expect(okStore?.release("cs_ok")).resolves.toBeUndefined();
   });
 
   it("reminds the team once when three days are left and again at the deadline", async () => {

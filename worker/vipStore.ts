@@ -288,7 +288,8 @@ export function remoteVipStore(
       return { ok: true, booking: parseVipRecord(result.body) };
     },
     async release(sessionId) {
-      await call("release", { sessionId });
+      const result = await call("release", { sessionId });
+      if (result.status < 200 || result.status >= 300) throw new Error(reason(result.body));
     },
     async record(input) {
       const result = await call("record", {
@@ -297,10 +298,7 @@ export function remoteVipStore(
         payerEmail: input.payerEmail,
         bookingId: input.bookingId,
       });
-      const error = reason(result.body);
-      if (result.status === 404) return { ok: false, reason: "missing" };
-      if (result.status === 400 && (error === "full" || error === "quantity")) return { ok: false, reason: error };
-      if (result.status >= 300) throw new Error(error);
+      if (result.status < 200 || result.status >= 300) throw new Error(reason(result.body));
       const body = result.body as { applied?: unknown; justFilled?: unknown; needsRefund?: unknown };
       return {
         ok: true,
