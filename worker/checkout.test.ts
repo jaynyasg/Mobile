@@ -69,8 +69,10 @@ describe("pass checkout", () => {
     expect(beach.get("line_items[0][price]")).toBe(DEFAULT_PASS_PRICES.beach);
     expect(beach.get("line_items[0][quantity]")).toBe("1");
     expect(beach.has("customer_email")).toBe(false);
+    expect([...beach.keys()].some((key) => key.startsWith("payment_method_types"))).toBe(false);
     expect(boat.get("line_items[0][price]")).toBe(DEFAULT_PASS_PRICES.boat);
     expect(boat.get("line_items[0][quantity]")).toBe("1");
+    expect([...boat.keys()].some((key) => key.startsWith("payment_method_types"))).toBe(false);
   });
 
   it("does not call Stripe without a secret or a known tier", async () => {
