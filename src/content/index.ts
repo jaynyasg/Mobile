@@ -1,5 +1,5 @@
 /**
- * Public TATEL Conversations program.
+ * Public TATEL sessions program.
  * Plain TypeScript over generated JSON: no React and no React Native.
  * A website can import this module, or read tatel.json, the same way the app does.
  * Regenerate with scripts/generate-tatel-content.mjs. Do not edit tatel.json by hand.

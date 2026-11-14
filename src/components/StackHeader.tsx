@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { clip } from "./clip";
+import { nightGlass } from "./nightGlass";
 import { colors, pad } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
@@ -18,11 +20,11 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
         style={styles.back}
       >
-        <Icon name="back" color={colors.ink} />
+        <Icon name="back" color={colors.gold} />
       </Pressable>
       <View style={styles.title}>
         {title ? (
-          <T variant="small" numberOfLines={1}>
+          <T variant="small" numberOfLines={2}>
             {title}
           </T>
         ) : null}
@@ -41,10 +43,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(255,255,255,0.62)",
+    ...nightGlass,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,224,138,0.45)",
   },
-  back: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  title: { flex: 1 },
+  back: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  title: { ...clip },
 });

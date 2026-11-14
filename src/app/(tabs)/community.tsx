@@ -1,6 +1,6 @@
 import { Link, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { commentLabel } from "@/community/copy";
 import { useAuth } from "@/community/auth";
 import { communityPreviewEnabled } from "@/community/client";
@@ -8,8 +8,12 @@ import { supabase } from "@/community/client";
 import { createPost, deletePost, explainCommunityError, hidePost, listPosts, sendReport, toggleLike, uploadCommunityImage } from "@/community/live";
 import { pickCommunityPhoto } from "@/community/photo";
 import { MemoryCommunity } from "@/community/memory";
-import type { CommunityPost } from "@/community/types";
+import type { CommunityPost, CommunityProfile } from "@/community/types";
+import { CommunityAvatar } from "@/components/CommunityAvatar";
+import { ProfileSheet } from "@/components/ProfileSheet";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { CrystalMark } from "@/components/CrystalMark";
+import { clip } from "@/components/clip";
 import { Glass } from "@/components/Glass";
 import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
@@ -27,6 +31,7 @@ export default function CommunityScreen() {
   const [photoName, setPhotoName] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<{ file: Blob; extension: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<CommunityProfile | null>(null);
   const [offline, setOffline] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -53,6 +58,11 @@ export default function CommunityScreen() {
   useEffect(() => {
     refresh().catch(() => undefined);
   }, [refresh]);
+
+  useEffect(() => {
+    // The sign-in route is its own chunk. Start it while Chat is open so the form is ready on tap.
+    void import("../community-sign-in");
+  }, []);
 
   useEffect(() => {
     if (preview || !auth.userId) return;
@@ -99,7 +109,7 @@ export default function CommunityScreen() {
           <Link href="/community-room" asChild>
             <Pressable accessibilityRole="button" style={styles.pill}>
               <View style={styles.dot} />
-              <T variant="small" color={colors.ivory}>Live chat</T>
+              <T variant="small" color={colors.foam}>Live chat</T>
             </Pressable>
           </Link>
           <Link href="/community-profile" asChild>
@@ -129,7 +139,7 @@ export default function CommunityScreen() {
                 setPhotoName(picked ? "Photo attached" : null);
               }).catch(() => setError("Could not read that photo"));
             }} style={styles.attach}>
-              <T variant="small" color={colors.ink}>{photoName ?? "Add photo"}</T>
+              <T variant="small" color={colors.foam}>{photoName ?? "Add photo"}</T>
             </Pressable>
             <Pressable accessibilityRole="button" onPress={publish} style={[styles.button, shimmerStyle()]}>
               <T variant="button" color={colors.ink}>Post</T>
@@ -138,16 +148,16 @@ export default function CommunityScreen() {
           </View>
           {posts.map((post) => (
             <Glass key={post.id} style={styles.card}>
-              <View style={styles.person}>
-                <View style={styles.avatar}><T variant="meta" color={colors.ivory}>{initials(post.author.displayName)}</T></View>
+              <Pressable accessibilityRole="button" accessibilityLabel={`Profile of ${post.author.displayName}`} onPress={() => setProfile(post.author)} style={styles.person}>
+                <CommunityAvatar name={post.author.displayName} url={post.author.avatarUrl} />
                 <View style={styles.copy}>
-                  <T variant="rowTitle">{post.author.displayName}</T>
-                  <T variant="meta">{[post.author.title, post.author.company].filter(Boolean).join(" · ")}</T>
+                  <T variant="rowTitle" numberOfLines={2}>{post.author.displayName}</T>
+                  <T variant="meta" numberOfLines={2}>{[post.author.title, post.author.company].filter(Boolean).join(" · ")}</T>
                 </View>
-              </View>
-              <T variant="small">{post.body}</T>
+              </Pressable>
+              <T variant="small" numberOfLines={6}>{post.body}</T>
               {post.photoUrl && post.photoUrl !== "preview" ? (
-                <Image source={{ uri: post.photoUrl }} style={styles.photo} accessibilityLabel="Post photo" />
+                <TappablePhoto source={post.photoUrl} alt={`Photo from ${post.author.displayName}`} style={styles.photo} />
               ) : null}
               <View style={styles.row}>
                 <Pressable accessibilityRole="button" onPress={() => (preview ? (memory.toggleLike(post.id), refresh()) : toggleLike(auth.userId!, post.id, post.likedByMe).then(refresh))}>
@@ -175,26 +185,22 @@ export default function CommunityScreen() {
           ))}
         </>
       )}
+      <ProfileSheet profile={profile} onClose={() => setProfile(null)} />
     </Screen>
   );
-}
-
-function initials(name: string): string {
-  return name.split(" ").slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase();
 }
 
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: pad, paddingBottom: 12, gap: 8 },
   row: { flexDirection: "row", gap: 16, alignItems: "center" },
   link: { paddingVertical: 6 },
-  attach: { alignSelf: "flex-start", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.74)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.5)" },
+  attach: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   input: { minHeight: 64, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(247,244,239,0.45)", borderRadius: 14, backgroundColor: "rgba(6,14,24,0.72)", color: colors.onDark, fontFamily: fonts.body, fontSize: 16, padding: 12 },
   button: { backgroundColor: colors.gold, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 16 },
   photo: { width: "100%", height: 180, borderRadius: 14, backgroundColor: colors.muted },
   card: { marginHorizontal: 22, marginBottom: 18, gap: 6 },
-  person: { flexDirection: "row", gap: 10, alignItems: "center" },
-  copy: { flex: 1, gap: 2 },
-  avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.turquoise, alignItems: "center", justifyContent: "center" },
-  pill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: colors.turquoise, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
+  person: { flexDirection: "row", gap: 10, alignItems: "center", minHeight: 44, minWidth: 0 },
+  copy: { ...clip, gap: 2 },
+  pill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8, minHeight: 44 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.ivory },
 });

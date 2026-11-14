@@ -7,7 +7,8 @@ import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { T } from "@/components/Text";
 import { EmptyState, PageHeader, PrimaryButton, SecondaryButton } from "@/components/ui";
-import { portraits } from "@/images";
+import { joinLine } from "@/content/labels";
+import { portraitFor } from "@/images";
 import { searchPanelists } from "@/logic/directory";
 import { useApp } from "@/store";
 import { backgrounds } from "@/components/backgrounds";
@@ -33,7 +34,7 @@ export default function NetworkScreen() {
         ) : (
           <PrimaryButton label="Opt in on this device" onPress={() => dispatch({ type: "setNetworkingOptIn", value: true })} />
         )}
-        <T variant="meta" color={colors.inkSoft}>
+        <T variant="meta" color={colors.foam}>
           {state.networkingOptIn ? "Local notes are unlocked." : "The roster stays hidden until you opt in."}
         </T>
       </View>
@@ -51,8 +52,8 @@ export default function NetworkScreen() {
                 <PersonRow
                   key={person.id}
                   name={person.name}
-                  photo={person.photo ? portraits[person.photo] : undefined}
-                  meta={`${person.company} · ${pillar?.name ?? person.proposedIsland}`}
+                  photo={portraitFor(person.photo)}
+                  meta={joinLine([person.company, pillar?.name ?? person.proposedIsland])}
                   href={{ pathname: "/chat/[id]", params: { id: person.id } }}
                 />
               );

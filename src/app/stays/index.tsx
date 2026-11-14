@@ -1,15 +1,26 @@
-import { Link } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Linking, Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function StaysScreen() {
   const { program } = useContent();
-  const { stays } = program;
+  const { stays, forum } = program;
+  const params = useLocalSearchParams<{ areas?: string }>();
+  const router = useRouter();
+  const wanted = new Set((params.areas ?? "").split(",").map((item) => item.trim()).filter(Boolean));
+  const islands = new Set(forum.pillars.filter((pillar) => wanted.has(pillar.id)).map((pillar) => pillar.island));
+  const groups = islands.size
+    ? stays.groups
+      .map((group) => ({ ...group, islands: group.islands.filter((island) => islands.has(island.island)) }))
+      .filter((group) => group.islands.length > 0)
+    : stays.groups;
   return (
     <Screen edge="none">
       <StackHeader title="Accommodations" />
@@ -17,10 +28,14 @@ export default function StaysScreen() {
         <T variant="eyebrow">Where you stay · five island stops</T>
         <T variant="title">Across the islands</T>
         <T variant="small">{stays.intro}</T>
-        <T variant="meta">{stays.brochureNote}</T>
-        <T variant="meta">{stays.brochureUrl}</T>
+        {islands.size ? <T variant="meta" color={colors.gold}>Your islands</T> : null}
+        {stays.brochureUrl ? (
+          <Pressable accessibilityRole="link" accessibilityLabel="See partner stays" onPress={() => Linking.openURL(stays.brochureUrl).catch(() => undefined)} style={styles.open}>
+            <T variant="button" color={colors.ink}>See partner stays</T>
+          </Pressable>
+        ) : null}
       </View>
-      {stays.groups.map((group) => (
+      {groups.map((group) => (
         <View key={group.heading}>
           <T variant="eyebrow" style={styles.group}>
             {group.heading}
@@ -28,16 +43,22 @@ export default function StaysScreen() {
           </T>
           {group.intro ? <T variant="meta" style={styles.groupIntro}>{group.intro}</T> : null}
           {group.islands.map((island) => (
-            <Link key={island.id} href={{ pathname: "/stays/[id]", params: { id: island.id } }} asChild>
-              <Pressable accessibilityRole="button" style={styles.card}>
-                <Image source={sceneImages[island.image]} style={styles.image} resizeMode="cover" />
-                <View style={styles.copy}>
-                  <T variant="eyebrow">{island.route}</T>
-                  <T variant="rowTitle">{island.island}</T>
-                  <T variant="meta">{island.dock}</T>
-                </View>
-              </Pressable>
-            </Link>
+            <View key={island.id} style={styles.card}>
+              <TappablePhoto source={sceneImages[island.image]} alt={island.imageAlt || island.island} style={styles.image} />
+              <View style={styles.copy}>
+                <T variant="eyebrow" numberOfLines={2}>{island.route}</T>
+                <T variant="rowTitle" numberOfLines={2}>{island.island}</T>
+                <T variant="meta" numberOfLines={3}>{island.dock}</T>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={`Open ${island.island}`}
+                  onPress={() => router.push({ pathname: "/stays/[id]", params: { id: island.id } })}
+                  style={({ pressed }) => [styles.open, pressed && styles.pressed]}
+                >
+                  <T variant="button" color={colors.ink}>Open</T>
+                </Pressable>
+              </View>
+            </View>
           ))}
         </View>
       ))}
@@ -46,10 +67,12 @@ export default function StaysScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 8 },
-  group: { paddingHorizontal: pad, marginTop: 8 },
-  groupIntro: { paddingHorizontal: pad, paddingBottom: 8 },
-  card: { marginHorizontal: pad, marginBottom: 12, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.paperRaised },
-  image: { height: 140, width: "100%" },
-  copy: { padding: 12, gap: 3 },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  group: { marginHorizontal: 12, marginTop: 8, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, ...nightGlass },
+  groupIntro: { marginHorizontal: 12, marginBottom: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, ...nightGlass },
+  card: { marginHorizontal: 12, marginBottom: 12, borderRadius: 16, overflow: "hidden", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", ...nightGlass },
+  image: { height: 168, width: "100%" },
+  copy: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 16, gap: 6, minWidth: 0 },
+  open: { alignSelf: "flex-start", minHeight: 44, marginTop: 8, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
+  pressed: { opacity: 0.78 },
 });

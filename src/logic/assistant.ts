@@ -13,7 +13,8 @@ import {
   transport,
 } from "../content";
 import { getProgram } from "../content/active";
-import { formatRange } from "./time";
+import { joinLine } from "../content/labels";
+import { sessionDateLine } from "./dayTheme";
 
 export interface Citation {
   title: string;
@@ -72,7 +73,7 @@ const STOP = new Set([
 ]);
 
 const FALLBACK =
-  "I only know the TATEL Conversations draft on this device: proposed sessions, panelists, islands, sample transport, stays, and the pass preview. Try a name, a pillar, or an island.";
+  "I only know the TATEL sessions on this device: proposed sessions, panelists, islands, sample transport, stays, and the pass preview. Try a name, a track, or an island.";
 
 function tokens(value: string): string[] {
   return value
@@ -105,7 +106,7 @@ function buildCorpus(): GuideDoc[] {
       title: "Proposed program",
       keywords: ["draft", "unconfirmed", "confirmation"],
       body: forum.draftNotice,
-      citation: { title: "Agenda", kind: "screen", id: "agenda" },
+      citation: { title: "Sessions", kind: "screen", id: "agenda" },
     },
     {
       id: "delete",
@@ -119,7 +120,7 @@ function buildCorpus(): GuideDoc[] {
       title: "Atlantic time",
       keywords: ["ast", "local", "clock", "timezone"],
       body: `Session times are proposed in ${forum.timezoneLabel}. The phone also shows its own clock when the two differ. Times, venues, and participation remain unconfirmed.`,
-      citation: { title: "Agenda", kind: "screen", id: "agenda" },
+      citation: { title: "Sessions", kind: "screen", id: "agenda" },
     },
     {
       id: "passes",
@@ -165,7 +166,7 @@ function buildCorpus(): GuideDoc[] {
       id: `stay-${island.id}`,
       title: `${island.island} accommodations`,
       keywords: ["stay", "hotel", island.dock],
-      body: `${island.island}, ${island.route}. ${island.dock}. Providers from brochure pages 21–22: ${providers}.`,
+      body: `${island.island}, ${island.route}. ${island.dock}. Places to stay: ${providers}.`,
       citation: { title: island.island, kind: "screen", id: `stay:${island.id}` },
     });
   }
@@ -173,7 +174,7 @@ function buildCorpus(): GuideDoc[] {
   for (const session of sessions) {
     const day = forum.days.find((item) => item.id === session.dayId);
     const people = panelistNames(session.speakerIds) || "Speaker to be announced";
-    const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
+    const when = sessionDateLine(session, forum.days, zone);
     docs.push({
       id: `session-${session.id}`,
       title: session.title,
@@ -187,7 +188,7 @@ function buildCorpus(): GuideDoc[] {
     const talks = sessionsForPanelist(person.id);
     const lines = talks.slice(0, 4).map((session) => {
       const role = participationLabel(session, person.id);
-      const when = session.start && session.end ? formatRange(session.start, session.end, zone) : session.timeLabel || "Time TBC";
+      const when = sessionDateLine(session, forum.days, zone);
       return `${session.title}, ${when} (${role})`;
     });
     const pillar = pillarById(person.proposedPillarId);
@@ -195,7 +196,7 @@ function buildCorpus(): GuideDoc[] {
       id: `panelist-${person.id}`,
       title: person.name,
       keywords: [person.company, person.title, person.proposedIsland],
-      body: `${person.name}, ${person.title}, ${person.company}. ${pillar?.name ?? "Program to be announced"} · ${person.proposedIsland || "Location TBC"}. Linked sessions: ${lines.join("; ")}.`,
+      body: `${joinLine([person.name, person.title, person.company])}. ${joinLine([pillar?.name ?? "Topic to be announced", person.proposedIsland || "Location TBC"])}. Linked sessions: ${lines.join("; ")}.`,
       citation: { title: person.name, kind: "panelist", id: person.id },
     });
   }

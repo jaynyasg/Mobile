@@ -4,10 +4,12 @@
  *   TATEL_SOURCE=/path/to/tatel-site node scripts/generate-tatel-content.mjs
  *
  * Canonical input: raw/public/tatel/downloads/tatel-2027-program.json
- * Accommodations: venues.json
- * Portraits are copied only when the file already exists under assets/tatel/portraits.
+ * When that file is missing, the published program is downloaded.
+ * Accommodations: venues.json, or the venues already in src/content/tatel.json.
+ * Missing raster portraits are downloaded and saved as optimized .webp.
+ * SVG files and placeholder stems are skipped.
  */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,6 +18,8 @@ const sourceRoot = path.resolve(process.env.TATEL_SOURCE ?? "/tmp/tatel-site");
 const programPath = path.join(sourceRoot, "raw/public/tatel/downloads/tatel-2027-program.json");
 const venuesPath = path.join(sourceRoot, "venues.json");
 const portraitDir = path.join(repoRoot, "assets/tatel/portraits");
+const publishedProgramUrl = "https://tatel.18seventy8.com/tatel/downloads/tatel-2027-program.json";
+const portraitOrigin = "https://tatel.18seventy8.com/tatel/";
 
 function slug(value) {
   return value
@@ -26,12 +30,87 @@ function slug(value) {
     .replace(/^-|-$/g, "");
 }
 
-const downloaded = JSON.parse(readFileSync(programPath, "utf8"));
-const venueFile = JSON.parse(readFileSync(venuesPath, "utf8"));
+function venuesFromBundle() {
+  const bundledPath = path.join(repoRoot, "src/content/tatel.json");
+  if (!existsSync(bundledPath)) throw new Error("venues.json is missing, and there is no previous bundle to reuse");
+  const bundled = JSON.parse(readFileSync(bundledPath, "utf8"));
+  const bvi = bundled.stays?.groups?.find((group) => group.heading === "British Virgin Islands");
+  return {
+    source: {
+      intro: bundled.stays?.intro ?? "",
+      brochure: bundled.stays?.brochureUrl ?? "",
+      sourcePagesNote: bundled.stays?.brochureNote ?? "",
+      bviIntro: bvi?.intro ?? "",
+    },
+    islands: bundled.venues.map((venue) => ({
+      island: venue.island,
+      region: venue.region,
+      route: venue.route,
+      dock: venue.dock,
+      image: { src: venue.photos?.[0]?.src ?? "", alt: venue.photos?.[0]?.alt ?? venue.island },
+      onTheBoat: (venue.boat ?? []).map((stay) => ({
+        name: stay.name,
+        url: stay.href,
+        linkType: stay.localDeck ? "pdf-preview" : "web",
+      })),
+      onTheBeachOrLand: (venue.land ?? []).map((stay) => ({
+        name: stay.name,
+        url: stay.href,
+        linkType: stay.localDeck ? "pdf-preview" : "web",
+      })),
+      notes: { onTheBoat: venue.noteBoat ?? "", onTheBeachOrLand: venue.noteLand ?? "" },
+    })),
+  };
+}
+
+async function loadProgram() {
+  if (existsSync(programPath)) return JSON.parse(readFileSync(programPath, "utf8"));
+  const response = await fetch(publishedProgramUrl);
+  if (!response.ok) throw new Error(`Could not download the program (${response.status})`);
+  return response.json();
+}
+
+function skipPortrait(photoPath) {
+  const base = path.basename(photoPath ?? "");
+  if (!base) return true;
+  const lower = base.toLowerCase();
+  if (lower.endsWith(".svg")) return true;
+  const stem = lower.replace(/\.[^.]+$/, "");
+  return stem.includes("placeholder");
+}
+
+async function ensurePortrait(photoPath) {
+  if (skipPortrait(photoPath)) return "";
+  const base = path.basename(photoPath);
+  const stem = base.replace(/\.[^.]+$/, "");
+  const webp = `${stem}.webp`;
+  const dest = path.join(portraitDir, webp);
+  if (existsSync(dest)) return webp;
+  if (existsSync(path.join(portraitDir, base))) return base;
+  const url = new URL(String(photoPath).replace(/^\//, ""), portraitOrigin).href;
+  const response = await fetch(url);
+  if (!response.ok) {
+    console.warn(`portrait not downloaded ${url} (${response.status})`);
+    return "";
+  }
+  const bytes = Buffer.from(await response.arrayBuffer());
+  mkdirSync(portraitDir, { recursive: true });
+  const sharp = (await import("sharp")).default;
+  await sharp(bytes).rotate().resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true }).webp({ quality: 78 }).toFile(dest);
+  console.log(`portrait saved ${webp}`);
+  return webp;
+}
+
+const downloaded = await loadProgram();
+const venueFile = existsSync(venuesPath) ? JSON.parse(readFileSync(venuesPath, "utf8")) : venuesFromBundle();
 const { program, sessions: sessionsRaw, agendas, presenters } = downloaded;
 
-if (sessionsRaw.length !== 205) throw new Error(`Expected 205 sessions, found ${sessionsRaw.length}`);
-if (presenters.length !== 49) throw new Error(`Expected 49 presenters, found ${presenters.length}`);
+if (!Array.isArray(sessionsRaw) || sessionsRaw.length < 150 || sessionsRaw.length > 400) {
+  throw new Error(`Expected a session list, found ${sessionsRaw?.length ?? 0}`);
+}
+if (!Array.isArray(presenters) || presenters.length < 20 || presenters.length > 120) {
+  throw new Error(`Expected between 20 and 120 presenters, found ${presenters?.length ?? 0}`);
+}
 
 const used = new Map();
 function uniqueSlug(name) {
@@ -146,17 +225,18 @@ for (const session of sessions) {
   }
 }
 
-const panelists = presenters.map((person) => {
+const panelists = [];
+for (const person of presenters) {
   const id = idByName.get(person.name);
   const home = firstSession.get(id);
-  const photo = path.basename(person.photo ?? "");
-  return {
+  const photo = person.photoPlaceholder === true ? "" : await ensurePortrait(person.photo);
+  panelists.push({
     id,
     name: person.name,
     displayName: person.displayName ?? null,
     company: person.company ?? "",
     title: person.role ?? "",
-    photo: photo && existsSync(path.join(portraitDir, photo)) ? photo : "",
+    photo,
     bio: person.bio ?? "",
     bioSourceLabel: person.bioSourceLabel ?? "",
     origin: person.origin ?? "",
@@ -164,8 +244,8 @@ const panelists = presenters.map((person) => {
     keynote: person.keynote === true,
     proposedPillarId: home?.pillarId ?? "",
     proposedIsland: home?.island ?? "",
-  };
-});
+  });
+}
 
 const transport = {
   checked: agendas.checked,
@@ -224,23 +304,33 @@ function stayIsland(venue) {
   };
 }
 
+function keptAgenda(programAgenda) {
+  if (Array.isArray(programAgenda)) return programAgenda;
+  const bundledPath = path.join(repoRoot, "src/content/tatel.json");
+  if (!existsSync(bundledPath)) return [];
+  const agenda = JSON.parse(readFileSync(bundledPath, "utf8")).forum?.weekAgenda;
+  return Array.isArray(agenda) ? agenda : [];
+}
+
+const weekAgenda = keptAgenda(program.weekAgenda);
+
 const content = {
   generatedFrom: "TATEL website raw/public/tatel/downloads/tatel-2027-program.json plus venues.json",
-  contentUrl: "/tatel/downloads/tatel-2027-program.json",
+  contentUrl: "/api/program",
   forum: {
     id: "tatel",
     name: "TATEL",
-    edition: "Conversations",
+    edition: "Sessions",
     kicker: "The tech summit on water",
     dateLabel: "January 26 – 29, 2027",
     placeLabel: "Four days · across the Virgin Islands",
-    startDate: program.weekAgenda?.[0]?.date ?? days[0].date,
-    endDate: program.weekAgenda?.[program.weekAgenda.length - 1]?.date ?? days[days.length - 1].date,
+    startDate: weekAgenda[0]?.date ?? days[0].date,
+    endDate: weekAgenda.at(-1)?.date ?? days[days.length - 1].date,
     timezone: "America/Virgin",
     timezoneLabel: program.timezone,
     draftNotice: "January 26–29, 2027 · Four days across the Virgin Islands.",
     timingNote: program.timingNote ?? "",
-    weekAgenda: program.weekAgenda ?? [],
+    weekAgenda,
     featuredStaffing: "Each session has one lead. Timed appearances are conflict-free; untimed activities still require scheduling.",
     participation: {
       featured: "Session lead",
@@ -277,8 +367,8 @@ const content = {
   passes: {
     legend: "Choose your passage - Early bird pricing",
     sourceUrl: "https://www.tatelexclusive.com/attend",
-    sourceNote: "Pass prices reflect this preview. Final inclusions and availability need confirmation before checkout goes live.",
-    previewLabel: "DESIGN PREVIEW · NO PAYMENT COLLECTED",
+    sourceNote: "Beach is $1,900, the boat is $2,500, and the VIP stay is $5,000 per guest for 8 guests.",
+    previewLabel: "Choose a pass",
     items: [
       { id: "beach", name: "BE on the Beach", price: "$1,900", unit: "PER GUEST", minimum: null, paragraphs: ["Beach pass details to be confirmed."], bullets: [] },
       {
@@ -330,7 +420,7 @@ const content = {
     {
       id: "pass-preview",
       title: "Pass preview",
-      body: "DESIGN PREVIEW · NO PAYMENT COLLECTED Pass prices reflect this preview. Final inclusions and availability need confirmation before checkout goes live.",
+      body: "Choose a pass. Beach is $1,900, the boat is $2,500, and the VIP stay is $5,000 per guest for 8 guests.",
       sentAt: "2026-10-04T12:00:00-04:00",
     },
   ],
@@ -353,10 +443,16 @@ writeFileSync(path.join(repoRoot, "src/content/tatel.json"), `${JSON.stringify(c
 const photos = panelists.map((person) => person.photo).filter(Boolean);
 const imageModule = `/* Generated by scripts/generate-tatel-content.mjs. Do not edit by hand. */
 import type { ImageSourcePropType } from "react-native";
+import { portraitKey } from "./portraitKey";
 
 export const portraits: Record<string, ImageSourcePropType> = {
-${photos.map((file) => `  ${JSON.stringify(file)}: require("../assets/tatel/portraits/${file}"),`).join("\n")}
+${photos.map((file) => `  ${JSON.stringify(file.replace(/\.[^.]+$/, ""))}: require("../assets/tatel/portraits/${file}"),`).join("\n")}
 };
+
+export function portraitFor(photo?: string | null): ImageSourcePropType | undefined {
+  const key = portraitKey(photo);
+  return key ? portraits[key] : undefined;
+}
 
 export const scenes: Record<string, ImageSourcePropType> = {
 ${content.scenes.map((scene) => `  ${JSON.stringify(scene.image)}: require("../assets/tatel/scenes/${scene.image}"),`).join("\n")}

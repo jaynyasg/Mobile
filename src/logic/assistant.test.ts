@@ -17,6 +17,6 @@ describe("on-device guide", () => {
     const deletion = answerQuestion("How do I delete my data?");
     expect(deletion.text).toContain("Settings");
 
-    expect(answerQuestion("asdfghjkl").text).toContain("TATEL Conversations");
+    expect(answerQuestion("asdfghjkl").text).toContain("TATEL sessions");
   });
 });

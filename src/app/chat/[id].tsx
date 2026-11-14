@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { panelistById } from "@/content";
 import { useContent } from "@/content/provider";
+import { ChatImages } from "@/components/ChatImages";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { createId } from "@/logic/state";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 const LOCAL_NOTE = "Not sent. This note stays on this device and is not a message from the panelist.";
 
@@ -59,6 +61,7 @@ export default function ChatScreen() {
           <View key={message.id} style={styles.bubble}>
             <T variant="eyebrow">{message.from === "you" ? "You" : "This device"}</T>
             <T variant="small">{message.text}</T>
+            <ChatImages text={message.text} label={message.from === "you" ? "Photo from you" : "Photo on this device"} />
           </View>
         ))}
         <TextInput
@@ -66,7 +69,7 @@ export default function ChatScreen() {
           onChangeText={setDraft}
           editable={state.networkingOptIn}
           placeholder="Write a note that stays here"
-          placeholderTextColor={colors.inkSoft}
+          placeholderTextColor="rgba(245,241,232,0.62)"
           style={styles.input}
           accessibilityLabel="Local note"
         />
@@ -87,12 +90,13 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 10 },
-  bubble: { gap: 4, paddingBottom: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 10, borderRadius: 18, ...nightGlass },
+  bubble: { gap: 4, padding: 12, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.08)" },
   input: {
     borderWidth: 1,
-    borderColor: colors.line,
-    color: colors.ink,
+    borderColor: "rgba(255,224,138,0.42)",
+    backgroundColor: "rgba(7,27,42,0.62)",
+    color: colors.foam,
     fontFamily: fonts.body,
     fontSize: 16,
     padding: 12,

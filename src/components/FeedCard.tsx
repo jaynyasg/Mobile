@@ -1,0 +1,134 @@
+import { useEffect, useState, type ElementRef, type Ref } from "react";
+import { Image, Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import { prefersReducedMotion } from "@/guide/stamps";
+import { PhotoShade } from "./PhotoShade";
+import { T } from "./Text";
+import { colors, fonts, scenePhotos } from "@/theme";
+
+export function FeedCard({
+  image,
+  alt,
+  kicker,
+  headline,
+  line,
+  cta,
+  done = false,
+  lit = false,
+  onPress,
+  cardRef,
+}: {
+  image: string;
+  alt: string;
+  kicker?: string;
+  headline: string;
+  line: string;
+  cta: string;
+  done?: boolean;
+  lit?: boolean;
+  onPress: () => void;
+  cardRef?: Ref<ElementRef<typeof View>>;
+}) {
+  const [reduce, setReduce] = useState(true);
+  const [pressed, setPressed] = useState(false);
+  const [src, setSrc] = useState(image);
+  useEffect(() => setReduce(prefersReducedMotion()), []);
+  useEffect(() => setSrc(image), [image]);
+  return (
+    <View ref={cardRef} style={[styles.card, lit && styles.lit, !reduce && pressed && styles.pressed]}>
+      <Image
+        source={{ uri: src }}
+        accessibilityLabel={alt}
+        style={styles.photo}
+        resizeMode="cover"
+        accessibilityIgnoresInvertColors
+        onError={() => setSrc((current) => (current === scenePhotos.day ? current : scenePhotos.day))}
+      />
+      <PhotoShade />
+      {done ? (
+        <View style={styles.check} accessibilityLabel="Done">
+          <T variant="button" color={colors.ink}>✓</T>
+        </View>
+      ) : null}
+      <View style={styles.copy}>
+        {kicker ? (
+          <View style={styles.kickerPill}>
+            <T variant="button" color={colors.ink} style={styles.kickerText}>{kicker}</T>
+          </View>
+        ) : null}
+        <T variant="title" color={colors.foam} numberOfLines={2}>{headline}</T>
+        <T variant="small" color={colors.foam} numberOfLines={3}>{line}</T>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={cta}
+          onPress={onPress}
+          onPressIn={() => setPressed(true)}
+          onPressOut={() => setPressed(false)}
+          style={[styles.pill, !reduce && styles.shimmer]}
+        >
+          <T variant="button" color={colors.ink}>{cta}</T>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    height: 400,
+    marginHorizontal: 12,
+    marginBottom: 14,
+    borderRadius: 22,
+    overflow: "hidden",
+    justifyContent: "flex-end",
+    backgroundColor: "#071421",
+  },
+  photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  check: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 2,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gold,
+  },
+  kickerPill: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.gold },
+  kickerText: { fontFamily: fonts.semibold, fontSize: 15, lineHeight: 18, letterSpacing: 0.6, textTransform: "uppercase" },
+  copy: {
+    gap: 8,
+    padding: 16,
+    zIndex: 1,
+    width: "100%",
+    minWidth: 0,
+    ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.2), rgba(6,14,24,0))" } as ViewStyle),
+  },
+  pressed: { transform: [{ scale: 0.985 }] },
+  lit: { borderWidth: 2, borderColor: colors.gold },
+  pill: {
+    alignSelf: "flex-start",
+    minHeight: 44,
+    marginTop: 6,
+    paddingHorizontal: 18,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gold,
+  },
+  shimmer: {
+    ...({
+      backgroundImage: "linear-gradient(100deg, #E4C56A 0%, #FFE08A 42%, #F4D78A 58%, #E4C56A 100%)",
+      backgroundSize: "200% 100%",
+      animation: "tatel-shimmer 3.2s ease infinite",
+    } as ViewStyle),
+  },
+});
+
+if (typeof document !== "undefined" && !document.getElementById("tatel-shimmer")) {
+  const style = document.createElement("style");
+  style.id = "tatel-shimmer";
+  style.textContent = "@keyframes tatel-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } } @keyframes tatel-stamp { from { transform: scale(0.82); } to { transform: scale(1); } } @media (prefers-reduced-motion: reduce) { [style*='tatel-shimmer'], [style*='tatel-stamp'] { animation: none !important; } }";
+  document.head.appendChild(style);
+}

@@ -2,6 +2,7 @@ import { useIsFocused } from "expo-router";
 import { createElement, useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { homeMedia } from "./homeMedia";
+import { HOME_SCRIM, scrimGradient } from "./nightGlass";
 
 function wantsStillFrame(): boolean {
   if (typeof window === "undefined") return true;
@@ -51,7 +52,7 @@ export function BeaconBackground() {
         style: {
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to bottom, rgba(6,14,24,0) 0%, rgba(6,14,24,0) 34%, rgba(6,14,24,0.42) 54%, rgba(6,14,24,0.78) 72%, rgba(6,14,24,0.92) 100%)",
+          background: scrimGradient(HOME_SCRIM),
         },
       })}
     </View>

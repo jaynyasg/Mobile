@@ -1,33 +1,58 @@
+import { freshReset } from "@/fresh";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Platform, View } from "react-native";
 import { AuthProvider } from "@/community/auth";
 import { ContentProvider } from "@/content/provider";
+import { ImageViewerProvider } from "@/components/ImageViewer";
+import { listenForInstallPrompt } from "@/components/installPrompt";
 import { RegisterPwa } from "@/components/RegisterPwa";
+import { ContactPrompt } from "@/components/ContactPrompt";
+import { Dock } from "@/components/Dock";
+import { ReelHost } from "@/reels/ReelHost";
 import { AppProvider, useApp } from "@/store";
-import { colors } from "@/theme";
+import { shellColor } from "@/shell";
 import "@/global.css";
 
+listenForInstallPrompt();
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
+  const [resetting, setResetting] = useState(freshReset != null);
+  useEffect(() => {
+    if (!freshReset) return;
+    let live = true;
+    freshReset.finally(() => {
+      if (live) setResetting(false);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (resetting) return null;
   return (
     <AppProvider>
       <ContentProvider>
       <AuthProvider>
       <Boot>
-        <Frame>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: "transparent" },
-            }}
-          />
-          <RegisterPwa />
-        </Frame>
+        <ImageViewerProvider>
+          <Frame>
+            <ReelHost>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: shellColor },
+                }}
+              />
+              <Dock />
+              <ContactPrompt />
+              <RegisterPwa />
+            </ReelHost>
+          </Frame>
+        </ImageViewerProvider>
       </Boot>
       </AuthProvider>
       </ContentProvider>
@@ -50,18 +75,22 @@ function Boot({ children }: { children: ReactNode }) {
   }, [loaded, error, hydrated]);
 
   useEffect(() => {
-    SystemUI.setBackgroundColorAsync(colors.paper).catch(() => undefined);
+    SystemUI.setBackgroundColorAsync(shellColor).catch(() => undefined);
   }, []);
 
   if ((!loaded && !error) || !hydrated) return null;
   return children;
 }
 
+export function SuspenseFallback() {
+  return <View style={{ flex: 1, backgroundColor: shellColor }} />;
+}
+
 function Frame({ children }: { children: ReactNode }) {
   if (Platform.OS !== "web") return children;
   return (
-    <View style={{ flex: 1, backgroundColor: colors.stage, alignItems: "center" }}>
-      <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: "#E7F3F4" }}>{children}</View>
+    <View style={{ flex: 1, backgroundColor: shellColor, alignItems: "center" }}>
+      <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: shellColor }}>{children}</View>
     </View>
   );
 }

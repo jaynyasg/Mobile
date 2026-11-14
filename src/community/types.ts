@@ -6,6 +6,8 @@ export interface CommunityProfile {
   avatarUrl: string | null;
   title: string | null;
   company: string | null;
+  bio: string | null;
+  link: string | null;
   staff: boolean;
 }
 
@@ -43,6 +45,7 @@ export interface CommunityMessage {
   roomId: string;
   author: CommunityProfile;
   body: string;
+  photoUrl?: string | null;
   createdAt: string;
   hidden: boolean;
 }

@@ -59,7 +59,7 @@ vi.mock("./client", () => {
   };
 });
 
-import { createPost, explainCommunityError, listMessages, listPosts, sendReport, uploadCommunityImage } from "./live";
+import { createPost, explainCommunityError, listMessages, listPosts, profileLink, sendReport, uploadCommunityImage } from "./live";
 
 describe("community live client", () => {
   beforeEach(() => {
@@ -97,6 +97,12 @@ describe("community live client", () => {
       commentCount: 1,
       author: { displayName: "Ada", title: "Host", company: "TATEL" },
     });
+  });
+
+  it("accepts an https profile link and rejects other schemes", () => {
+    expect(profileLink("  https://tatel.app/community ")).toBe("https://tatel.app/community");
+    expect(profileLink("")).toBeNull();
+    expect(() => profileLink("javascript:alert(1)")).toThrow(/https/);
   });
 
   it("inserts a post and turns a rate-limit error into a readable message", async () => {

@@ -1,8 +1,10 @@
 import { Href, Link } from "expo-router";
-import { Image, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import type { ImageSourcePropType } from "react-native";
 import { colors } from "@/theme";
+import { clip } from "./clip";
 import { Icon } from "./Icon";
+import { Portrait } from "./Portrait";
 import { T } from "./Text";
 
 export function PersonRow({
@@ -17,18 +19,22 @@ export function PersonRow({
   photo?: ImageSourcePropType;
 }) {
   return (
-    <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={({ pressed }) => pressed && styles.pressed}>
-        <View style={styles.row}>
-          {photo ? <Image source={photo} style={styles.photo} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
-          <View style={styles.copy}>
-            <T variant="rowTitle">{name}</T>
-            <T variant="meta">{meta}</T>
-          </View>
-          <Icon name="chevron" size={18} color={colors.inkSoft} />
-        </View>
-      </Pressable>
-    </Link>
+    <View style={styles.row}>
+      <Portrait name={name} source={photo} size={64} />
+      <View style={styles.main}>
+        <Link href={href} asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel={[name, meta.replaceAll("\n", ", ")].filter(Boolean).join(", ")} style={({ pressed }) => [styles.hit, pressed && styles.pressed]}>
+            <View style={styles.copy}>
+              <T variant="rowTitle" numberOfLines={2}>{name}</T>
+              {meta.split("\n").map((line) => line.trim()).filter(Boolean).map((line) => (
+                <T key={line} variant="meta" numberOfLines={2}>{line}</T>
+              ))}
+            </View>
+            <Icon name="chevron" size={18} color={colors.gold} />
+          </Pressable>
+        </Link>
+      </View>
+    </View>
   );
 }
 
@@ -43,10 +49,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.92)",
-    backgroundColor: "rgba(255,255,255,0.58)",
+    borderColor: "rgba(255,224,138,0.48)",
+    backgroundColor: "rgba(7,27,42,0.58)",
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
   },
-  photo: { width: 52, height: 64, backgroundColor: colors.muted },
-  copy: { flex: 1, gap: 2 },
+  main: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0, overflow: "hidden" },
+  hit: { flexDirection: "row", alignItems: "center", gap: 12, width: "100%" },
+  copy: { ...clip, gap: 2 },
   pressed: { opacity: 0.72 },
 });

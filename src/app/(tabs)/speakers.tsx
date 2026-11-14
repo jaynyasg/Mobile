@@ -5,7 +5,8 @@ import { PersonRow } from "@/components/PersonRow";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { EmptyState, PageHeader } from "@/components/ui";
-import { portraits } from "@/images";
+import { joinLine } from "@/content/labels";
+import { portraitFor } from "@/images";
 import { searchPanelists } from "@/logic/directory";
 import { backgrounds } from "@/components/backgrounds";
 import { pad } from "@/theme";
@@ -13,7 +14,7 @@ import { View } from "react-native";
 
 export default function PanelistsScreen() {
   const { program } = useContent();
-  const { forum, panelists } = program;
+  const { panelists } = program;
   const [query, setQuery] = useState("");
   const visible = useMemo(() => searchPanelists(panelists, query), [query]);
 
@@ -22,7 +23,7 @@ export default function PanelistsScreen() {
       <PageHeader
         kicker={`${panelists.length} panelists`}
         title="Panelists"
-        subtitle="Names, companies, and titles come from the website roster. A portrait appears when its file is already in the app."
+        subtitle="Names, companies, and titles come from the website roster."
       />
       <View style={{ paddingHorizontal: pad, paddingBottom: 8 }}>
         <SearchField value={query} onChange={setQuery} placeholder="Name, company, or title" />
@@ -36,15 +37,18 @@ export default function PanelistsScreen() {
             <PersonRow
               key={person.id}
               name={person.name}
-              photo={person.photo ? portraits[person.photo] : undefined}
-              meta={`${person.title} · ${person.company}\n${pillar?.name || "Program to be announced"} · ${person.proposedIsland || "Location TBC"}`}
+              photo={portraitFor(person.photo)}
+              meta={[
+                joinLine([person.title, person.company]),
+                joinLine([pillar?.name || "Topic to be announced", person.proposedIsland || "Location TBC"]),
+              ].filter(Boolean).join("\n")}
               href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
             />
           );
         })
       )}
       <View style={{ height: 12 }} />
-      <PageHeader kicker="Planning homes" title={forum.edition} subtitle="Scene choice and profile choice stay independent. A portrait does not confirm a venue." />
+      <PageHeader title="Where sessions meet" subtitle="The island is the plan. The exact place is still to be confirmed." />
     </Screen>
   );
 }

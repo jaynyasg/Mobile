@@ -1,5 +1,9 @@
 import { Session } from "@supabase/supabase-js";
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import { rememberSignInPhone } from "@/logic/contactPrefs";
+import { saveContactPrefsRemote } from "@/logic/contactPrefsSync";
+import { PhoneSignInError, emailOtpRequest, emailVerifyRequest } from "@/logic/signIn";
+import { webStorage } from "@/welcome";
 import { communityPreviewEnabled, supabase } from "./client";
 import { previewActor } from "./memory";
 
@@ -11,10 +15,15 @@ interface AuthValue {
   preview: boolean;
   sendCode: (email: string) => Promise<void>;
   verifyCode: (email: string, code: string) => Promise<void>;
+  sendPhoneCode: (phone: string) => Promise<void>;
+  verifyPhoneCode: (email: string, code: string) => Promise<void>;
+  quickSignIn: (email: string) => Promise<"session" | "code">;
+  savePhone: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
+let pendingPhoneCode: { confirm: (code: string) => Promise<string> } | null = null;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const preview = communityPreviewEnabled();
@@ -55,12 +64,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       staff,
       preview,
       sendCode: async (email) => {
-        const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } });
+        const { error } = await supabase.auth.signInWithOtp(emailOtpRequest(email));
         if (error) throw error;
       },
       verifyCode: async (email, code) => {
-        const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: "email" });
+        const { error } = await supabase.auth.verifyOtp(emailVerifyRequest(email, code));
         if (error) throw error;
+      },
+      sendPhoneCode: async (phone) => {
+        const { requestPhoneCode } = await import("@/community/firebasePhone");
+        pendingPhoneCode = await requestPhoneCode(phone);
+      },
+      verifyPhoneCode: async (email, code) => {
+        if (!pendingPhoneCode) throw new PhoneSignInError("Request a text code first.", true);
+        const idToken = await pendingPhoneCode.confirm(code);
+        pendingPhoneCode = null;
+        const response = await fetch("/api/phone-signin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken, email: email.trim() }),
+        });
+        if (response.status === 403) throw new PhoneSignInError("That email is already on a different phone. Use email me a code.", false);
+        if (response.status === 429) throw new PhoneSignInError("Slow down for a minute, then try again.", false);
+        if (!response.ok) throw new PhoneSignInError("Text codes are not available right now. We can email you a code instead.", true);
+        const body = (await response.json()) as { access_token?: string; refresh_token?: string };
+        if (!body.access_token || !body.refresh_token) throw new PhoneSignInError("Text codes are not available right now. We can email you a code instead.", true);
+        const { error } = await supabase.auth.setSession({ access_token: body.access_token, refresh_token: body.refresh_token });
+        if (error) throw error;
+      },
+      savePhone: async (phone) => {
+        const { data } = await supabase.auth.getSession();
+        const userId = data.session?.user.id;
+        if (!userId || preview) return;
+        const record = rememberSignInPhone(webStorage(), userId, phone);
+        await saveContactPrefsRemote(userId, record);
+      },
+      quickSignIn: async (email) => {
+        const response = await fetch("/api/quick-signin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        });
+        if (response.status === 403) return "code";
+        if (response.status === 429) throw new Error("Slow down for a minute, then try again.");
+        if (!response.ok) throw new Error("Sign-in is unavailable.");
+        const body = (await response.json()) as { access_token?: string; refresh_token?: string };
+        if (!body.access_token || !body.refresh_token) throw new Error("Sign-in is unavailable.");
+        const { error } = await supabase.auth.setSession({ access_token: body.access_token, refresh_token: body.refresh_token });
+        if (error) throw error;
+        return "session";
       },
       signOut: async () => {
         if (preview) return;

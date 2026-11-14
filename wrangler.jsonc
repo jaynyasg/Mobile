@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "tatel",
+  "compatibility_date": "2026-11-12",
+  "main": "worker/index.ts",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // MP4s need range responses. /api/* is the program proxy, sign-in, and checkout.
+    // STRIPE_SECRET_KEY is a worker secret: wrangler secret put STRIPE_SECRET_KEY
+    "run_worker_first": ["/api/*", "/*.mp4"]
+  },
+  "vars": {
+    "SUPABASE_URL": "https://oykwxnzlpxbrfcoejawt.supabase.co",
+    "STRIPE_PRICE_BEACH": "price_1UbToMRqnFhvQ1qEsP0qj1b8",
+    "STRIPE_PRICE_BOAT": "price_1UbToRRqnFhvQ1qEqvHiOHHo",
+    "STRIPE_PRICE_VIP": "price_1UbToURqnFhvQ1qEunY1AOnL"
+  }
+}

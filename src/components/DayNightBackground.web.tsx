@@ -3,6 +3,7 @@ import { createElement, useEffect, useState } from "react";
 import { View } from "react-native";
 import { scenePhotos } from "@/theme";
 import { homeMedia } from "./homeMedia";
+import { PAGE_SCRIM, scrimGradient } from "./nightGlass";
 
 const fill = { position: "absolute" as const, top: 0, right: 0, bottom: 0, left: 0 };
 type Mode = "video" | "crossfade" | "still";
@@ -120,8 +121,7 @@ export function DayNightBackground({
         style: {
           position: "absolute",
           inset: 0,
-          background:
-            "linear-gradient(to bottom, rgba(6,14,24,0.28) 0%, rgba(6,14,24,0.14) 36%, rgba(6,14,24,0.4) 72%, rgba(6,14,24,0.72) 100%)",
+          background: scrimGradient(PAGE_SCRIM),
         },
       })}
     </View>

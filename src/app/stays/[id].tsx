@@ -1,12 +1,14 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { Image, Linking, Pressable, StyleSheet, View } from "react-native";
+import { Linking, Pressable, StyleSheet, View } from "react-native";
 import { stayById } from "@/content";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
+import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function StayScreen() {
   useContent();
@@ -16,7 +18,7 @@ export default function StayScreen() {
     return (
       <Screen edge="none">
         <StackHeader title="Stay" />
-        <T variant="body" style={{ padding: pad }}>This stop is not in the brochure extract.</T>
+        <T variant="body" style={{ padding: pad }}>That stay is not on the list.</T>
       </Screen>
     );
   }
@@ -24,7 +26,7 @@ export default function StayScreen() {
   return (
     <Screen edge="none">
       <StackHeader title={island.island} />
-      <Image source={sceneImages[island.image]} style={styles.image} resizeMode="cover" accessibilityLabel={island.imageAlt} />
+      <TappablePhoto source={sceneImages[island.image]} alt={island.imageAlt || island.island} style={styles.image} />
       <View style={styles.pad}>
         <T variant="eyebrow">{island.route}</T>
         <T variant="title">{island.island}</T>
@@ -36,24 +38,23 @@ export default function StayScreen() {
           <T variant="eyebrow">{section.heading}</T>
           {section.providers.map((provider) =>
             provider.localDeck ? (
-              <Link key={provider.name} href="/deck" asChild>
-                <Pressable accessibilityRole="button" style={styles.link}>
-                  <T variant="rowTitle">{provider.name}</T>
-                  <T variant="meta">Local page images from the supplied deck. The original PDF was not in this export.</T>
-                </Pressable>
-              </Link>
+              <View key={provider.name} style={styles.link}>
+                <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
+                <Link href="/deck" asChild>
+                  <Pressable accessibilityRole="button" accessibilityLabel={`See ${provider.name}`} style={styles.open}>
+                    <T variant="button" color={colors.ink}>See the boat</T>
+                  </Pressable>
+                </Link>
+              </View>
             ) : (
-              <Pressable
-                key={provider.name}
-                accessibilityRole="link"
-                style={styles.link}
-                onPress={() => {
-                  if (provider.href) Linking.openURL(provider.href).catch(() => undefined);
-                }}
-              >
-                <T variant="rowTitle">{provider.name}</T>
-                {provider.href ? <T variant="meta">{provider.href}</T> : null}
-              </Pressable>
+              <View key={provider.name} style={styles.link}>
+                <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
+                {provider.href ? (
+                  <Pressable accessibilityRole="link" accessibilityLabel={`Visit ${provider.name}`} onPress={() => Linking.openURL(provider.href!).catch(() => undefined)} style={styles.open}>
+                    <T variant="button" color={colors.ink}>Visit website</T>
+                  </Pressable>
+                ) : null}
+              </View>
             ),
           )}
           {section.notes.map((note) => (
@@ -69,7 +70,8 @@ export default function StayScreen() {
 
 const styles = StyleSheet.create({
   image: { height: 200, width: "100%" },
-  pad: { padding: pad, gap: 6 },
-  section: { paddingHorizontal: pad, paddingBottom: 16, gap: 8 },
-  link: { paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line, gap: 2 },
+  pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  section: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  link: { gap: 8, paddingVertical: 8 },
+  open: { alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold, gap: 4 },
 });

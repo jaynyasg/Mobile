@@ -18,6 +18,8 @@ export function previewActor(): Actor {
       avatarUrl: null,
       title: "Guest",
       company: "Harbor",
+      bio: "Here for the conversations.",
+      link: null,
       staff: true,
     },
   };
@@ -33,6 +35,8 @@ const mara: CommunityProfile = {
   avatarUrl: null,
   title: "Skipper",
   company: "North Light",
+  bio: "Crossing with the morning boat.",
+  link: "https://tatel.app",
   staff: false,
 };
 
@@ -42,7 +46,7 @@ export function previewPosts(): CommunityPost[] {
       id: "post-1",
       author: mara,
       body: "The dock at Red Hook is easy to find. Save a seat on the morning boat if you are crossing.",
-      photoUrl: null,
+      photoUrl: "/venues/hideout-white-bay/img_2673-1280.webp",
       createdAt: stamp(20 * 60_000),
       likeCount: 3,
       likedByMe: false,
@@ -79,7 +83,7 @@ export function previewComments(): CommunityComment[] {
 export function previewMessages(): CommunityMessage[] {
   const roomId = previewRoom().id;
   return [
-    { id: "msg-1", roomId, author: mara, body: "Anyone already on island?", createdAt: stamp(30 * 60_000), hidden: false },
+    { id: "msg-1", roomId, author: mara, body: "Anyone already on island?", photoUrl: "/venues/hideout-white-bay/img_2674-1280.webp", createdAt: stamp(30 * 60_000), hidden: false },
     { id: "msg-2", roomId, author: previewActor().profile, body: "Landing this afternoon.", createdAt: stamp(12 * 60_000), hidden: false },
   ];
 }

@@ -1,16 +1,39 @@
 import { useState } from "react";
 import { Alert, Platform, StyleSheet, TextInput, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
+import { useAuth } from "@/community/auth";
+import { ContactToggles } from "@/components/ContactPrefsCard";
+import { requestIntake } from "@/logic/intake";
+import { defaultContactPrefs, readContactPrefs, writeContactPrefs, type ContactPrefs } from "@/logic/contactPrefs";
+import { saveContactPrefsRemote } from "@/logic/contactPrefsSync";
+import { webStorage } from "@/welcome";
+import { useReels } from "@/reels/ReelHost";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
+  const { replayIntro, openStory } = useReels();
+  const { userId, preview } = useAuth();
+  const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [cleared, setCleared] = useState(false);
+  const [prefs, setPrefs] = useState<ContactPrefs>(() => readContactPrefs(webStorage()) ?? defaultContactPrefs());
+  const [prefsSaved, setPrefsSaved] = useState(false);
+
+  function saveNotifications(next: ContactPrefs) {
+    const existing = readContactPrefs(webStorage());
+    const record = { ...next, phone: existing?.phone ?? null, userId: userId ?? existing?.userId ?? null, saved: true };
+    writeContactPrefs(webStorage(), record);
+    setPrefs(record);
+    setPrefsSaved(true);
+    if (userId && !preview) void saveContactPrefsRemote(userId, record);
+  }
 
   function erase() {
     dispatch({ type: "deleteAllData" });
@@ -45,6 +68,21 @@ export default function SettingsScreen() {
         ) : (
           <PrimaryButton label="Opt in on this device" onPress={() => dispatch({ type: "setNetworkingOptIn", value: true })} />
         )}
+        <T variant="eyebrow">Notifications</T>
+        <T variant="small">These stay off until you turn them on. Saving keeps the choice on this device.</T>
+        <ContactToggles prefs={prefs} onChange={setPrefs} />
+        <PrimaryButton label="Save notifications" onPress={() => saveNotifications(prefs)} />
+        {prefsSaved ? <T variant="meta">Notification choices saved.</T> : null}
+        <T variant="eyebrow">Intro</T>
+        <T variant="small">Play the opening film again.</T>
+        <SecondaryButton label="Replay intro" onPress={replayIntro} />
+        <SecondaryButton label="What is TATEL" onPress={openStory} />
+        <T variant="eyebrow">Your path</T>
+        <T variant="small">Answer the three questions again.</T>
+        <SecondaryButton label="Retake questions" onPress={() => {
+          requestIntake(webStorage());
+          router.push("/");
+        }} />
         <T variant="eyebrow">Delete my data</T>
         <T variant="small">
           This removes favorites, local notes, guide history, notification reads, your opt-in, and your profile. The program draft remains.
@@ -72,7 +110,7 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
         value={value}
         onChangeText={onChangeText}
         style={styles.input}
-        placeholderTextColor={colors.inkSoft}
+        placeholderTextColor="rgba(245,241,232,0.62)"
         accessibilityLabel={label}
       />
     </View>
@@ -80,13 +118,13 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
 }
 
 const styles = StyleSheet.create({
-  pad: { padding: pad, gap: 12 },
+  pad: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 12, borderRadius: 18, ...nightGlass },
   field: { gap: 4 },
   input: {
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.paperRaised,
-    color: colors.ink,
+    borderColor: "rgba(255,224,138,0.42)",
+    backgroundColor: "rgba(7,27,42,0.62)",
+    color: colors.foam,
     fontFamily: fonts.body,
     fontSize: 16,
     paddingHorizontal: 12,

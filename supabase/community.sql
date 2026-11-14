@@ -47,6 +47,8 @@ create table if not exists public.community_profiles (
   avatar_url text,
   title text check (title is null or char_length(title) <= 80),
   company text check (company is null or char_length(company) <= 80),
+  bio text check (bio is null or char_length(bio) <= 280),
+  link text check (link is null or char_length(link) <= 200),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

@@ -1,6 +1,9 @@
 import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
+import { type ReelId } from "@/content/reels";
+import { useReels } from "@/reels/ReelHost";
 import { colors, fonts, pad } from "@/theme";
+import { clip } from "./clip";
 import { CrystalMark } from "./CrystalMark";
 import { Glass } from "./Glass";
 import { shimmerStyle } from "./gloss";
@@ -55,7 +58,7 @@ export function SecondaryButton({ label, onPress }: { label: string; onPress: ()
       onPress={onPress}
       style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}
     >
-      <T variant="button">{label}</T>
+      <T variant="button" color={colors.foam}>{label}</T>
     </Pressable>
   );
 }
@@ -79,7 +82,7 @@ export function Chip({
       style={[styles.chip, selected && styles.chipOn]}
     >
       {swatch ? <View style={[styles.swatch, { backgroundColor: selected ? colors.ivory : swatch }]} /> : null}
-      <T variant="small" color={selected ? colors.ivory : colors.ink} style={styles.chipLabel}>
+      <T variant="small" color={colors.foam} style={[styles.chipLabel, { whiteSpace: "nowrap" } as object]}>
         {label}
       </T>
     </Pressable>
@@ -102,30 +105,41 @@ export function LinkRow({
   label,
   detail,
   badge,
+  reelId,
 }: {
   href: Href;
   label: string;
   detail?: string;
   badge?: number;
+  reelId?: ReelId;
 }) {
+  const { openChapter } = useReels();
+  const row = (
+    <Pressable
+      accessibilityRole="button"
+      onPress={reelId ? () => openChapter(reelId, href) : undefined}
+      style={({ pressed }) => pressed && styles.pressed}
+    >
+      <View style={styles.linkRow}>
+        <View style={styles.linkCopy}>
+          <T variant="rowTitle" numberOfLines={2}>{label}</T>
+          {detail ? <T variant="meta" numberOfLines={3}>{detail}</T> : null}
+        </View>
+        {badge ? (
+          <View style={styles.badge}>
+            <T variant="meta" color={colors.ivory} style={styles.badgeText}>
+              {badge}
+            </T>
+          </View>
+        ) : null}
+        <Icon name="chevron" size={18} color={colors.gold} />
+      </View>
+    </Pressable>
+  );
+  if (reelId) return row;
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityRole="button" style={({ pressed }) => pressed && styles.pressed}>
-        <View style={styles.linkRow}>
-          <View style={styles.linkCopy}>
-            <T variant="rowTitle">{label}</T>
-            {detail ? <T variant="meta">{detail}</T> : null}
-          </View>
-          {badge ? (
-            <View style={styles.badge}>
-              <T variant="meta" color={colors.ivory} style={styles.badgeText}>
-                {badge}
-              </T>
-            </View>
-          ) : null}
-          <Icon name="chevron" size={18} color={colors.inkSoft} />
-        </View>
-      </Pressable>
+      {row}
     </Link>
   );
 }
@@ -154,25 +168,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.9)",
-    backgroundColor: "rgba(255,255,255,0.72)",
+    borderColor: "rgba(255,224,138,0.48)",
+    backgroundColor: "rgba(7,27,42,0.58)",
     paddingHorizontal: 16,
   },
   disabled: { opacity: 0.4 },
   pressed: { opacity: 0.72 },
   chip: {
     flexDirection: "row",
+    flexGrow: 0,
+    flexShrink: 0,
     alignItems: "center",
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(186,220,255,0.85)",
-    backgroundColor: "rgba(255,255,255,0.72)",
-    paddingHorizontal: 12,
+    borderColor: "rgba(255,224,138,0.42)",
+    backgroundColor: "rgba(7,27,42,0.58)",
+    paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 99,
   },
-  chipOn: { backgroundColor: colors.turquoise, borderColor: colors.turquoise },
-  chipLabel: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 16 },
+  chipOn: { backgroundColor: "rgba(16,52,68,0.92)", borderColor: colors.gold },
+  chipLabel: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 16, flexShrink: 0 },
   swatch: { width: 8, height: 8, borderRadius: 4 },
   empty: { paddingHorizontal: pad, paddingVertical: 28, gap: 8 },
   emptyTitle: { fontSize: 26 },
@@ -189,10 +205,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.92)",
-    backgroundColor: "rgba(255,255,255,0.7)",
+    borderColor: "rgba(255,224,138,0.48)",
+    backgroundColor: "rgba(7,27,42,0.58)",
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
   },
-  linkCopy: { flex: 1, gap: 2 },
+  linkCopy: { ...clip, gap: 2 },
   badge: {
     minWidth: 22,
     height: 22,

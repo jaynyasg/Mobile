@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { panelists, sessions } from "../content";
+import { forum, panelists, sessions } from "../content";
 import { filterAgenda, mySchedule } from "./agenda";
+import { activeTrackIds } from "./trackFilter";
 
 const base = {
   sessions,
@@ -33,6 +34,17 @@ describe("agenda filters", () => {
     expect(malik).toBeTruthy();
     const theirs = filterAgenda({ ...base, dayId: "all", panelistId: malik?.id ?? "", query: "systems" });
     expect(theirs.map((session) => session.id)).toContain("T1-D1");
+  });
+
+  it("starts from the infrastructures someone picked, and stays open when they picked none", () => {
+    const picks = activeTrackIds(["tech", "law"], forum.pillars);
+    const yours = filterAgenda({ ...base, dayId: "all", trackIds: picks, pillars: forum.pillars });
+    expect(yours.length).toBeGreaterThan(0);
+    expect(yours.every((session) => session.pillarId === "tech" || session.pillarId === "law" || session.island === "St. Thomas" || session.island === "Lovango")).toBe(true);
+    expect(yours.some((session) => session.id === "E5-D1")).toBe(true);
+    const open = filterAgenda({ ...base, dayId: "all" });
+    expect(open.length).toBeGreaterThan(yours.length);
+    expect(filterAgenda({ ...base, dayId: "all", trackIds: [], pillars: forum.pillars })).toHaveLength(open.length);
   });
 
   it("keeps favorites on a personal schedule", () => {
