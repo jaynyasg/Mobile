@@ -33,8 +33,9 @@ function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string
 }
 
 function readHold(): { owned: boolean; tier: PassTier | null } {
-  const owned = readIntake(webStorage())?.hasPass === "have";
-  return { owned, tier: owned ? readOwnedPass(webStorage()) : null };
+  const tier = readOwnedPass(webStorage());
+  const answered = readIntake(webStorage())?.hasPass === "have";
+  return { owned: answered || tier != null, tier };
 }
 
 export default function TicketsScreen() {
@@ -61,6 +62,7 @@ export default function TicketsScreen() {
   });
   const [booked, setBooked] = useState(false);
   const [cancelled, setCancelled] = useState(false);
+  const [catalog, setCatalog] = useState(false);
   const pass = passes.items.find((item) => item.id === passId) ?? passes.items[0];
 
   const checkoutQuery = readCheckoutQuery(params);
@@ -146,9 +148,7 @@ export default function TicketsScreen() {
           <T variant="eyebrow" color={colors.gold}>Tickets</T>
           <T variant="title" color={colors.foam}>{hold.owned ? "Your pass" : "Choose a pass"}</T>
           <T variant="small" color={colors.foam}>
-            {hold.owned
-              ? "Show it at the sessions. Beach, boat, and a VIP group are here if you need another."
-              : "Beach, boat, or a VIP group. Eight shares fill a boat."}
+            {hold.owned ? "Show it at the sessions." : "Beach, boat, or a VIP group. Eight shares fill a boat."}
           </T>
         </View>
         {heldPass ? (
@@ -171,19 +171,38 @@ export default function TicketsScreen() {
             <T variant="meta" color={colors.foam}>Your pass on this device.</T>
           </View>
         ) : null}
+        {hold.owned ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={catalog ? "Hide other passes" : "See other passes"}
+            onPress={() => setCatalog((open) => !open)}
+            style={styles.more}
+          >
+            <T variant="button" color={colors.ink}>{catalog ? "Hide other passes" : "See other passes"}</T>
+          </Pressable>
+        ) : null}
+        {!hold.owned || catalog ? (
         <View style={styles.passes}>
-          <T variant="eyebrow" color={colors.gold}>Passes</T>
+          <T variant="eyebrow" color={colors.gold}>{hold.owned ? "Other passes" : "Passes"}</T>
           <T variant="small" color={colors.foam}>{passes.legend}</T>
           {passes.items.map((item) => {
             const offer = passOffer(item.id, item.price);
+            const ownsThis = hold.owned && hold.tier === item.id;
             return (
               <Pressable
                 key={item.id}
                 accessibilityRole="button"
-                accessibilityState={{ disabled: !checkoutReady }}
-                accessibilityLabel={checkoutReady ? (item.id === "vip" ? "Start a VIP group booking" : `Pay for ${item.name}`) : `${CHECKOUT_SOON}, ${item.name}`}
-                disabled={!checkoutReady}
-                onPress={() => buy(item.id)}
+                accessibilityState={{ disabled: ownsThis ? false : !checkoutReady }}
+                accessibilityLabel={ownsThis ? `Your ${item.name} pass` : checkoutReady ? (item.id === "vip" ? "Start a VIP group booking" : `Pay for ${item.name}`) : `${CHECKOUT_SOON}, ${item.name}`}
+                disabled={ownsThis ? false : !checkoutReady}
+                onPress={() => {
+                  if (ownsThis) {
+                    setPassId(item.id);
+                    setShown(true);
+                    return;
+                  }
+                  buy(item.id);
+                }}
                 style={styles.passCard}
               >
                 {item.id === "vip" ? (
@@ -194,13 +213,14 @@ export default function TicketsScreen() {
                 ) : <T variant="rowTitle" color={colors.foam}>{item.name}</T>}
                 <T variant="small" color={colors.foam}>{item.id === "vip" ? `${offer.guests} · ${offer.total}` : `${item.price} ${item.unit}`}</T>
                 {item.id === "vip" ? <T variant="meta" color={colors.gold}>$5,000 a share. A full boat is 8 shares.</T> : null}
-                <View style={[styles.pill, !checkoutReady && styles.pillOff]}>
-                  <T variant="button" color={colors.ink}>{checkoutReady ? (item.id === "vip" ? "Start a group booking" : "Pay") : CHECKOUT_SOON}</T>
+                <View style={[styles.pill, !ownsThis && !checkoutReady && styles.pillOff]}>
+                  <T variant="button" color={colors.ink}>{ownsThis ? "Your pass" : checkoutReady ? (item.id === "vip" ? "Start a group booking" : "Pay") : CHECKOUT_SOON}</T>
                 </View>
               </Pressable>
             );
           })}
         </View>
+        ) : null}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.picks}>
           {passes.items.map((item) => {
             const current = item.id === pass.id;

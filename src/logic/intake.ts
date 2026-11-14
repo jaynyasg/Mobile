@@ -12,8 +12,8 @@ export interface IntakeStore {
   setItem: (key: string, value: string) => void;
 }
 
-const passes = new Set<PassAnswer>(["have", "not-yet", "unsure"]);
-const stays = new Set<StayAnswer>(["yes", "booked", "browsing"]);
+const passes = new Set<PassAnswer>(["have", "not-yet", "unsure", "skipped"]);
+const stays = new Set<StayAnswer>(["yes", "booked", "browsing", "skipped"]);
 
 export function readIntake(store: IntakeStore | null): IntakeRecord | null {
   const raw = store?.getItem(INTAKE_KEY);

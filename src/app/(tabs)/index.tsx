@@ -18,6 +18,7 @@ import { reels, zoneReelIds, type ReelId } from "@/content/reels";
 import { webTrackStore, writeTracks } from "@/guide/interests";
 import { consumeIntakeRequest, readIntake, writeIntake, type IntakeRecord } from "@/logic/intake";
 import { saveIntakeRemote } from "@/logic/intakeSync";
+import { readOwnedPass } from "@/logic/ownedPass";
 import { buildPath, PASS_ATTEND_URL, type PathStep } from "@/logic/pathPlan";
 import { suggestedDayId } from "@/logic/phase";
 import { isExplored, localReelStore } from "@/reels/gate";
@@ -89,7 +90,8 @@ export default function HomeScreen() {
   function openStep(step: PathStep) {
     if (step.id !== "stay" || intake?.needsStay !== "booked") markStep(step.id);
     if (step.id === "pass") {
-      if (intake?.hasPass === "have") openChapter("pass", "/tickets");
+      const held = intake?.hasPass === "have" || readOwnedPass(webStorage()) != null;
+      if (held || intake?.hasPass !== "not-yet") openChapter("pass", "/tickets");
       else Linking.openURL(passes.sourceUrl || PASS_ATTEND_URL).catch(() => undefined);
       return;
     }
@@ -106,7 +108,9 @@ export default function HomeScreen() {
   const next = sessions
     .filter((session) => session.dayId === dayId && session.start)
     .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))[0];
-  const steps = intake ? buildPath(intake, forum.pillars, intake.completed) : [];
+  const steps = intake
+    ? buildPath(intake, forum.pillars, { completed: intake.completed, ownedPass: readOwnedPass(webStorage()) != null })
+    : [];
 
   return (
     <View style={styles.frame}>
@@ -140,16 +144,15 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
             </View>
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <Pressable key={step.id} accessibilityRole="button" accessibilityLabel={step.title} onPress={() => openStep(step)} style={styles.path}>
                 <Image source={{ uri: stepPhoto[step.id] }} style={styles.pathPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 <View style={styles.pathShade} />
                 <View style={styles.pathCopy}>
-                  <T variant="meta" color={colors.gold} style={styles.stepLabel}>{step.optional ? "Optional" : `Step ${index + 1}`}</T>
+                  <T variant="meta" color={colors.gold} style={styles.stepLabel}>{`Step ${step.number}`}</T>
                   <T variant="rowTitle" color={colors.foam} numberOfLines={1} style={styles.stepTitle}>{step.title}</T>
                   <T variant="meta" color={colors.foam} numberOfLines={1} style={styles.stepLine}>{step.line}</T>
                 </View>
-                {step.done ? <View style={styles.check}><T variant="button" color={colors.ink}>✓</T></View> : null}
               </Pressable>
             ))}
             {next ? (
@@ -236,7 +239,6 @@ const styles = StyleSheet.create({
   stepLabel: { fontSize: 11, lineHeight: 14 },
   stepTitle: { fontSize: 16, lineHeight: 20 },
   stepLine: { fontSize: 12, lineHeight: 16 },
-  check: { position: "absolute", top: 16, right: 10, zIndex: 2, width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   next: {
     marginHorizontal: 16,
     marginBottom: 14,

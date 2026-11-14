@@ -1,22 +1,31 @@
-import { Href } from "expo-router";
+import { useCallback, useState } from "react";
+import { Href, useFocusEffect } from "expo-router";
 import { type ReelId } from "@/content/reels";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { LinkRow, PageHeader, SectionLabel } from "@/components/ui";
 import { backgrounds } from "@/components/backgrounds";
+import { readIntake } from "@/logic/intake";
+import { readOwnedPass } from "@/logic/ownedPass";
 import { useApp } from "@/store";
+import { webStorage } from "@/welcome";
 
 export default function MoreScreen() {
   const { program } = useContent();
   const { notifications } = program;
   const { state } = useApp();
+  const [heldPass, setHeldPass] = useState(false);
   const unread = notifications.filter((note) => !state.readNotificationIds.includes(note.id)).length;
+  useFocusEffect(useCallback(() => {
+    const store = webStorage();
+    setHeldPass(readIntake(store)?.hasPass === "have" || readOwnedPass(store) != null);
+  }, []));
   const groups: { title: string; items: { href: Href; label: string; detail?: string; badge?: number; reelId?: ReelId }[] }[] = [
     {
       title: "You",
       items: [
         { href: "/schedule", label: "My schedule", detail: "Favorites saved on this device" },
-        { href: "/tickets", label: "Tickets", detail: "Your pass, and Beach, Boat, or VIP", reelId: "pass" },
+        { href: "/tickets", label: "Tickets", detail: heldPass ? "Your pass" : "Beach, boat, or a VIP group", reelId: "pass" },
         { href: "/notifications", label: "Notifications", detail: "Summit notes on this device", badge: unread || undefined },
         { href: "/assistant", label: "Guide", detail: "Answers from the program, on this device" },
         { href: "/community", label: "Community", detail: "Live chat", reelId: "community" },
