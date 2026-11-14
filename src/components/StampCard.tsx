@@ -73,7 +73,16 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(7,27,42,0.28)",
   },
   stampOn: { backgroundColor: colors.gold, borderStyle: "solid", borderColor: colors.gold },
-  stampIn: { ...({ animation: "tatel-stamp 420ms ease" } as object) },
+  stampIn: {
+    ...({
+      animationDuration: "420ms",
+      animationTimingFunction: "ease",
+      animationKeyframes: {
+        from: { transform: "scale(0.82)" },
+        to: { transform: "scale(1)" },
+      },
+    } as object),
+  },
   name: { textAlign: "center" },
   place: { textAlign: "center", fontSize: 13, lineHeight: 16 },
 });

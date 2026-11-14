@@ -47,8 +47,7 @@ export function ZoneMap({
                   fill="none"
                   strokeDasharray={`${turn * amount} ${turn}`}
                   strokeLinecap="round"
-                  rotation={-90}
-                  origin="22,22"
+                  transform="rotate(-90 22 22)"
                 />
               </Svg>
               <T variant="meta" color={colors.foam} numberOfLines={2} style={styles.label}>{zone.island}</T>
