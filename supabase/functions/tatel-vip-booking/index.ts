@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders as sdkCorsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { invalidBookingField } from './validate.ts';
 
 const headers = {
   ...sdkCorsHeaders,
@@ -33,6 +34,8 @@ Deno.serve(async (req) => {
   if (typeof body.action !== 'string' || !body.payload || typeof body.payload !== 'object') {
     return reply(400, { error: 'invalid' });
   }
+  const invalid = invalidBookingField(body.payload as Record<string, unknown>);
+  if (invalid) return reply(400, { error: invalid });
 
   const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await admin.rpc('vip_booking_rpc', { action: body.action, payload: body.payload });

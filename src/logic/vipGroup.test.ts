@@ -48,11 +48,20 @@ describe("VIP share cap", () => {
     const again = recordPayment(first.shares, "cs_one", 8, NOW, "ada@example.com");
     expect(again.ok && again.applied).toBe(false);
     expect(recordPayment([], "cs_late", 1, NOW, null).ok).toBe(true);
-    const full = recordPayment(first.shares, "cs_extra", 1, NOW, null);
-    expect(full).toEqual({ ok: false, reason: "full" });
+    const full = recordPayment(first.shares, "cs_extra", 1, NOW, "ada@example.com");
+    expect(full.ok && full.needsRefund && full.paid).toBe(8);
+    if (full.ok) expect(full.shares.find((share) => share.sessionId === "cs_extra")?.status).toBe("needs_refund");
+    const repeated = recordPayment(full.ok ? full.shares : [], "cs_extra", 1, NOW, "ada@example.com");
+    expect(repeated.ok && repeated.needsRefund).toBe(false);
     const expired = releaseExpired([{ sessionId: "cs_old", quantity: 2, status: "reserved", expiresAt: NOW, payerEmail: null }], NOW);
     const recovered = recordPayment(expired, "cs_old", 2, NOW, "ada@example.com");
     expect(recovered.ok && recovered.applied && recovered.paid).toBe(2);
+    const lapsed = releaseExpired(
+      [...(first.ok ? first.shares : []), { sessionId: "cs_late_hold", quantity: 1, status: "reserved", expiresAt: NOW, payerEmail: "ada@example.com" }],
+      NOW,
+    );
+    const overflow = recordPayment(lapsed, "cs_late_hold", 1, NOW, "ada@example.com");
+    expect(overflow.ok && overflow.needsRefund && overflow.paid).toBe(8);
   });
 });
 

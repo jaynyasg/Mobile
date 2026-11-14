@@ -2,6 +2,7 @@ import { DEFAULT_PASS_PRICES, STRIPE_API_VERSION, STRIPE_UI_MODE } from "./check
 import { clientKey, consumeRate, normalizeEmail, type RateBook } from "./quickSignin";
 import {
   HOLD_MS,
+  SESSION_MS,
   TEAM_NOTIFY_EMAIL,
   TEAM_NOTIFY_FROM,
   boatPreference,
@@ -9,6 +10,7 @@ import {
   filledEmail,
   paymentEmail,
   progressLine,
+  refundEmail,
   reminderEmail,
   verifyStripeSignature,
   type TeamEmail,
@@ -265,7 +267,8 @@ async function startShareCheckout(
 
   const fetchImpl = deps.fetchImpl ?? fetch;
   const email = normalizeEmail(record.email);
-  const expiresAt = now + HOLD_MS;
+  const sessionEnds = now + SESSION_MS;
+  const holdEnds = now + HOLD_MS;
   const response = await fetchImpl("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
     headers: stripeHeaders(env.STRIPE_SECRET_KEY),
@@ -275,7 +278,7 @@ async function startShareCheckout(
       bookingId: booking.id,
       bookingCode: booking.code,
       email,
-      expiresAt: Math.floor(expiresAt / 1000),
+      expiresAt: Math.floor(sessionEnds / 1000),
     })),
   });
   let session: { id?: string; client_secret?: string } = {};
@@ -287,7 +290,7 @@ async function startShareCheckout(
   if (!response.ok || !session.id || !session.client_secret) return json({ error: "unavailable" }, 502);
 
   try {
-    const reserved = await store.reserve({ code, sessionId: session.id, quantity, expiresAt, payerEmail: email, now });
+    const reserved = await store.reserve({ code, sessionId: session.id, quantity, expiresAt: holdEnds, payerEmail: email, now });
     if (!reserved.ok) {
       await expireSession(fetchImpl, env.STRIPE_SECRET_KEY, session.id);
       return json({ error: reserved.reason === "closed" ? "closed" : "full" }, 409);
@@ -323,19 +326,34 @@ export async function handleStripeWebhook(request: Request, env: VipEnv, deps: V
   } catch {
     return json({ error: "invalid" }, 400);
   }
-  if (event.type !== "checkout.session.completed") return json({ received: true }, 200);
   const session = event.data?.object ?? {};
   const metadata = session.metadata && typeof session.metadata === "object" ? session.metadata as Record<string, unknown> : {};
   const bookingId = typeof metadata.booking_id === "string" ? metadata.booking_id : "";
-  if (!bookingId) return json({ received: true }, 200);
-  if (session.payment_status !== "paid" || typeof session.id !== "string") return json({ received: true }, 200);
+  const sessionId = typeof session.id === "string" ? session.id : "";
+  if (!bookingId || !sessionId) return json({ received: true }, 200);
   const store = storeFor(env, deps);
   if (!store) return json({ error: "unavailable" }, 503);
+  if (event.type === "checkout.session.async_payment_failed") {
+    try {
+      await store.release(sessionId);
+    } catch {
+      return json({ error: "unavailable" }, 502);
+    }
+    return json({ received: true }, 200);
+  }
+  const paidNow = event.type === "checkout.session.async_payment_succeeded"
+    || (event.type === "checkout.session.completed" && session.payment_status === "paid");
+  if (!paidNow) return json({ received: true }, 200);
+  const quantity = Number(metadata.shares);
+  const amount = typeof session.amount_total === "number" && Number.isFinite(session.amount_total)
+    ? session.amount_total
+    : quantity * 500_000;
   return applyPayment(env, store, deps, now, {
-    sessionId: session.id,
+    sessionId,
     bookingId,
-    quantity: Number(metadata.shares),
+    quantity,
     payerEmail: payerFromSession(session),
+    amountCents: amount,
   });
 }
 
@@ -355,11 +373,13 @@ export async function notePaidFromStatus(
   if (body.status !== "complete" || body.paymentStatus !== "paid" || !body.bookingId) return;
   const store = storeFor(env, deps);
   if (!store) return;
+  const quantity = typeof body.shares === "number" ? body.shares : Number(body.shares);
   await applyPayment(env, store, deps, deps.now ?? Date.now(), {
     sessionId,
     bookingId: body.bookingId,
-    quantity: typeof body.shares === "number" ? body.shares : Number(body.shares),
+    quantity,
     payerEmail: null,
+    amountCents: quantity * 500_000,
   });
 }
 
@@ -368,7 +388,7 @@ async function applyPayment(
   store: VipStore,
   deps: VipDeps,
   now: number,
-  payment: { sessionId: string; bookingId: string; quantity: number; payerEmail: string | null },
+  payment: { sessionId: string; bookingId: string; quantity: number; payerEmail: string | null; amountCents: number },
 ): Promise<Response> {
   let result: Awaited<ReturnType<VipStore["record"]>>;
   try {
@@ -382,7 +402,11 @@ async function applyPayment(
   } catch {
     return json({ error: "unavailable" }, 502);
   }
-  if (!result.ok) return json({ error: result.reason }, result.reason === "missing" ? 404 : 409);
+  if (!result.ok) return json({ error: result.reason }, result.reason === "missing" ? 404 : result.reason === "full" ? 409 : 400);
+  if (result.needsRefund) {
+    await sendAll(env, [refundEmail(facts(result.booking), now, payment.quantity, payment.payerEmail, payment.amountCents)], deps.mail);
+    return json({ received: true, needsRefund: true }, 200);
+  }
   if (result.applied) {
     const messages = [paymentEmail(facts(result.booking), now, payment.quantity, payment.payerEmail)];
     if (result.justFilled) messages.push(filledEmail(facts(result.booking), now));

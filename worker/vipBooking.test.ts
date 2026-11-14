@@ -93,7 +93,9 @@ describe("VIP group booking", () => {
     expect(params.get("metadata[booking_code]")).toBe(code);
     expect(params.get("payment_intent_data[metadata][booking_id]")).toBeTruthy();
     expect(params.get("payment_intent_data[metadata][shares]")).toBe("2");
+    expect(params.get("expires_at")).toBe(String(Math.floor((NOW + 30 * 60 * 1000) / 1000)));
     expect(params.has("success_url")).toBe(false);
+    expect((await store.get(code, NOW + 31 * 60 * 1000))?.reservedShares).toBe(2);
     expect(shareCheckoutFields({
       price: DEFAULT_PASS_PRICES.vip,
       quantity: 1,
@@ -108,6 +110,7 @@ describe("VIP group booking", () => {
       body: JSON.stringify({ quantity: 7 }),
     }), env, { store, fetchImpl, now: NOW, book: { hits: new Map() } });
     expect(held.status).toBe(409);
+    expect((await store.get(code, NOW + 41 * 60 * 1000))?.reservedShares).toBe(0);
   });
 
   it("records a paid webhook only when the signature matches", async () => {
@@ -147,6 +150,101 @@ describe("VIP group booking", () => {
     expect(mail.sent.some((message) => message.subject === "TATEL VIP: share paid (3 of 8)")).toBe(true);
     expect(mail.sent.find((message) => message.subject.includes("share paid"))?.text).toContain("Open to sharing a boat");
     expect(await verifyStripeSignature(payload, header, secret, NOW)).toBe(true);
+  });
+
+  it("records a lapsed payment that no longer fits and emails for a refund", async () => {
+    const store = memoryVipStore();
+    const mail = mailBox();
+    const created = await start("full_boat", mail.mail, store);
+    const booking = await created.json() as { code: string };
+    const view = await store.get(booking.code, NOW);
+    await store.record({ sessionId: "cs_full", bookingId: view?.id ?? "", quantity: 8, payerEmail: "ada@example.com", now: NOW });
+    mail.sent.length = 0;
+    const payload = JSON.stringify({
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          id: "cs_late",
+          payment_status: "paid",
+          amount_total: 500_000,
+          customer_details: { email: "late@example.com" },
+          metadata: { booking_id: view?.id, shares: "1" },
+        },
+      },
+    });
+    const header = await signed(payload, "whsec_test", Math.floor(NOW / 1000));
+    const response = await handleStripeWebhook(new Request("https://tatel.app/api/stripe/webhook", {
+      method: "POST",
+      headers: { "Stripe-Signature": header },
+      body: payload,
+    }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, mail: mail.mail, now: NOW });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ needsRefund: true });
+    expect((await store.get(booking.code, NOW))?.paidShares).toBe(8);
+    const note = mail.sent.find((message) => message.subject === "TATEL VIP: refund needed");
+    expect(note?.text).toContain("Refund needed: $5,000");
+    expect(note?.text).toContain(`Booking code: ${booking.code}`);
+    expect(note?.text).toContain("Payer: late@example.com");
+    expect(note?.text).toContain("Boat preference: Full boat (own group of 8)");
+    const repeat = await handleStripeWebhook(new Request("https://tatel.app/api/stripe/webhook", {
+      method: "POST",
+      headers: { "Stripe-Signature": header },
+      body: payload,
+    }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, mail: mail.mail, now: NOW });
+    expect(repeat.status).toBe(200);
+    expect(mail.sent.filter((message) => message.subject === "TATEL VIP: refund needed")).toHaveLength(1);
+  });
+
+  it("waits for a delayed payment and releases the hold when that payment fails", async () => {
+    const store = memoryVipStore();
+    const mail = mailBox();
+    const created = await start("shared", mail.mail, store);
+    const booking = await created.json() as { code: string };
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ id: "cs_async", client_secret: "cs_async_secret" }), { status: 200 }));
+    await handleVipRequest(new Request(`https://tatel.app/api/vip-booking/${booking.code}/checkout`, {
+      method: "POST",
+      body: JSON.stringify({ quantity: 1, email: "ada@example.com" }),
+    }), { STRIPE_SECRET_KEY: "sk_live_test_only" }, { store, fetchImpl, now: NOW, book: { hits: new Map() } });
+    const view = await store.get(booking.code, NOW);
+    const pending = JSON.stringify({
+      type: "checkout.session.completed",
+      data: { object: { id: "cs_async", payment_status: "unpaid", metadata: { booking_id: view?.id, shares: "1" } } },
+    });
+    const pendingHeader = await signed(pending, "whsec_test", Math.floor(NOW / 1000));
+    const waiting = await handleStripeWebhook(new Request("https://tatel.app/api/stripe/webhook", {
+      method: "POST",
+      headers: { "Stripe-Signature": pendingHeader },
+      body: pending,
+    }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, mail: mail.mail, now: NOW });
+    expect(waiting.status).toBe(200);
+    expect((await store.get(booking.code, NOW))?.paidShares).toBe(0);
+    expect((await store.get(booking.code, NOW))?.reservedShares).toBe(1);
+
+    const failed = JSON.stringify({
+      type: "checkout.session.async_payment_failed",
+      data: { object: { id: "cs_async", payment_status: "unpaid", metadata: { booking_id: view?.id, shares: "1" } } },
+    });
+    const failedHeader = await signed(failed, "whsec_test", Math.floor(NOW / 1000));
+    const released = await handleStripeWebhook(new Request("https://tatel.app/api/stripe/webhook", {
+      method: "POST",
+      headers: { "Stripe-Signature": failedHeader },
+      body: failed,
+    }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, mail: mail.mail, now: NOW });
+    expect(released.status).toBe(200);
+    expect((await store.get(booking.code, NOW))?.reservedShares).toBe(0);
+
+    const succeeded = JSON.stringify({
+      type: "checkout.session.async_payment_succeeded",
+      data: { object: { id: "cs_async", payment_status: "paid", amount_total: 500_000, metadata: { booking_id: view?.id, shares: "1" }, customer_details: { email: "ada@example.com" } } },
+    });
+    const succeededHeader = await signed(succeeded, "whsec_test", Math.floor(NOW / 1000));
+    const paid = await handleStripeWebhook(new Request("https://tatel.app/api/stripe/webhook", {
+      method: "POST",
+      headers: { "Stripe-Signature": succeededHeader },
+      body: succeeded,
+    }), { STRIPE_WEBHOOK_SECRET: "whsec_test" }, { store, mail: mail.mail, now: NOW });
+    expect(paid.status).toBe(200);
+    expect((await store.get(booking.code, NOW))?.paidShares).toBe(1);
   });
 
   it("reminds the team once when three days are left and again at the deadline", async () => {

@@ -65,7 +65,7 @@ export interface VipStore {
   reserve(input: ReserveBooking): Promise<{ ok: true; booking: VipRecord } | { ok: false; reason: "full" | "closed" | "missing" | "quantity" }>;
   release(sessionId: string): Promise<void>;
   record(input: RecordBooking): Promise<
-    { ok: true; booking: VipRecord; applied: boolean; justFilled: boolean } | { ok: false; reason: "full" | "missing" | "quantity" }
+    { ok: true; booking: VipRecord; applied: boolean; justFilled: boolean; needsRefund: boolean } | { ok: false; reason: "missing" | "quantity" | "full" }
   >;
   due(now: number): Promise<DueRecord[]>;
   markNotified(code: string, kind: ReminderKind): Promise<void>;
@@ -155,10 +155,10 @@ export function memoryVipStore(): VipStore {
       if (!row && input.bookingId) row = [...rows.values()].find((item) => item.id === input.bookingId);
       if (!row) return { ok: false, reason: "missing" };
       const next = recordPayment(row.shares, input.sessionId, input.quantity, input.now, input.payerEmail);
-      if (!next.ok) return { ok: false, reason: next.reason === "quantity" ? "quantity" : "full" };
+      if (!next.ok) return { ok: false, reason: "quantity" };
       row.shares = next.shares;
       bySession.set(input.sessionId, row.code);
-      return { ok: true, booking: view(row, input.now), applied: next.applied, justFilled: next.justFilled };
+      return { ok: true, booking: view(row, input.now), applied: next.applied, justFilled: next.justFilled, needsRefund: next.needsRefund };
     },
     async due(now) {
       const due: DueRecord[] = [];
@@ -301,12 +301,13 @@ export function remoteVipStore(
       if (result.status === 404) return { ok: false, reason: "missing" };
       if (result.status === 400 && (error === "full" || error === "quantity")) return { ok: false, reason: error };
       if (result.status >= 300) throw new Error(error);
-      const body = result.body as { applied?: unknown; justFilled?: unknown };
+      const body = result.body as { applied?: unknown; justFilled?: unknown; needsRefund?: unknown };
       return {
         ok: true,
         booking: parseVipRecord(result.body),
         applied: body.applied === true,
         justFilled: body.justFilled === true,
+        needsRefund: body.needsRefund === true,
       };
     },
     async due() {

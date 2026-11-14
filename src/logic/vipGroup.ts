@@ -3,7 +3,9 @@
 export const VIP_SHARES = 8;
 export const SHARE_DOLLARS = 5_000;
 export const TOTAL_DOLLARS = VIP_SHARES * SHARE_DOLLARS;
-export const HOLD_MS = 30 * 60 * 1000;
+/** Stripe Checkout cannot expire sooner than 30 minutes. The hold stays longer so a payment at the deadline still matches its reservation. */
+export const SESSION_MS = 30 * 60 * 1000;
+export const HOLD_MS = 40 * 60 * 1000;
 export const DEADLINE_MS = 14 * 24 * 60 * 60 * 1000;
 export const REMINDER_MS = 3 * 24 * 60 * 60 * 1000;
 export const SHARED_BOAT_SUBJECT = "TATEL VIP: guest open to sharing a boat";
@@ -12,7 +14,7 @@ export const TEAM_NOTIFY_FROM = "passes@tatel.app";
 
 export type BoatPreference = "full_boat" | "shared";
 export type BookingStatus = "open" | "filled" | "expired";
-export type ShareStatus = "reserved" | "paid" | "released";
+export type ShareStatus = "reserved" | "paid" | "released" | "needs_refund";
 export type ReminderKind = "three_days" | "deadline";
 
 export interface ShareHold {
@@ -36,7 +38,7 @@ export interface BookingFacts {
 }
 
 export interface TeamEmail {
-  kind: "started" | "shared" | "payment" | "filled" | "three_days" | "deadline";
+  kind: "started" | "shared" | "payment" | "filled" | "three_days" | "deadline" | "refund";
   subject: string;
   text: string;
 }
@@ -109,33 +111,28 @@ export function recordPayment(
   quantity: number,
   now: number,
   payerEmail: string | null,
-): { ok: true; shares: ShareHold[]; paid: number; applied: boolean; justFilled: boolean } | { ok: false; reason: "full" | "quantity" } {
+): { ok: true; shares: ShareHold[]; paid: number; applied: boolean; justFilled: boolean; needsRefund: boolean } | { ok: false; reason: "quantity" } {
   const current = releaseExpired(shares, now);
   const existing = current.find((share) => share.sessionId === sessionId);
-  if (existing?.status === "paid") {
-    const paid = tally(current, now).paid;
-    return { ok: true, shares: current, paid, applied: false, justFilled: false };
+  if (existing?.status === "paid" || existing?.status === "needs_refund") {
+    return { ok: true, shares: current, paid: tally(current, now).paid, applied: false, justFilled: false, needsRefund: false };
   }
-  if (existing) {
-    const quantityToApply = existing.status === "reserved" ? existing.quantity : quantity;
-    if (existing.status === "released") {
-      if (!Number.isInteger(quantity) || quantity < 1 || quantity > VIP_SHARES) return { ok: false, reason: "quantity" };
-      const others = current.filter((share) => share.sessionId !== sessionId);
-      if (quantity > tally(others, now).remaining) return { ok: false, reason: "full" };
-    }
-    const next = current.map((share) => (
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > VIP_SHARES) {
+    if (existing?.status !== "reserved") return { ok: false, reason: "quantity" };
+  }
+  const quantityToApply = existing?.status === "reserved" ? existing.quantity : quantity;
+  const others = current.filter((share) => share.sessionId !== sessionId);
+  const overflow = existing?.status !== "reserved" && quantityToApply > tally(others, now).remaining;
+  const status: ShareStatus = overflow ? "needs_refund" : "paid";
+  const next = existing
+    ? current.map((share) => (
       share.sessionId === sessionId
-        ? { ...share, status: "paid" as const, quantity: quantityToApply, payerEmail: payerEmail ?? share.payerEmail, expiresAt: null }
+        ? { ...share, status, quantity: quantityToApply, payerEmail: payerEmail ?? share.payerEmail, expiresAt: null }
         : share
-    ));
-    const paid = tally(next, now).paid;
-    return { ok: true, shares: next, paid, applied: true, justFilled: paid >= VIP_SHARES };
-  }
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > VIP_SHARES) return { ok: false, reason: "quantity" };
-  if (quantity > tally(current, now).remaining) return { ok: false, reason: "full" };
-  const next = [...current, { sessionId, quantity, status: "paid" as const, expiresAt: null, payerEmail }];
+    ))
+    : [...current, { sessionId, quantity: quantityToApply, status, expiresAt: null, payerEmail }];
   const paid = tally(next, now).paid;
-  return { ok: true, shares: next, paid, applied: true, justFilled: paid >= VIP_SHARES };
+  return { ok: true, shares: next, paid, applied: status === "paid", justFilled: status === "paid" && paid >= VIP_SHARES, needsRefund: overflow };
 }
 
 export function progressLine(paidShares: number): string {
@@ -217,6 +214,19 @@ export function filledEmail(booking: BookingFacts, when: number): TeamEmail {
     kind: "filled",
     subject: "TATEL VIP: booking filled",
     text: emailBody(booking, when, ["Booking confirmed. All 8 shares are paid."]),
+  };
+}
+
+export function refundEmail(booking: BookingFacts, when: number, quantity: number, payerEmail: string | null, amountCents: number): TeamEmail {
+  const amount = money(Math.round(amountCents / 100));
+  return {
+    kind: "refund",
+    subject: "TATEL VIP: refund needed",
+    text: emailBody(booking, when, [
+      "A payment arrived after its hold lapsed and the shares were already taken.",
+      `Refund needed: ${amount} (${quantity} ${quantity === 1 ? "share" : "shares"})`,
+      `Payer: ${payerEmail ?? "unknown"}`,
+    ]),
   };
 }
 

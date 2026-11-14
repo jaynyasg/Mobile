@@ -60,6 +60,8 @@ npm run deploy
 
 `build:web` is the web export plus the PWA tags. `deploy` runs that build, then `wrangler deploy`. The machine that deploys needs `npx wrangler login`. This repo has no Cloudflare token, and a checkout does not publish the site.
 
+VIP group reminders use the cron in `wrangler.jsonc` (`17 * * * *`). That schedule takes effect only with `wrangler deploy` or `wrangler triggers deploy`. The Stripe webhook `https://tatel.app/api/stripe/webhook` needs `checkout.session.completed`, `checkout.session.async_payment_succeeded`, and `checkout.session.async_payment_failed`.
+
 `POST /api/quick-signin` signs in an allowlisted email with no code. The worker proxies to the Lovable Cloud edge function `tatel-quick-signin` at `https://oykwxnzlpxbrfcoejawt.supabase.co/functions/v1/tatel-quick-signin`. That function holds the allowlist (`sansara13@gmail.com` and `jamerosg@gmail.com`) and mints the session. The worker does not need a Supabase service role key. `SUPABASE_URL` is already in `wrangler.jsonc`. Anyone who types an allowlisted address receives that account’s session. Every other address still gets the email code.
 
 Chat profiles add `bio` and `link` on `community_profiles` and reuse the `community-media` bucket. Apply `supabase/migrations/20261113_community_profile_bio.sql` in the SQL editor after `supabase/community.sql`. This repo does not apply it.
