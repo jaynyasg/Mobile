@@ -93,7 +93,7 @@ export function PassCheckout({
     >
       <View style={styles.card}>
         <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-          <T variant="eyebrow" color={colors.gold}>Passes</T>
+          <T variant="eyebrow" color={colors.gold}>{tier === "vip" ? "VIP shares" : title}</T>
           <T variant="title" color={colors.foam}>{title}</T>
           <T variant="small" color={colors.foam}>{detail}</T>
           {preview ? <CheckoutMock /> : <View ref={mountRef as never} style={styles.mount} />}

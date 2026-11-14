@@ -153,7 +153,9 @@ export async function deliverTeamEmail(env: VipEnv, message: TeamEmail, mail?: M
       text: message.text,
     });
     return true;
-  } catch {
+  } catch (error) {
+    const status = error && typeof error === "object" && "code" in error ? (error as { code?: unknown }).code : undefined;
+    console.warn("team email failed", status, error);
     return false;
   }
 }

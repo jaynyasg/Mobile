@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_PASS_PRICES, STRIPE_UI_MODE } from "./checkout";
 import { SHARED_BOAT_SUBJECT, verifyStripeSignature } from "../src/logic/vipGroup";
 import { handleStripeWebhook, handleVipRequest, sendDueReminders, shareCheckoutFields } from "./vipBooking";
-import { memoryVipStore, remoteVipStore } from "./vipStore";
+import { verifyVipRequest } from "../supabase/functions/tatel-vip-booking/sign";
+import { memoryVipStore, remoteVipStore, vipSigningPath } from "./vipStore";
 import type { MailMessage } from "./vipBooking";
 
 const NOW = Date.parse("2026-11-14T01:17:00.000Z");
@@ -247,6 +248,23 @@ describe("VIP group booking", () => {
     expect((await store.get(booking.code, NOW))?.paidShares).toBe(1);
   });
 
+  it("signs the path the edge function sees, without the functions prefix", async () => {
+    expect(vipSigningPath("https://example.supabase.co/functions/v1/tatel-vip-booking")).toBe("/tatel-vip-booking");
+    const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
+    const privateKey = pem("PRIVATE KEY", await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+    const publicKey = pem("PUBLIC KEY", await crypto.subtle.exportKey("spki", pair.publicKey));
+    const fetchImpl = vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify({ ok: true }), { status: 200 }));
+    const store = remoteVipStore({ SUPABASE_URL: "https://example.supabase.co", VIP_SIGNING_PRIVATE_KEY: privateKey }, fetchImpl);
+    await store?.release("cs_path");
+    const init = fetchImpl.mock.calls[0]?.[1];
+    const headers = new Headers(init?.headers);
+    const body = String(init?.body);
+    const timestamp = headers.get("x-tatel-ts") ?? "";
+    const signature = headers.get("x-tatel-sig") ?? "";
+    expect(await verifyVipRequest(publicKey, timestamp, "POST", "/tatel-vip-booking", body, signature)).toBe(true);
+    expect(await verifyVipRequest(publicKey, timestamp, "POST", "/functions/v1/tatel-vip-booking", body, signature)).toBe(false);
+  });
+
   it("returns 5xx so Stripe retries when the booking store rejects a release or a payment", async () => {
     const privateKey = await testPrivateKey();
     const failing = vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify({ error: "unavailable" }), { status: 500 }));
@@ -318,11 +336,15 @@ describe("VIP group booking", () => {
 
 async function testPrivateKey(): Promise<string> {
   const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
-  const bytes = new Uint8Array(await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+  return pem("PRIVATE KEY", await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+}
+
+function pem(label: string, key: ArrayBuffer): string {
+  const bytes = new Uint8Array(key);
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
   const b64 = btoa(binary).replace(/(.{64})/g, "$1\n");
-  return `-----BEGIN PRIVATE KEY-----\n${b64}\n-----END PRIVATE KEY-----`;
+  return `-----BEGIN ${label}-----\n${b64}\n-----END ${label}-----`;
 }
 
 async function signed(payload: string, secret: string, timestamp: number): Promise<string> {

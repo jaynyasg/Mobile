@@ -222,6 +222,11 @@ export function parseVipRecord(body: unknown): VipRecord {
   };
 }
 
+/** The edge runtime sees `/tatel-vip-booking`, not the `/functions/v1` prefix the worker calls. */
+export function vipSigningPath(requestUrl: string): string {
+  return new URL(requestUrl).pathname.replace(/^\/functions\/v1/, "");
+}
+
 export function remoteVipStore(
   env: { SUPABASE_URL?: string; VIP_SIGNING_PRIVATE_KEY?: string },
   fetchImpl: FetchLike = fetch,
@@ -234,7 +239,7 @@ export function remoteVipStore(
     if (!privateKey) throw new Error("unavailable");
     const body = JSON.stringify({ action, payload });
     const timestamp = String(Date.now());
-    const path = new URL(url).pathname;
+    const path = vipSigningPath(url);
     const signature = await signVipRequest(privateKey, timestamp, "POST", path, body);
     const response = await fetchImpl(url, {
       method: "POST",
