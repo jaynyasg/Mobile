@@ -117,6 +117,7 @@ export function shareCheckoutFields(input: {
   const fields: Record<string, string> = {
     mode: "payment",
     ui_mode: STRIPE_UI_MODE,
+    "payment_method_types[0]": "card",
     "line_items[0][price]": input.price,
     "line_items[0][quantity]": String(input.quantity),
     expires_at: String(input.expiresAt),

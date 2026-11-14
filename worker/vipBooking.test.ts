@@ -91,6 +91,8 @@ describe("VIP group booking", () => {
     expect(params.get("ui_mode")).toBe(STRIPE_UI_MODE);
     expect(params.get("line_items[0][price]")).toBe("price_custom_vip");
     expect(params.get("line_items[0][quantity]")).toBe("2");
+    expect(params.get("payment_method_types[0]")).toBe("card");
+    expect([...params.keys()].filter((key) => key.startsWith("payment_method_types"))).toEqual(["payment_method_types[0]"]);
     expect(params.get("metadata[booking_code]")).toBe(code);
     expect(params.get("payment_intent_data[metadata][booking_id]")).toBeTruthy();
     expect(params.get("payment_intent_data[metadata][shares]")).toBe("2");

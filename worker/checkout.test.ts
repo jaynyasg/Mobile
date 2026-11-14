@@ -45,6 +45,7 @@ describe("pass checkout", () => {
     expect([...params.keys()].some((key) => key.includes("adjustable_quantity"))).toBe(false);
     expect(params.has("success_url")).toBe(false);
     expect(params.has("cancel_url")).toBe(false);
+    expect([...params.keys()].some((key) => key.startsWith("payment_method_types"))).toBe(false);
   });
 
   it("fixes beach and boat at quantity 1 and skips a blank email", async () => {
