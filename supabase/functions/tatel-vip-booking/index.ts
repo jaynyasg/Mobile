@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders as sdkCorsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { VIP_PUBLIC_KEY_PEM, verifyVipRequest } from './sign.ts';
 import { invalidBookingField } from './validate.ts';
 
 const headers = {
@@ -19,15 +20,24 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers });
   if (req.method !== 'POST') return reply(405, { error: 'method' });
 
-  const secret = Deno.env.get('VIP_BOOKING_SECRET');
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!secret || !supabaseUrl || !serviceKey) return reply(503, { error: 'unavailable' });
-  if (req.headers.get('Authorization') !== `Bearer ${secret}`) return reply(401, { error: 'secret' });
+  if (!supabaseUrl || !serviceKey) return reply(502, { error: 'unavailable' });
+
+  const raw = await req.text();
+  const signed = await verifyVipRequest(
+    VIP_PUBLIC_KEY_PEM,
+    req.headers.get('x-tatel-ts') ?? '',
+    req.method,
+    new URL(req.url).pathname,
+    raw,
+    req.headers.get('x-tatel-sig') ?? '',
+  );
+  if (!signed) return reply(401, { error: 'signature' });
 
   let body: { action?: unknown; payload?: unknown };
   try {
-    body = await req.json();
+    body = JSON.parse(raw) as { action?: unknown; payload?: unknown };
   } catch {
     return reply(400, { error: 'invalid' });
   }

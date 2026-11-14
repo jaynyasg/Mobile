@@ -30,7 +30,7 @@ export interface MailSender {
 
 export interface VipEnv {
   SUPABASE_URL?: string;
-  VIP_BOOKING_SECRET?: string;
+  VIP_SIGNING_PRIVATE_KEY?: string;
   STRIPE_SECRET_KEY?: string;
   STRIPE_PRICE_VIP?: string;
   STRIPE_WEBHOOK_SECRET?: string;

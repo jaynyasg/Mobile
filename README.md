@@ -60,7 +60,7 @@ npm run deploy
 
 `build:web` is the web export plus the PWA tags. `deploy` runs that build, then `wrangler deploy`. The machine that deploys needs `npx wrangler login`. This repo has no Cloudflare token, and a checkout does not publish the site.
 
-VIP group reminders use the cron in `wrangler.jsonc` (`17 * * * *`). That schedule takes effect only with `wrangler deploy` or `wrangler triggers deploy`. The Stripe webhook `https://tatel.app/api/stripe/webhook` needs `checkout.session.completed`, `checkout.session.async_payment_succeeded`, and `checkout.session.async_payment_failed`.
+VIP group reminders use the cron in `wrangler.jsonc` (`17 * * * *`). That schedule takes effect only with `wrangler deploy` or `wrangler triggers deploy`. The Stripe webhook `https://tatel.app/api/stripe/webhook` needs `checkout.session.completed`, `checkout.session.async_payment_succeeded`, and `checkout.session.async_payment_failed`. The worker signs calls to `tatel-vip-booking` with `VIP_SIGNING_PRIVATE_KEY` (`wrangler secret put VIP_SIGNING_PRIVATE_KEY`, a PKCS8 PEM). The function checks the public key in its source and does not take a booking secret.
 
 `POST /api/quick-signin` signs in an allowlisted email with no code. The worker proxies to the Lovable Cloud edge function `tatel-quick-signin` at `https://oykwxnzlpxbrfcoejawt.supabase.co/functions/v1/tatel-quick-signin`. That function holds the allowlist (`sansara13@gmail.com` and `jamerosg@gmail.com`) and mints the session. The worker does not need a Supabase service role key. `SUPABASE_URL` is already in `wrangler.jsonc`. Anyone who types an allowlisted address receives that account’s session. Every other address still gets the email code.
 

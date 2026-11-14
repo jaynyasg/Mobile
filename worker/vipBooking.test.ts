@@ -248,12 +248,17 @@ describe("VIP group booking", () => {
   });
 
   it("returns 5xx so Stripe retries when the booking store rejects a release or a payment", async () => {
-    const failing = vi.fn(async () => new Response(JSON.stringify({ error: "unavailable" }), { status: 500 }));
-    const store = remoteVipStore({ SUPABASE_URL: "https://example.supabase.co", VIP_BOOKING_SECRET: "secret" }, failing);
+    const privateKey = await testPrivateKey();
+    const failing = vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify({ error: "unavailable" }), { status: 500 }));
+    const store = remoteVipStore({ SUPABASE_URL: "https://example.supabase.co", VIP_SIGNING_PRIVATE_KEY: privateKey }, failing);
     expect(store).toBeTruthy();
     if (!store) return;
     const bookingId = "11111111-1111-4111-8111-111111111111";
     await expect(store.release("cs_fail")).rejects.toThrow();
+    const sent = new Headers(failing.mock.calls[0]?.[1]?.headers);
+    expect(sent.get("x-tatel-ts")).toBeTruthy();
+    expect(sent.get("x-tatel-sig")).toBeTruthy();
+    expect(sent.get("Authorization")).toBeNull();
     const failed = JSON.stringify({
       type: "checkout.session.async_payment_failed",
       data: { object: { id: "cs_fail", metadata: { booking_id: bookingId } } },
@@ -286,7 +291,7 @@ describe("VIP group booking", () => {
     expect(recorded.status).toBe(502);
 
     const okStore = remoteVipStore(
-      { SUPABASE_URL: "https://example.supabase.co", VIP_BOOKING_SECRET: "secret" },
+      { SUPABASE_URL: "https://example.supabase.co", VIP_SIGNING_PRIVATE_KEY: privateKey },
       vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 })),
     );
     await expect(okStore?.release("cs_ok")).resolves.toBeUndefined();
@@ -310,6 +315,15 @@ describe("VIP group booking", () => {
     expect((await store.get(code, deadline))?.status).toBe("expired");
   });
 });
+
+async function testPrivateKey(): Promise<string> {
+  const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
+  const bytes = new Uint8Array(await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  const b64 = btoa(binary).replace(/(.{64})/g, "$1\n");
+  return `-----BEGIN PRIVATE KEY-----\n${b64}\n-----END PRIVATE KEY-----`;
+}
 
 async function signed(payload: string, secret: string, timestamp: number): Promise<string> {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);

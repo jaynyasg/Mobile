@@ -10,7 +10,7 @@
     // MP4s need range responses. /api/* is the program proxy, sign-in, checkout, and VIP bookings.
     // Secrets, not vars: wrangler secret put STRIPE_SECRET_KEY
     // wrangler secret put STRIPE_WEBHOOK_SECRET
-    // wrangler secret put VIP_BOOKING_SECRET
+    // wrangler secret put VIP_SIGNING_PRIVATE_KEY
     "run_worker_first": ["/api/*", "/*.mp4"]
   },
   "triggers": {

@@ -1,3 +1,4 @@
+import { signVipRequest } from "../supabase/functions/tatel-vip-booking/sign";
 import {
   boatPreference,
   bookingStatus,
@@ -222,22 +223,28 @@ export function parseVipRecord(body: unknown): VipRecord {
 }
 
 export function remoteVipStore(
-  env: { SUPABASE_URL?: string; VIP_BOOKING_SECRET?: string },
+  env: { SUPABASE_URL?: string; VIP_SIGNING_PRIVATE_KEY?: string },
   fetchImpl: FetchLike = fetch,
 ): VipStore | null {
-  if (!env.SUPABASE_URL || !env.VIP_BOOKING_SECRET) return null;
+  if (!env.SUPABASE_URL) return null;
   const url = `${env.SUPABASE_URL.replace(/\/$/, "")}/functions/v1/tatel-vip-booking`;
-  const secret = env.VIP_BOOKING_SECRET;
+  const privateKey = env.VIP_SIGNING_PRIVATE_KEY;
 
   async function call(action: string, payload: Record<string, unknown>): Promise<{ status: number; body: unknown }> {
+    if (!privateKey) throw new Error("unavailable");
+    const body = JSON.stringify({ action, payload });
+    const timestamp = String(Date.now());
+    const path = new URL(url).pathname;
+    const signature = await signVipRequest(privateKey, timestamp, "POST", path, body);
     const response = await fetchImpl(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${secret}`,
         Origin: "https://tatel.app",
+        "x-tatel-ts": timestamp,
+        "x-tatel-sig": signature,
       },
-      body: JSON.stringify({ action, payload }),
+      body,
     });
     try {
       return { status: response.status, body: await response.json() };
