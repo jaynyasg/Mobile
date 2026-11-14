@@ -5,7 +5,13 @@ import {
   clearInstallPrompt,
   getInstallPrompt,
   installChoice,
+  installHiddenUntil,
+  installOffersCopy,
+  installSteps,
+  iosSupportsHomeScreen,
+  rememberInstallDismiss,
   subscribeInstallPrompt,
+  INSTALL_DISMISS_MS,
   type InstallPromptEvent,
 } from "./installPrompt";
 
@@ -44,10 +50,44 @@ describe("install choice", () => {
     expect(installChoice(context({ userAgent: ipadDesktop, maxTouchPoints: 5 }))).toBe("ios-safari");
   });
 
-  it("tells other iOS browsers to reach Add to Home Screen through Safari or Share", () => {
-    expect(installChoice(context({ userAgent: chromeIos }))).toBe("ios-browser");
-    expect(installChoice(context({ userAgent: firefoxIos }))).toBe("ios-browser");
-    expect(installChoice(context({ userAgent: edgeIos }))).toBe("ios-browser");
+  it("gives Chrome, Firefox, and Edge on iOS 16.4+ their own Share steps", () => {
+    expect(installChoice(context({ userAgent: chromeIos }))).toBe("ios-chrome");
+    expect(installChoice(context({ userAgent: firefoxIos }))).toBe("ios-firefox");
+    expect(installChoice(context({ userAgent: edgeIos }))).toBe("ios-edge");
+    expect(installSteps("ios-chrome").map((step) => step.body).join(" ")).toMatch(/address bar/i);
+    expect(installSteps("ios-chrome").map((step) => step.body).join(" ")).toMatch(/Add to Home Screen/);
+    expect(installSteps("ios-safari").map((step) => step.body).join(" ")).toMatch(/bottom bar/i);
+    expect(installSteps("ios-firefox").map((step) => step.body).join(" ")).toMatch(/menu button/i);
+    expect(installSteps("ios-edge").map((step) => step.body).join(" ")).toMatch(/bottom/i);
+    expect(installSteps("ios-chrome").map((step) => step.body).join(" ")).not.toMatch(/conversation/i);
+  });
+
+  it("sends older iOS browsers and in-app browsers to Safari with a copy step", () => {
+    const chrome15 = chromeIos.replace("17_5", "15_6");
+    const chrome163 = chromeIos.replace("17_5", "16_3");
+    const instagram = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 340.0.0.0.0";
+    const facebook = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/500.0.0.0.0;]";
+    const gmail = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
+    expect(iosSupportsHomeScreen(chromeIos)).toBe(true);
+    expect(iosSupportsHomeScreen(chrome163)).toBe(false);
+    expect(installChoice(context({ userAgent: chrome15 }))).toBe("ios-legacy");
+    expect(installChoice(context({ userAgent: instagram }))).toBe("ios-inapp");
+    expect(installChoice(context({ userAgent: facebook }))).toBe("ios-inapp");
+    expect(installChoice(context({ userAgent: gmail }))).toBe("ios-inapp");
+    expect(installOffersCopy("ios-inapp")).toBe(true);
+    expect(installOffersCopy("ios-legacy")).toBe(true);
+    expect(installOffersCopy("ios-chrome")).toBe(false);
+    expect(installSteps("ios-inapp").map((step) => step.body).join(" ")).toMatch(/Safari/);
+    expect(installSteps("ios-inapp").some((step) => step.icon === "copy")).toBe(true);
+  });
+
+  it("remembers a dismiss for two weeks", () => {
+    const now = Date.parse("2026-11-14T00:00:00Z");
+    const stored = rememberInstallDismiss(now);
+    expect(Number(stored) - now).toBe(INSTALL_DISMISS_MS);
+    expect(installHiddenUntil(stored, now + 1000)).toBe(true);
+    expect(installHiddenUntil(stored, now + INSTALL_DISMISS_MS + 1)).toBe(false);
+    expect(installHiddenUntil(null, now)).toBe(false);
   });
 
   it("opens a menu guide when Chromium has no deferred prompt", () => {

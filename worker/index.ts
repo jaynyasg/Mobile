@@ -1,5 +1,6 @@
 import { createPassCheckout, readPassCheckout, type CheckoutEnv } from "./checkout";
 import { phoneSignIn } from "./phoneSignin";
+import { isHtmlShell, pwaContentType } from "./pwa";
 import { quickSignIn, type QuickSignInEnv } from "./quickSignin";
 import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
@@ -17,6 +18,21 @@ function programDeps(value: unknown): ProgramDeps {
   if (!value || typeof value !== "object") return {};
   if ("fetchImpl" in value || "cache" in value) return value as ProgramDeps;
   return {};
+}
+
+async function servePwaAsset(request: Request, env: Env, contentType: string): Promise<Response> {
+  const asset = await env.ASSETS.fetch(request);
+  if (!asset.ok || isHtmlShell(asset)) {
+    return new Response("Not found", {
+      status: 404,
+      headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache" },
+    });
+  }
+  const headers = new Headers(asset.headers);
+  headers.set("Content-Type", contentType);
+  headers.set("X-Content-Type-Options", "nosniff");
+  if (contentType === "application/manifest+json") headers.set("Cache-Control", "no-cache");
+  return new Response(asset.body, { status: asset.status, headers });
 }
 
 function videoHeaders(asset: Response, size: number): Headers {
@@ -55,6 +71,8 @@ export default {
       const deps = programDeps(third);
       return readPassCheckout(request, env, deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined);
     }
+    const pwaType = pwaContentType(url.pathname);
+    if (pwaType) return servePwaAsset(request, env, pwaType);
     if (!url.pathname.toLowerCase().endsWith(".mp4")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response(null, { status: 405, headers: { Allow: "GET, HEAD" } });

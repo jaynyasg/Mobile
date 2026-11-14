@@ -25,6 +25,8 @@ describe("PWA html patch", () => {
     expect(html.match(/name="apple-mobile-web-app-capable"/g)).toHaveLength(1);
     expect(html).toContain('<meta name="mobile-web-app-capable" content="yes" />');
     expect(html.match(/name="viewport"/g)).toHaveLength(1);
+    expect(html).toContain('<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />');
+    expect(html.match(/rel="apple-touch-icon"/g)).toHaveLength(1);
   });
 
   it("still adds the plain mobile-web-app-capable tag when only the apple tag is present", () => {

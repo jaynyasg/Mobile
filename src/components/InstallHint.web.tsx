@@ -2,15 +2,21 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Path, Rect } from "react-native-svg";
 import { Glass } from "./Glass";
 import { T } from "./Text";
 import {
   clearInstallPrompt,
   getInstallPrompt,
+  INSTALL_DISMISS_KEY,
   installChoice,
+  installHiddenUntil,
+  installOffersCopy,
+  installSteps,
+  rememberInstallDismiss,
   subscribeInstallPrompt,
   type InstallChoice,
+  type InstallIcon,
 } from "./installPrompt";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
@@ -29,11 +35,29 @@ function browserContext(hasPrompt: boolean) {
   };
 }
 
+function storedDismiss(): boolean {
+  if (typeof localStorage === "undefined") return false;
+  try {
+    return installHiddenUntil(localStorage.getItem(INSTALL_DISMISS_KEY), Date.now());
+  } catch {
+    return false;
+  }
+}
+
+function rememberDismiss() {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(INSTALL_DISMISS_KEY, rememberInstallDismiss(Date.now()));
+  } catch {
+    // Private mode can refuse storage. The in-memory flag still hides it this visit.
+  }
+}
+
 export function InstallHint() {
   const insets = useSafeAreaInsets();
   const [prompt, setPrompt] = useState(getInstallPrompt);
   const [standalone, setStandalone] = useState(() => typeof window !== "undefined" && installChoice(browserContext(false)) === "hide");
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(storedDismiss);
   const [guide, setGuide] = useState<Guide | null>(null);
 
   useEffect(() => subscribeInstallPrompt(() => setPrompt(getInstallPrompt())), []);
@@ -49,11 +73,17 @@ export function InstallHint() {
   useEffect(() => {
     if (!guide) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setGuide(null);
+      if (event.key === "Escape") dismiss();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [guide]);
+
+  function dismiss() {
+    rememberDismiss();
+    setGuide(null);
+    setDismissed(true);
+  }
 
   if (standalone || dismissed) return null;
 
@@ -71,6 +101,7 @@ export function InstallHint() {
         const result = await event.userChoice;
         clearInstallPrompt();
         if (result?.outcome === "accepted") setStandalone(true);
+        else dismiss();
       } catch {
         clearInstallPrompt();
       }
@@ -80,23 +111,24 @@ export function InstallHint() {
     setGuide(next === "hide" || next === "prompt" ? "menu" : next);
   }
 
+  if (guide) return <InstallSheet kind={guide} bottom={insets.bottom} onClose={dismiss} />;
+
+  const installLabel = prompt ? "Install" : "Add to Home Screen";
   return (
-    <>
-      <View style={styles.pill}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Add to Home Screen" onPress={() => onAdd().catch(() => setGuide("menu"))} style={styles.add}>
-          <T variant="meta" color={colors.onDark} numberOfLines={1}>Add to Home Screen</T>
-        </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Dismiss install hint" onPress={() => setDismissed(true)} style={styles.dismiss}>
-          <T variant="meta" color={colors.gold}>Close</T>
-        </Pressable>
-      </View>
-      {guide ? <InstallSheet kind={guide} bottom={insets.bottom} onClose={() => setGuide(null)} /> : null}
-    </>
+    <View style={styles.pill}>
+      <Pressable accessibilityRole="button" accessibilityLabel={installLabel} onPress={() => onAdd().catch(() => setGuide("menu"))} style={styles.add}>
+        <T variant="meta" color={colors.onDark} numberOfLines={1}>{installLabel}</T>
+      </Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss install hint" onPress={dismiss} style={styles.dismiss}>
+        <T variant="meta" color={colors.gold}>Close</T>
+      </Pressable>
+    </View>
   );
 }
 
 function InstallSheet({ kind, bottom, onClose }: { kind: Guide; bottom: number; onClose: () => void }) {
-  const steps = guideSteps[kind];
+  const steps = installSteps(kind);
+  const [copied, setCopied] = useState(false);
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Add to Home Screen">
       <Pressable accessibilityRole="button" accessibilityLabel="Close install steps" style={styles.backdrop} onPress={onClose} />
@@ -114,6 +146,11 @@ function InstallSheet({ kind, bottom, onClose }: { kind: Guide; bottom: number; 
             </View>
           </View>
         ))}
+        {installOffersCopy(kind) ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Copy link" onPress={() => copyPageLink().then(() => setCopied(true)).catch(() => undefined)} style={styles.copy}>
+            <T variant="button" color={colors.gold}>{copied ? "Copied" : "Copy link"}</T>
+          </Pressable>
+        ) : null}
         <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} style={styles.done}>
           <T variant="button" color={colors.ink}>Done</T>
         </Pressable>
@@ -124,7 +161,22 @@ function InstallSheet({ kind, bottom, onClose }: { kind: Guide; bottom: number; 
   return createPortal(sheet, document.body);
 }
 
-function StepIcon({ name }: { name: "share" | "plus" | "menu" | "safari" }) {
+async function copyPageLink(): Promise<void> {
+  const href = window.location.href;
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(href);
+    return;
+  }
+  const input = document.createElement("textarea");
+  input.value = href;
+  input.setAttribute("readonly", "true");
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("copy");
+  input.remove();
+}
+
+function StepIcon({ name }: { name: InstallIcon }) {
   const stroke = { stroke: colors.gold, strokeWidth: 1.7, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" as const };
   return (
     <Svg width={26} height={26} viewBox="0 0 24 24">
@@ -132,24 +184,15 @@ function StepIcon({ name }: { name: "share" | "plus" | "menu" | "safari" }) {
       {name === "plus" ? <Path {...stroke} d="M5 4h14v16H5zM12 8v8M8 12h8" /> : null}
       {name === "menu" ? <Path {...stroke} d="M5 7h14M5 12h14M5 17h14" /> : null}
       {name === "safari" ? <Path {...stroke} d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5Z" /> : null}
+      {name === "copy" ? (
+        <>
+          <Rect {...stroke} x={8} y={8} width={11} height={12} rx={2} />
+          <Path {...stroke} d="M6 16V6a2 2 0 0 1 2-2h8" />
+        </>
+      ) : null}
     </Svg>
   );
 }
-
-const guideSteps: Record<Guide, { icon: "share" | "plus" | "menu" | "safari"; title: string; body: string }[]> = {
-  "ios-safari": [
-    { icon: "share", title: "Tap Share", body: "Use the Share button in Safari." },
-    { icon: "plus", title: "Add to Home Screen", body: "Choose Add to Home Screen, then Add." },
-  ],
-  "ios-browser": [
-    { icon: "safari", title: "Open Safari", body: "Open this page in Safari, or tap Share in the address bar." },
-    { icon: "plus", title: "Add to Home Screen", body: "Choose Add to Home Screen, then Add." },
-  ],
-  menu: [
-    { icon: "menu", title: "Open the browser menu", body: "In Chrome or Edge, open the menu." },
-    { icon: "plus", title: "Install the app", body: "Choose Install app or Add to Home screen." },
-  ],
-};
 
 const fixed = { position: "fixed" } as unknown as ViewStyle;
 
@@ -202,6 +245,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.08)",
   },
   stepCopy: { flex: 1, gap: 2 },
+  copy: {
+    minHeight: 44,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: colors.gold,
+  },
   done: {
     minHeight: 44,
     borderRadius: 16,

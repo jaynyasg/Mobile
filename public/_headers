@@ -3,7 +3,14 @@
   Cache-Control: no-cache
 
 /manifest.webmanifest
+  Content-Type: application/manifest+json
   Cache-Control: no-cache
+
+/apple-touch-icon.png
+  Content-Type: image/png
+
+/icons/*
+  Content-Type: image/png
 
 /_expo/*
   Cache-Control: public, max-age=31536000, immutable

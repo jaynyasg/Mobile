@@ -47,3 +47,17 @@ export function consumeIntakeRequest(store: IntakeStore | null): boolean {
   store.setItem(INTAKE_RETAKE_KEY, "");
   return true;
 }
+
+/** A finished payment means they hold a pass. Retake questions can still replace this. */
+export function notePassPurchased(store: IntakeStore | null): IntakeRecord {
+  const current = readIntake(store);
+  const next: IntakeRecord = {
+    hasPass: "have",
+    areas: current?.areas ?? [],
+    needsStay: current?.needsStay ?? "browsing",
+    completed: [...new Set([...(current?.completed ?? []), "pass"])],
+  };
+  writeIntake(store, next);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("tatel-pass-owned"));
+  return next;
+}
