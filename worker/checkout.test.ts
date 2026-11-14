@@ -39,6 +39,7 @@ describe("pass checkout", () => {
     expect(params.get("metadata[event]")).toBe("tatel_2027");
     expect(params.get("metadata[tier]")).toBe("beach");
     expect(params.get("customer_email")).toBe("ada@example.com");
+    expect(CHECKOUT_RETURN_URL).toBe("https://tatel.app/tickets?checkout=return&session_id={CHECKOUT_SESSION_ID}");
     expect(params.get("return_url")).toBe(CHECKOUT_RETURN_URL);
     expect(params.get("branding_settings[background_color]")).toBe("#071421");
     expect(params.get("branding_settings[button_color]")).toBe("#FFE08A");

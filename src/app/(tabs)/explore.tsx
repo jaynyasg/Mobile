@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FeedCard } from "@/components/FeedCard";
+import { StampCard } from "@/components/StampCard";
 import { ZoneMap } from "@/components/ZoneMap";
 import { T } from "@/components/Text";
 import { useContent } from "@/content/provider";
@@ -34,6 +35,12 @@ export default function ExploreScreen() {
       <BeaconBackground />
       <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}>
         <T variant="eyebrow" color={colors.gold} style={styles.kicker}>Explore</T>
+        <StampCard
+          pillars={forum.pillars}
+          onOpen={(id) => {
+            if ((zoneReelIds as readonly string[]).includes(id)) openChapter(id as ReelId, { pathname: "/pillar/[id]", params: { id } });
+          }}
+        />
         <ZoneMap
           progress={progress}
           reduced={reduced}

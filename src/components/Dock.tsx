@@ -29,7 +29,7 @@ const rows: DockItem[][] = [
     { href: "/", label: "Home", icon: "home", active: (path) => path === "/" || path === "/index" },
     { href: "/agenda", label: "Sessions", icon: "calendar", chapter: "sessions", active: (path) => path.startsWith("/agenda") || path.startsWith("/session") },
     { href: "/explore", label: "Explore", icon: "pin", chapter: "venues", active: (path) => path.startsWith("/explore") || path.startsWith("/pillar") },
-    { href: "/passport", label: "Passport", icon: "ticket", chapter: "pass", active: (path) => path.startsWith("/passport") },
+    { href: "/tickets", label: "Tickets", icon: "ticket", chapter: "pass", active: (path) => path.startsWith("/ticket") || path.startsWith("/passport") || path.startsWith("/pass/vip") },
     { href: "/more", label: "Me", icon: "people", active: (path) => path.startsWith("/more") || path.startsWith("/settings") },
   ],
   [

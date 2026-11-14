@@ -24,7 +24,7 @@ describe("your path", () => {
     const steps = buildPath({ hasPass: "have", areas: ["law"], needsStay: "yes" }, pillars);
     expect(steps.map((step) => step.id)).toEqual(["stay", "sessions", "route", "pass", "chat"]);
     expect(steps[0]?.title).toBe("Pick your stay");
-    expect(steps.find((step) => step.id === "pass")?.title).toBe("Add your pass");
+    expect(steps.find((step) => step.id === "pass")).toMatchObject({ title: "Add your pass", line: "Open Tickets." });
     expect(steps[0]?.id).not.toBe("pass");
   });
 

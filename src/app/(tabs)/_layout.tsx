@@ -9,7 +9,7 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="agenda" options={{ title: "Sessions" }} />
       <Tabs.Screen name="explore" options={{ title: "Explore" }} />
-      <Tabs.Screen name="passport" options={{ title: "Passport" }} />
+      <Tabs.Screen name="tickets" options={{ title: "Tickets" }} />
       <Tabs.Screen name="more" options={{ title: "Me" }} />
       <Tabs.Screen name="community" options={{ title: "Community" }} />
       <Tabs.Screen name="places" options={{ title: "Venues" }} />

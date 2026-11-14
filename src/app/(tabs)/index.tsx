@@ -89,7 +89,7 @@ export default function HomeScreen() {
   function openStep(step: PathStep) {
     if (step.id !== "stay" || intake?.needsStay !== "booked") markStep(step.id);
     if (step.id === "pass") {
-      if (intake?.hasPass === "have") openChapter("pass", "/passport");
+      if (intake?.hasPass === "have") openChapter("pass", "/tickets");
       else Linking.openURL(passes.sourceUrl || PASS_ATTEND_URL).catch(() => undefined);
       return;
     }

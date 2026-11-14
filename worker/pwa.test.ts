@@ -9,6 +9,7 @@ describe("pwa asset types", () => {
     expect(pwaContentType("/icons/icon-192.png")).toBe("image/png");
     expect(pwaContentType("/icons/icon-512.png")).toBe("image/png");
     expect(pwaContentType("/passport")).toBeNull();
+    expect(pwaContentType("/tickets")).toBeNull();
   });
 
   it("serves a real manifest as manifest+json", async () => {

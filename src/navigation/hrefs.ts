@@ -18,7 +18,7 @@ export function citationHref(citation: Citation): Href {
         case "settings":
           return "/settings";
         case "ticket":
-          return "/ticket";
+          return "/tickets";
         case "agenda":
           return "/agenda";
         case "transport":

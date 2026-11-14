@@ -129,7 +129,7 @@ function buildCorpus(): GuideDoc[] {
       body: `${passes.previewLabel} ${passes.legend}. ${passes.items
         .map((pass) => `${pass.name} ${pass.price} ${pass.unit}${pass.minimum ? `, ${pass.minimum}` : ""}`)
         .join(". ")}. ${passes.sourceNote}`,
-      citation: { title: "Pass preview", kind: "screen", id: "ticket" },
+      citation: { title: "Tickets", kind: "screen", id: "ticket" },
     },
     {
       id: "imagery",

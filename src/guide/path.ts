@@ -13,7 +13,7 @@ const tourLine: Record<string, string> = {
   transport: "Transport: see the routes",
   stay: "Stays: find where you sleep",
   know: "Guide: know before you go",
-  pass: "Passport: get your stamps",
+  pass: "Tickets: get your pass",
   chat: "Chat: join the room",
 };
 
@@ -36,7 +36,7 @@ export const guideSteps = [
   { id: "transport", headline: "See how to get around", line: "Powerboat, ferries, or a yacht.", cta: "Open Transport" },
   { id: "stay", headline: "Find your stay", line: "Where you sleep on each island.", cta: "Open stays" },
   { id: "know", headline: "Know before you go", line: "Passports, boats, sun, and the clock.", cta: "Open" },
-  { id: "pass", headline: "Get your pass", line: "Your event pass and island stamps.", cta: "Open Passport" },
+  { id: "pass", headline: "Get your pass", line: "Beach, boat, or a VIP group.", cta: "Open Tickets" },
   { id: "chat", headline: "Join the chat", line: "Talk with people at TATEL.", cta: "Open chat" },
 ] as const satisfies readonly GuideStep[];
 
