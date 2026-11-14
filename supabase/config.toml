@@ -4,3 +4,9 @@ project_id = "oykwxnzlpxbrfcoejawt"
 # Deploy it with JWT verification off, the same way as tatel-quick-signin.
 [functions.tatel-phone-signin]
 verify_jwt = false
+
+# The worker signs each call with VIP_SIGNING_PRIVATE_KEY. This function checks the
+# public key in source and does not use a shared secret.
+# Deploy it with JWT verification off. The service role stays on this function.
+[functions.tatel-vip-booking]
+verify_jwt = false

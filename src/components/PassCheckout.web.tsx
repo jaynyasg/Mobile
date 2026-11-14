@@ -14,6 +14,8 @@ export function PassCheckout({
   detail,
   email,
   preview = false,
+  secretPath,
+  secretBody,
   onClose,
   onBooked,
 }: {
@@ -22,6 +24,8 @@ export function PassCheckout({
   detail: string;
   email?: string | null;
   preview?: boolean;
+  secretPath?: string;
+  secretBody?: string;
   onClose: () => void;
   onBooked: () => void;
 }) {
@@ -35,26 +39,33 @@ export function PassCheckout({
     const node = mountRef.current;
     if (!node) return;
     let live = true;
-    let checkout: { destroy: () => void } | null = null;
     (async () => {
       try {
         const { loadStripe } = await import("@stripe/stripe-js");
         const stripe = await loadStripe(stripePublishableKey());
         if (!stripe || !live) throw new Error("unavailable");
+        let sessionId = "";
         const page = await stripe.createEmbeddedCheckoutPage({
           fetchClientSecret: async () => {
-            const response = await fetch("/api/checkout", {
+            const response = await fetch(secretPath ?? "/api/checkout", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ tier, email: email ?? undefined }),
+              body: secretBody ?? JSON.stringify({ tier, email: email ?? undefined }),
             });
             if (!response.ok) throw new Error("unavailable");
-            const body = (await response.json()) as { clientSecret?: string };
+            const body = (await response.json()) as { clientSecret?: string; sessionId?: string };
             if (!body.clientSecret) throw new Error("unavailable");
+            sessionId = body.sessionId ?? "";
             return body.clientSecret;
           },
           onComplete: () => {
-            if (live) onBooked();
+            if (!live) return;
+            const finish = () => { if (live) onBooked(); };
+            if (!sessionId) {
+              finish();
+              return;
+            }
+            fetch(`/api/checkout/status?session_id=${encodeURIComponent(sessionId)}`).catch(() => undefined).finally(finish);
           },
         });
         if (!live) {
@@ -65,7 +76,7 @@ export function PassCheckout({
           }
           return;
         }
-        checkout = holdCheckout(page);
+        holdCheckout(page);
         page.mount(node);
         setMessage(null);
       } catch {
@@ -75,10 +86,9 @@ export function PassCheckout({
     })();
     return () => {
       live = false;
-      checkout = null;
       holdCheckout(null);
     };
-  }, [email, onBooked, preview, tier]);
+  }, [email, onBooked, preview, secretBody, secretPath, tier]);
 
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Checkout">
@@ -87,7 +97,8 @@ export function PassCheckout({
           <T variant="button" color={colors.gold}>Back</T>
         </Pressable>
         <View style={styles.barTitle}>
-          <T variant="small" color={colors.foam} numberOfLines={1}>{title}</T>
+          {tier === "vip" ? <T variant="meta" color={colors.gold} numberOfLines={1}>STAY onboard</T> : null}
+          <T variant="small" color={colors.foam} numberOfLines={2}>{title}</T>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Close checkout" onPress={dismiss} style={styles.barHit}>
           <T variant="button" color={colors.gold} style={styles.mark}>✕</T>
@@ -95,14 +106,11 @@ export function PassCheckout({
       </View>
       <View style={[styles.scroll, webScroll]}>
         <View style={styles.card}>
-          <T variant="eyebrow" color={colors.gold}>Passes</T>
+          <T variant="eyebrow" color={colors.gold}>{tier === "vip" ? "VIP shares" : title}</T>
           <T variant="title" color={colors.foam}>{title}</T>
           <T variant="small" color={colors.foam}>{detail}</T>
           {preview ? <CheckoutMock /> : <View ref={mountRef as never} style={styles.mount} />}
           {message ? <T variant="meta" color={colors.foam}>{message}</T> : null}
-          <Pressable accessibilityRole="button" accessibilityLabel="Close checkout" onPress={dismiss} style={styles.close}>
-            <T variant="button" color={colors.gold}>Close</T>
-          </Pressable>
         </View>
       </View>
     </View>
@@ -211,5 +219,4 @@ const styles = StyleSheet.create({
   mock: { gap: 8, padding: 14, borderRadius: 16, backgroundColor: "#071421", borderWidth: 1, borderColor: "rgba(255,224,138,0.35)" },
   field: { height: 44, borderRadius: 10, backgroundColor: "rgba(245,241,232,0.08)", borderWidth: 1, borderColor: "rgba(255,224,138,0.28)" },
   pay: { minHeight: 48, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
-  close: { minHeight: 44, alignItems: "center", justifyContent: "center" },
 });

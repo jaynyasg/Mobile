@@ -7,6 +7,8 @@ export function PassCheckout(_props: {
   detail?: string;
   email?: string | null;
   preview?: boolean;
+  secretPath?: string;
+  secretBody?: string;
   onClose: () => void;
   onBooked?: () => void;
 }) {
