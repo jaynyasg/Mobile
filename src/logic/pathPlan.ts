@@ -30,7 +30,7 @@ export function buildPath(answers: IntakeAnswers, pillars: readonly PathPillar[]
   const stayBooked = answers.needsStay === "booked";
   const steps: PathStep[] = [
     answers.hasPass === "have"
-      ? { id: "pass", title: "Add your pass", line: "Open Passport.", optional: false, done: false }
+      ? { id: "pass", title: "Add your pass", line: "Open Tickets.", optional: false, done: false }
       : { id: "pass", title: "Choose your pass", line: "Register to attend.", optional: false, done: false },
     { id: "sessions", title: "Select your sessions", line: areaLine, optional: false, done: false },
     answers.needsStay === "yes"

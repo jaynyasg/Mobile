@@ -3,7 +3,7 @@ import { clientKey, consumeRate, normalizeEmail, type RateBook } from "./quickSi
 /** Current Checkout Session API. `embedded` was renamed to `embedded_page`. */
 export const STRIPE_API_VERSION = "2026-03-25.dahlia";
 export const STRIPE_UI_MODE = "embedded_page";
-export const CHECKOUT_RETURN_URL = "https://tatel.app/passport?checkout=return&session_id={CHECKOUT_SESSION_ID}";
+export const CHECKOUT_RETURN_URL = "https://tatel.app/tickets?checkout=return&session_id={CHECKOUT_SESSION_ID}";
 
 /** Live catalog prices. Override with STRIPE_PRICE_BEACH, STRIPE_PRICE_BOAT, and STRIPE_PRICE_VIP. */
 export const DEFAULT_PASS_PRICES = {

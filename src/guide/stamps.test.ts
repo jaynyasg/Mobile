@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addStamp, adventureLine, buildQuests, readStamps, type StampStore } from "./stamps";
+import { STAMPS_KEY, addStamp, adventureLine, buildQuests, islandStamp, readStamps, type StampStore } from "./stamps";
 
 function memory(): StampStore & { values: Map<string, string> } {
   const values = new Map<string, string>();
@@ -15,9 +15,11 @@ const sessions = [
   { id: "early", title: "Morning", island: "Lovango", dayId: "2027-01-26", start: "2027-01-26T11:00:00-04:00" },
 ];
 
-describe("island passport", () => {
-  it("stores a stamp once", () => {
+describe("stamp card", () => {
+  it("stores a stamp once under the same key", () => {
     const store = memory();
+    expect(STAMPS_KEY).toBe("tatel.stamps");
+    expect(islandStamp("tech")).toBe("island:tech");
     expect(addStamp(store, "island:tech")).toBe(true);
     expect(addStamp(store, "island:tech")).toBe(false);
     expect(readStamps(store)).toEqual(["island:tech"]);

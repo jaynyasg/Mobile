@@ -59,7 +59,9 @@ describe("home guide", () => {
     expect(guideSteps[1]?.headline).toBe("Pick your infrastructures");
     expect(guideSteps[1]?.line).toContain("tailor your Sessions and route");
     expect(guideSteps[2]?.headline).toBe("Select Your Session");
-    expect(tourTitle(6)).toBe("Passport: get your stamps");
+    expect(tourTitle(6)).toBe("Tickets: get your pass");
+    expect(guideSteps[6]?.cta).toBe("Open Tickets");
+    expect(guideSteps[6]?.line).toBe("Beach, boat, or a VIP group.");
     expect(TOUR_DWELL_MS).toBeGreaterThanOrEqual(7_000);
     const store = memory();
     expect(hasSeenTour(store)).toBe(false);

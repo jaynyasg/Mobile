@@ -1,18 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PassCheckout } from "@/components/PassCheckout";
 import { QrMark } from "@/components/QrMark";
 import { T } from "@/components/Text";
 import { useAuth } from "@/community/auth";
 import { useContent } from "@/content/provider";
-import { zoneReelIds, type ReelId } from "@/content/reels";
-import { islandStamp, prefersReducedMotion, readStamps } from "@/guide/stamps";
-import { localReelStore } from "@/reels/gate";
-import { useReels } from "@/reels/ReelHost";
 import { readContactPrefs } from "@/logic/contactPrefs";
-import { notePassPurchased } from "@/logic/intake";
+import { notePassPurchased, readIntake } from "@/logic/intake";
+import { readOwnedPass, writeOwnedPass } from "@/logic/ownedPass";
 import { CHECKOUT_SOON, canEmbedCheckout, passOffer, passTier, type PassTier } from "@/logic/passPay";
 import { passPayload } from "@/logic/state";
 import { useApp } from "@/store";
@@ -21,8 +18,6 @@ import { VipStart } from "@/components/VipStart";
 import { colors, sceneForIsland } from "@/theme";
 import { dockClearance } from "@/components/Dock";
 import { nightGlass } from "@/components/nightGlass";
-
-const ways = ["Visit an island", "Open a session", "Finish a step on For you"];
 
 function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string | string[]; session_id?: string | string[] }) {
   const fromRouter = (value: string | string[] | undefined) => (typeof value === "string" ? value : null);
@@ -37,17 +32,22 @@ function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string
   };
 }
 
-export default function PassportScreen() {
+function readHold(): { owned: boolean; tier: PassTier | null } {
+  const owned = readIntake(webStorage())?.hasPass === "have";
+  return { owned, tier: owned ? readOwnedPass(webStorage()) : null };
+}
+
+export default function TicketsScreen() {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const { openChapter } = useReels();
   const { email, userId } = useAuth();
   const { state } = useApp();
   const params = useLocalSearchParams<{ checkout?: string; tier?: string; session_id?: string }>();
   const { passes } = program;
-  const [passId, setPassId] = useState(passes.items[0]?.id ?? "");
+  const [passId, setPassId] = useState(() => readHold().tier ?? passes.items[0]?.id ?? "");
   const [shown, setShown] = useState(false);
   const [more, setMore] = useState(false);
+  const [hold, setHold] = useState(readHold);
   const [paying, setPaying] = useState<PassTier | null>(() => {
     if (typeof window === "undefined") return null;
     const search = new URLSearchParams(window.location.search);
@@ -62,12 +62,13 @@ export default function PassportScreen() {
   const [booked, setBooked] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const pass = passes.items.find((item) => item.id === passId) ?? passes.items[0];
-  const stamps = new Set(readStamps(localReelStore()));
-  const reduced = prefersReducedMotion();
-  const islands = program.forum.pillars;
-  const held = islands.filter((pillar) => stamps.has(islandStamp(pillar.id))).length;
 
   const checkoutQuery = readCheckoutQuery(params);
+  const refreshHold = useCallback(() => setHold(readHold()), []);
+
+  useFocusEffect(useCallback(() => {
+    refreshHold();
+  }, [refreshHold]));
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -84,17 +85,21 @@ export default function PassportScreen() {
   useEffect(() => {
     if (!booked) return;
     notePassPurchased(webStorage());
-  }, [booked]);
+    refreshHold();
+  }, [booked, refreshHold]);
 
   useEffect(() => {
     if (checkoutQuery.checkout !== "return" || !checkoutQuery.sessionId) return;
     let live = true;
     fetch(`/api/checkout/status?session_id=${encodeURIComponent(checkoutQuery.sessionId)}`)
       .then((response) => response.json())
-      .then((body: { status?: string }) => {
+      .then((body: { status?: string; tier?: string | null }) => {
         if (!live) return;
-        if (body.status === "complete") setBooked(true);
-        else setCancelled(true);
+        if (body.status === "complete") {
+          const tier = passTier(body.tier);
+          if (tier) writeOwnedPass(webStorage(), tier);
+          setBooked(true);
+        } else setCancelled(true);
       })
       .catch(() => {
         if (live) setCancelled(true);
@@ -118,45 +123,54 @@ export default function PassportScreen() {
     setPaying(tier);
   }
 
+  function claim(id: string) {
+    const tier = passTier(id);
+    if (!tier) return;
+    writeOwnedPass(webStorage(), tier);
+    setPassId(id);
+    setMore(false);
+    refreshHold();
+  }
+
   if (!pass) return null;
   const payingPass = passes.items.find((item) => item.id === paying);
+  const heldPass = hold.owned
+    ? (passes.items.find((item) => item.id === (hold.tier ?? passId)) ?? pass)
+    : null;
 
   return (
     <View style={styles.frame}>
       <Image source={{ uri: sceneForIsland("Jost Van Dyke") }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}>
-        <View style={styles.book}>
-          <T variant="eyebrow" color={colors.gold}>Your passport</T>
-          <T variant="small" color={colors.foam}>Collect a stamp on each island and at each session you attend. Fill your passport during the summit.</T>
-          <T variant="title" color={colors.foam}>{held} of {islands.length} islands</T>
-          <T variant="eyebrow" color={colors.gold}>How to earn stamps</T>
-          {ways.map((way) => (
-            <T key={way} variant="small" color={colors.foam}>{way}</T>
-          ))}
-          <View style={styles.stamps}>
-            {islands.map((pillar) => {
-              const heldStamp = stamps.has(islandStamp(pillar.id));
-              const zoneId = (zoneReelIds as readonly string[]).includes(pillar.id) ? (pillar.id as ReelId) : null;
-              return (
-                <Pressable
-                  key={pillar.id}
-                  accessibilityRole="button"
-                  accessibilityLabel={heldStamp ? `${pillar.island} stamped` : `Open ${pillar.island}`}
-                  onPress={() => {
-                    if (zoneId) openChapter(zoneId, { pathname: "/pillar/[id]", params: { id: pillar.id } });
-                  }}
-                  style={styles.slot}
-                >
-                  <View style={[styles.stamp, heldStamp && styles.stampOn, heldStamp && !reduced && styles.stampIn]}>
-                    <T variant="meta" color={heldStamp ? colors.ink : colors.gold}>{heldStamp ? "✓" : ""}</T>
-                  </View>
-                  <T variant="small" color={colors.foam} numberOfLines={2} style={styles.island}>{pillar.island}</T>
-                  <T variant="meta" color={colors.gold} numberOfLines={2} style={styles.track}>{pillar.name}</T>
-                </Pressable>
-              );
-            })}
-          </View>
+        <View style={styles.intro}>
+          <T variant="eyebrow" color={colors.gold}>Tickets</T>
+          <T variant="title" color={colors.foam}>{hold.owned ? "Your pass" : "Choose a pass"}</T>
+          <T variant="small" color={colors.foam}>
+            {hold.owned
+              ? "Show it at the sessions. Beach, boat, and a VIP group are here if you need another."
+              : "Beach, boat, or a VIP group. Eight shares fill a boat."}
+          </T>
         </View>
+        {heldPass ? (
+          <View style={styles.hero}>
+            <T variant="rowTitle" color={colors.foam}>{heldPass.name}</T>
+            <T variant="small" color={colors.foam}>{heldPass.price} {heldPass.unit}</T>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={shown ? "Hide pass" : "Show pass"}
+              onPress={() => setShown((open) => !open)}
+              style={styles.pill}
+            >
+              <T variant="button" color={colors.ink}>{shown ? "Hide pass" : "Show pass"}</T>
+            </Pressable>
+          </View>
+        ) : null}
+        {heldPass && shown ? (
+          <View style={styles.qr}>
+            <QrMark value={passPayload(heldPass.id)} />
+            <T variant="meta" color={colors.foam}>Your pass on this device.</T>
+          </View>
+        ) : null}
         <View style={styles.passes}>
           <T variant="eyebrow" color={colors.gold}>Passes</T>
           <T variant="small" color={colors.foam}>{passes.legend}</T>
@@ -187,25 +201,6 @@ export default function PassportScreen() {
             );
           })}
         </View>
-        <View style={styles.hero}>
-          <T variant="eyebrow" color={colors.gold}>Event pass</T>
-          <T variant="title" color={colors.foam}>{pass.name}</T>
-          <T variant="small" color={colors.foam}>{pass.price} {pass.unit}</T>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={shown ? "Hide pass" : "Show pass"}
-            onPress={() => setShown((open) => !open)}
-            style={styles.pill}
-          >
-            <T variant="button" color={colors.ink}>{shown ? "Hide pass" : "Show pass"}</T>
-          </Pressable>
-        </View>
-        {shown ? (
-          <View style={styles.qr}>
-            <QrMark value={passPayload(pass.id)} />
-            <T variant="meta" color={colors.foam}>A code for the stamps on this device.</T>
-          </View>
-        ) : null}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.picks}>
           {passes.items.map((item) => {
             const current = item.id === pass.id;
@@ -213,10 +208,13 @@ export default function PassportScreen() {
               <Pressable
                 key={item.id}
                 accessibilityRole="button"
-                accessibilityLabel={item.name}
+                accessibilityLabel={hold.owned && !hold.tier ? `This is my ${item.name} pass` : item.name}
                 onPress={() => {
-                  setPassId(item.id);
-                  setMore(false);
+                  if (hold.owned && !hold.tier) claim(item.id);
+                  else {
+                    setPassId(item.id);
+                    setMore(false);
+                  }
                 }}
                 style={[styles.pick, current && styles.pickOn]}
               >
@@ -250,6 +248,7 @@ export default function PassportScreen() {
           preview={checkoutQuery.checkout === "preview"}
           onClose={() => setPaying(null)}
           onBooked={() => {
+            writeOwnedPass(webStorage(), paying);
             setPaying(null);
             setBooked(true);
           }}
@@ -295,27 +294,10 @@ export default function PassportScreen() {
 const styles = StyleSheet.create({
   frame: { flex: 1, backgroundColor: "#071421" },
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  book: { marginHorizontal: 16, padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
-  stamps: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 6 },
-  slot: { width: "47%", minHeight: 132, alignItems: "center", gap: 6, paddingVertical: 8 },
-  stamp: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 1.5,
-    borderStyle: "dashed",
-    borderColor: "rgba(255,224,138,0.7)",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(7,27,42,0.28)",
-  },
-  stampOn: { backgroundColor: colors.gold, borderStyle: "solid", borderColor: colors.gold },
-  stampIn: { ...({ animation: "tatel-stamp 420ms ease" } as object) },
-  island: { textAlign: "center" },
-  track: { textAlign: "center", fontSize: 13, lineHeight: 16 },
+  intro: { marginHorizontal: 16, padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
   passes: { marginHorizontal: 16, marginTop: 16, gap: 10 },
   passCard: { padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
-  hero: { marginHorizontal: 20, marginTop: 22, gap: 8 },
+  hero: { marginHorizontal: 16, marginTop: 16, padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
   overlay: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, zIndex: 70, backgroundColor: "#071421", justifyContent: "center", padding: 16 },
   notice: { padding: 18, gap: 12, borderRadius: 22, ...nightGlass, backgroundColor: "rgba(7,27,42,0.92)" },
   pill: { alignSelf: "flex-start", minHeight: 48, marginTop: 8, paddingHorizontal: 20, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },

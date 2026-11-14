@@ -16,7 +16,7 @@ export default function MoreScreen() {
       title: "You",
       items: [
         { href: "/schedule", label: "My schedule", detail: "Favorites saved on this device" },
-        { href: "/passport", label: "Passport", detail: "Stamps and your event pass", reelId: "pass" },
+        { href: "/tickets", label: "Tickets", detail: "Your pass, and Beach, Boat, or VIP", reelId: "pass" },
         { href: "/notifications", label: "Notifications", detail: "Summit notes on this device", badge: unread || undefined },
         { href: "/assistant", label: "Guide", detail: "Answers from the program, on this device" },
         { href: "/community", label: "Community", detail: "Live chat", reelId: "community" },

@@ -18,7 +18,7 @@ describe("pass checkout client", () => {
   });
 
   it("does not keep a Stripe payment link", () => {
-    const files = ["src/logic/passPay.ts", "src/app/(tabs)/passport.tsx", "src/components/PassCheckout.tsx", "src/components/PassCheckout.web.tsx", "worker/checkout.ts"];
+    const files = ["src/logic/passPay.ts", "src/app/(tabs)/tickets.tsx", "src/components/PassCheckout.tsx", "src/components/PassCheckout.web.tsx", "worker/checkout.ts"];
     for (const file of files) expect(readFileSync(file, "utf8")).not.toContain("buy.stripe.com");
   });
 });
