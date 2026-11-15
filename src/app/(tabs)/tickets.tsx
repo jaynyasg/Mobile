@@ -17,6 +17,7 @@ import { webStorage } from "@/welcome";
 import { VipStart } from "@/components/VipStart";
 import { colors, sceneForIsland } from "@/theme";
 import { dockClearance } from "@/components/Dock";
+import { notchPadding } from "@/components/notch";
 import { nightGlass } from "@/components/nightGlass";
 
 function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string | string[]; session_id?: string | string[] }) {
@@ -143,7 +144,7 @@ export default function TicketsScreen() {
   return (
     <View style={styles.frame}>
       <Image source={{ uri: sceneForIsland("Jost Van Dyke") }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
-      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}>
+      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={[{ paddingBottom: 24 }, notchPadding("top", 16, insets.top)]}>
         <View style={styles.intro}>
           <T variant="eyebrow" color={colors.gold}>Tickets</T>
           <T variant="title" color={colors.foam}>{hold.owned ? "Your pass" : "Choose a pass"}</T>

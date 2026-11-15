@@ -12,6 +12,7 @@ import { isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
 import { colors, sceneForIsland } from "@/theme";
 import { dockClearance } from "@/components/Dock";
+import { notchPadding } from "@/components/notch";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { useApp } from "@/store";
 
@@ -33,7 +34,7 @@ export default function ExploreScreen() {
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}>
+      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={[{ paddingBottom: 24 }, notchPadding("top", 16, insets.top)]}>
         <T variant="eyebrow" color={colors.gold} style={styles.kicker}>Explore</T>
         <StampCard
           pillars={forum.pillars}

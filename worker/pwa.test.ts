@@ -1,10 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import worker from "./index";
-import { isHtmlShell, pwaContentType } from "./pwa";
+import { readFileSync } from "node:fs";
+import { ensurePwaDocument, installabilityGaps, isHtmlShell, MANIFEST_LINK, pwaContentType } from "./pwa";
 
 describe("pwa asset types", () => {
   it("names the manifest and the home-screen icons", () => {
     expect(pwaContentType("/manifest.webmanifest")).toBe("application/manifest+json");
+    expect(pwaContentType("/sw.js")).toBe("text/javascript");
     expect(pwaContentType("/apple-touch-icon.png")).toBe("image/png");
     expect(pwaContentType("/icons/icon-192.png")).toBe("image/png");
     expect(pwaContentType("/icons/icon-512.png")).toBe("image/png");
@@ -28,6 +30,29 @@ describe("pwa asset types", () => {
     expect(response.status).toBe(404);
     expect(response.headers.get("Content-Type")).not.toContain("text/html");
     expect(isHtmlShell(shell)).toBe(true);
+  });
+
+  it("links the manifest and iOS tags on every HTML route", async () => {
+    const html = "<!doctype html><html><head><title>TATEL</title></head><body>Hi</body></html>";
+    const fetch = vi.fn(async () => new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } }));
+    const response = await worker.fetch(new Request("https://tatel.app/tickets"), { ASSETS: { fetch } } as never);
+    expect(response.headers.get("Link")).toBe(MANIFEST_LINK);
+    const body = await response.text();
+    expect(body).toContain('rel="manifest"');
+    expect(body).toContain('name="apple-mobile-web-app-capable"');
+    expect(body).toContain('name="apple-mobile-web-app-status-bar-style"');
+    expect(body).toContain('rel="apple-touch-icon"');
+    expect(body).toContain('name="apple-mobile-web-app-title"');
+    expect(ensurePwaDocument(body)).toBe(body);
+  });
+
+  it("meets Chrome installability for a standalone WebAPK", () => {
+    const manifest = JSON.parse(readFileSync("public/manifest.webmanifest", "utf8"));
+    const serviceWorker = readFileSync("public/sw.js", "utf8");
+    expect(installabilityGaps(manifest, serviceWorker)).toEqual([]);
+    expect(manifest.theme_color).toBe("#071B2A");
+    expect(manifest.background_color).toBe(manifest.theme_color);
+    expect(manifest.display).toBe("standalone");
   });
 
   it("keeps icon bytes and forces image/png", async () => {

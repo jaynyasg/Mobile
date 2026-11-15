@@ -7,6 +7,7 @@ import { webTrackStore, writeTracks } from "@/guide/interests";
 import { beaconPoster } from "@/images";
 import { visitorEdition } from "@/content/labels";
 import { colors, sceneForIsland } from "@/theme";
+import { notchPadding } from "./notch";
 import { T } from "./Text";
 
 export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; start?: "arrival" | "tracks" }) {
@@ -36,7 +37,7 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
     <View style={styles.overlay}>
       <Image source={beaconPoster} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <View style={styles.shade} />
-      <View style={[styles.copy, { paddingBottom: Math.max(insets.bottom, 24) + 16, paddingTop: insets.top + 24 }]}>
+      <View style={[styles.copy, notchPadding("top", 24, insets.top), notchPadding("bottom", 40, insets.bottom)]}>
         <T variant="eyebrow" color={colors.gold}>{visitorEdition(forum.edition)}</T>
         <T variant="title" color={colors.foam}>{forum.kicker}</T>
         <T variant="small" color={colors.foam}>{forum.dateLabel}</T>
@@ -49,7 +50,7 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
 
   const tracks = (
     <View style={styles.overlay}>
-      <ScrollView contentContainerStyle={[styles.trackScroll, { paddingTop: insets.top + 20 }]}>
+      <ScrollView contentContainerStyle={[styles.trackScroll, notchPadding("top", 20, insets.top)]}>
         <T variant="eyebrow" color={colors.gold}>Infrastructures</T>
         <T variant="title" color={colors.foam} style={styles.ask}>Which infrastructure areas interest you?</T>
         <T variant="small" color={colors.foam}>Pick one or more. We'll tailor Sessions and your route.</T>

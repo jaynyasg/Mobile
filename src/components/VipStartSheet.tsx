@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { boatPreferenceLabel, type BoatPreference } from "@/logic/vipGroup";
 import { colors, fonts } from "@/theme";
 import { nightGlass } from "./nightGlass";
+import { notchPadding } from "./notch";
 import { T } from "./Text";
 
 const choices: { value: BoatPreference; label: string }[] = [
@@ -92,7 +93,7 @@ export function VipStartSheet({
 
   const sheet = (
     <View
-      style={[styles.overlay, { paddingTop: Math.max(12, insets.top + 8), paddingBottom: Math.max(12, insets.bottom + 8) }]}
+      style={[styles.overlay, notchPadding("top", 12, insets.top), notchPadding("bottom", 12, insets.bottom)]}
       accessibilityViewIsModal
       accessibilityLabel="Start a VIP booking"
     >

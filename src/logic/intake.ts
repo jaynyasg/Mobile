@@ -48,11 +48,15 @@ export function consumeIntakeRequest(store: IntakeStore | null): boolean {
   return true;
 }
 
-/** A finished payment means they hold a pass. Retake questions can still replace this. */
+/**
+ * A finished payment checks the pass step. The question answer stays, so someone
+ * who said not-yet still sees Choose your pass, now checked. A retake can replace this.
+ * With no answers yet, the record says they have a pass.
+ */
 export function notePassPurchased(store: IntakeStore | null): IntakeRecord {
   const current = readIntake(store);
   const next: IntakeRecord = {
-    hasPass: "have",
+    hasPass: current?.hasPass ?? "have",
     areas: current?.areas ?? [],
     needsStay: current?.needsStay ?? "browsing",
     completed: [...new Set([...(current?.completed ?? []), "pass"])],

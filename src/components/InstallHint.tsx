@@ -5,6 +5,10 @@ import { T } from "./Text";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 
+export function InstallButton() {
+  return null;
+}
+
 export function InstallHint() {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;

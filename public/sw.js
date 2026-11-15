@@ -1,5 +1,5 @@
-const CACHE = "tatel-shell-v8";
-const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/favicon.ico", "/apple-touch-icon.png", "/beacon/coast/white-bay-day.jpg"];
+const CACHE = "tatel-shell-v9";
+const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/favicon.ico", "/apple-touch-icon.png", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/icon-192-maskable.png", "/icons/icon-512-maskable.png", "/beacon/coast/white-bay-day.jpg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { Href, useFocusEffect } from "expo-router";
 import { type ReelId } from "@/content/reels";
 import { useContent } from "@/content/provider";
+import { InstallButton } from "@/components/InstallHint";
 import { Screen } from "@/components/Screen";
 import { LinkRow, PageHeader, SectionLabel } from "@/components/ui";
 import { backgrounds } from "@/components/backgrounds";
@@ -49,6 +50,7 @@ export default function MoreScreen() {
   return (
     <Screen docked photo={backgrounds.more.day} night={backgrounds.more.night} phase={backgrounds.more.phase}>
       <PageHeader kicker="TATEL" title="Me" />
+      <InstallButton />
       {groups.map((group) => (
         <ViewSection key={group.title} title={group.title} items={group.items} />
       ))}

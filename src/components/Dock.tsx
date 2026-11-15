@@ -1,10 +1,11 @@
 import { Href, usePathname, useRouter } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { type ReelId } from "@/content/reels";
 import { useReels } from "@/reels/ReelHost";
 import { colors } from "@/theme";
 import { Glass } from "./Glass";
+import { notchOffset } from "./notch";
 import { Icon, IconName } from "./Icon";
 import { T } from "./Text";
 
@@ -48,7 +49,7 @@ export function Dock() {
   const { openChapter } = useReels();
 
   return (
-    <View pointerEvents="box-none" style={[styles.dock, { bottom: Math.max(insets.bottom, 6) }]}>
+    <View pointerEvents="box-none" style={[styles.dock, Platform.OS === "web" ? notchOffset("bottom", 6, 0) : { bottom: Math.max(insets.bottom, 6) }]}>
       <Glass tone="dark" padded={false} style={styles.pill}>
         {rows.map((row) => (
           <View key={row[0].label} style={styles.row}>

@@ -26,6 +26,9 @@ describe("PWA html patch", () => {
     expect(html).toContain('<meta name="mobile-web-app-capable" content="yes" />');
     expect(html.match(/name="viewport"/g)).toHaveLength(1);
     expect(html).toContain('<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />');
+    expect(html).toContain("data-tatel-install");
+    expect(html).toContain("beforeinstallprompt");
+    expect(html.match(/data-tatel-install/g)).toHaveLength(1);
     expect(html.match(/rel="apple-touch-icon"/g)).toHaveLength(1);
   });
 

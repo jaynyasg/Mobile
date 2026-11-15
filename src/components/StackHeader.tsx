@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { clip } from "./clip";
 import { nightGlass } from "./nightGlass";
+import { notchPadding } from "./notch";
 import { colors, pad } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
@@ -12,7 +13,7 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
   const insets = useSafeAreaInsets();
   const router = useRouter();
   return (
-    <View style={[styles.bar, Platform.OS === "web" ? webBlur : null, { paddingTop: insets.top + 8 }]}>
+    <View style={[styles.bar, Platform.OS === "web" ? webBlur : null, notchPadding("top", 8, insets.top)]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Go back"
