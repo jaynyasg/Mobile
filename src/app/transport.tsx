@@ -247,7 +247,7 @@ function ChoiceTile({
   return (
     <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[map ? styles.choiceMap : styles.choice, selected && styles.choiceOn]}>
       {map ? (
-        <View style={styles.mapFrame}>
+        <View style={styles.chartFrame}>
           <VirginIslandsMap />
         </View>
       ) : (
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   choices: { gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
   choice: { height: 96, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
   choiceMap: { borderRadius: 16, overflow: "hidden", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
-  mapFrame: { width: "100%", aspectRatio: 800 / 480 },
+  chartFrame: { width: "100%", aspectRatio: 800 / 480 },
   mapCaption: { paddingHorizontal: 12, paddingVertical: 8, minHeight: 40, justifyContent: "center" },
   choiceOn: { borderColor: colors.gold },
   choicePhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
