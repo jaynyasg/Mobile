@@ -5,6 +5,7 @@ import * as SplashScreen from "expo-splash-screen";
 import * as SystemUI from "expo-system-ui";
 import { ReactNode, useEffect, useState } from "react";
 import { Platform, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "@/community/auth";
 import { ContentProvider } from "@/content/provider";
 import { ImageViewerProvider } from "@/components/ImageViewer";
@@ -87,10 +88,13 @@ export function SuspenseFallback() {
 }
 
 function Frame({ children }: { children: ReactNode }) {
-  if (Platform.OS !== "web") return children;
+  // Expo's web SafeAreaProvider reports zero insets, so headers sit under the
+  // notch and iOS will not deliver those taps. Measure the real safe area here.
+  const column = <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: shellColor }}>{children}</View>;
+  if (Platform.OS !== "web") return <SafeAreaProvider style={{ flex: 1 }}>{children}</SafeAreaProvider>;
   return (
-    <View style={{ flex: 1, backgroundColor: shellColor, alignItems: "center" }}>
-      <View style={{ flex: 1, width: "100%", maxWidth: 440, backgroundColor: shellColor }}>{children}</View>
-    </View>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: shellColor, alignItems: "center" }}>
+      {column}
+    </SafeAreaProvider>
   );
 }

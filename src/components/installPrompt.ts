@@ -121,7 +121,7 @@ function stepsFor(choice: InstallChoice): InstallStep[] {
   }
   return [
     { icon: "menu", title: "Open the browser menu", body: "In Chrome or Edge, open the menu." },
-    { icon: "plus", title: "Install the app", body: "Choose Install app or Add to Home screen." },
+    { icon: "plus", title: "Install the app", body: "Choose Install app. That installs TATEL on its own, without the browser bar. Do not choose Add to Home screen, which only saves a shortcut." },
   ];
 }
 
@@ -155,8 +155,23 @@ export function iosSupportsHomeScreen(userAgent: string): boolean {
 }
 
 let current: InstallPromptEvent | null = null;
+let installedFlag = false;
 const listeners = new Set<() => void>();
 let detach: (() => void) | null = null;
+
+export const INSTALL_DONE_KEY = "tatel.install.installed";
+
+export function appInstalled(): boolean {
+  return installedFlag;
+}
+
+export function installRecorded(stored: string | null): boolean {
+  return stored === "1";
+}
+
+function notify() {
+  for (const listener of listeners) listener();
+}
 
 export function getInstallPrompt(): InstallPromptEvent | null {
   return current;
@@ -171,11 +186,22 @@ export function subscribeInstallPrompt(listener: () => void): () => void {
 
 function publish(next: InstallPromptEvent | null) {
   current = next;
-  for (const listener of listeners) listener();
+  notify();
+}
+
+export function noteAppInstalled() {
+  installedFlag = true;
+  publish(null);
+}
+
+export function resetInstallTracking() {
+  installedFlag = false;
+  publish(null);
 }
 
 export function acceptInstallPrompt(event: InstallPromptEvent) {
   event.preventDefault();
+  installedFlag = false;
   publish(event);
 }
 
@@ -183,9 +209,22 @@ export function clearInstallPrompt() {
   publish(null);
 }
 
+export function adoptStashedInstall(stash: { prompt: InstallPromptEvent | null; installed: boolean } | null) {
+  if (!stash) return;
+  if (stash.installed) {
+    installedFlag = true;
+    current = null;
+    return;
+  }
+  if (stash.prompt) {
+    installedFlag = false;
+    current = stash.prompt;
+  }
+}
+
 export function bindInstallPrompt(host: PromptHost): () => void {
   const onPrompt = (event: Event) => acceptInstallPrompt(event as unknown as InstallPromptEvent);
-  const onInstalled = () => clearInstallPrompt();
+  const onInstalled = () => noteAppInstalled();
   host.addEventListener("beforeinstallprompt", onPrompt);
   host.addEventListener("appinstalled", onInstalled);
   return () => {
@@ -195,6 +234,10 @@ export function bindInstallPrompt(host: PromptHost): () => void {
 }
 
 export function listenForInstallPrompt(host: PromptHost | null = typeof window === "undefined" ? null : window): void {
+  if (typeof window !== "undefined") {
+    const stash = (window as Window & { __tatelInstall?: { prompt: InstallPromptEvent | null; installed: boolean } }).__tatelInstall;
+    adoptStashedInstall(stash ?? null);
+  }
   if (!host || detach) return;
   detach = bindInstallPrompt(host);
 }

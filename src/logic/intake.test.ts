@@ -15,12 +15,13 @@ describe("pass purchase", () => {
     const store = memory();
     writeIntake(store, { hasPass: "not-yet", areas: ["tech"], needsStay: "yes", completed: ["sessions"] });
     expect(notePassPurchased(store)).toEqual({
-      hasPass: "have",
+      hasPass: "not-yet",
       areas: ["tech"],
       needsStay: "yes",
       completed: ["sessions", "pass"],
     });
-    expect(readIntake(store)?.hasPass).toBe("have");
+    expect(readIntake(store)?.hasPass).toBe("not-yet");
+    expect(readIntake(store)?.completed).toContain("pass");
   });
 
   it("remembers a purchase when questions have not been answered yet", () => {

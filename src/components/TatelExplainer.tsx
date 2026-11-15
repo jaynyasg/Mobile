@@ -3,14 +3,13 @@ import { createPortal } from "react-dom";
 import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContent } from "@/content/provider";
-import { reels, type ReelId } from "@/content/reels";
-import { advanceStory, storyBeat, storySlides } from "@/logic/tatelStory";
+import { reels } from "@/content/reels";
+import { advanceStory, storyBackground, storyBeat, storySlides } from "@/logic/tatelStory";
 import { prefersReducedMotion } from "@/guide/stamps";
 import { colors, fonts } from "@/theme";
 import { Icon } from "./Icon";
+import { notchPadding } from "./notch";
 import { T } from "./Text";
-
-const DAY_REELS: ReelId[] = ["tech", "ai", "travel", "entertainment"];
 
 export function TatelExplainer({ onClose }: { onClose: () => void }) {
   const insets = useSafeAreaInsets();
@@ -28,6 +27,18 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   }, [forum.days, forum.pillars, sessions]);
   const slide = slides[index] ?? slides[0];
   const last = index >= slides.length - 1;
+  const [film, setFilm] = useState(() => {
+    const first = storyBackground(slides[0], null, reels) ?? reels.venues;
+    return { poster: first.poster, mp4: first.mp4 };
+  });
+
+  useEffect(() => {
+    setFilm((current) => {
+      const next = storyBackground(slide, current, reels);
+      if (!next || next.mp4 === current.mp4) return current;
+      return { poster: next.poster, mp4: next.mp4 };
+    });
+  }, [slide]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -75,8 +86,6 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   }
 
   if (!slide) return null;
-  const reelId = slide.reelId ?? DAY_REELS[Math.max(0, index - 5)] ?? "venues";
-  const reel = reels[reelId];
   const sheet = (
     <View
       style={styles.overlay}
@@ -97,9 +106,9 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
         onMouseLeave: () => setHeld(false),
       } as ViewStyle)}
     >
-      <Film key={slide.id} poster={reel.poster} mp4={slide.kind === "letter" ? reel.mp4 : undefined} />
+      <Film poster={film.poster} mp4={film.mp4} />
       <View style={styles.shade} />
-      <View style={[styles.copy, { paddingTop: insets.top + 20, paddingBottom: Math.max(insets.bottom, 16) + 8 }]}>
+      <View style={[styles.copy, notchPadding("top", 20, insets.top), notchPadding("bottom", 24, insets.bottom)]}>
         <T variant="eyebrow" color={colors.gold}>{slide.kicker}</T>
         {slide.kind === "letter" ? (
           <View style={styles.letters}>
@@ -139,10 +148,47 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   return createPortal(sheet, document.body);
 }
 
-function Film({ poster, mp4 }: { poster: string; mp4?: string }) {
+function Film({ poster, mp4 }: { poster: string; mp4: string }) {
+  const ref = useRef<HTMLVideoElement | null>(null);
   const [failed, setFailed] = useState(false);
   const reduce = prefersReducedMotion();
-  if (Platform.OS !== "web" || !mp4 || failed || reduce) {
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || reduce) return;
+    let live = true;
+    const arm = () => {
+      if (!live || !node.paused) return;
+      node.muted = true;
+      node.defaultMuted = true;
+      node.loop = true;
+      node.playsInline = true;
+      node.autoplay = true;
+      node.setAttribute("muted", "");
+      node.setAttribute("playsinline", "");
+      node.setAttribute("webkit-playsinline", "");
+      const attempt = node.play();
+      if (attempt) attempt.catch(() => undefined);
+    };
+    arm();
+    node.addEventListener("pause", arm);
+    node.addEventListener("ended", arm);
+    const onVis = () => {
+      if (document.visibilityState === "visible") arm();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    const retry = window.setInterval(arm, 1500);
+    return () => {
+      live = false;
+      window.clearInterval(retry);
+      node.removeEventListener("pause", arm);
+      node.removeEventListener("ended", arm);
+      document.removeEventListener("visibilitychange", onVis);
+      node.pause();
+    };
+  }, [mp4, reduce]);
+
+  if (Platform.OS !== "web" || failed || reduce) {
     return <Image source={{ uri: poster }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />;
   }
   return (
@@ -156,12 +202,18 @@ function Film({ poster, mp4 }: { poster: string; mp4?: string }) {
         src: mp4,
         onError: () => setFailed(true),
         ref: (node: HTMLVideoElement | null) => {
+          ref.current = node;
           if (!node) return;
           node.muted = true;
-          const attempt = node.play();
-          if (attempt) attempt.catch(() => setFailed(true));
+          node.defaultMuted = true;
+          node.loop = true;
+          node.playsInline = true;
+          node.setAttribute("muted", "");
+          node.setAttribute("playsinline", "");
+          node.setAttribute("webkit-playsinline", "");
+          node.setAttribute("data-testid", "story-film");
         },
-        style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" },
+        style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" },
       })}
     </View>
   );

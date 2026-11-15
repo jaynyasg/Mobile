@@ -9,6 +9,8 @@ describe("route shell", () => {
     expect(layout).not.toContain("#E7F3F4");
     expect(layout).not.toContain("colors.paper");
     expect(layout).toContain("backgroundColor: shellColor");
+    expect(layout).toContain('from "react-native-safe-area-context"');
+    expect(layout).toContain("<SafeAreaProvider");
     expect(layout).toContain("export function SuspenseFallback");
     const community = readFileSync("src/app/(tabs)/community.tsx", "utf8");
     expect(community).toContain('import("../community-sign-in")');

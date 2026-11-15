@@ -79,6 +79,20 @@ export function dayBlurb(formats: readonly string[]): string {
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? "";
 }
 
+/**
+ * Letter beats use that letter's film. Day beats (Problem, Plan, Build, Showcase)
+ * keep the film already playing so it does not remount or restart.
+ */
+export function storyBackground<T extends { mp4: string }>(
+  slide: { kind: "letter" | "day"; reelId?: string } | undefined,
+  current: T | null,
+  library: Record<string, T>,
+): T | null {
+  if (!slide || slide.kind === "day") return current;
+  const reel = slide.reelId ? library[slide.reelId] : undefined;
+  return reel ?? current;
+}
+
 export function storySlides(input: {
   pillars: readonly { id: string; name: string; island: string }[];
   days: readonly { id: string; phase: string; shortWeekday: string; dayNumber: string }[];

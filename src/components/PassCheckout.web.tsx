@@ -6,6 +6,7 @@ import { checkoutDismissPlan, hasCheckoutMarker, holdCheckout, withCheckoutMarke
 import { CHECKOUT_SOON, stripePublishableKey, type PassTier } from "@/logic/passPay";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
+import { notchPadding } from "./notch";
 import { T } from "./Text";
 
 export function PassCheckout({
@@ -92,7 +93,7 @@ export function PassCheckout({
 
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Checkout">
-      <View style={[styles.bar, { paddingTop: Math.max(insets.top, 0) + 8 }, webNotch]}>
+      <View style={[styles.bar, notchPadding("top", 8, insets.top)]}>
         <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={dismiss} style={styles.barHit}>
           <T variant="button" color={colors.gold}>Back</T>
         </Pressable>
@@ -181,12 +182,7 @@ function CheckoutMock() {
 }
 
 const fixed = { position: "fixed" } as unknown as ViewStyle;
-const webNotch = {
-  paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
-  paddingLeft: "calc(env(safe-area-inset-left, 0px) + 4px)",
-  paddingRight: "calc(env(safe-area-inset-right, 0px) + 4px)",
-} as ViewStyle;
-const webScroll = { overflowY: "auto", WebkitOverflowScrolling: "touch" } as unknown as ViewStyle;
+const webScroll = { overflowY: "auto", WebkitOverflowScrolling: "touch", minHeight: 0 } as unknown as ViewStyle;
 
 const styles = StyleSheet.create({
   overlay: {
@@ -208,7 +204,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,224,138,0.55)",
-    ...({ position: "sticky", top: 0 } as unknown as ViewStyle),
+    position: "relative",
   },
   barHit: { minWidth: 64, minHeight: 44, alignItems: "center", justifyContent: "center", paddingHorizontal: 8 },
   barTitle: { flex: 1, minWidth: 0 },

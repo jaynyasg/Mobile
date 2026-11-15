@@ -6,6 +6,7 @@ import { reels } from "@/content/reels";
 import { useContent } from "@/content/provider";
 import type { PassAnswer, StayAnswer } from "@/logic/pathPlan";
 import { colors } from "@/theme";
+import { notchPadding } from "./notch";
 import { T } from "./Text";
 
 const passOptions: { id: PassAnswer; label: string }[] = [
@@ -47,7 +48,7 @@ export function Questions({
     <View style={styles.overlay} accessibilityViewIsModal>
       <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <View style={styles.shade} />
-      <View style={[styles.frame, { paddingTop: insets.top + 12, paddingBottom: Math.max(insets.bottom, 16) }]}>
+      <View style={[styles.frame, notchPadding("top", 12, insets.top), notchPadding("bottom", 16, insets.bottom)]}>
         <View style={styles.top}>
           <Pressable accessibilityRole="button" accessibilityLabel="Back" disabled={step === 0} onPress={() => setStep((current) => Math.max(0, current - 1))} style={styles.ghost}>
             <T variant="button" color={step === 0 ? "rgba(245,241,232,0.35)" : colors.foam}>Back</T>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { forum, sessions } from "../content";
-import { advanceStory, dayBlurb, dayCoverLine, dayFlowLine, letterPlaceLine, storyBeat, storyIntro, storySlides, tatelLetters } from "./tatelStory";
+import { readFileSync } from "node:fs";
+import { advanceStory, dayBlurb, dayCoverLine, dayFlowLine, letterPlaceLine, storyBackground, storyBeat, storyIntro, storySlides, tatelLetters } from "./tatelStory";
 
 function formatsByDay(): Record<string, string[]> {
   const map: Record<string, string[]> = {};
@@ -77,5 +78,35 @@ describe("what TATEL is", () => {
     expect(seen.slice(0, 5)).toEqual(["T", "A", "T", "E", "L"]);
     expect(seen.slice(5)).toEqual(["The Problem", "The Plan / Solution", "Build", "Showcase"]);
     expect(advanceStory(slides.length - 1, slides.length)).toBeNull();
+  });
+
+  it("keeps one film playing through Problem, Plan, Build, and Showcase", () => {
+    const slides = storySlides({ pillars: forum.pillars, days: forum.days, formatsByDay: formatsByDay() });
+    const library = {
+      tech: { mp4: "/reels/tech.mp4" },
+      ai: { mp4: "/reels/ai.mp4" },
+      travel: { mp4: "/reels/travel.mp4" },
+      entertainment: { mp4: "/reels/entertainment.mp4" },
+      law: { mp4: "/reels/law.mp4" },
+    };
+    let film: { mp4: string } | null = null;
+    const played: string[] = [];
+    for (const slide of slides) {
+      film = storyBackground(slide, film, library);
+      played.push(film?.mp4 ?? "");
+    }
+    expect(played.slice(0, 5)).toEqual([
+      "/reels/tech.mp4",
+      "/reels/ai.mp4",
+      "/reels/travel.mp4",
+      "/reels/entertainment.mp4",
+      "/reels/law.mp4",
+    ]);
+    expect(played.slice(5)).toEqual(["/reels/law.mp4", "/reels/law.mp4", "/reels/law.mp4", "/reels/law.mp4"]);
+    const source = readFileSync("src/components/TatelExplainer.tsx", "utf8");
+    expect(source).not.toContain("key={slide.id}");
+    expect(source).not.toContain('slide.kind === "letter" ? reel.mp4');
+    expect(source).toContain("loop: true");
+    expect(source).toContain("playsInline: true");
   });
 });

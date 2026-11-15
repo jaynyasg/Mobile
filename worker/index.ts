@@ -1,6 +1,6 @@
 import { createPassCheckout, readPassCheckout, type CheckoutEnv } from "./checkout";
 import { phoneSignIn } from "./phoneSignin";
-import { isHtmlShell, pwaContentType } from "./pwa";
+import { ensurePwaDocument, isHtmlShell, MANIFEST_LINK, pwaContentType } from "./pwa";
 import { quickSignIn, type QuickSignInEnv } from "./quickSignin";
 import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
@@ -32,8 +32,19 @@ async function servePwaAsset(request: Request, env: Env, contentType: string): P
   const headers = new Headers(asset.headers);
   headers.set("Content-Type", contentType);
   headers.set("X-Content-Type-Options", "nosniff");
-  if (contentType === "application/manifest+json") headers.set("Cache-Control", "no-cache");
+  if (contentType === "application/manifest+json" || contentType === "text/javascript") headers.set("Cache-Control", "no-cache");
   return new Response(asset.body, { status: asset.status, headers });
+}
+
+async function serveDocument(request: Request, env: Env): Promise<Response> {
+  const asset = await env.ASSETS.fetch(request);
+  if (!isHtmlShell(asset)) return asset;
+  const headers = new Headers(asset.headers);
+  const prior = headers.get("Link");
+  headers.set("Link", prior ? `${prior}, ${MANIFEST_LINK}` : MANIFEST_LINK);
+  const html = ensurePwaDocument(await asset.text());
+  headers.delete("Content-Length");
+  return new Response(html, { status: asset.status, headers });
 }
 
 function videoHeaders(asset: Response, size: number): Headers {
@@ -92,7 +103,7 @@ export default {
     }
     const pwaType = pwaContentType(url.pathname);
     if (pwaType) return servePwaAsset(request, env, pwaType);
-    if (!url.pathname.toLowerCase().endsWith(".mp4")) return env.ASSETS.fetch(request);
+    if (!url.pathname.toLowerCase().endsWith(".mp4")) return serveDocument(request, env);
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response(null, { status: 405, headers: { Allow: "GET, HEAD" } });
     }

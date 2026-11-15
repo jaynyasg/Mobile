@@ -6,10 +6,14 @@ import Svg, { Path, Rect } from "react-native-svg";
 import { Glass } from "./Glass";
 import { T } from "./Text";
 import {
+  appInstalled,
   clearInstallPrompt,
   getInstallPrompt,
   INSTALL_DISMISS_KEY,
+  INSTALL_DONE_KEY,
   installChoice,
+  installRecorded,
+  noteAppInstalled,
   installHiddenUntil,
   installOffersCopy,
   installSteps,
@@ -24,7 +28,7 @@ import { nightGlass } from "./nightGlass";
 type Guide = Exclude<InstallChoice, "hide" | "prompt">;
 
 function browserContext(hasPrompt: boolean) {
-  const standalone = typeof window !== "undefined" && Boolean(window.matchMedia?.("(display-mode: standalone)")?.matches);
+  const standalone = typeof window !== "undefined" && ["standalone", "fullscreen", "minimal-ui"].some((mode) => Boolean(window.matchMedia?.(`(display-mode: ${mode})`)?.matches));
   const navigatorStandalone = typeof navigator !== "undefined" && Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
   return {
     userAgent: typeof navigator === "undefined" ? "" : navigator.userAgent,
@@ -33,6 +37,25 @@ function browserContext(hasPrompt: boolean) {
     maxTouchPoints: typeof navigator === "undefined" ? 0 : navigator.maxTouchPoints,
     hasPrompt,
   };
+}
+
+function storedInstalled(): boolean {
+  if (typeof localStorage === "undefined") return false;
+  try {
+    return installRecorded(localStorage.getItem(INSTALL_DONE_KEY)) || appInstalled();
+  } catch {
+    return appInstalled();
+  }
+}
+
+function persistInstalled(done: boolean) {
+  if (typeof localStorage === "undefined") return;
+  try {
+    if (done) localStorage.setItem(INSTALL_DONE_KEY, "1");
+    else localStorage.removeItem(INSTALL_DONE_KEY);
+  } catch {
+    // Private mode can refuse storage.
+  }
 }
 
 function storedDismiss(): boolean {
@@ -57,10 +80,20 @@ export function InstallHint() {
   const insets = useSafeAreaInsets();
   const [prompt, setPrompt] = useState(getInstallPrompt);
   const [standalone, setStandalone] = useState(() => typeof window !== "undefined" && installChoice(browserContext(false)) === "hide");
+  const [installed, setInstalled] = useState(storedInstalled);
   const [dismissed, setDismissed] = useState(storedDismiss);
   const [guide, setGuide] = useState<Guide | null>(null);
 
-  useEffect(() => subscribeInstallPrompt(() => setPrompt(getInstallPrompt())), []);
+  useEffect(() => subscribeInstallPrompt(() => {
+    setPrompt(getInstallPrompt());
+    if (appInstalled()) {
+      setInstalled(true);
+      persistInstalled(true);
+    } else if (getInstallPrompt()) {
+      setInstalled(false);
+      persistInstalled(false);
+    }
+  }), []);
 
   useEffect(() => {
     const read = () => setStandalone(installChoice(browserContext(false)) === "hide");
@@ -85,7 +118,7 @@ export function InstallHint() {
     setDismissed(true);
   }
 
-  if (standalone || dismissed) return null;
+  if (standalone || installed || dismissed) return null;
 
   async function onAdd() {
     const event = prompt ?? getInstallPrompt();
@@ -100,8 +133,11 @@ export function InstallHint() {
       try {
         const result = await event.userChoice;
         clearInstallPrompt();
-        if (result?.outcome === "accepted") setStandalone(true);
-        else dismiss();
+        if (result?.outcome === "accepted") {
+          noteAppInstalled();
+          setInstalled(true);
+          persistInstalled(true);
+        } else dismiss();
       } catch {
         clearInstallPrompt();
       }
@@ -126,15 +162,88 @@ export function InstallHint() {
   );
 }
 
+export function InstallButton() {
+  const insets = useSafeAreaInsets();
+  const [prompt, setPrompt] = useState(getInstallPrompt);
+  const [standalone, setStandalone] = useState(() => typeof window !== "undefined" && installChoice(browserContext(false)) === "hide");
+  const [installed, setInstalled] = useState(storedInstalled);
+  const [guide, setGuide] = useState<Guide | null>(null);
+
+  useEffect(() => subscribeInstallPrompt(() => {
+    setPrompt(getInstallPrompt());
+    if (appInstalled()) {
+      setInstalled(true);
+      persistInstalled(true);
+    } else if (getInstallPrompt()) {
+      setInstalled(false);
+      persistInstalled(false);
+    }
+  }), []);
+
+  useEffect(() => {
+    const read = () => setStandalone(installChoice(browserContext(false)) === "hide");
+    read();
+    const medias = ["standalone", "fullscreen", "minimal-ui"].map((mode) => window.matchMedia?.(`(display-mode: ${mode})`)).filter((media): media is MediaQueryList => Boolean(media));
+    for (const media of medias) media.addEventListener?.("change", read);
+    return () => {
+      for (const media of medias) media.removeEventListener?.("change", read);
+    };
+  }, []);
+
+  if (standalone || installed) return null;
+
+  async function onAdd() {
+    const event = prompt ?? getInstallPrompt();
+    if (event && installChoice(browserContext(true)) === "prompt") {
+      try {
+        await event.prompt();
+      } catch {
+        clearInstallPrompt();
+        setGuide("menu");
+        return;
+      }
+      try {
+        const result = await event.userChoice;
+        clearInstallPrompt();
+        if (result?.outcome === "accepted") {
+          noteAppInstalled();
+          setInstalled(true);
+          persistInstalled(true);
+        }
+      } catch {
+        clearInstallPrompt();
+      }
+      return;
+    }
+    const next = installChoice(browserContext(false));
+    setGuide(next === "hide" || next === "prompt" ? "menu" : next);
+  }
+
+  return (
+    <>
+      <Pressable accessibilityRole="button" accessibilityLabel="Add to Home Screen" onPress={() => onAdd().catch(() => setGuide("menu"))} style={styles.meButton}>
+        <T variant="button" color={colors.gold}>Add to Home Screen</T>
+      </Pressable>
+      {guide ? <InstallSheet kind={guide} bottom={insets.bottom} onClose={() => setGuide(null)} /> : null}
+    </>
+  );
+}
+
 function InstallSheet({ kind, bottom, onClose }: { kind: Guide; bottom: number; onClose: () => void }) {
   const steps = installSteps(kind);
   const [copied, setCopied] = useState(false);
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Add to Home Screen">
       <Pressable accessibilityRole="button" accessibilityLabel="Close install steps" style={styles.backdrop} onPress={onClose} />
-      <Glass tone="dark" style={[styles.sheet, { marginBottom: Math.max(bottom, 16), backgroundColor: "rgba(7,27,42,0.62)" }]}>
+      <Glass tone="dark" style={[styles.sheet, { marginBottom: Math.max(bottom, 16), backgroundColor: "rgba(7,27,42,0.94)" }]}>
         <T variant="eyebrow" color={colors.gold}>Home Screen</T>
         <T variant="title" color={colors.ivory}>Add TATEL</T>
+        {steps.some((step) => step.icon === "share") ? (
+          <View style={styles.shareCall}>
+            <StepIcon name="share" />
+            <T variant="small" color={colors.foam}>Use the Share button. It is the square with an arrow.</T>
+          </View>
+        ) : null}
         {steps.map((step) => (
           <View key={step.title} style={styles.step}>
             <View style={styles.mark}>
@@ -260,4 +369,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  meButton: {
+    ...nightGlass,
+    marginHorizontal: 16,
+    marginTop: 8,
+    minHeight: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(7,27,42,0.88)",
+  },
+  shareCall: { flexDirection: "row", alignItems: "center", gap: 10 },
 });

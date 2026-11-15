@@ -28,6 +28,24 @@ function ensureViewportFit(html) {
   return html.replace(tag, updated);
 }
 
+const INSTALL_CAPTURE = `<script data-tatel-install>
+window.__tatelInstall=window.__tatelInstall||{prompt:null,installed:false};
+window.addEventListener("beforeinstallprompt",function(event){
+  event.preventDefault();
+  window.__tatelInstall.prompt=event;
+  window.__tatelInstall.installed=false;
+  try{localStorage.removeItem("tatel.install.installed");}catch(e){}
+});
+window.addEventListener("appinstalled",function(){
+  window.__tatelInstall.prompt=null;
+  window.__tatelInstall.installed=true;
+  try{localStorage.setItem("tatel.install.installed","1");}catch(e){}
+});
+if("serviceWorker"in navigator&&location.hostname!=="localhost"&&location.hostname!=="127.0.0.1"){
+  window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(){});});
+}
+</script>`;
+
 export function patchPwaHtml(html) {
   let next = html;
   if (!next.includes('rel="manifest"') && !next.includes("rel='manifest'")) {
@@ -49,5 +67,6 @@ export function patchPwaHtml(html) {
   if (!/name=["']theme-color["']/.test(next)) {
     next = insertBeforeHeadEnd(next, '<meta name="theme-color" content="#071B2A" />');
   }
+  if (!next.includes("data-tatel-install")) next = insertBeforeHeadEnd(next, INSTALL_CAPTURE);
   return ensureViewportFit(next);
 }

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { dockClearance } from "@/components/Dock";
+import { notchPadding } from "@/components/notch";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { nightGlass } from "@/components/nightGlass";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
@@ -19,7 +20,7 @@ import { webTrackStore, writeTracks } from "@/guide/interests";
 import { consumeIntakeRequest, readIntake, writeIntake, type IntakeRecord } from "@/logic/intake";
 import { saveIntakeRemote } from "@/logic/intakeSync";
 import { readOwnedPass } from "@/logic/ownedPass";
-import { buildPath, PASS_ATTEND_URL, type PathStep } from "@/logic/pathPlan";
+import { buildPath, pathDestination, type PathStep } from "@/logic/pathPlan";
 import { suggestedDayId } from "@/logic/phase";
 import { isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
@@ -37,7 +38,7 @@ const stepPhoto: Record<PathStep["id"], string> = {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const { forum, sessions, passes } = program;
+  const { forum, sessions } = program;
   const router = useRouter();
   const { openChapter, replayIntro, openStory, reelActive } = useReels();
   const { userId, preview } = useAuth();
@@ -89,19 +90,28 @@ export default function HomeScreen() {
 
   function openStep(step: PathStep) {
     if (step.id !== "stay" || intake?.needsStay !== "booked") markStep(step.id);
-    if (step.id === "pass") {
-      const held = intake?.hasPass === "have" || readOwnedPass(webStorage()) != null;
-      if (held || intake?.hasPass !== "not-yet") openChapter("pass", "/tickets");
-      else Linking.openURL(passes.sourceUrl || PASS_ATTEND_URL).catch(() => undefined);
+    const target = pathDestination(step.id, {
+      areas: intake?.areas ?? [],
+      needsStay: intake?.needsStay ?? "skipped",
+    });
+    if (target.pathname === "/tickets") {
+      openChapter("pass", "/tickets");
       return;
     }
-    if (step.id === "sessions") openChapter("sessions", "/agenda");
-    if (step.id === "stay") {
-      const areas = intake?.areas.join(",") ?? "";
-      router.push(areas && intake?.needsStay === "yes" ? { pathname: "/stays", params: { areas } } : "/stays");
+    if (target.pathname === "/agenda") {
+      openChapter("sessions", "/agenda");
+      return;
     }
-    if (step.id === "route") openChapter("transport", { pathname: "/transport", params: { build: "1" } });
-    if (step.id === "chat") openChapter("community", "/community");
+    if (target.pathname === "/stays") {
+      const areas = target.params && "areas" in target.params ? target.params.areas : "";
+      router.push(areas ? { pathname: "/stays", params: { areas } } : "/stays");
+      return;
+    }
+    if (target.pathname === "/transport") {
+      openChapter("transport", { pathname: "/transport", params: { build: "1" } });
+      return;
+    }
+    openChapter("community", "/community");
   }
 
   const dayId = suggestedDayId(new Date());
@@ -117,7 +127,7 @@ export default function HomeScreen() {
       <BeaconBackground />
       <ScrollView
         style={styles.fill}
-        contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: dockClearance(insets.bottom) + 48 }}
+        contentContainerStyle={[{ paddingBottom: dockClearance(insets.bottom) + 48 }, notchPadding("top", 8, insets.top)]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.install}>
@@ -145,7 +155,7 @@ export default function HomeScreen() {
               </View>
             </View>
             {steps.map((step) => (
-              <Pressable key={step.id} accessibilityRole="button" accessibilityLabel={step.title} onPress={() => openStep(step)} style={styles.path}>
+              <Pressable key={step.id} accessibilityRole="button" accessibilityState={{ checked: step.done }} accessibilityLabel={step.done ? `${step.title}, completed` : step.title} onPress={() => openStep(step)} style={styles.path}>
                 <Image source={{ uri: stepPhoto[step.id] }} style={styles.pathPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 <View style={styles.pathShade} />
                 <View style={styles.pathCopy}>
@@ -153,6 +163,11 @@ export default function HomeScreen() {
                   <T variant="rowTitle" color={colors.foam} numberOfLines={1} style={styles.stepTitle}>{step.title}</T>
                   <T variant="meta" color={colors.foam} numberOfLines={1} style={styles.stepLine}>{step.line}</T>
                 </View>
+                {step.done ? (
+                  <View style={styles.doneMark} accessibilityElementsHidden>
+                    <T variant="button" color={colors.ink}>✓</T>
+                  </View>
+                ) : null}
               </Pressable>
             ))}
             {next ? (
@@ -232,10 +247,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(7,27,42,0.88)",
   },
-  path: { height: 64, marginHorizontal: 12, marginBottom: 6, borderRadius: 14, overflow: "hidden", justifyContent: "center" },
+  path: { position: "relative", height: 64, marginHorizontal: 12, marginBottom: 6, borderRadius: 14, overflow: "hidden", justifyContent: "center" },
   pathPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   pathShade: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.62)" },
-  pathCopy: { zIndex: 1, paddingHorizontal: 12, paddingVertical: 6, gap: 0 },
+  pathCopy: { zIndex: 1, paddingHorizontal: 12, paddingRight: 48, paddingVertical: 6, gap: 0 },
+  doneMark: {
+    position: "absolute",
+    right: 10,
+    top: 18,
+    zIndex: 2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gold,
+  },
   stepLabel: { fontSize: 11, lineHeight: 14 },
   stepTitle: { fontSize: 16, lineHeight: 20 },
   stepLine: { fontSize: 12, lineHeight: 16 },

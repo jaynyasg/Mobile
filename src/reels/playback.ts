@@ -65,6 +65,7 @@ export function reelVideoElement(): HTMLVideoElement | null {
     video.style.objectFit = "cover";
     video.style.zIndex = "120";
     video.style.background = "#071421";
+    video.style.pointerEvents = "none";
     shared = video;
   }
   return shared;

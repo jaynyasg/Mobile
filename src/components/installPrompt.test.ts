@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   acceptInstallPrompt,
+  adoptStashedInstall,
+  appInstalled,
   bindInstallPrompt,
-  clearInstallPrompt,
   getInstallPrompt,
+  resetInstallTracking,
   installChoice,
   installHiddenUntil,
   installOffersCopy,
@@ -99,7 +101,7 @@ describe("install choice", () => {
 
 describe("install prompt store", () => {
   beforeEach(() => {
-    clearInstallPrompt();
+    resetInstallTracking();
   });
 
   it("prevents the default banner, stores the event, and clears it once the app is installed", () => {
@@ -124,6 +126,7 @@ describe("install prompt store", () => {
     expect(getInstallPrompt()).toBe(event);
     listeners.get("appinstalled")?.({} as Event);
     expect(getInstallPrompt()).toBeNull();
+    expect(appInstalled()).toBe(true);
     expect(seen).toEqual([event, null]);
     release();
     stop();
@@ -137,5 +140,19 @@ describe("install prompt store", () => {
     };
     acceptInstallPrompt(event);
     expect(getInstallPrompt()).toBe(event);
+  });
+
+  it("adopts a prompt captured before the bundle loads, and remembers an install", () => {
+    const event = {
+      preventDefault: () => undefined,
+      prompt: () => Promise.resolve(),
+      userChoice: Promise.resolve({ outcome: "accepted" as const }),
+    };
+    adoptStashedInstall({ prompt: event, installed: false });
+    expect(getInstallPrompt()).toBe(event);
+    expect(appInstalled()).toBe(false);
+    adoptStashedInstall({ prompt: null, installed: true });
+    expect(appInstalled()).toBe(true);
+    expect(getInstallPrompt()).toBeNull();
   });
 });

@@ -6,6 +6,7 @@ import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, showIntroTitle, type Reel } fr
 import { colors } from "@/theme";
 import { armReel, hideReelVideo, reelGeneration, reelVideoElement, showReelFrame } from "@/reels/playback";
 import { nightGlass } from "./nightGlass";
+import { notchOffset } from "./notch";
 import { T } from "./Text";
 
 export type ReelExit = "skip" | "enter" | "end";
@@ -195,7 +196,7 @@ export function ReelPlayer({
         accessibilityLabel={reel.kind === "intro" ? "Skip intro" : "Skip"}
         testID="reel-skip"
         onPress={() => finish("skip")}
-        style={[styles.skip, { top: insets.top + 12 }]}
+        style={[styles.skip, notchOffset("top", 12, insets.top)]}
       >
         <T variant="button" color={colors.foam}>Skip</T>
       </Pressable>

@@ -7,6 +7,7 @@ import {
   areaSubsets,
   buildPath,
   homePathMatrixMarkdown,
+  pathDestination,
   type IntakeAnswers,
   type PassAnswer,
   type PathStep,
@@ -28,19 +29,20 @@ function asksToBookStay(step: PathStep): boolean {
 }
 
 describe("your path", () => {
-  it("puts a needed stay and a missing pass ahead of sessions", () => {
+  it("puts a missing pass ahead of a needed stay and sessions", () => {
     const steps = buildPath({ hasPass: "not-yet", areas: ["tech", "ai"], needsStay: "yes" }, pillars);
     expect(steps.map((step) => step.title)).toEqual([
-      "Pick your stay",
       "Choose your pass",
+      "Pick your stay",
       "Select your sessions",
       "Build my route",
       "Join the chat",
     ]);
     expect(steps.map((step) => step.number)).toEqual([1, 2, 3, 4, 5]);
+    expect(steps.every((step) => step.done)).toBe(false);
     expect(steps[2]?.line).toBe("Tech · AI");
-    expect(steps[0]?.line).toContain("St. Thomas");
-    expect(steps[0]?.line).toContain("St. John");
+    expect(steps[1]?.line).toContain("St. Thomas");
+    expect(steps[1]?.line).toContain("St. John");
     expect(steps.map((step) => step.title).join(" ")).not.toMatch(/conversation/i);
   });
 
@@ -77,10 +79,10 @@ describe("your path", () => {
     expect(steps[0]?.title).not.toMatch(/get|buy|register/i);
   });
 
-  it("does not lead with a pass or a stay when both questions were skipped", () => {
+  it("still leads with the pass step when both questions were skipped", () => {
     const steps = buildPath({ hasPass: "skipped", areas: [], needsStay: "skipped" }, pillars);
-    expect(steps.map((step) => step.id)).toEqual(["sessions", "route", "pass", "chat", "stay"]);
-    expect(steps[2]).toMatchObject({ title: "Passes", line: "Open Tickets when you want.", number: 3 });
+    expect(steps.map((step) => step.id)).toEqual(["pass", "sessions", "route", "chat", "stay"]);
+    expect(steps[0]).toMatchObject({ title: "Passes", line: "Open Tickets when you want.", number: 1, optional: true, done: false });
     expect(steps.at(-1)).toMatchObject({ title: "Stays", line: "If you need a place.", number: 5 });
     expect(steps.some(asksToGetPass)).toBe(false);
     expect(steps.some(asksToBookStay)).toBe(false);
@@ -95,29 +97,55 @@ describe("your path", () => {
     expect(signature(missing)).toBe(signature(skipped));
   });
 
-  it("drops a pass step when the device holds one, even if onboarding said otherwise", () => {
+  it("checks a pass bought on the device and keeps it first when the questions did not say have", () => {
     for (const hasPass of PASS_CHOICES) {
       if (hasPass === "have") continue;
       const steps = buildPath({ hasPass, areas: ["tech"], needsStay: "yes" }, pillars, { ownedPass: true });
-      expect(steps.map((step) => step.id)).toEqual(["stay", "sessions", "route", "chat"]);
-      expect(steps.some(asksToGetPass)).toBe(false);
+      expect(steps[0]).toMatchObject({ id: "pass", done: true, number: 1 });
+      expect(steps[1]).toMatchObject({ id: "stay", done: false, number: 2 });
+      expect(steps.map((step) => step.number)).toEqual([1, 2, 3, 4, 5]);
     }
+    const saidHave = buildPath({ hasPass: "have", areas: ["tech"], needsStay: "yes" }, pillars, { ownedPass: true });
+    expect(saidHave.some((step) => step.id === "pass" || asksToGetPass(step))).toBe(false);
   });
 
-  it("removes finished steps and renumbers what is left", () => {
+  it("keeps finished steps in place, checked, with stable numbers", () => {
     const steps = buildPath({ hasPass: "not-yet", areas: ["tech"], needsStay: "yes" }, pillars, ["pass", "sessions"]);
-    expect(steps.map((step) => step.id)).toEqual(["stay", "route", "chat"]);
-    expect(steps.map((step) => step.number)).toEqual([1, 2, 3]);
-    expect(steps.some((step) => step.done)).toBe(false);
+    expect(steps.map((step) => `${step.number}:${step.id}:${step.done}`)).toEqual([
+      "1:pass:true",
+      "2:stay:false",
+      "3:sessions:true",
+      "4:route:false",
+      "5:chat:false",
+    ]);
   });
 
-  it("is empty only when every remaining step is already finished", () => {
+  it("omits only what the questions already covered, and checks the rest", () => {
     const steps = buildPath(
       { hasPass: "have", areas: ["tech"], needsStay: "booked" },
       pillars,
       { completed: ["pass", "sessions", "stay", "route", "chat"] },
     );
-    expect(steps).toEqual([]);
+    expect(steps.map((step) => step.id)).toEqual(["sessions", "route", "chat"]);
+    expect(steps.every((step) => step.done)).toBe(true);
+    expect(steps.map((step) => step.number)).toEqual([1, 2, 3]);
+    expect(steps.some((step) => step.id === "pass" || step.id === "stay")).toBe(false);
+  });
+
+  it("sends each path step to its section, and the pass step to Tickets", () => {
+    expect(pathDestination("pass")).toEqual({ pathname: "/tickets" });
+    expect(pathDestination("pass", { areas: ["tech"], needsStay: "yes" })).toEqual({ pathname: "/tickets" });
+    expect(pathDestination("sessions")).toEqual({ pathname: "/agenda" });
+    expect(pathDestination("stay", { areas: ["tech", "ai"], needsStay: "yes" })).toEqual({ pathname: "/stays", params: { areas: "tech,ai" } });
+    expect(pathDestination("stay", { areas: [], needsStay: "yes" })).toEqual({ pathname: "/stays" });
+    expect(pathDestination("stay", { areas: ["tech"], needsStay: "browsing" })).toEqual({ pathname: "/stays" });
+    expect(pathDestination("route")).toEqual({ pathname: "/transport", params: { build: "1" } });
+    expect(pathDestination("chat")).toEqual({ pathname: "/community" });
+    const home = readFileSync("src/app/(tabs)/index.tsx", "utf8");
+    expect(home).toContain("pathDestination");
+    expect(home).toContain('"/tickets"');
+    expect(home).not.toContain("PASS_ATTEND_URL");
+    expect(home).not.toContain("Linking.openURL");
   });
 
   it("walks every answer combination", () => {
@@ -138,6 +166,10 @@ describe("your path", () => {
           expect(steps.some((step) => step.done)).toBe(false);
           if (hasPass === "have") {
             expect(steps.some((step) => step.id === "pass" || asksToGetPass(step))).toBe(false);
+          } else {
+            expect(steps[0]?.id).toBe("pass");
+            expect(steps[0]?.done).toBe(false);
+            if (needsStay === "yes") expect(steps[1]?.id).toBe("stay");
           }
           if (needsStay === "booked") {
             expect(steps.some((step) => step.id === "stay" || asksToBookStay(step))).toBe(false);
