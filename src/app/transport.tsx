@@ -24,10 +24,11 @@ import {
 import { colors } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
 import { CustomRoute } from "@/components/CustomRoute";
+import { VirginIslandsMap } from "@/components/VirginIslandsMap";
 import { dockClearance } from "@/components/Dock";
 
-const SAMPLE_TILE = "/venues/ritz-carlton-st-thomas/img_1377-640.webp";
 const BUILD_TILE = "/venues/hideout-white-bay/img_2673-640.webp";
+const PHOTO_FALLBACK = "/venues/ritz-carlton-st-thomas/img_1377-640.webp";
 const MAP_FALLBACK = "/venues/hideout-white-bay/img_2673-640.webp";
 /** Short enough that the first stop starts above the dock on a 390-wide phone. */
 const MAP_FRAME = 200;
@@ -87,8 +88,8 @@ export default function TransportScreen() {
       <View style={styles.column}>
         <StackHeader title="Transport" />
         <View style={styles.choices}>
-          <ChoiceTile label="Sample routes" image={SAMPLE_TILE} fallback={BUILD_TILE} selected={view === "sample"} onPress={() => setView("sample")} />
-          <ChoiceTile label="Build my route" image={BUILD_TILE} fallback={SAMPLE_TILE} selected={view === "mine"} onPress={() => setView("mine")} />
+          <ChoiceTile label="Sample routes" map selected={view === "sample"} onPress={() => setView("sample")} />
+          <ChoiceTile label="Build my route" image={BUILD_TILE} fallback={PHOTO_FALLBACK} selected={view === "mine"} onPress={() => setView("mine")} />
         </View>
         {view === "mine" ? (
           <CustomRoute sessions={program.sessions} days={forum.days} modes={transport.modes} pillars={forum.pillars} timeZone={forum.timezone} />
@@ -227,19 +228,45 @@ export default function TransportScreen() {
   );
 }
 
-function ChoiceTile({ label, image, fallback, selected, onPress }: { label: string; image: string; fallback: string; selected: boolean; onPress: () => void }) {
-  const [src, setSrc] = useState(image);
+function ChoiceTile({
+  label,
+  image,
+  fallback,
+  selected,
+  onPress,
+  map = false,
+}: {
+  label: string;
+  image?: string;
+  fallback?: string;
+  selected: boolean;
+  onPress: () => void;
+  map?: boolean;
+}) {
+  const [src, setSrc] = useState(image ?? "");
   return (
-    <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[styles.choice, selected && styles.choiceOn]}>
-      <Image
-        source={{ uri: src }}
-        style={styles.choicePhoto}
-        resizeMode="cover"
-        accessibilityIgnoresInvertColors
-        onError={() => setSrc((current) => (current === fallback ? current : fallback))}
-      />
-      <View style={styles.choiceShade} />
-      <T variant="small" color={colors.foam} style={styles.choiceLabel}>{label}</T>
+    <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[map ? styles.choiceMap : styles.choice, selected && styles.choiceOn]}>
+      {map ? (
+        <View style={styles.mapFrame}>
+          <VirginIslandsMap />
+        </View>
+      ) : (
+        <Image
+          source={{ uri: src }}
+          style={styles.choicePhoto}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+          onError={() => setSrc((current) => (current === fallback || !fallback ? current : fallback))}
+        />
+      )}
+      {map ? null : <View style={styles.choiceShade} />}
+      {map ? (
+        <View style={styles.mapCaption}>
+          <T variant="small" color={colors.foam}>{label}</T>
+        </View>
+      ) : (
+        <T variant="small" color={colors.foam} style={styles.choiceLabel}>{label}</T>
+      )}
     </Pressable>
   );
 }
@@ -319,8 +346,11 @@ function StopCard({
 const styles = StyleSheet.create({
   column: { flex: 1 },
   sample: { flex: 1 },
-  choices: { flexDirection: "row", gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
-  choice: { flex: 1, height: 108, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  choices: { gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
+  choice: { height: 96, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  choiceMap: { borderRadius: 16, overflow: "hidden", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  mapFrame: { width: "100%", aspectRatio: 800 / 480 },
+  mapCaption: { paddingHorizontal: 12, paddingVertical: 8, minHeight: 40, justifyContent: "center" },
   choiceOn: { borderColor: colors.gold },
   choicePhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   choiceShade: {
