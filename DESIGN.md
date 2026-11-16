@@ -67,7 +67,7 @@ Retain the short section films and their existing transitions. Provide pause, sk
 
 Lead with the invitation, then give a concrete action. Explain TATEL's purpose, the five infrastructure areas, the Virgin Islands setting, and how guests can contribute. Pair the vacation with meaningful work without adding unsupported promises.
 
-The journey is ticket → accommodation → saved sessions → Explore. Skip arrangements the guest already has. Opening a page does not complete a step. Present ticket choices before the next-step action. Clearly distinguish Beach, Boat, and the five-day Board stay; explain ferries, local transfers, accommodation, and inclusions.
+The journey is ticket → accommodation → saved sessions → Explore. Skip arrangements the guest already has. Opening a page does not complete a step. When the questions identify a ticket, open that ticket's checkout directly (the required booking form for Board). Guests who have not chosen a ticket see the catalog. Within the catalog, present ticket choices before the next-step action. Clearly distinguish Beach, Boat, and the five-day Board stay; explain ferries, local transfers, accommodation, and inclusions.
 
 Require valid name, email, phone, and boat preference before Board booking. A group link is not a purchase, and a saved session is not a reserved seat. Session discovery connects infrastructure → sub-infrastructure → goal to the real program. Introduce panelists, chat, island activities, and stamps through clear, reachable actions.
 

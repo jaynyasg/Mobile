@@ -1,9 +1,20 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { STAMPS_KEY } from "@/guide/stamps";
-import { ticketsLocation } from "./ticketsRoute";
+import { checkoutStartTier, ticketsLocation } from "./ticketsRoute";
 
 describe("tickets route", () => {
+  it("opens only a valid selected checkout intent", () => {
+    for (const tier of ["beach", "boat", "vip"] as const) {
+      expect(checkoutStartTier({ checkout: "start", tier })).toBe(tier);
+      expect(checkoutStartTier({ checkout: "preview", tier })).toBe(tier);
+      expect(checkoutStartTier({ tier })).toBeNull();
+      expect(checkoutStartTier({ checkout: "return", tier })).toBeNull();
+    }
+    expect(checkoutStartTier({ checkout: "start", tier: "invalid" })).toBeNull();
+    expect(checkoutStartTier({ checkout: "start" })).toBeNull();
+  });
+
   it("keeps a checkout return on the new path", () => {
     expect(ticketsLocation()).toBe("/tickets");
     expect(ticketsLocation({ checkout: "return", session_id: "cs_live_123", tier: "beach" })).toBe(

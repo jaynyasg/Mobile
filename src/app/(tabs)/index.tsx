@@ -92,7 +92,10 @@ export default function HomeScreen() {
     const first = steps.find((step) => !step.done);
     if (!first) return;
     const target = pathDestination(first.id, record);
-    if (target.pathname === "/tickets") openChapter("pass", target);
+    if (target.pathname === "/tickets") {
+      if (target.params && "checkout" in target.params) router.navigate(target);
+      else openChapter("pass", target);
+    }
     else if (target.pathname === "/agenda") openChapter("sessions", target);
     else if (target.pathname === "/stays") {
       const areas = target.params && "areas" in target.params ? target.params.areas : "";
@@ -102,13 +105,18 @@ export default function HomeScreen() {
   }
 
   function openStep(step: PathStep) {
+    if (step.id === "pass" && step.done) {
+      router.navigate("/tickets");
+      return;
+    }
     const target = pathDestination(step.id, {
       areas: intake?.areas ?? [],
       needsStay: intake?.needsStay ?? "skipped",
       ticketPreference: intake?.ticketPreference,
     });
     if (target.pathname === "/tickets") {
-      openChapter("pass", target);
+      if (target.params && "checkout" in target.params) router.navigate(target);
+      else openChapter("pass", target);
       return;
     }
     if (target.pathname === "/agenda") {

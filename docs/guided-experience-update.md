@@ -2,6 +2,12 @@
 
 The app now guides a new guest through **ticket → accommodation → saved sessions → Explore**, using the answers from the opening questions. Existing tickets and arranged accommodation are skipped. Choosing the five-day onboard experience leaves hotel booking out unless the guest asks for extra nights.
 
+### Selected-ticket checkout follow-up
+
+When a guest needs a ticket and selects Beach or Boat, finishing the questions opens that ticket's payment screen immediately. Board opens its required boat-preference and contact form. These selected-ticket paths skip the Tickets chapter gate. Guests without a ticket preference can still compare the catalog, and closing checkout returns there without recording a purchase. Returning to a completed ticket step shows the existing ticket instead of starting another checkout.
+
+The original release build was missing the Stripe publishable-key environment variable, which disabled purchase buttons. The existing public key was recovered from the previous production version and is now a checked-in browser default, with an optional environment override. Stripe's secret key remains only in the worker. The new checkout browser checks initialize the actual checkout component and assert the key, selected API tier, enabled buttons, closing/reopening, and post-payment destination; they do not use the app's preview checkout flag. The real Stripe form is also checked separately without submitting a payment.
+
 ## Session choices and the island experience
 
 The follow-up adds a three-step guide at the start of Sessions:

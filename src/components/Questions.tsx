@@ -28,7 +28,7 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
   const interests: string[] = [];
   const answers = { hasPass, ticketPreference, needsStay, areas, interests };
   const path = buildPath(answers, program.forum.pillars);
-  const nextLabel = step === 3 ? "See my plan" : path[0]?.id === "pass" ? "Find my ticket" : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
+  const nextLabel = step === 3 ? "See my plan" : path[0]?.id === "pass" ? (ticketPreference === "vip" ? "Start my Board booking" : ticketPreference ? "Continue to checkout" : "Compare tickets") : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
   const photo = step < 2 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
   const titles = ["Your invitation to something extraordinary.", hasPass === "have" ? "Which ticket do you have?" : "How do you want to experience it?", "Where will you wake up?", "What sparks your ambition?", "This is where your story starts."];
   const toggle = (items: string[], item: string) => items.includes(item) ? items.filter((id) => id !== item) : [...items, item];
