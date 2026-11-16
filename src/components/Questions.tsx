@@ -6,6 +6,7 @@ import { useContent } from "@/content/provider";
 import { ticketGuide } from "@/content/tickets";
 import { buildPath, type IntakeAnswers, type PassAnswer, type StayAnswer } from "@/logic/pathPlan";
 import { type PassTier } from "@/logic/passPay";
+import { availableSubtopics } from "@/logic/sessionGuide";
 import { colors } from "@/theme";
 import { notchPadding } from "./notch";
 import { T } from "./Text";
@@ -25,13 +26,20 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
   const [ticketPreference, setTicketPreference] = useState<PassTier>();
   const [needsStay, setNeedsStay] = useState<StayAnswer>("skipped");
   const [areas, setAreas] = useState<string[]>([]);
-  const interests: string[] = [];
+  const [interests, setInterests] = useState<string[]>([]);
+  const topics = availableSubtopics(program.sessions, areas);
   const answers = { hasPass, ticketPreference, needsStay, areas, interests };
   const path = buildPath(answers, program.forum.pillars);
-  const nextLabel = step === 3 ? "See my plan" : path[0]?.id === "pass" ? (ticketPreference === "vip" ? "Start my Board booking" : ticketPreference ? "Continue to checkout" : "Compare tickets") : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
+  const nextLabel = step === 3 ? "Next · Find my sub-infrastructure" : step === 4 ? "See my plan" : path[0]?.id === "pass" ? (ticketPreference === "vip" ? "Start my Board booking" : ticketPreference ? "Continue to checkout" : "Compare tickets") : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
   const photo = step < 2 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
-  const titles = ["Your invitation to something extraordinary.", hasPass === "have" ? "Which ticket do you have?" : "How do you want to experience it?", "Where will you wake up?", "What sparks your ambition?", "This is where your story starts."];
+  const titles = ["Your invitation to something extraordinary.", hasPass === "have" ? "Which ticket do you have?" : "How do you want to experience it?", "Where will you wake up?", "What sparks your ambition?", "Where do you want to make waves?", "This is where your story starts."];
   const toggle = (items: string[], item: string) => items.includes(item) ? items.filter((id) => id !== item) : [...items, item];
+  function toggleArea(id: string) {
+    const next = toggle(areas, id);
+    const available = availableSubtopics(program.sessions, next);
+    setAreas(next);
+    setInterests((current) => current.filter((interest) => available.some((topic) => topic.id === interest)));
+  }
   const option = (key: string, title: string, line: string, action: () => void, selected = false) => (
     <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={title} onPress={action} style={[styles.tile, selected && styles.selected]}>
       <T variant="rowTitle" color={colors.foam}>{title}</T>
@@ -45,7 +53,7 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
       <View style={[styles.frame, notchPadding("top", 12, insets.top), notchPadding("bottom", 16, insets.bottom)]}>
         <View style={styles.top}>
           <Pressable accessibilityRole="button" accessibilityLabel="Back" disabled={step === 0} onPress={() => setStep(step - 1)} style={styles.ghost}><T variant="button" color={step === 0 ? colors.muted : colors.foam}>Back</T></Pressable>
-          <T variant="meta" color={colors.gold}>{step + 1} of 5</T>
+          <T variant="meta" color={colors.gold}>{step + 1} of {titles.length}</T>
           <Pressable accessibilityRole="button" accessibilityLabel="Plan later" onPress={() => onSkip(answers)} style={styles.ghost}><T variant="button" color={colors.gold}>Plan later</T></Pressable>
         </View>
         <ScrollView key={step} style={styles.scroll} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
@@ -69,16 +77,21 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
             {option("browsing", ticketPreference === "vip" ? "I plan to stay aboard" : "I'd like to browse", ticketPreference === "vip" ? "We'll focus on your charter first. Extra hotel nights are optional." : "Explore the options and decide later.", () => { setNeedsStay("browsing"); setStep(3); })}
           </> : null}
           {step === 3 ? <>
-            <T variant="small" color={colors.foam}>What would you love to move forward here? Pick the infrastructure areas that excite you. After your ticket and stay, we'll find the fields, goals, and sessions where you can contribute. Leave these blank if you're open to everything.</T>
-            {program.forum.pillars.map((pillar) => option(pillar.id, `${areas.includes(pillar.id) ? "✓ " : ""}${pillar.name}`, `Sessions on or near ${pillar.island}`, () => setAreas(toggle(areas, pillar.id)), areas.includes(pillar.id)))}
+            <T variant="small" color={colors.foam}>Pick the infrastructure areas that excite you. Next, choose the fields within them. We'll use both to suggest islands for your stay and sessions you can save. Leave these blank if you're open to everything.</T>
+            {program.forum.pillars.map((pillar) => option(pillar.id, `${areas.includes(pillar.id) ? "✓ " : ""}${pillar.name}`, `Sessions on or near ${pillar.island}`, () => toggleArea(pillar.id), areas.includes(pillar.id)))}
           </> : null}
           {step === 4 ? <>
+            <T variant="small" color={colors.foam}>Choose your sub-infrastructure: the specific fields you'd love to explore. AgriTech connects technology and food systems; FilmTech focuses on filmmaking. Pick as many as you like, or leave them blank to see every field in your chosen areas.</T>
+            {topics.map((topic) => option(topic.id, `${interests.includes(topic.id) ? "✓ " : ""}${topic.id}`, `${topic.line} · ${topic.count} sessions`, () => setInterests(toggle(interests, topic.id)), interests.includes(topic.id)))}
+            {!topics.length ? <T variant="small" color={colors.foam}>No specific fields are listed for these areas yet. We'll show their available sessions.</T> : null}
+          </> : null}
+          {step === 5 ? <>
             <T variant="small" color={colors.foam}>A place for your ambition, your people, and your next adventure. Here's your way in. Your choices are saved on this device; change them from Home whenever inspiration strikes.</T>
             {ticketPreference ? <T variant="rowTitle" color={colors.gold}>{hasPass === "have" ? "Your ticket" : "Your suggested ticket"}: {ticketGuide[ticketPreference].name}</T> : null}
             {path.map((item) => <View key={item.id} style={styles.tile}><T variant="rowTitle" color={colors.foam}>{item.number}. {item.title}</T><T variant="small" color={colors.foam}>{item.line}</T></View>)}
           </> : null}
         </ScrollView>
-        {step >= 3 ? <Pressable accessibilityRole="button" accessibilityLabel={nextLabel} onPress={() => step === 3 ? setStep(4) : onDone(answers)} style={styles.next}><T variant="button" color={colors.ink}>{nextLabel}</T></Pressable> : null}
+        {step >= 3 ? <Pressable accessibilityRole="button" accessibilityLabel={nextLabel} onPress={() => step < 5 ? setStep(step + 1) : onDone(answers)} style={styles.next}><T variant="button" color={colors.ink}>{nextLabel}</T></Pressable> : null}
       </View>
     </View>
   );

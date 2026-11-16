@@ -68,6 +68,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "I need a ticket");
       await click(page, experiences[tier]);
       await click(page, tier === "beach" ? "Help me find a place" : "My stay is already arranged");
+      await click(page, "Next · Find my sub-infrastructure");
       await click(page, "See my plan");
       await click(page, tier === "vip" ? "Start my Board booking" : "Continue to checkout");
       await page.waitForURL(url => url.pathname === "/tickets" && url.searchParams.get("tier") === tier && url.searchParams.get("checkout") === "start");
@@ -121,6 +122,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
     await click(page, "I need a ticket");
     await click(page, "I'm not sure yet");
     await click(page, "My stay is already arranged");
+    await click(page, "Next · Find my sub-infrastructure");
     await click(page, "See my plan");
     await click(page, "Compare tickets");
     await click(page, "Enter Tickets");

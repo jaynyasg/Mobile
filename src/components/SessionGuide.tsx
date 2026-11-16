@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { readIntake, writeIntake } from "@/logic/intake";
+import { useIntake } from "@/logic/useIntake";
 import { availableSubtopics, guidedSessions, SESSION_GOALS, type SessionPreferences } from "@/logic/sessionGuide";
 import { AREA_COPY } from "@/logic/tatelStory";
 import { writeTracks, webTrackStore } from "@/guide/interests";
@@ -17,18 +18,24 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
   const { program } = useContent();
   const { state } = useApp();
   const router = useRouter();
-  const [initial] = useState(() => readIntake(webStorage()));
-  const [step, setStep] = useState(initial?.sessionGuideDone ? 3 : 0);
-  const [preferences, setPreferences] = useState<SessionPreferences>(() => ({
-    areas: (initial?.areas ?? []).filter((id) => program.forum.pillars.some((pillar) => pillar.id === id)),
-    interests: (initial?.interests ?? []).filter((id) => availableSubtopics(program.sessions, initial?.areas ?? []).some((topic) => topic.id === id)),
-    goals: SESSION_GOALS.filter((goal) => initial?.sessionGoals?.includes(goal.id)).map((goal) => goal.id),
-  }));
+  const intake = useIntake();
+  const savedPreferences = useMemo<SessionPreferences>(() => ({
+    areas: [...(intake?.areas ?? [])],
+    interests: intake?.interests ?? [],
+    goals: SESSION_GOALS.filter((goal) => intake?.sessionGoals?.includes(goal.id)).map((goal) => goal.id),
+  }), [intake]);
+  const [step, setStep] = useState(3);
+  const [preferences, setPreferences] = useState(savedPreferences);
   const [limit, setLimit] = useState(4);
+  useEffect(() => {
+    setPreferences(savedPreferences);
+    setStep(3);
+    setLimit(4);
+  }, [savedPreferences]);
   const topics = availableSubtopics(program.sessions, preferences.areas);
   const matches = guidedSessions(program.sessions, preferences);
   const saved = state.favoriteIds.filter((id) => program.sessions.some((session) => session.id === id)).length;
-  const titles = ["Start with your infrastructure areas", "Find your sub-infrastructure", "What do you want to accomplish?", "Sessions for your kind of TATEL"];
+  const titles = ["Start with your infrastructure areas", "Find your sub-infrastructure", "What do you want to accomplish?", "Your sessions"];
   function go(step: number) { setStep(step); onStepChange(); }
 
   function toggle(dimension: keyof SessionPreferences, id: string) {
@@ -62,7 +69,7 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
 
   return <View testID="session-guide">
     <View style={styles.card}>
-      <T variant="eyebrow" color={colors.gold}>{step < 3 ? `Your session guide · ${step + 1} of 3` : "Your session matches"}</T>
+      {step < 3 ? <T variant="eyebrow" color={colors.gold}>Your session guide · {step + 1} of 3</T> : null}
       <T variant="title">{titles[step]}</T>
       {step === 0 ? <>
         <T variant="small">TATEL connects five infrastructure areas: Tech, AI, Travel, Entertainment, and Law. Pick the worlds you want to explore. You can choose more than one.</T>
@@ -81,22 +88,19 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
         <Pressable accessibilityRole="button" onPress={() => step === 2 ? showMatches() : go(step + 1)} style={styles.primary}><T variant="button">{step === 0 ? "Next · Find my sub-infrastructure" : step === 1 ? "Next · Choose my session goals" : "Show my session matches"}</T></Pressable>
         {step > 0 ? <Pressable accessibilityRole="button" onPress={() => go(step - 1)} style={styles.quiet}><T variant="button" color={colors.gold}>Back in session guide</T></Pressable> : null}
       </> : <>
-        <T variant="small">{matches.length ? `${matches.length} sessions match your choices. Read what you'll work toward, then tap the heart to save the ones you love.` : "No sessions match that combination yet. Change your choices or browse the full program; your saved sessions are still safe."}</T>
-        <T variant="meta" color={colors.gold}>{[
-          ...program.forum.pillars.filter((pillar) => preferences.areas.includes(pillar.id)).map((pillar) => pillar.name),
-          ...preferences.interests,
-          ...SESSION_GOALS.filter((goal) => preferences.goals.includes(goal.id)).map((goal) => goal.title),
-        ].join(" · ") || "All infrastructure areas, fields, and goals"}</T>
-        <T variant="small">Build a schedule with ambition and breathing room. Make progress on something you care about, then make time for the people, the water, and the unexpected. Check session times and boat connections; saving a session does not reserve a seat.</T>
+        <T variant="small">{matches.length ? `${matches.length} ${preferences.areas.length || preferences.interests.length || preferences.goals.length ? "matches" : "sessions to explore"}. Tap a heart to save your favorites.` : "No sessions match that combination yet. Change your choices or browse the full program; your saved sessions are still safe."}</T>
         <Pressable accessibilityRole="button" onPress={() => go(0)} style={styles.quiet}><T variant="button" color={colors.gold}>Change my session choices</T></Pressable>
       </>}
-      <Pressable accessibilityRole="button" onPress={onBrowse} style={styles.quiet}><T variant="button" color={colors.gold}>Browse the full program</T></Pressable>
+      {step < 3 || !matches.length ? <Pressable accessibilityRole="button" onPress={onBrowse} style={styles.quiet}><T variant="button" color={colors.gold}>Browse the full program</T></Pressable> : null}
     </View>
     {step === 3 ? <>
       {matches.slice(0, limit).map((session) => <SessionRow key={session.id} session={session} showOutcome />)}
       <View style={styles.card}>
         {matches.length > limit ? <Pressable accessibilityRole="button" onPress={() => setLimit(limit + 4)} style={styles.quiet}><T variant="button" color={colors.gold}>Show more matching sessions</T></Pressable> : null}
+        <Pressable accessibilityRole="button" onPress={() => go(2)} style={styles.quiet}><T variant="button" color={colors.gold}>Choose a session goal</T></Pressable>
+        {matches.length ? <Pressable accessibilityRole="button" onPress={onBrowse} style={styles.quiet}><T variant="button" color={colors.gold}>Browse the full program</T></Pressable> : null}
         <Pressable accessibilityRole="button" onPress={() => router.push("/schedule")} style={styles.primary}><T variant="button">Review My schedule · {saved} saved</T></Pressable>
+        <T variant="small">Check session times and island connections as you plan. Saving a session does not reserve a seat.</T>
         <T variant="small">Your ambition has a place in the program. Now find your people and your next adventure. Continue from My schedule to the panelists, Chat, and your island guide in Explore.</T>
       </View>
     </> : null}

@@ -71,6 +71,8 @@ The journey is ticket → accommodation → saved sessions → Explore. Skip arr
 
 Require valid name, email, phone, and boat preference before Board booking. A group link is not a purchase, and a saved session is not a reserved seat. Session discovery connects infrastructure → sub-infrastructure → goal to the real program. Introduce panelists, chat, island activities, and stamps through clear, reachable actions.
 
+Ask for infrastructure and sub-infrastructure in the opening questions. Use those saved answers to put matching island options and session cards at the top of Accommodations and Sessions. Keep choice editing and optional goal refinement available without repeating the questionnaire on entry. Show booking guidance and next-step actions after the options.
+
 ## Verification
 
 Use the existing typecheck, tests, guided-visit browser checks, and readability sweep when changes affect their coverage. Check phone layouts at 320×568 and 390×844, larger text, and browser/standalone behavior. iPhone installation instructions must explain Safari's Add to Home Screen flow; an actual device is needed to verify the final operating-system action.

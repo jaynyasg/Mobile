@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo, useRef, useState, type ComponentRef } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentRef } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { panelistById } from "@/content";
@@ -25,6 +25,7 @@ import { dockClearance } from "@/components/Dock";
 import { nightGlass } from "@/components/nightGlass";
 import { colors, sceneForIsland } from "@/theme";
 import { StepBridge } from "@/components/StepBridge";
+import { useIntake } from "@/logic/useIntake";
 
 const kinds: { id: SessionKind; label: string }[] = [
   { id: "all", label: "All" },
@@ -41,9 +42,11 @@ export default function AgendaScreen() {
   const { program } = useContent();
   const { forum, panelists, sessions } = program;
   const { state } = useApp();
-  const openingTracks = activeTrackIds(readTracks(webTrackStore()), forum.pillars);
-  const [trackIds] = useState(openingTracks);
-  const [yourAreas, setYourAreas] = useState(openingTracks.length > 0 && !params.pillar);
+  const intake = useIntake();
+  const preferenceKey = JSON.stringify([intake?.areas, intake?.interests, intake?.sessionGoals]);
+  useEffect(() => { scrollRef.current?.scrollTo({ y: 0, animated: false }); }, [preferenceKey]);
+  const trackIds = activeTrackIds(intake?.areas ?? readTracks(webTrackStore()), forum.pillars);
+  const [yourAreas, setYourAreas] = useState(trackIds.length > 0 && !params.pillar);
   const [dayId, setDayId] = useState(params.day || suggestedDayId(new Date()));
   const [pillarId, setPillarId] = useState(params.pillar || "all");
   const [island, setIsland] = useState("all");
@@ -86,7 +89,6 @@ export default function AgendaScreen() {
   return (
     <View style={styles.frame}>
       <Screen scrollRef={scrollRef} docked photo={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).day} night={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).night} phase={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).phase}>
-        <StepBridge id="sessions" />
         <SessionGuide onStepChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })} onMatches={() => setYourAreas(false)} onBrowse={() => { setYourAreas(false); setDayId("all"); setPillarId("all"); setIsland("all"); setKind("all"); setPanelistId("all"); setQuery(""); scrollRef.current?.scrollTo({ y: programOffset.current, animated: true }); }} />
         <Pressable accessibilityRole="button" onPress={() => router.push("/schedule")} style={styles.noteCard}><T variant="button" color={colors.gold}>My schedule · {state.favoriteIds.length} saved</T></Pressable>
         <View onLayout={(event) => { programOffset.current = event.nativeEvent.layout.y; }}>
