@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, type ComponentRef, type RefObject } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,6 +16,7 @@ export function Screen({
   photo = scenePhotos.day,
   night,
   phase,
+  scrollRef,
 }: {
   children: ReactNode;
   scroll?: boolean;
@@ -25,13 +26,14 @@ export function Screen({
   night?: string | null;
   phase?: string;
   docked?: boolean;
+  scrollRef?: RefObject<ComponentRef<typeof ScrollView> | null>;
 }) {
   const loop = loopFor(phase);
   const insets = useSafeAreaInsets();
   const clearance = dockClearance(insets.bottom);
   const top = edge === "top" ? notchPadding("top", 8, insets.top) : null;
   const body = scroll ? (
-    <ScrollView style={[styles.fill, { marginBottom: clearance }]} contentContainerStyle={[{ paddingBottom: 28 }, top]} keyboardShouldPersistTaps="handled">
+    <ScrollView ref={scrollRef} style={[styles.fill, { marginBottom: clearance }]} contentContainerStyle={[{ paddingBottom: 28 }, top]} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (

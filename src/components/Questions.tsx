@@ -1,232 +1,100 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { Image, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { reels } from "@/content/reels";
 import { useContent } from "@/content/provider";
-import type { PassAnswer, StayAnswer } from "@/logic/pathPlan";
-import { TECH_INTERESTS, phaseTag, sessionInterest, suggestSessions } from "@/logic/techInterest";
+import { ticketGuide } from "@/content/tickets";
+import { buildPath, type IntakeAnswers, type PassAnswer, type StayAnswer } from "@/logic/pathPlan";
+import { type PassTier } from "@/logic/passPay";
 import { colors } from "@/theme";
 import { notchPadding } from "./notch";
 import { T } from "./Text";
 
-const passOptions: { id: PassAnswer; label: string }[] = [
-  { id: "have", label: "Yes, I have it" },
-  { id: "not-yet", label: "Not yet" },
-  { id: "unsure", label: "Not sure" },
+type Answers = IntakeAnswers & { interests: string[] };
+const experiences: { id: PassTier; title: string; line: string }[] = [
+  { id: "beach", title: "Stay on land", line: "Land-based sessions. Arrange your own ferries if you visit another island." },
+  { id: "boat", title: "Sail by day, stay on land", line: "A private day charter between islands, with your own hotel or villa at night." },
+  { id: "vip", title: "Live aboard for five days", line: "An overnight charter for your group of eight, or a request to share a boat." },
 ];
 
-const stayOptions: { id: StayAnswer; label: string }[] = [
-  { id: "yes", label: "Yes" },
-  { id: "booked", label: "Already booked" },
-  { id: "browsing", label: "Just browsing" },
-];
-
-export function Questions({
-  onDone,
-  onSkip,
-}: {
-  onDone: (answers: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer; interests: string[] }) => void;
-  onSkip: (answers: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer; interests: string[] }) => void;
-}) {
+export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => void; onSkip: (answers: Answers) => void }) {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
   const [step, setStep] = useState(0);
-  const [hasPass, setHasPass] = useState<PassAnswer | null>(null);
+  const [hasPass, setHasPass] = useState<PassAnswer>("skipped");
+  const [ticketPreference, setTicketPreference] = useState<PassTier>();
+  const [needsStay, setNeedsStay] = useState<StayAnswer>("skipped");
   const [areas, setAreas] = useState<string[]>([]);
-  const [needsStay, setNeedsStay] = useState<StayAnswer | null>(null);
-  const [interests, setInterests] = useState<string[]>([]);
-
-  function finish(next: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer; interests: string[] }) {
-    onDone(next);
-  }
-
-  function skip() {
-    onSkip({ hasPass: hasPass ?? "skipped", areas, needsStay: needsStay ?? "skipped", interests });
-  }
-
-  const photo = step === 0 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
+  const interests: string[] = [];
+  const answers = { hasPass, ticketPreference, needsStay, areas, interests };
+  const path = buildPath(answers, program.forum.pillars);
+  const nextLabel = step === 3 ? "See my plan" : path[0]?.id === "pass" ? "Find my ticket" : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
+  const photo = step < 2 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
+  const titles = ["Your invitation to something extraordinary.", hasPass === "have" ? "Which ticket do you have?" : "How do you want to experience it?", "Where will you wake up?", "What sparks your ambition?", "This is where your story starts."];
+  const toggle = (items: string[], item: string) => items.includes(item) ? items.filter((id) => id !== item) : [...items, item];
+  const option = (key: string, title: string, line: string, action: () => void, selected = false) => (
+    <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={title} onPress={action} style={[styles.tile, selected && styles.selected]}>
+      <T variant="rowTitle" color={colors.foam}>{title}</T>
+      <T variant="small" color={colors.foam}>{line}</T>
+    </Pressable>
+  );
   const sheet = (
-    <View style={styles.overlay} accessibilityViewIsModal>
-      <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
+    <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Plan your TATEL visit">
+      <Image source={{ uri: photo }} style={styles.photo} resizeMode="cover" />
       <View style={styles.shade} />
       <View style={[styles.frame, notchPadding("top", 12, insets.top), notchPadding("bottom", 16, insets.bottom)]}>
         <View style={styles.top}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Back" disabled={step === 0} onPress={() => setStep((current) => Math.max(0, current - 1))} style={styles.ghost}>
-            <T variant="button" color={step === 0 ? "rgba(245,241,232,0.35)" : colors.foam}>Back</T>
-          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Back" disabled={step === 0} onPress={() => setStep(step - 1)} style={styles.ghost}><T variant="button" color={step === 0 ? colors.muted : colors.foam}>Back</T></Pressable>
           <T variant="meta" color={colors.gold}>{step + 1} of 5</T>
-          <Pressable accessibilityRole="button" accessibilityLabel="Skip" onPress={skip} style={styles.ghost}>
-            <T variant="button" color={colors.gold}>Skip</T>
-          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Plan later" onPress={() => onSkip(answers)} style={styles.ghost}><T variant="button" color={colors.gold}>Plan later</T></Pressable>
         </View>
-        {step === 0 ? (
-          <View style={styles.body}>
-            <T variant="title" color={colors.foam}>Do you already have your pass?</T>
-            {passOptions.map((option) => (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityLabel={option.label}
-                onPress={() => {
-                  setHasPass(option.id);
-                  setStep(1);
-                }}
-                style={styles.tile}
-              >
-                <T variant="rowTitle" color={colors.foam}>{option.label}</T>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
-        {step === 1 ? (
-          <View style={[styles.body, styles.bodyTop]}>
-            <T variant="title" color={colors.foam}>Which infrastructure areas are you thinking of attending?</T>
-            <ScrollView style={styles.areaScroll} contentContainerStyle={styles.areaList}>
-              {program.forum.pillars.map((pillar) => {
-                const on = areas.includes(pillar.id);
-                const poster = (reels as Record<string, { poster?: string }>)[pillar.id]?.poster ?? "/reels/venues.jpg";
-                return (
-                  <Pressable
-                    key={pillar.id}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: on }}
-                    accessibilityLabel={`${pillar.name}, ${pillar.island}`}
-                    onPress={() => setAreas((current) => (current.includes(pillar.id) ? current.filter((id) => id !== pillar.id) : [...current, pillar.id]))}
-                    style={[styles.area, on && styles.areaOn]}
-                  >
-                    <Image source={{ uri: poster }} style={styles.areaPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
-                    <View style={styles.areaShade} />
-                    <View style={styles.areaCopy}>
-                      <T variant="rowTitle" color={colors.foam}>{pillar.name}</T>
-                      <T variant="meta" color={colors.gold}>{pillar.island}</T>
-                    </View>
-                    {on ? <View style={styles.check}><T variant="button" color={colors.ink}>✓</T></View> : null}
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Next"
-              onPress={() => setStep(2)}
-              style={styles.next}
-            >
-              <T variant="button" color={colors.ink}>Next</T>
-            </Pressable>
-          </View>
-        ) : null}
-        {step === 2 ? (
-          <View style={styles.body}>
-            <T variant="title" color={colors.foam}>Are you looking for a place to stay?</T>
-            {stayOptions.map((option) => (
-              <Pressable
-                key={option.id}
-                accessibilityRole="button"
-                accessibilityLabel={option.label}
-                onPress={() => {
-                  setNeedsStay(option.id);
-                  setStep(3);
-                }}
-                style={styles.tile}
-              >
-                <T variant="rowTitle" color={colors.foam}>{option.label}</T>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
-        {step === 3 ? (
-          <View style={[styles.body, styles.bodyTop]}>
-            <T variant="title" color={colors.foam}>Which kinds of tech are you here for?</T>
-            <T variant="small" color={colors.foam}>Pick any. These show up later on the sessions.</T>
-            <ScrollView style={styles.areaScroll} contentContainerStyle={styles.chips}>
-              {TECH_INTERESTS.map((interest) => {
-                const on = interests.includes(interest);
-                return (
-                  <Pressable key={interest} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={interest} onPress={() => setInterests((current) => current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest])} style={[styles.chip, on && styles.chipOn]}>
-                    <T variant="meta" color={on ? colors.ink : colors.foam}>{interest}</T>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-            <Pressable accessibilityRole="button" accessibilityLabel="See suggested sessions" onPress={() => setStep(4)} style={styles.next}>
-              <T variant="button" color={colors.ink}>See suggested sessions</T>
-            </Pressable>
-          </View>
-        ) : null}
-        {step === 4 ? (
-          <View style={[styles.body, styles.bodyTop]}>
-            <T variant="title" color={colors.foam}>Here are your suggested sessions</T>
-            <T variant="small" color={colors.foam}>From the tech you picked. You will land on your pass or these sessions next, without a stop on Home.</T>
-            <ScrollView style={styles.areaScroll} contentContainerStyle={styles.areaList}>
-              {suggestSessions(program.sessions, interests, areas).map((session) => (
-                <View key={session.id} style={styles.suggest}>
-                  <T variant="meta" color={colors.gold}>{[sessionInterestName(session), phaseTag(session.phase)].filter(Boolean).join(" · ")}</T>
-                  <T variant="rowTitle" color={colors.foam}>{session.title}</T>
-                </View>
-              ))}
-            </ScrollView>
-            <Pressable accessibilityRole="button" accessibilityLabel="Continue" onPress={() => finish({ hasPass: hasPass ?? "unsure", areas, needsStay: needsStay ?? "skipped", interests })} style={styles.next}>
-              <T variant="button" color={colors.ink}>Continue</T>
-            </Pressable>
-          </View>
-        ) : null}
+        <ScrollView key={step} style={styles.scroll} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+          <T variant="eyebrow" color={colors.gold}>Your TATEL, your way</T>
+          <T variant="title" color={colors.foam}>{titles[step]}</T>
+          {step === 0 ? <>
+            <T variant="small" color={colors.foam}>Bold ideas, beautiful islands, and people you'll want to know. Let's shape your way into it: your ticket, your stay, then sessions with a purpose. Do you already have a TATEL ticket?</T>
+            {option("have", "Yes, I have a ticket", "We'll help with the rest of your visit.", () => { setHasPass("have"); setStep(1); })}
+            {option("not-yet", "I need a ticket", "Find the experience that fits you.", () => { setHasPass("not-yet"); setStep(1); })}
+            {option("unsure", "I'd like to compare first", "See what each ticket offers before deciding.", () => { setHasPass("unsure"); setStep(1); })}
+          </> : null}
+          {step === 1 ? <>
+            <T variant="small" color={colors.foam}>{hasPass === "have" ? "Choose the name on your ticket so we can shape the rest of your experience." : "Picture your kind of island life: a beautiful base ashore, days sailing between sessions, or five days with the yacht as home. See the full details and price before booking."}</T>
+            {experiences.map((experience) => option(experience.id, hasPass === "have" ? ticketGuide[experience.id].name : experience.title, `${ticketGuide[experience.id].name} · ${experience.line}`, () => { setTicketPreference(experience.id); setStep(2); }, ticketPreference === experience.id))}
+            {option("compare", "I'm not sure yet", "Keep all three tickets in view.", () => { setTicketPreference(undefined); setStep(2); })}
+          </> : null}
+          {step === 2 ? <>
+            <T variant="small" color={colors.foam}>{ticketPreference === "vip" ? "Be on Board includes an onboard stay. You can still browse hotels for extra nights before or after the charter." : "Beach and day-charter guests arrange their own accommodation. We can help you choose an island and find a hotel or villa."}</T>
+            {option("yes", ticketPreference === "vip" ? "Find a hotel for extra nights" : "Help me find a place", "Browse islands, then book directly with your chosen property.", () => { setNeedsStay("yes"); setStep(3); })}
+            {option("booked", "My stay is already arranged", "I have a booking, live locally, or am staying with someone.", () => { setNeedsStay("booked"); setStep(3); })}
+            {option("browsing", ticketPreference === "vip" ? "I plan to stay aboard" : "I'd like to browse", ticketPreference === "vip" ? "We'll focus on your charter first. Extra hotel nights are optional." : "Explore the options and decide later.", () => { setNeedsStay("browsing"); setStep(3); })}
+          </> : null}
+          {step === 3 ? <>
+            <T variant="small" color={colors.foam}>What would you love to move forward here? Pick the infrastructure areas that excite you. After your ticket and stay, we'll find the fields, goals, and sessions where you can contribute. Leave these blank if you're open to everything.</T>
+            {program.forum.pillars.map((pillar) => option(pillar.id, `${areas.includes(pillar.id) ? "✓ " : ""}${pillar.name}`, `Sessions on or near ${pillar.island}`, () => setAreas(toggle(areas, pillar.id)), areas.includes(pillar.id)))}
+          </> : null}
+          {step === 4 ? <>
+            <T variant="small" color={colors.foam}>A place for your ambition, your people, and your next adventure. Here's your way in. Your choices are saved on this device; change them from Home whenever inspiration strikes.</T>
+            {ticketPreference ? <T variant="rowTitle" color={colors.gold}>{hasPass === "have" ? "Your ticket" : "Your suggested ticket"}: {ticketGuide[ticketPreference].name}</T> : null}
+            {path.map((item) => <View key={item.id} style={styles.tile}><T variant="rowTitle" color={colors.foam}>{item.number}. {item.title}</T><T variant="small" color={colors.foam}>{item.line}</T></View>)}
+          </> : null}
+        </ScrollView>
+        {step >= 3 ? <Pressable accessibilityRole="button" accessibilityLabel={nextLabel} onPress={() => step === 3 ? setStep(4) : onDone(answers)} style={styles.next}><T variant="button" color={colors.ink}>{nextLabel}</T></Pressable> : null}
       </View>
     </View>
   );
-  function sessionInterestName(session: { title: string; description: string; pillarId: string }) {
-    return sessionInterest(session) ?? program.forum.pillars.find((pillar) => pillar.id === session.pillarId)?.name ?? "";
-  }
-
-  if (typeof document === "undefined") return sheet;
-  return createPortal(sheet, document.body);
+  return typeof document === "undefined" ? sheet : createPortal(sheet, document.body);
 }
 
-const fixed = { position: "fixed" } as unknown as ViewStyle;
-
 const styles = StyleSheet.create({
-  overlay: { ...fixed, top: 0, right: 0, bottom: 0, left: 0, zIndex: 95, backgroundColor: "#071421" },
-  photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  shade: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.94) 0%, rgba(6,14,24,0.72) 46%, rgba(6,14,24,0.45) 100%)" } as ViewStyle),
-  },
-  frame: { flex: 1, paddingHorizontal: 16, gap: 12 },
-  top: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  ghost: { minHeight: 44, minWidth: 64, justifyContent: "center" },
-  body: { flex: 1, justifyContent: "flex-end", gap: 10, paddingBottom: 8 },
-  bodyTop: { justifyContent: "flex-start" },
-  areaScroll: { flex: 1 },
-  tile: {
-    minHeight: 72,
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    justifyContent: "center",
-    backgroundColor: "rgba(7,27,42,0.72)",
-    borderWidth: 1,
-    borderColor: "rgba(255,224,138,0.55)",
-  },
-  areaList: { gap: 8, paddingBottom: 8 },
-  area: { minHeight: 84, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent" },
-  areaOn: { borderColor: colors.gold },
-  areaPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  areaShade: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.88), rgba(6,14,24,0.35))" } as ViewStyle),
-  },
-  areaCopy: { zIndex: 1, paddingHorizontal: 14, paddingBottom: 10, gap: 2 },
-  check: { position: "absolute", top: 10, right: 10, zIndex: 2, width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
-  next: { minHeight: 52, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
-  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 8 },
-  chip: { minHeight: 40, paddingHorizontal: 12, borderRadius: 999, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)", backgroundColor: "rgba(7,27,42,0.72)" },
-  chipOn: { backgroundColor: colors.gold, borderColor: colors.gold },
-  suggest: { padding: 12, borderRadius: 14, gap: 4, backgroundColor: "rgba(7,27,42,0.72)", borderWidth: 1, borderColor: "rgba(255,224,138,0.35)" },
+  overlay: { ...({ position: "fixed" } as unknown as ViewStyle), inset: 0, zIndex: 95, backgroundColor: "#071421" },
+  photo: { position: "absolute", inset: 0 },
+  shade: { position: "absolute", inset: 0, backgroundColor: "rgba(6,14,24,0.76)" },
+  frame: { flex: 1, minHeight: 0, paddingHorizontal: 20, gap: 12, width: "100%", maxWidth: 640, alignSelf: "center" },
+  top: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  ghost: { minHeight: 44, justifyContent: "center" },
+  scroll: { flex: 1, minHeight: 0 },
+  body: { gap: 14, paddingVertical: 12, paddingBottom: 24 },
+  tile: { padding: 18, gap: 6, borderRadius: 16, backgroundColor: "rgba(7,27,42,0.86)", borderWidth: 1, borderColor: "rgba(255,224,138,0.35)" },
+  selected: { borderColor: colors.gold, backgroundColor: "rgba(67,58,32,0.9)" },
+  next: { minHeight: 52, padding: 14, borderRadius: 28, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });

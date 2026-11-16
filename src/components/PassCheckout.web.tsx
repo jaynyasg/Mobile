@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Pressable, StyleSheet, View, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { checkoutDismissPlan, hasCheckoutMarker, holdCheckout, withCheckoutMarker } from "@/logic/checkoutDismiss";
-import { CHECKOUT_SOON, stripePublishableKey, type PassTier } from "@/logic/passPay";
+import { CHECKOUT_SOON, confirmedPayment, stripePublishableKey, type PassTier } from "@/logic/passPay";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 import { notchPadding } from "./notch";
@@ -61,12 +61,18 @@ export function PassCheckout({
           },
           onComplete: () => {
             if (!live) return;
-            const finish = () => { if (live) onBooked(); };
             if (!sessionId) {
-              finish();
+              setMessage("We're confirming your payment. Check your confirmation email before trying again.");
               return;
             }
-            fetch(`/api/checkout/status?session_id=${encodeURIComponent(sessionId)}`).catch(() => undefined).finally(finish);
+            fetch(`/api/checkout/status?session_id=${encodeURIComponent(sessionId)}`)
+              .then(async (response) => {
+                const status = response.ok ? await response.json() : {};
+                if (!live) return;
+                if (confirmedPayment(status, tier)) onBooked();
+                else setMessage("Your payment is still being confirmed. Check your confirmation email before trying again.");
+              })
+              .catch(() => { if (live) setMessage("We couldn't check your payment yet. Check your confirmation email before trying again."); });
           },
         });
         if (!live) {

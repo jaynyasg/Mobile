@@ -1,9 +1,34 @@
 import { describe, expect, it, vi } from "vitest";
 import worker from "./index";
 import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 import { ensurePwaDocument, installabilityGaps, isHtmlShell, MANIFEST_LINK, pwaContentType } from "./pwa";
 
 describe("pwa asset types", () => {
+  it("never serves payment, booking, or account API responses from the offline cache", async () => {
+    type FetchEvent = { request: Request; respondWith: (response: Promise<Response>) => void };
+    const listeners = new Map<string, (event: FetchEvent) => void>();
+    const fetch = vi.fn(async () => new Response("asset"));
+    const put = vi.fn();
+    runInNewContext(readFileSync("public/sw.js", "utf8"), {
+      self: { location: { origin: "https://tatel.app" }, addEventListener: (name: string, handler: (event: FetchEvent) => void) => listeners.set(name, handler) },
+      URL,
+      fetch,
+      caches: { open: async () => ({ put }) },
+    });
+    const respondWith = vi.fn();
+    for (const path of ["/api/checkout/status?session_id=test", "/api/vip-booking/group", "/api/program", "/api/community/profile"]) {
+      listeners.get("fetch")!({ request: new Request(`https://tatel.app${path}`), respondWith });
+    }
+    expect(respondWith).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(put).not.toHaveBeenCalled();
+    listeners.get("fetch")!({ request: new Request("https://tatel.app/apple-touch-icon.png"), respondWith });
+    expect(respondWith).toHaveBeenCalledOnce();
+    await respondWith.mock.calls[0][0];
+    expect(fetch).toHaveBeenCalledOnce();
+  });
+
   it("names the manifest and the home-screen icons", () => {
     expect(pwaContentType("/manifest.webmanifest")).toBe("application/manifest+json");
     expect(pwaContentType("/sw.js")).toBe("text/javascript");

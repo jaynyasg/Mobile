@@ -9,7 +9,11 @@ import { notchPadding } from "@/components/notch";
 import { scrollPort } from "@/components/scrollPort";
 import { nightGlass } from "@/components/nightGlass";
 import { useAuth } from "@/community/auth";
-import { CHECKOUT_SOON, canEmbedCheckout } from "@/logic/passPay";
+import { CHECKOUT_SOON, confirmedPayment, canEmbedCheckout } from "@/logic/passPay";
+import { writeOwnedPass } from "@/logic/ownedPass";
+import { notePassPurchased } from "@/logic/intake";
+import { webStorage } from "@/welcome";
+import { StepBridge } from "@/components/StepBridge";
 import { boatPreferenceLabel, money, timeLeftLine, TOTAL_DOLLARS, type BoatPreference, type BookingStatus } from "@/logic/vipGroup";
 import { colors } from "@/theme";
 
@@ -34,6 +38,12 @@ export default function VipSharePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [paying, setPaying] = useState(false);
+  const [paidHere, setPaidHere] = useState(false);
+  const rememberPayment = useCallback(() => {
+    writeOwnedPass(webStorage(), "vip");
+    notePassPurchased(webStorage());
+    setPaidHere(true);
+  }, []);
   const [now, setNow] = useState(() => Date.now());
   const checkoutReady = canEmbedCheckout();
 
@@ -65,12 +75,14 @@ export default function VipSharePage() {
     const sessionId = search?.get("session_id");
     if (search?.get("checkout") === "return" && sessionId) {
       fetch(`/api/checkout/status?session_id=${encodeURIComponent(sessionId)}`)
+        .then((response) => response.ok ? response.json() : {})
+        .then((body) => { if (confirmedPayment(body, "vip")) rememberPayment(); })
         .catch(() => undefined)
         .finally(() => { void load(); });
       return;
     }
     void load();
-  }, [code, load]);
+  }, [code, load, rememberPayment]);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 60_000);
@@ -85,13 +97,14 @@ export default function VipSharePage() {
       <ScrollView style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]} contentContainerStyle={[{ paddingHorizontal: 16, paddingBottom: 28, gap: 14 }, notchPadding("top", 18, insets.top)]}>
         <View style={styles.card}>
           <T variant="eyebrow" color={colors.gold}>Be on Board</T>
-          <T variant="title" color={colors.foam}>All-inclusive VIP</T>
+          <T variant="title" color={colors.foam}>Your five-day charter</T>
+          <T variant="small" color={colors.foam}>Each share is $5,000. A full boat has eight shares. The team confirms the boat, berth, and travel details.</T>
         </View>
         {missing ? <View style={styles.card}><T variant="small" color={colors.foam}>This booking link doesn't match a group.</T></View> : null}
         {message ? <View style={styles.card}><T variant="meta" color={colors.gold}>{message}</T></View> : null}
         {booking ? (
           <View style={styles.card}>
-            {booking.status === "filled" ? <T variant="title" color={colors.foam}>Booking confirmed</T> : null}
+            {booking.status === "filled" ? <T variant="title" color={colors.foam}>Your group is fully paid</T> : null}
             <T variant="small" color={colors.foam}>{booking.progress}</T>
             <T variant="meta" color={colors.gold}>{boatPreferenceLabel(booking.boatPreference)}</T>
             {booking.status === "open" ? <T variant="meta" color={colors.foam}>{timeLeftLine(booking.deadline, now)}</T> : null}
@@ -127,11 +140,12 @@ export default function VipSharePage() {
             ) : null}
           </View>
         ) : null}
+        {paidHere ? <><T variant="small" color={colors.foam}>Your share payment is complete. The team will confirm your charter arrangements. You can start choosing sessions now.</T><StepBridge id="pass" footer /></> : null}
       </ScrollView>
       {paying && booking ? (
         <PassCheckout
           tier="vip"
-          title="All-inclusive VIP"
+          title="Be on Board"
           detail={`${quantity} ${quantity === 1 ? "share" : "shares"} · ${money(quantity * 5_000)}`}
           email={email}
           secretPath={`/api/vip-booking/${booking.code}/checkout`}
@@ -139,6 +153,7 @@ export default function VipSharePage() {
           onClose={() => setPaying(false)}
           onBooked={() => {
             setPaying(false);
+            rememberPayment();
             void load();
           }}
         />

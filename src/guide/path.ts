@@ -8,10 +8,10 @@ export const TOUR_DWELL_MS = 7_000;
 
 const tourLine: Record<string, string> = {
   welcome: "Welcome: watch the film",
-  tracks: "Interests: pick your infrastructures",
-  sessions: "Sessions: select your session",
+  tracks: "Interests: choose your topics",
+  sessions: "Sessions: save your favorites",
   transport: "Routes: taxis and boats",
-  stay: "Stays: find where you sleep",
+  stay: "Accommodation: choose your island home",
   know: "Preparation guide: before you travel",
   pass: "Tickets: get your pass",
   chat: "Chat: join the room",
@@ -31,12 +31,12 @@ export interface GuideStep {
 
 export const guideSteps = [
   { id: "welcome", headline: "Watch the welcome", line: "A short film, then you are in.", cta: "Play" },
-  { id: "tracks", headline: "Pick your infrastructures", line: "Tell us which areas you're into: Tech, AI, Travel, Entertainment, Law. We'll tailor your Sessions and route.", cta: "Choose" },
-  { id: "sessions", headline: "Select Your Session", line: "Save the ones you want.", cta: "Open Sessions" },
-  { id: "transport", headline: "See the routes", line: "Boats are the only way between islands. A taxi stays on one island.", cta: "Open Routes" },
-  { id: "stay", headline: "Find your stay", line: "Where you sleep on each island.", cta: "Open stays" },
+  { id: "tracks", headline: "Choose your interests", line: "Explore Tech, AI, Travel, Entertainment, and Law. Your choices help us suggest sessions.", cta: "Choose" },
+  { id: "pass", headline: "Choose your ticket", line: "Stay ashore, take a day charter, or live aboard.", cta: "Open Tickets" },
+  { id: "stay", headline: "Find your accommodation", line: "Choose an island and book directly with your hotel or villa.", cta: "Open stays" },
+  { id: "sessions", headline: "Save your sessions", line: "Tap a heart to add a session to My schedule.", cta: "Open Sessions" },
+  { id: "transport", headline: "Plan your route", line: "Connect island stops by boat and reach the docks by taxi.", cta: "Open Routes" },
   { id: "know", headline: "Preparation guide", line: "Documents, money, driving, and the border. Island hops are by boat.", cta: "Open" },
-  { id: "pass", headline: "Get your pass", line: "Beach, boat, or a VIP group.", cta: "Open Tickets" },
   { id: "chat", headline: "Join the chat", line: "Talk with people at TATEL.", cta: "Open chat" },
 ] as const satisfies readonly GuideStep[];
 

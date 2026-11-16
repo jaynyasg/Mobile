@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Image, Platform, Pressable, ScrollView, StyleSheet, View, type ViewStyle } from "react-native";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PassCheckout } from "@/components/PassCheckout";
@@ -8,9 +9,10 @@ import { T } from "@/components/Text";
 import { useAuth } from "@/community/auth";
 import { useContent } from "@/content/provider";
 import { readContactPrefs } from "@/logic/contactPrefs";
-import { notePassPurchased, readIntake } from "@/logic/intake";
+import { notePassPurchased, readIntake, writeIntake } from "@/logic/intake";
+import { ticketGuide } from "@/content/tickets";
 import { readOwnedPass, writeOwnedPass } from "@/logic/ownedPass";
-import { CHECKOUT_SOON, canEmbedCheckout, passOffer, passTier, type PassTier } from "@/logic/passPay";
+import { CHECKOUT_SOON, confirmedPayment, canEmbedCheckout, passOffer, passTier, type PassTier } from "@/logic/passPay";
 import { passPayload } from "@/logic/state";
 import { useApp } from "@/store";
 import { webStorage } from "@/welcome";
@@ -37,8 +39,9 @@ function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string
 
 function readHold(): { owned: boolean; tier: PassTier | null } {
   const tier = readOwnedPass(webStorage());
-  const answered = readIntake(webStorage())?.hasPass === "have";
-  return { owned: answered || tier != null, tier };
+  const intake = readIntake(webStorage());
+  const answered = intake?.hasPass === "have";
+  return { owned: answered || tier != null, tier: tier ?? (answered ? intake.ticketPreference ?? null : null) };
 }
 
 export default function TicketsScreen() {
@@ -48,9 +51,9 @@ export default function TicketsScreen() {
   const { state } = useApp();
   const params = useLocalSearchParams<{ checkout?: string; tier?: string; session_id?: string }>();
   const { passes } = program;
-  const [passId, setPassId] = useState(() => readHold().tier ?? passes.items[0]?.id ?? "");
+  const recommended = passTier(params.tier) ?? readIntake(webStorage())?.ticketPreference;
+  const [passId, setPassId] = useState(() => readHold().tier ?? recommended ?? passes.items[0]?.id ?? "");
   const [shown, setShown] = useState(false);
-  const [more, setMore] = useState(false);
   const [hold, setHold] = useState(readHold);
   const [paying, setPaying] = useState<PassTier | null>(() => {
     if (typeof window === "undefined") return null;
@@ -98,9 +101,9 @@ export default function TicketsScreen() {
     let live = true;
     fetch(`/api/checkout/status?session_id=${encodeURIComponent(checkoutQuery.sessionId)}`)
       .then((response) => response.json())
-      .then((body: { status?: string; tier?: string | null }) => {
+      .then((body: { status?: string; paymentStatus?: string | null; tier?: string | null }) => {
         if (!live) return;
-        if (body.status === "complete") {
+        if (confirmedPayment(body)) {
           const tier = passTier(body.tier);
           if (tier) writeOwnedPass(webStorage(), tier);
           setBooked(true);
@@ -119,6 +122,8 @@ export default function TicketsScreen() {
   function buy(id: string) {
     const tier = passTier(id);
     if (!tier || !checkoutReady) return;
+    const intake = readIntake(webStorage());
+    if (intake) writeIntake(webStorage(), { ...intake, ticketPreference: tier });
     if (tier === "vip") {
       setStarting(true);
       return;
@@ -133,73 +138,84 @@ export default function TicketsScreen() {
     if (!tier) return;
     writeOwnedPass(webStorage(), tier);
     setPassId(id);
-    setMore(false);
     refreshHold();
   }
 
   if (!pass) return null;
   const payingPass = passes.items.find((item) => item.id === paying);
-  const heldPass = hold.owned
-    ? (passes.items.find((item) => item.id === (hold.tier ?? passId)) ?? pass)
+  const heldPass = hold.owned && hold.tier
+    ? passes.items.find((item) => item.id === hold.tier)
     : null;
 
   return (
     <View style={styles.frame}>
       <Image source={{ uri: sceneForIsland("Jost Van Dyke") }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <ScrollView style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]} contentContainerStyle={[{ paddingBottom: 28 }, notchPadding("top", 16, insets.top)]}>
-        <StepBridge id="pass" />
         <View style={styles.intro}>
           <T variant="eyebrow" color={colors.gold}>Tickets</T>
-          <T variant="title" color={colors.foam}>{hold.owned ? "Your pass" : "Choose a pass"}</T>
+          <T variant="title" color={colors.foam}>{hold.owned ? "Your ticket" : "Three ways to join us"}</T>
           <T variant="small" color={colors.foam}>
-            {hold.owned ? "Show it at the sessions." : "Be on the Beach is the public ferry. Be on the Boat is a day charter. Be on Board is the VIP charter for all 5 days."}
+            {hold.owned ? "Your ticket selection is saved on this device. Keep your booking confirmation for check-in." : "Stay ashore, travel by day charter, or make a yacht your home. Compare the details below before you book."}
           </T>
         </View>
         {heldPass ? (
           <View style={styles.hero}>
-            <T variant="rowTitle" color={colors.foam}>{heldPass.name}</T>
+            <T variant="rowTitle" color={colors.foam}>{ticketGuide[passTier(heldPass.id) ?? "beach"].name}</T>
             <T variant="small" color={colors.foam}>{heldPass.price} {heldPass.unit}</T>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={shown ? "Hide pass" : "Show pass"}
+              accessibilityLabel={shown ? "Hide ticket" : "Show ticket"}
               onPress={() => setShown((open) => !open)}
               style={styles.pill}
             >
-              <T variant="button" color={colors.ink}>{shown ? "Hide pass" : "Show pass"}</T>
+              <T variant="button" color={colors.ink}>{shown ? "Hide ticket" : "Show ticket"}</T>
             </Pressable>
           </View>
         ) : null}
         {heldPass && shown ? (
           <View style={styles.qr}>
             <QrMark value={passPayload(heldPass.id)} />
-            <T variant="meta" color={colors.foam}>Your pass on this device.</T>
+            <T variant="meta" color={colors.foam}>Your saved ticket selection. Bring your booking confirmation for check-in.</T>
           </View>
         ) : null}
         {hold.owned ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={catalog ? "Hide other passes" : "See other passes"}
+            accessibilityLabel={catalog ? "Hide other tickets" : "See other tickets"}
             onPress={() => setCatalog((open) => !open)}
             style={styles.more}
           >
-            <T variant="button" color={colors.ink}>{catalog ? "Hide other passes" : "See other passes"}</T>
+            <T variant="button" color={colors.ink}>{catalog ? "Hide other tickets" : "See other tickets"}</T>
           </Pressable>
         ) : null}
         {!hold.owned || catalog ? (
         <View style={styles.passes}>
-          <View testID="passes-lead" style={styles.passesLead}>
-            <T variant="eyebrow" color={colors.gold}>{hold.owned ? "Other passes" : "Passes"}</T>
-            <T variant="small" color={colors.foam}>{passes.legend}</T>
-          </View>
-          {passes.items.map((item) => {
+          {[...passes.items].sort((a, b) => Number(b.id === recommended) - Number(a.id === recommended)).map((item) => {
             const offer = passOffer(item.id, item.price);
+            const tier = passTier(item.id);
+            const guide = tier ? ticketGuide[tier] : null;
             const ownsThis = hold.owned && hold.tier === item.id;
             return (
-              <Pressable
+              <View key={item.id} style={[styles.passCard, item.id === recommended && styles.recommended]} testID={`ticket-${item.id}`}>
+                {item.id === recommended && !hold.owned ? <T variant="eyebrow" color={colors.gold}>Suggested for your travel style</T> : null}
+                <T variant="title" color={colors.foam}>{guide?.name ?? item.name}</T>
+                {guide ? <T variant="rowTitle" color={colors.gold}>{guide.tagline}</T> : null}
+                <T variant="headline" color={colors.foam}>{item.price} <T variant="small" color={colors.foam}>per guest</T></T>
+                {item.id === "vip" ? <T variant="meta" color={colors.gold}>{offer.guests} · {offer.total} for the full boat</T> : null}
+                <T variant="small" color={colors.foam}>{guide?.description ?? item.paragraphs[0]}</T>
+                {guide ? <>
+                  <T variant="eyebrow" color={colors.gold}>Where you stay</T>
+                  <T variant="small" color={colors.foam}>{guide.stay}</T>
+                  <T variant="eyebrow" color={colors.gold}>Getting between islands</T>
+                  <T variant="small" color={colors.foam}>{guide.travel}</T>
+                  <T variant="eyebrow" color={colors.gold}>Before you book</T>
+                  <T variant="small" color={colors.foam}>{guide.details}</T>
+                </> : null}
+                <Pressable
                 key={item.id}
                 accessibilityRole="button"
                 accessibilityState={{ disabled: ownsThis ? false : !checkoutReady }}
-                accessibilityLabel={ownsThis ? `Your ${item.name} pass` : checkoutReady ? (item.id === "vip" ? "Start a VIP group booking" : `Pay for ${item.name}`) : `${CHECKOUT_SOON}, ${item.name}`}
+                accessibilityLabel={ownsThis ? `Your ${item.name} ticket` : checkoutReady ? (item.id === "vip" ? "Start a Be on Board booking" : `Book ${item.name}`) : `${CHECKOUT_SOON}, ${item.name}`}
                 disabled={ownsThis ? false : !checkoutReady}
                 onPress={() => {
                   if (ownsThis) {
@@ -209,34 +225,27 @@ export default function TicketsScreen() {
                   }
                   buy(item.id);
                 }}
-                style={styles.passCard}
+                style={[styles.pill, !ownsThis && !checkoutReady && styles.pillOff]}
               >
-                <T variant="rowTitle" color={colors.foam}>{item.id === "vip" ? "Be on Board" : item.name}</T>
-                {item.id === "vip" ? <T variant="meta" color={colors.gold}>VIP charter · all 5 days</T> : null}
-                <T variant="small" color={colors.foam}>{item.id === "vip" ? `${offer.guests} · ${offer.total}` : `${item.price} ${item.unit}`}</T>
-                {item.paragraphs[0] ? <T variant="small" color={colors.foam}>{item.paragraphs[0]}</T> : null}
-                {item.id === "vip" ? <T variant="meta" color={colors.gold}>$5,000 a share. A full boat is 8 shares, $40,000. Full boat, or open to sharing.</T> : null}
-                <View style={[styles.pill, !ownsThis && !checkoutReady && styles.pillOff]}>
-                  <T variant="button" color={colors.ink}>{ownsThis ? "Your pass" : checkoutReady ? (item.id === "vip" ? "Start a group booking" : "Pay") : CHECKOUT_SOON}</T>
-                </View>
+                  <T variant="button" color={colors.ink}>{ownsThis ? "View my ticket" : checkoutReady ? (item.id === "vip" ? "Start a group booking" : `Book ${guide?.name ?? item.name}`) : CHECKOUT_SOON}</T>
               </Pressable>
+              </View>
             );
           })}
         </View>
         ) : null}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.picks}>
+        {hold.owned && !hold.tier ? <><T variant="small" style={styles.detail}>Select the ticket on your existing booking confirmation.</T><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.picks}>
           {passes.items.map((item) => {
             const current = item.id === pass.id;
             return (
               <Pressable
                 key={item.id}
                 accessibilityRole="button"
-                accessibilityLabel={hold.owned && !hold.tier ? `This is my ${item.name} pass` : item.name}
+                accessibilityLabel={hold.owned && !hold.tier ? `This is my ${item.name} ticket` : item.name}
                 onPress={() => {
                   if (hold.owned && !hold.tier) claim(item.id);
                   else {
                     setPassId(item.id);
-                    setMore(false);
                   }
                 }}
                 style={[styles.pick, current && styles.pickOn]}
@@ -245,22 +254,8 @@ export default function TicketsScreen() {
               </Pressable>
             );
           })}
-        </ScrollView>
-        <Pressable accessibilityRole="button" accessibilityLabel="More about this pass" onPress={() => setMore((open) => !open)} style={styles.more}>
-          <T variant="button" color={colors.ink}>{more ? "Hide" : "More"}</T>
-        </Pressable>
-        {more ? (
-          <View style={styles.detail}>
-            {pass.minimum ? <T variant="meta">{pass.minimum}</T> : null}
-            {pass.paragraphs.map((paragraph) => (
-              <T key={paragraph} variant="meta">{paragraph}</T>
-            ))}
-            {pass.bullets.map((bullet) => (
-              <T key={bullet} variant="meta">{bullet}</T>
-            ))}
-            <T variant="meta">{passes.legend}</T>
-          </View>
-        ) : null}
+        </ScrollView></> : null}
+        <StepBridge id="pass" footer />
       </ScrollView>
       {paying && payingPass && paying !== "vip" ? (
         <PassCheckout
@@ -287,31 +282,38 @@ export default function TicketsScreen() {
         />
       ) : null}
       {booked ? (
-        <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="You're booked">
-          <View style={styles.notice}>
-            <T variant="eyebrow" color={colors.gold}>Passes</T>
+        <TicketNotice label="You're booked">
+          <ScrollView style={styles.notice} contentContainerStyle={styles.noticeContent}>
+            <T variant="eyebrow" color={colors.gold}>Tickets</T>
             <T variant="title" color={colors.foam}>You're booked</T>
-            <T variant="small" color={colors.foam}>Your payment is complete. We'll see you at the sessions.</T>
+            <T variant="small" color={colors.foam}>Your payment is complete. Continue with your personal plan to get ready for TATEL.</T>
+            <StepBridge id="pass" footer onContinue={() => setBooked(false)} />
             <Pressable accessibilityRole="button" accessibilityLabel="Close booking" onPress={() => setBooked(false)} style={styles.pill}>
               <T variant="button" color={colors.ink}>Done</T>
             </Pressable>
-          </View>
-        </View>
+          </ScrollView>
+        </TicketNotice>
       ) : null}
       {cancelled ? (
-        <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Payment not completed">
-          <View style={styles.notice}>
-            <T variant="eyebrow" color={colors.gold}>Passes</T>
-            <T variant="title" color={colors.foam}>Payment not completed</T>
-            <T variant="small" color={colors.foam}>No charge was finished. You can choose a pass and try again.</T>
+        <TicketNotice label="Check your payment">
+          <ScrollView style={styles.notice} contentContainerStyle={styles.noticeContent}>
+            <T variant="eyebrow" color={colors.gold}>Tickets</T>
+            <T variant="title" color={colors.foam}>Check your payment</T>
+            <T variant="small" color={colors.foam}>We couldn't confirm a completed payment. Check your confirmation email before trying again.</T>
             <Pressable accessibilityRole="button" accessibilityLabel="Close payment message" onPress={() => setCancelled(false)} style={styles.pill}>
               <T variant="button" color={colors.ink}>Close</T>
             </Pressable>
-          </View>
-        </View>
+          </ScrollView>
+        </TicketNotice>
       ) : null}
     </View>
   );
+}
+
+function TicketNotice({ label, children }: { label: string; children: ReactNode }) {
+  const insets = useSafeAreaInsets();
+  const notice = <View style={[styles.overlay, notchPadding("top", 16, insets.top), notchPadding("bottom", 16, insets.bottom)]} accessibilityViewIsModal accessibilityLabel={label}>{children}</View>;
+  return typeof document === "undefined" ? notice : createPortal(notice, document.body);
 }
 
 const styles = StyleSheet.create({
@@ -319,11 +321,12 @@ const styles = StyleSheet.create({
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   intro: { marginHorizontal: 16, padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
   passes: { marginHorizontal: 16, marginTop: 16, gap: 10 },
-  passesLead: { padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
-  passCard: { padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
+  passCard: { padding: 20, gap: 12, borderRadius: 22, ...nightGlass },
+  recommended: { borderWidth: 2, borderColor: colors.gold },
   hero: { marginHorizontal: 16, marginTop: 16, padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
-  overlay: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, zIndex: 70, backgroundColor: "#071421", justifyContent: "center", padding: 16 },
-  notice: { padding: 18, gap: 12, borderRadius: 22, ...nightGlass, backgroundColor: "rgba(7,27,42,0.92)" },
+  overlay: { ...({ position: Platform.OS === "web" ? "fixed" : "absolute" } as ViewStyle), top: 0, right: 0, bottom: 0, left: 0, zIndex: 120, backgroundColor: "#071421", justifyContent: "center", alignItems: "center", padding: 16 },
+  notice: { width: "100%", maxWidth: 440, maxHeight: "90%", flexGrow: 0, borderRadius: 22, ...nightGlass, backgroundColor: "rgba(7,27,42,0.92)" },
+  noticeContent: { padding: 18, gap: 12 },
   pill: { alignSelf: "flex-start", minHeight: 48, marginTop: 8, paddingHorizontal: 20, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   pillOff: { opacity: 0.55 },
   qr: { alignItems: "center", gap: 10, marginHorizontal: 16, marginTop: 16, padding: 16, borderRadius: 18, ...nightGlass },

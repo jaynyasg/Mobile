@@ -18,11 +18,12 @@ export default function KnowScreen() {
       <StackHeader title="Preparation guide" />
       <StepBridge id="know" />
       <View style={styles.lead}>
-        <T variant="small">What to have ready before you travel: documents, money, driving, and the border. You change islands only by boat. Be on the Beach is the public ferry, on a fixed schedule, and a taxi on land. Be on the Boat is a private charter for the day, leaving at set group times. Be on Board is the VIP charter you stay on for all 5 days, on your group's own schedule. St. Thomas to St. John times are on the official USVI ferry schedule. They can change. Check it before you travel.</T>
+        <T variant="small">Get ready for your island days: check your travel documents, plan your connections, and leave time between sessions. Beach guests arrange their own ferries and taxis. Boat guests use day charters and sleep ashore. Board guests stay on their charter for five days.</T>
+        <T variant="small">Use the operator links below to check ferry times for your travel dates. For a TATEL charter, follow the boarding details confirmed by the team.</T>
       </View>
       <View style={[styles.card, nightGlass]}>
         <T variant="rowTitle" color={colors.foam}>Official USVI ferry schedule</T>
-        <T variant="small" color={colors.foam}>Red Hook, Charlotte Amalie, and Cruz Bay. Effective November 1, 2026. Not a separate January 26–29, 2027 poster.</T>
+        <T variant="small" color={colors.foam}>Ferries between Red Hook and Charlotte Amalie on St. Thomas and Cruz Bay on St. John. Check the latest departures and return times before you travel.</T>
         <ExternalLink href={OFFICIAL_USVI_FERRY_URL} label="Official USVI ferry schedule">Official USVI ferry schedule</ExternalLink>
       </View>
       <View style={[styles.card, nightGlass]}>

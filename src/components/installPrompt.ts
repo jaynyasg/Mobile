@@ -77,9 +77,9 @@ export function installSteps(choice: InstallChoice): InstallStep[] {
 function stepsFor(choice: InstallChoice): InstallStep[] {
   if (choice === "ios-safari") {
     return [
-      { icon: "share", title: "Tap Share", body: "In Safari, tap the Share button in the bottom bar. It is the square with an arrow pointing up." },
-      { icon: "plus", title: "Add to Home Screen", body: "Scroll the share sheet and tap Add to Home Screen." },
-      { icon: "plus", title: "Tap Add", body: "TATEL then opens from its own icon, full screen." },
+      { icon: "share", title: "Open Safari's Share menu", body: "Tap Share, the square with an arrow pointing up. Depending on your Safari layout, it may be in the toolbar or inside the More (…) menu." },
+      { icon: "plus", title: "Choose Add to Home Screen", body: "Scroll down the share sheet. If you don't see Add to Home Screen, choose Edit Actions to add it." },
+      { icon: "plus", title: "Open as a web app", body: "If shown, turn on Open as Web App, then tap Add. Launch TATEL from its new Home Screen icon." },
     ];
   }
   if (choice === "ios-chrome") {
@@ -110,18 +110,18 @@ function stepsFor(choice: InstallChoice): InstallStep[] {
   if (choice === "ios-inapp") {
     return [
       { icon: "safari", title: "Open Safari", body: "This page is inside another app. Instagram, Facebook, Gmail, and similar browsers cannot add a Home Screen icon." },
-      { icon: "copy", title: "Copy the link", body: "Copy this link, open Safari, paste it, then use the bottom Share button and Add to Home Screen." },
+      { icon: "copy", title: "Copy the link", body: "Copy this link and open it in Safari. Tap Share, choose Add to Home Screen, turn on Open as Web App if shown, then tap Add." },
     ];
   }
   if (choice === "ios-legacy") {
     return [
       { icon: "safari", title: "Open Safari", body: "This iOS version can only add to the Home Screen from Safari." },
-      { icon: "copy", title: "Copy the link", body: "Copy this link, open it in Safari, then tap the bottom Share button and Add to Home Screen." },
+      { icon: "copy", title: "Copy the link", body: "Copy this link, open it in Safari, then tap Share and Add to Home Screen." },
     ];
   }
   return [
     { icon: "menu", title: "Open the browser menu", body: "In Chrome or Edge, open the menu." },
-    { icon: "plus", title: "Install the app", body: "Choose Install app. That installs TATEL on its own, without the browser bar. Do not choose Add to Home screen, which only saves a shortcut." },
+    { icon: "plus", title: "Install TATEL", body: "Choose Install app or Add to Home screen, then confirm Install if offered. The wording depends on your browser." },
   ];
 }
 

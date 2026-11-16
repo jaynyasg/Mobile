@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import { Image, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContent } from "@/content/provider";
 import { reels } from "@/content/reels";
@@ -18,6 +18,11 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   const { forum, sessions } = program;
   const [index, setIndex] = useState(0);
   const [held, setHeld] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const compact = width < 360 || height < 700;
+  const [contentHeight, setContentHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
   const start = useRef<{ x: number; y: number } | null>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -53,14 +58,14 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const slide = slides[index];
-    if (!slide || held || prefersReducedMotion()) return;
+    if (!slide || held || paused || prefersReducedMotion()) return;
     const timer = setTimeout(() => {
       const next = advanceStory(index, slides.length);
       if (next === null) closeRef.current();
       else setIndex(next);
-    }, storyBeat(slide.kind));
+    }, Math.max(storyBeat(slide.kind), `${slide.title} ${slide.line} ${slide.note}`.split(/\s+/).length / 3 * 1000 + 2000));
     return () => clearTimeout(timer);
-  }, [held, index, slides]);
+  }, [held, paused, index, slides]);
 
   function go(next: number) {
     if (next < 0) return;
@@ -111,19 +116,25 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
       <Film poster={film.poster} mp4={film.mp4} />
       <View style={styles.shade} />
       <View style={[styles.copy, notchPadding("top", 20, insets.top), notchPadding("bottom", 24, insets.bottom)]}>
+        <View style={styles.row}>
+          <View style={styles.pageInfo}><T variant="meta" color={colors.foam}>{index + 1} / {slides.length}</T>{contentHeight > viewportHeight + 2 ? <T variant="meta" color={colors.gold}>Scroll to read</T> : null}</View>
+          <Pressable accessibilityRole="button" accessibilityLabel={paused ? "Resume story" : "Pause story"} onPress={() => setPaused(!paused)} style={styles.ghost}><T variant="button" color={colors.gold}>{paused ? "Resume" : "Pause"}</T></Pressable>
+        </View>
+        <ScrollView key={slide.id} style={styles.scroll} contentContainerStyle={styles.storyCopy} onContentSizeChange={(_, height) => setContentHeight(height)} onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}>
         <T variant="eyebrow" color={colors.gold}>{slide.kicker}</T>
         {slide.kind === "letter" ? (
           <View style={styles.letters}>
             {slides.filter((item) => item.kind === "letter").map((item) => (
-              <T key={item.id} style={[styles.mark, item.id === slide.id ? styles.markOn : styles.markOff]}>{item.letter}</T>
+              <T key={item.id} style={[styles.mark, compact && styles.markCompact, item.id === slide.id ? styles.markOn : styles.markOff]}>{item.letter}</T>
             ))}
           </View>
         ) : (
-          <T style={slide.title.length > 28 ? styles.phaseSmall : styles.phase}>{slide.title}</T>
+          <T style={slide.title.length > 28 ? styles.phaseSmall : [styles.phase, compact && styles.phaseCompact]}>{slide.title}</T>
         )}
         {slide.kind === "letter" ? <T variant="rowTitle" color={colors.gold}>{slide.title}</T> : null}
-        <T variant="headline" color={colors.foam}>{slide.line}</T>
+        <T variant="headline" color={colors.foam} style={compact && styles.lineCompact}>{slide.line}</T>
         {slide.note ? <T variant="small" color={colors.foam}>{slide.note}</T> : null}
+        </ScrollView>
         <View style={styles.dots}>
           {slides.map((item, dot) => (
             <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={`Page ${dot + 1} of ${slides.length}`} onPress={() => setIndex(dot)} style={styles.dotHit}>
@@ -235,18 +246,24 @@ const styles = StyleSheet.create({
     left: 0,
     ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.94) 0%, rgba(6,14,24,0.55) 42%, rgba(6,14,24,0.28) 100%)" } as ViewStyle),
   },
-  copy: { flex: 1, justifyContent: "flex-end", paddingHorizontal: 22, gap: 12 },
+  copy: { flex: 1, minHeight: 0, paddingHorizontal: 22, gap: 12, width: "100%", maxWidth: 640, alignSelf: "center" },
+  scroll: { flex: 1, minHeight: 0 },
+  storyCopy: { flexGrow: 1, justifyContent: "flex-end", gap: 14, paddingVertical: 20 },
   letters: { flexDirection: "row", gap: 10 },
-  mark: { fontFamily: fonts.display, fontSize: 72, lineHeight: 78 },
+  mark: { fontFamily: fonts.display, fontSize: 52, lineHeight: 60 },
+  markCompact: { fontSize: 40, lineHeight: 48 },
   markOn: { color: colors.gold },
   markOff: { color: "rgba(245,241,232,0.35)" },
   phase: { fontFamily: fonts.display, fontSize: 48, lineHeight: 52, color: colors.gold },
+  phaseCompact: { fontSize: 36, lineHeight: 40 },
+  lineCompact: { fontSize: 20, lineHeight: 26 },
   phaseSmall: { fontFamily: fonts.display, fontSize: 28, lineHeight: 34, color: colors.gold },
-  dots: { flexDirection: "row", gap: 4 },
-  dotHit: { minWidth: 22, minHeight: 28, alignItems: "center", justifyContent: "center" },
+  dots: { flexDirection: "row", gap: 2 },
+  dotHit: { flex: 1, minWidth: 0, minHeight: 32, alignItems: "center", justifyContent: "center" },
   dot: { width: 8, height: 8, borderRadius: 99, backgroundColor: "rgba(255,224,138,0.35)" },
   dotOn: { width: 18, backgroundColor: colors.gold },
   row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  pageInfo: { flexShrink: 1, gap: 2 },
   nav: { minHeight: 48, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", flexDirection: "row", alignItems: "center", gap: 2 },
   navOff: { borderColor: "rgba(245,241,232,0.2)" },
   ghost: { minHeight: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },

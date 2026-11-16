@@ -1,13 +1,15 @@
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useRef, useState, type ComponentRef } from "react";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StampCard } from "@/components/StampCard";
+import { ExperienceGuide } from "@/components/ExperienceGuide";
 import { T } from "@/components/Text";
 import { useContent } from "@/content/provider";
 import { AREA_COPY, ISLANDS_LINE, ISLANDS_NOTE } from "@/logic/tatelStory";
-import { zoneReelIds, type ReelId } from "@/content/reels";
+import { reels, zoneReelIds, type ReelId } from "@/content/reels";
 import { useReels } from "@/reels/ReelHost";
-import { colors, sceneForIsland } from "@/theme";
+import { colors } from "@/theme";
 import { dockClearance } from "@/components/Dock";
 import { notchPadding } from "@/components/notch";
 import { scrollPort } from "@/components/scrollPort";
@@ -17,12 +19,18 @@ import { openExternal } from "@/navigation/pwaNav";
 import { nightGlass } from "@/components/nightGlass";
 
 const extras = [
-  { id: "vip", title: "VIP charter", line: "Be on Board: a charter you stay on for all 5 days, with local guides and private dinners. Open Tickets to start the group.", href: "/tickets" },
-  { id: "show", title: "Performances", line: "The red-carpet screening of island films, and the sessions that put the work on a stage.", href: "/session/ENT-SCREENING-D3" },
-  { id: "dinner", title: "Private dinners", line: "Curated dinners with a local guide, named on the VIP charter. No separate price is listed here.", href: "/tickets" },
-  { id: "water", title: "Watersports", line: "Cruz Bay Watersports is the operator already named on the St. John stay list.", url: "https://bestofusvi.com/usvi-charters/boat/cruz-bay-watersports-usvi/" },
-  { id: "food", title: "Food tour with a local", line: "A meal with a local guide, asked for with the VIP charter. The team confirms the guide.", href: "/tickets" },
-  { id: "intro", title: "Intro tour with a local", line: "A first look at the island with a local guide. Ask for it with the VIP charter.", href: "/tickets" },
+  { id: "vip", title: "Five days aboard", line: "Wake up on the water with Be on Board. Explore the overnight charter and start a booking for your group, or ask to share.", href: "/tickets?tier=vip" },
+  { id: "show", title: "Your red-carpet moment", line: "Dress for the occasion and discover island filmmaking at the red-carpet screening. Find the session, save it, and check its latest time and location.", href: "/session/ENT-SCREENING-D3" },
+  { id: "dinner", title: "Good food, great company", line: "Be on Board includes curated lunches and dinners. The team will confirm the dining plans for your charter.", href: "/tickets?tier=vip" },
+  { id: "water", title: "More time on the water", line: "Explore trips and watersports with Cruz Bay Watersports on St. John. Check availability and book directly with the operator.", url: "https://bestofusvi.com/usvi-charters/boat/cruz-bay-watersports-usvi/" },
+  { id: "intro", title: "See the islands with a local", line: "Ask the Be on Board team about local guides and island experiences when you arrange your charter.", href: "/tickets?tier=vip" },
+];
+
+const islandIdeas = [
+  { title: "Trade your shoes for the shoreline", line: "Let a good session become a long walk, a swim, or a slow afternoon by the sea. Find a beach on St. Thomas or St. John that fits the day you want to have.", url: "https://www.visitusvi.com/explore/beaches/", label: "Explore USVI beaches" },
+  { title: "Get out on the water", line: "Snorkeling, paddling, or a boat outing can turn your free time into a highlight. Find local operators and check conditions, availability, and costs with them.", url: "https://www.visitusvi.com/explore/water-activities/", label: "Find water activities" },
+  { title: "Taste, wander, discover", line: "Explore local food, culture, shopping, and island sights. Leave room for the unexpected conversation or the place you want to linger.", url: "https://www.visitusvi.com/explore/things-to-do/", label: "Explore USVI things to do" },
+  { title: "Make time for Jost Van Dyke", line: "Discover the character of this British Virgin Islands stop. Browse the tourism board's island guide and plan around your return boat.", url: "https://www.bvitourism.com/the-islands/jost-van-dyke", label: "Explore Jost Van Dyke" },
 ];
 
 export default function ExploreScreen() {
@@ -31,24 +39,44 @@ export default function ExploreScreen() {
   const { forum } = program;
   const { openChapter } = useReels();
   const router = useRouter();
+  const [islandsOpen, setIslandsOpen] = useState(false);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const offsets = useRef({ guide: 0, stamps: 0, activities: 0 });
 
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]} contentContainerStyle={[{ paddingBottom: 28 }, notchPadding("top", 16, insets.top)]}>
-        <View style={styles.intro}>
-          <T variant="eyebrow" color={colors.gold}>Explore</T>
-          <T variant="title" color={colors.foam}>The Virgin Islands</T>
-          <T variant="small" color={colors.foam}>{ISLANDS_LINE}</T>
-          <T variant="small" color={colors.foam}>{ISLANDS_NOTE}</T>
-          <T variant="meta" color={colors.gold}>This page is discovery: the islands, the extras, and the stamp book. You move from island to island only by boat. Routes is that boat, and the taxi on land to the dock. The Preparation guide is documents and the border.</T>
+      <ScrollView ref={scrollRef} style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]} contentContainerStyle={[{ paddingBottom: 28 }, notchPadding("top", 16, insets.top)]}>
+        <View style={styles.cover}>
+          <Image source={{ uri: reels.venues.poster }} style={styles.coverPhoto} resizeMode="cover" accessibilityLabel="The island setting of TATEL" />
+          <View style={styles.coverCopy}>
+            <T variant="eyebrow" color={colors.gold}>Beyond the extraordinary conversations</T>
+            <T variant="display">Let the islands tempt you.</T>
+            <T variant="small">A morning that moves an idea forward. An afternoon in blue water. An evening worth dressing up for. Make room for every side of TATEL.</T>
+            <T variant="meta" color={colors.gold}>Five island stops. Countless ways to make it yours.</T>
+          </View>
         </View>
+        <View onLayout={(event) => { offsets.current.guide = event.nativeEvent.layout.y; }}>
+          <ExperienceGuide onStepChange={() => scrollRef.current?.scrollTo({ y: offsets.current.guide, animated: false })} onActivities={() => scrollRef.current?.scrollTo({ y: offsets.current.activities, animated: true })} onStamps={() => scrollRef.current?.scrollTo({ y: offsets.current.stamps, animated: true })} />
+        </View>
+        <View style={styles.intro}>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded: islandsOpen }} onPress={() => setIslandsOpen(!islandsOpen)} style={styles.islandsToggle}>
+            <T variant="rowTitle" color={colors.gold}>Meet the five islands {islandsOpen ? "−" : "+"}</T>
+          </Pressable>
+          {islandsOpen ? <>
+            <T variant="small">{ISLANDS_LINE}</T>
+            <T variant="small">{ISLANDS_NOTE}</T>
+            <T variant="meta" color={colors.gold}>Open Routes for travel connections and the Preparation guide for advice before you arrive.</T>
+          </> : <T variant="small">Get to know the U.S. and British Virgin Islands and how to move between them.</T>}
+        </View>
+        <View onLayout={(event) => { offsets.current.stamps = event.nativeEvent.layout.y; }}>
         <StampCard
           pillars={forum.pillars}
           onOpen={(id) => {
             if ((zoneReelIds as readonly string[]).includes(id)) openChapter(id as ReelId, { pathname: "/pillar/[id]", params: { id } });
           }}
         />
+        </View>
         <View style={styles.kickerWrap}>
           <T variant="eyebrow" color={colors.gold}>Island by island</T>
         </View>
@@ -62,7 +90,7 @@ export default function ExploreScreen() {
               onPress={() => openChapter(pillar.id as ReelId, { pathname: "/pillar/[id]", params: { id: pillar.id } })}
               style={styles.island}
             >
-              <View style={[styles.swatch, { backgroundColor: sceneColor(pillar.id) }]} />
+              <Image source={{ uri: reels[pillar.id as ReelId]?.poster }} style={styles.islandPhoto} resizeMode="cover" />
               <T variant="meta" color={colors.gold}>{pillar.region === "BVI" ? "British Virgin Islands" : "U.S. Virgin Islands"} · on or near {pillar.island}</T>
               <T variant="rowTitle" color={colors.foam}>{pillar.name}</T>
               {copy ? <T variant="small" color={colors.gold}>{copy.headline}</T> : null}
@@ -71,9 +99,13 @@ export default function ExploreScreen() {
             </Pressable>
           );
         })}
-        <View style={styles.kickerWrap}>
-          <T variant="eyebrow" color={colors.gold}>Add-ons</T>
+        <View onLayout={(event) => { offsets.current.activities = event.nativeEvent.layout.y; }} style={styles.intro}>
+          <T variant="eyebrow" color={colors.gold}>Beyond the sessions</T>
+          <T variant="title">Make room for island time</T>
+          <T variant="small">Follow a great session with a little adventure. Find your beach, get out on the water, or discover a local favorite with these official visitor guides.</T>
+          <T variant="meta">Choose and book independent outings separately; they may cost extra and are not automatically included in your TATEL ticket.</T>
         </View>
+        {islandIdeas.map((idea) => <View key={idea.title} style={styles.island}><T variant="rowTitle" color={colors.gold}>{idea.title}</T><T variant="small">{idea.line}</T><ExternalLink href={idea.url} label={idea.label}>{idea.label}</ExternalLink></View>)}
         {extras.map((item) => (
           <Pressable
             key={item.id}
@@ -95,20 +127,15 @@ export default function ExploreScreen() {
   );
 }
 
-function sceneColor(id: string): string {
-  void sceneForIsland;
-  if (id === "tech") return "#14344A";
-  if (id === "ai") return "#123E3A";
-  if (id === "travel") return "#1A3E55";
-  if (id === "entertainment") return "#3A2A18";
-  return "#241E3A";
-}
-
 const styles = StyleSheet.create({
   frame: { flex: 1, minHeight: 0, backgroundColor: "#071421" },
   intro: { marginHorizontal: 16, marginBottom: 12, padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
   kickerWrap: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, marginTop: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, ...nightGlass },
   island: { marginHorizontal: 16, marginBottom: 10, padding: 14, gap: 6, borderRadius: 18, ...nightGlass },
-  swatch: { height: 8, borderRadius: 99, marginBottom: 4 },
+  cover: { marginHorizontal: 16, marginBottom: 24, backgroundColor: "#091D2B", borderRadius: 8, overflow: "hidden" },
+  coverPhoto: { width: "100%", height: 240 },
+  coverCopy: { padding: 22, gap: 16 },
+  islandsToggle: { minHeight: 44, justifyContent: "center" },
+  islandPhoto: { width: "100%", height: 170, borderRadius: 6, marginBottom: 10 },
   pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });

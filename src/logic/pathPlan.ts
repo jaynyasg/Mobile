@@ -1,3 +1,5 @@
+import type { PassTier } from "./passPay";
+
 export const PASS_CHOICES = ["have", "not-yet", "unsure", "skipped"] as const;
 export const STAY_CHOICES = ["yes", "booked", "browsing", "skipped"] as const;
 
@@ -8,6 +10,7 @@ export interface IntakeAnswers {
   hasPass: PassAnswer;
   areas: readonly string[];
   needsStay: StayAnswer;
+  ticketPreference?: PassTier;
 }
 
 export interface PathPillar {
@@ -17,7 +20,7 @@ export interface PathPillar {
 }
 
 export interface PathStep {
-  id: "pass" | "sessions" | "stay" | "route" | "chat";
+  id: "pass" | "sessions" | "stay" | "explore" | "route" | "chat";
   title: string;
   line: string;
   optional: boolean;
@@ -32,6 +35,8 @@ export interface PathState {
    * That checks the pass step. It does not remove a step the questions left in.
    */
   ownedPass?: boolean | null;
+  ownedTier?: PassTier | null;
+  savedSessionCount?: number;
 }
 
 type DraftStep = Omit<PathStep, "number">;
@@ -64,22 +69,22 @@ function asStay(value: StayAnswer | null | undefined): StayAnswer {
 
 function passStep(hasPass: PassAnswer): DraftStep {
   if (hasPass === "unsure") {
-    return { id: "pass", title: "See pass options", line: "Beach, boat, or a VIP group.", optional: false, done: false };
+    return { id: "pass", title: "Compare tickets", line: "Find your way to experience TATEL.", optional: false, done: false };
   }
   if (hasPass === "skipped") {
-    return { id: "pass", title: "Passes", line: "Open Tickets when you want.", optional: true, done: false };
+    return { id: "pass", title: "Explore tickets", line: "Choose when you are ready.", optional: true, done: false };
   }
-  return { id: "pass", title: "Choose your pass", line: "Register to attend.", optional: false, done: false };
+  return { id: "pass", title: "Choose your ticket", line: "Stay ashore, sail by day, or live aboard.", optional: false, done: false };
 }
 
-function stayStep(needsStay: StayAnswer, islandLine: string): DraftStep {
+function stayStep(needsStay: StayAnswer): DraftStep {
   if (needsStay === "yes") {
-    return { id: "stay", title: "Pick your stay", line: `Near your sessions · ${islandLine}`, optional: false, done: false };
+    return { id: "stay", title: "Find your accommodation", line: `Choose your island and a place to stay.`, optional: false, done: false };
   }
   if (needsStay === "browsing") {
-    return { id: "stay", title: "Browse stays", line: "Optional.", optional: true, done: false };
+    return { id: "stay", title: "Browse accommodation", line: "Compare islands, hotels, and villas.", optional: true, done: false };
   }
-  return { id: "stay", title: "Stays", line: "If you need a place.", optional: true, done: false };
+  return { id: "stay", title: "Plan your stay", line: "Find a base when you are ready.", optional: true, done: false };
 }
 
 /**
@@ -102,45 +107,47 @@ export function buildPath(
   const finished = new Set(pathState.completed ?? []);
   const chosen = pillars.filter((pillar) => normalized.areas.includes(pillar.id));
   const areaLine = chosen.length ? chosen.map((pillar) => pillar.name).join(" · ") : "Every area";
-  const islandLine = chosen.length ? chosen.map((pillar) => pillar.island).join(" · ") : "Every island";
-  const done = (id: PathStep["id"]) => finished.has(id) || (id === "pass" && Boolean(pathState.ownedPass));
+  const done = (id: PathStep["id"]) => {
+    // Legacy versions marked steps on opening. Only actual ticket/session state counts now.
+    if (id === "pass") return Boolean(pathState.ownedPass || pathState.ownedTier);
+    if (id === "sessions" && pathState.savedSessionCount != null) return pathState.savedSessionCount > 0;
+    return finished.has(id);
+  };
   const steps: DraftStep[] = [];
   if (!holdsPass(normalized, pathState)) steps.push({ ...passStep(normalized.hasPass), done: done("pass") });
   steps.push({ id: "sessions", title: "Select your sessions", line: areaLine, optional: false, done: done("sessions") });
-  if (!stayBooked(normalized)) steps.push({ ...stayStep(normalized.needsStay, islandLine), done: done("stay") });
-  steps.push({ id: "route", title: "Build my route", line: "From the sessions you pick.", optional: false, done: done("route") });
-  steps.push({ id: "chat", title: "Join the chat", line: "Talk with people at TATEL.", optional: false, done: done("chat") });
+  const onboard = (pathState.ownedTier ?? answers.ticketPreference) === "vip";
+  if (!stayBooked(normalized) && (!onboard || normalized.needsStay === "yes")) steps.push({ ...stayStep(normalized.needsStay), ...(onboard ? { title: "Arrange extra nights", line: "Find a hotel for before or after your charter." } : {}), done: done("stay") });
+  steps.push({ id: "explore", title: "Explore TATEL", line: "Meet the people. Discover the islands. Plan your route.", optional: false, done: done("explore") });
   return orderPath(steps, normalized).map((step, index) => ({ ...step, number: index + 1 }));
 }
 
 /**
  * Lower ranks first.
- * A pass they do not already have, then sessions, then a stay they still need.
- * The stay follows the sessions so the room can sit near the sessions they pick.
- * Chat, a stay they are only browsing, and a stay they skipped follow.
+ * Ticket, accommodation, saved sessions, then discovery.
  */
-export function pathRank(step: Pick<PathStep, "id">, answers: IntakeAnswers): number {
+export function pathRank(step: Pick<PathStep, "id">, _answers: IntakeAnswers): number {
   if (step.id === "pass") return 5;
+  if (step.id === "stay") return 10;
   if (step.id === "sessions") return 20;
-  if (step.id === "stay" && answers.needsStay === "yes") return 30;
+  if (step.id === "explore") return 30;
   if (step.id === "route") return 50;
   if (step.id === "chat") return 70;
-  if (step.id === "stay" && answers.needsStay === "browsing") return 80;
-  if (step.id === "stay") return 90;
   return 100;
 }
 
 export interface PathLink {
-  pathname: "/tickets" | "/agenda" | "/stays" | "/routes" | "/community";
-  params?: { areas: string } | { build: "1" };
+  pathname: "/tickets" | "/agenda" | "/stays" | "/routes" | "/community" | "/explore";
+  params?: { areas: string } | { build: "1" } | { tier: PassTier };
 }
 
 /** Where a path step opens. The pass step always lands on Tickets, in the app. */
 export function pathDestination(
   stepId: PathStep["id"],
-  answers: Pick<IntakeAnswers, "areas" | "needsStay"> = { areas: [], needsStay: "skipped" },
+  answers: Pick<IntakeAnswers, "areas" | "needsStay" | "ticketPreference"> = { areas: [], needsStay: "skipped" },
 ): PathLink {
-  if (stepId === "pass") return { pathname: "/tickets" };
+  if (stepId === "pass") return answers.ticketPreference ? { pathname: "/tickets", params: { tier: answers.ticketPreference } } : { pathname: "/tickets" };
+  if (stepId === "explore") return { pathname: "/explore" };
   if (stepId === "sessions") return { pathname: "/agenda" };
   if (stepId === "stay") {
     const areas = (answers.areas ?? []).filter(Boolean).join(",");
@@ -201,24 +208,24 @@ export function homePathMatrixMarkdown(pillars: readonly PathPillar[]): string {
     "# Home path",
     "",
     "Ordered steps for every onboarding answer. A need the questions already cover is omitted.",
-    "When the questions do not say they have a pass (`not-yet`, `unsure`, or `skipped`, and they did not answer `have`), that pass step is first. Choose your pass comes ahead of sessions. Sessions come ahead of a stay they still need, so the room can follow the sessions.",
+    "The guided order is ticket, accommodation, saved sessions, then Explore. Existing tickets and arranged accommodation are omitted. An onboard ticket covers the stay unless the guest explicitly wants extra nights.",
     "Someone who answered `have` never sees a pass step. Someone who answered `booked` never sees a stay step.",
     "A step finished later in the app stays in that same place. The number does not change. The row is marked done.",
-    "Buying a pass or claiming one on the device checks the pass step. It does not remove it, unless the questions already said `have`.",
-    "Booking a stay in the app checks the stay step. It does not remove it, unless the questions already said `booked`.",
+    "Opening a screen does not complete it. Ticket completion uses the saved ticket state; session completion uses the current saved-session count. Booking later never records a completed purchase.",
+    "A guest confirms accommodation after booking with the property. Opening a provider link does not confirm a reservation.",
     "",
     "## Answer space",
     "",
     "- Pass: `have` (already has one), `not-yet`, `unsure`, `skipped` (left unanswered).",
     "- Stay: `yes` (needs a place), `booked` (already booked), `browsing`, `skipped` (left unanswered).",
-    "- Areas: every subset of the infrastructure areas, in program order. Names change the Sessions line and, when a stay step is shown, the island line. They do not add a step.",
+    "- Areas: every subset of the five topics, in program order. Names change the Sessions line and suggest islands for accommodation. They do not add a step.",
     "- The tables below hold completed steps empty and no pass on the device. Completing a step in the app adds a check and keeps the number.",
     "",
     "## Finished in the app",
     "",
     "Questions said not-yet and yes. Pass and stay were then finished in the app.",
     "",
-    `| ${stepCell(buildPath({ hasPass: "not-yet", areas: [], needsStay: "yes" }, pillars, ["pass", "stay"]))} |`,
+    `| ${stepCell(buildPath({ hasPass: "not-yet", areas: [], needsStay: "yes" }, pillars, { ownedPass: true, completed: ["stay"] }))} |`,
     "",
     "## Pass and stay",
     "",

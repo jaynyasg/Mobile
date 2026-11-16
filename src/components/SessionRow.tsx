@@ -17,7 +17,7 @@ export function sessionWhen(session: Session, timeZone = getProgram().forum.time
   return sessionDateLine(session, getProgram().forum.days, timeZone);
 }
 
-export function SessionRow({ session }: { session: Session }) {
+export function SessionRow({ session, showOutcome = false }: { session: Session; showOutcome?: boolean }) {
   const { state, dispatch } = useApp();
   const { program } = useContent();
   const favored = state.favoriteIds.includes(session.id);
@@ -45,11 +45,13 @@ export function SessionRow({ session }: { session: Session }) {
       </Pressable>
       <View pointerEvents="none" style={styles.copy}>
         <View style={styles.tags}>
-          <TopicChip id={interest ? "travel" : (topic?.id ?? "tech")} name={interest ?? topic?.name ?? "Session"} />
+          <TopicChip id={topic?.id ?? "tech"} name={topic?.name ?? "Session"} />
+          {interest ? <TopicChip id={topic?.id ?? "tech"} name={interest} /> : null}
           {kind ? <TopicChip id={topic?.id ?? "tech"} name={kind} /> : null}
         </View>
         <T variant="rowTitle" color={colors.foam} numberOfLines={2}>{displayCopy(session.title)}</T>
         <T variant="meta" color={colors.gold} numberOfLines={2}>{when} · {session.island}</T>
+        {showOutcome && session.outcome ? <><T variant="eyebrow" color={colors.gold}>What you'll work toward</T><T variant="small" color={colors.foam}>{displayCopy(session.outcome)}</T></> : null}
         <View style={styles.pill}>
           <T variant="button" color={colors.ink}>Open</T>
         </View>
@@ -70,8 +72,8 @@ const styles = StyleSheet.create({
   },
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   shade: { position: "absolute", left: 0, right: 0, bottom: 0, height: "78%", backgroundColor: "rgba(6,14,24,0.45)" },
-  heart: { position: "absolute", top: 8, right: 8, width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  copy: { gap: 4, padding: 12, zIndex: 1, width: "100%", minWidth: 0 },
+  heart: { position: "absolute", top: 8, right: 8, zIndex: 3, width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(7,20,33,0.9)", alignItems: "center", justifyContent: "center" },
+  copy: { gap: 6, padding: 16, paddingTop: 60, zIndex: 1, width: "100%", minWidth: 0 },
   pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   tags: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
 });

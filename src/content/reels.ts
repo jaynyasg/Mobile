@@ -28,7 +28,7 @@ export const reels = {
   intro: {
     id: "intro",
     title: "TATEL",
-    kicker: "The tech summit on water",
+    kicker: "Big ideas. Beautiful islands. Extraordinary company.",
     mp4: "/reels/tatel-welcome-intro.mp4",
     poster: "/reels/tatel-welcome-intro-poster.jpg",
     durationMs: 17_500,
@@ -37,7 +37,7 @@ export const reels = {
   sessions: {
     id: "sessions",
     title: "Sessions",
-    kicker: "Sessions",
+    kicker: "Bring your spark. Build something that matters.",
     mp4: "/reels/sessions.mp4",
     poster: "/reels/sessions.jpg",
     durationMs: 7_042,
@@ -46,7 +46,7 @@ export const reels = {
   venues: {
     id: "venues",
     title: "Venues",
-    kicker: "The islands",
+    kicker: "Follow the coast. Find your next adventure.",
     mp4: "/reels/venues.mp4",
     poster: "/reels/venues.jpg",
     durationMs: 7_042,
@@ -54,8 +54,8 @@ export const reels = {
   },
   stays: {
     id: "stays",
-    title: "Stays",
-    kicker: "Where you sleep",
+    title: "Accommodations",
+    kicker: "Somewhere beautiful to wake up",
     mp4: "/reels/stays.mp4",
     poster: "/reels/stays.jpg",
     durationMs: 7_042,
@@ -64,7 +64,7 @@ export const reels = {
   transport: {
     id: "transport",
     title: "Routes",
-    kicker: "Taxis and boats",
+    kicker: "The next island is calling",
     mp4: "/reels/transport.mp4",
     poster: "/reels/transport.jpg",
     durationMs: 7_042,
@@ -73,7 +73,7 @@ export const reels = {
   community: {
     id: "community",
     title: "Community",
-    kicker: "Chat",
+    kicker: "A good hello can change everything",
     mp4: "/reels/community.mp4",
     poster: "/reels/community.jpg",
     durationMs: 7_042,
@@ -81,8 +81,8 @@ export const reels = {
   },
   pass: {
     id: "pass",
-    title: "Pass",
-    kicker: "Your pass",
+    title: "Tickets",
+    kicker: "Three ways in. An experience to make your own.",
     mp4: "/reels/pass.mp4",
     poster: "/reels/pass.jpg",
     durationMs: 7_042,
@@ -91,7 +91,7 @@ export const reels = {
   panelists: {
     id: "panelists",
     title: "Panelists",
-    kicker: "Panelists",
+    kicker: "Meet the minds. Start the conversation.",
     mp4: "/reels/panelists.mp4",
     poster: "/reels/panelists.jpg",
     durationMs: 7_000,

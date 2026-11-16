@@ -23,7 +23,7 @@ export default function PanelistsScreen() {
       <PageHeader
         kicker={`${panelists.length} panelists`}
         title="Panelists"
-        subtitle="Names, companies, and titles come from the website roster."
+        subtitle="Find the minds that make you lean in. Meet the people bringing their experience, imagination, and ambition to TATEL. Search by name, company, or expertise; open a profile to discover their story and sessions."
       />
       <View style={{ paddingHorizontal: pad, paddingBottom: 8 }}>
         <SearchField value={query} onChange={setQuery} placeholder="Name, company, or title" />
@@ -48,7 +48,7 @@ export default function PanelistsScreen() {
         })
       )}
       <View style={{ height: 12 }} />
-      <PageHeader title="Where sessions meet" subtitle="The island is the plan. The exact place is still to be confirmed." />
+      <PageHeader title="Keep the conversation going" subtitle="Have a question or an idea to share? Open Chat from the bottom menu to introduce yourself and connect with other guests. Check session details for the latest participation and venue information." />
     </Screen>
   );
 }

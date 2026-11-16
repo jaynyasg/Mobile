@@ -144,7 +144,7 @@ export function CustomRoute({
   return (
     <ScrollView style={scrollPort} contentContainerStyle={[styles.scroll, { paddingBottom: 28 }]} keyboardShouldPersistTaps="handled">
       <View style={styles.lead}>
-        <T variant="small" color={colors.foam}>Between islands you only travel by boat. Be on the Beach is the public ferry. Be on the Boat is a private day charter. Be on Board is the VIP charter you stay on. A taxi stays on one island. Upgrade in Tickets if you want a different boat.</T>
+        <T variant="small" color={colors.foam}>Connect your saved sessions with boat transfers between islands and taxis on land. Beach guests arrange their own ferries; day-charter and onboard guests follow their confirmed charter itinerary. Compare the options in Tickets.</T>
       </View>
       <View style={styles.controls}>
         <View style={styles.segment}>

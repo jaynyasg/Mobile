@@ -27,7 +27,7 @@ describe("tickets route", () => {
     expect(tickets).not.toMatch(/Your passport|Fill your passport|readStamps|islandStamp/i);
     expect(explore).toContain("StampCard");
     expect(card).toContain("Stamp card");
-    expect(card).toContain("infrastructures");
+    expect(card).toContain("island stamps");
     expect(card).toContain("readStamps");
     expect(card).toContain("islandStamp");
     expect(STAMPS_KEY).toBe("tatel.stamps");
@@ -36,7 +36,7 @@ describe("tickets route", () => {
     expect(booking).toContain("/pass/vip/");
     expect(readFileSync("src/app/(tabs)/more.tsx", "utf8")).toContain('label: "Tickets"');
     expect(readFileSync("src/app/(tabs)/index.tsx", "utf8")).toContain('"/tickets"');
-    expect(readFileSync("src/app/(tabs)/tickets.tsx", "utf8")).toContain('hold.owned ? "Your pass" : "Choose a pass"');
+    expect(tickets.indexOf('<StepBridge id="pass" footer />')).toBeGreaterThan(tickets.indexOf('testID={`ticket-${item.id}`}'));
     expect(readFileSync("src/logic/pathPlan.ts", "utf8")).not.toMatch(/Add your pass|Get your pass|get a pass/i);
   });
 });

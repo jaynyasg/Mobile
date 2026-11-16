@@ -58,7 +58,8 @@ describe("install choice", () => {
     expect(installChoice(context({ userAgent: edgeIos }))).toBe("ios-edge");
     expect(installSteps("ios-chrome").map((step) => step.body).join(" ")).toMatch(/address bar/i);
     expect(installSteps("ios-chrome").map((step) => step.body).join(" ")).toMatch(/Add to Home Screen/);
-    expect(installSteps("ios-safari").map((step) => step.body).join(" ")).toMatch(/bottom bar/i);
+    expect(installSteps("ios-safari").map((step) => step.body).join(" ")).toMatch(/Open as Web App/);
+    expect(installSteps("ios-safari").map((step) => step.body).join(" ")).toMatch(/Edit Actions/);
     expect(installSteps("ios-firefox").map((step) => step.body).join(" ")).toMatch(/menu button/i);
     expect(installSteps("ios-edge").map((step) => step.body).join(" ")).toMatch(/bottom/i);
     expect(installSteps("ios-chrome").map((step) => step.body).join(" ")).not.toMatch(/conversation/i);
