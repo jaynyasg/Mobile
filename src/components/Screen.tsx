@@ -31,11 +31,11 @@ export function Screen({
   const clearance = dockClearance(insets.bottom);
   const top = edge === "top" ? notchPadding("top", 8, insets.top) : null;
   const body = scroll ? (
-    <ScrollView style={styles.fill} contentContainerStyle={[{ paddingBottom: clearance + 24 }, top]} keyboardShouldPersistTaps="handled">
+    <ScrollView style={[styles.fill, { marginBottom: clearance }]} contentContainerStyle={[{ paddingBottom: 28 }, top]} keyboardShouldPersistTaps="handled">
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.fill, { marginBottom: clearance }, top]}>{children}</View>
+    <View style={[styles.fill, styles.hold, { marginBottom: clearance }, top]}>{children}</View>
   );
   return (
     <View style={styles.fill}>
@@ -57,5 +57,7 @@ export function Screen({
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1, backgroundColor: "transparent" },
+  fill: { flex: 1, minHeight: 0, backgroundColor: "transparent" },
+  /** Keep a non-scrolling frame from painting under the dock. */
+  hold: { overflow: "hidden" },
 });

@@ -97,8 +97,8 @@ export default function CommunityRoomScreen() {
   return (
     <Screen edge="none" scroll={false} photo={backgrounds.chat.day} night={backgrounds.chat.night} phase={backgrounds.chat.phase}>
       <StackHeader title="Everyone" />
-      {offline ? <T variant="body" style={styles.note}>Community is offline. The program is still available.</T> : null}
-      {!auth.userId && !preview ? <T variant="body" style={styles.note}>Sign in to read the room.</T> : null}
+      {offline ? <View style={styles.note}><T variant="body">Community is offline. The program is still available.</T></View> : null}
+      {!auth.userId && !preview ? <View style={styles.note}><T variant="body">Sign in to read the room.</T></View> : null}
       <FlatList
         ref={listRef}
         data={messages}
@@ -168,20 +168,20 @@ export default function CommunityRoomScreen() {
           <T variant="button" color={colors.ink}>Send</T>
         </Pressable>
       </View>
-      {error ? <T variant="meta" style={styles.note}>{error}</T> : null}
+      {error ? <View style={styles.note}><T variant="meta">{error}</T></View> : null}
       <ProfileSheet profile={profile} onClose={() => setProfile(null)} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  note: { padding: pad },
+  flex: { flex: 1, minHeight: 0 },
+  note: { marginHorizontal: 12, marginBottom: 8, padding: 12, borderRadius: 14, ...nightGlass },
   list: { padding: pad, gap: 8 },
   bubble: { alignSelf: "flex-start", maxWidth: "88%", padding: 12, borderRadius: 16, ...nightGlass, gap: 2 },
   who: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
   actions: { flexDirection: "row", gap: 16 },
-  composer: { flexDirection: "row", gap: 8, padding: pad },
+  composer: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: 12, marginBottom: 8, padding: 8, borderRadius: 18, ...nightGlass },
   input: { flex: 1, borderWidth: 1, borderColor: "rgba(255,224,138,0.42)", borderRadius: 14, backgroundColor: "rgba(7,27,42,0.62)", color: colors.foam, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 12 },
   send: { backgroundColor: colors.gold, borderRadius: 14, paddingHorizontal: 14, justifyContent: "center" },
 });

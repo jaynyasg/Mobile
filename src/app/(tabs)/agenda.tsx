@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { panelistById } from "@/content";
 import { useContent } from "@/content/provider";
 import { displayCopy } from "@/content/display";
@@ -19,6 +20,8 @@ import { activeTrackIds } from "@/logic/trackFilter";
 import { suggestedDayId } from "@/logic/phase";
 import { useApp } from "@/store";
 import { backgrounds } from "@/components/backgrounds";
+import { dockClearance } from "@/components/Dock";
+import { nightGlass } from "@/components/nightGlass";
 import { colors, sceneForIsland } from "@/theme";
 import { StepBridge } from "@/components/StepBridge";
 import { readIntake } from "@/logic/intake";
@@ -48,6 +51,7 @@ export default function AgendaScreen() {
   const [query, setQuery] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [note, setNote] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const visible = useMemo(
     () =>
@@ -89,7 +93,7 @@ export default function AgendaScreen() {
             <T variant="meta" color={colors.gold}>i</T>
           </Pressable>
         </Glass>
-        {note ? <T variant="meta" color={colors.onDarkSoft} style={styles.note}>{displayCopy(forum.draftNotice)}</T> : null}
+        {note ? <View style={styles.noteCard}><T variant="meta" color={colors.onDarkSoft}>{displayCopy(forum.draftNotice)}</T></View> : null}
         <View style={styles.dayBar}>
           <DayFilter days={forum.days} dayId={dayId} onChange={setDayId} />
         </View>
@@ -141,7 +145,7 @@ export default function AgendaScreen() {
             <T variant="meta" color={colors.gold}>Clear</T>
           </Pressable>
         ) : null}
-        {selectedPerson ? <T variant="meta" style={styles.note}>{selectedPerson.name}</T> : null}
+        {selectedPerson ? <View style={styles.noteCard}><T variant="meta">{selectedPerson.name}</T></View> : null}
         <Glass padded={false} style={styles.count}>
           <T variant="meta">{visible.length} sessions</T>
         </Glass>
@@ -154,7 +158,7 @@ export default function AgendaScreen() {
       {filtersOpen ? (
         <View style={styles.sheet}>
           <Pressable accessibilityRole="button" accessibilityLabel="Close filters" style={styles.sheetBackdrop} onPress={() => setFiltersOpen(false)} />
-          <View style={styles.sheetCard}>
+          <View style={[styles.sheetCard, { marginBottom: dockClearance(insets.bottom) }]}>
             <T variant="eyebrow" color={colors.gold}>Filter</T>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
               {kinds.map((item) => (
@@ -197,11 +201,15 @@ function SuggestedSessions() {
   if (!picks.length) return null;
   return (
     <View>
-      <T variant="eyebrow" color={colors.gold} style={{ marginLeft: 22, marginBottom: 8 }}>Here are your suggested sessions</T>
+      <View style={styles.suggestLabel}>
+        <T variant="eyebrow" color={colors.gold}>Here are your suggested sessions</T>
+      </View>
       {picks.map((session) => (
         <SessionRow key={`suggest-${session.id}`} session={session} />
       ))}
-      <T variant="meta" color={colors.gold} style={{ marginLeft: 22, marginBottom: 8 }}>{picks.map((session) => [sessionInterest(session), phaseTag(session.phase)].filter(Boolean).join(" ")).join(" · ")}</T>
+      <View style={styles.suggestLabel}>
+        <T variant="meta" color={colors.gold}>{picks.map((session) => [sessionInterest(session), phaseTag(session.phase)].filter(Boolean).join(" ")).join(" · ")}</T>
+      </View>
     </View>
   );
 }
@@ -210,7 +218,8 @@ const styles = StyleSheet.create({
   frame: { flex: 1 },
   titleRow: { marginHorizontal: 16, marginBottom: 8, flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, paddingHorizontal: 14 },
   info: { width: 28, height: 28, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.gold, alignItems: "center", justifyContent: "center" },
-  note: { paddingHorizontal: 22, paddingTop: 8 },
+  noteCard: { alignSelf: "stretch", marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, ...nightGlass },
+  suggestLabel: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, ...nightGlass },
   count: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
   dayBar: { backgroundColor: "rgba(7,20,33,0.92)" },
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },

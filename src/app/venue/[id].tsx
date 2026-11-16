@@ -13,6 +13,7 @@ import { VenueModel } from "@/components/VenueModel";
 import { TappablePhoto } from "@/components/TappablePhoto";
 import { plateForIsland, plateForPhoto } from "@/components/backgrounds";
 import { colors, pad } from "@/theme";
+import { nightGlass } from "@/components/nightGlass";
 import { ExternalText } from "@/components/ExternalLink";
 
 export default function VenueScreen() {
@@ -24,7 +25,7 @@ export default function VenueScreen() {
     return (
       <Screen edge="none">
         <StackHeader title="Venue" />
-        <T variant="body" style={{ padding: pad }}>This stop is not in the venue list.</T>
+        <View style={styles.noteCard}><T variant="body">This stop is not in the venue list.</T></View>
       </Screen>
     );
   }
@@ -54,9 +55,11 @@ export default function VenueScreen() {
           </View>
         );
       })}
-      <T variant="meta" style={styles.note}>{venue.note}</T>
+      <View style={styles.noteCard}>
+        <T variant="meta">{venue.note}</T>
+      </View>
       {[{ title: "On the boat", links: venue.boat }, { title: "On the beach or on land", links: venue.land }].map((section) => (
-        <View key={section.title} style={styles.note}>
+        <View key={section.title} style={styles.noteCard}>
           <T variant="eyebrow" color={colors.gold}>{section.title}</T>
           {section.links.map((link) => (
             link.href ? <ExternalText key={link.name} href={link.href} label={link.name} /> : <T key={link.name} variant="small">{link.name}</T>
@@ -112,10 +115,10 @@ function PlaceScreen({ placeId }: { placeId: string }) {
 
 const styles = StyleSheet.create({
   intro: { paddingHorizontal: 22, paddingTop: 28, gap: 6, paddingBottom: 8 },
-  card: { marginHorizontal: 22, marginBottom: 14, height: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
+  card: { marginHorizontal: 22, marginBottom: 14, minHeight: 160, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.45)" },
   photo: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   copy: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, gap: 2, zIndex: 1, minWidth: 0 },
-  note: { paddingHorizontal: 22, paddingBottom: 12, gap: 6 },
+  noteCard: { marginHorizontal: 16, marginBottom: 12, padding: 14, gap: 6, borderRadius: 18, ...nightGlass },
   heroSpace: { height: 280 },
   model: { marginHorizontal: 22, marginBottom: 16, gap: 8 },
   strip: { paddingHorizontal: pad, gap: 8, paddingBottom: 16 },

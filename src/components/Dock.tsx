@@ -9,8 +9,11 @@ import { notchOffset } from "./notch";
 import { Icon, IconName } from "./Icon";
 import { T } from "./Text";
 
-/** Height of the two-row pill, not counting the home-indicator inset. */
-export const DOCK_PILL = 112;
+/**
+ * Height reserved for the two-row pill, not counting the home-indicator inset.
+ * Labels may wrap to two lines, including at a larger text size.
+ */
+export const DOCK_PILL = 136;
 
 /** Space the page should leave so the dock never covers the last line. */
 export function dockClearance(bottomInset: number): number {
@@ -50,7 +53,7 @@ export function Dock() {
   const { openChapter } = useReels();
 
   return (
-    <View pointerEvents="box-none" style={[styles.dock, Platform.OS === "web" ? notchOffset("bottom", 6, 0) : { bottom: Math.max(insets.bottom, 6) }]}>
+    <View testID="app-dock" pointerEvents="box-none" style={[styles.dock, Platform.OS === "web" ? notchOffset("bottom", 6, 0) : { bottom: Math.max(insets.bottom, 6) }]}>
       <Glass tone="dark" padded={false} style={styles.pill}>
         {rows.map((row) => (
           <View key={row[0].label} style={styles.row}>
@@ -70,7 +73,7 @@ export function Dock() {
                   style={[styles.tab, on && styles.tabOn]}
                 >
                   <Icon name={item.icon} color={color} size={18} />
-                  <T variant="meta" color={color} numberOfLines={1} style={styles.label}>{item.label}</T>
+                  <T variant="meta" color={color} style={styles.label}>{item.label}</T>
                 </Pressable>
               );
             })}
@@ -85,7 +88,7 @@ const styles = StyleSheet.create({
   dock: { position: "absolute", left: 8, right: 8, zIndex: 40 },
   pill: { borderRadius: 22, paddingVertical: 4, paddingHorizontal: 2 },
   row: { flexDirection: "row", alignItems: "stretch" },
-  tab: { flex: 1, minHeight: 46, alignItems: "center", justifyContent: "center", gap: 1, borderRadius: 14 },
+  tab: { flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 1, paddingHorizontal: 2, paddingVertical: 4, borderRadius: 14 },
   tabOn: { backgroundColor: "rgba(255,224,138,0.16)" },
-  label: { fontSize: 10, lineHeight: 12, textAlign: "center" },
+  label: { fontSize: 10, lineHeight: 13, textAlign: "center", width: "100%" },
 });

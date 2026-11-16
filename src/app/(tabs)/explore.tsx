@@ -10,6 +10,7 @@ import { useReels } from "@/reels/ReelHost";
 import { colors, sceneForIsland } from "@/theme";
 import { dockClearance } from "@/components/Dock";
 import { notchPadding } from "@/components/notch";
+import { scrollPort } from "@/components/scrollPort";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { ExternalLink } from "@/components/ExternalLink";
 import { openExternal } from "@/navigation/pwaNav";
@@ -34,7 +35,7 @@ export default function ExploreScreen() {
   return (
     <View style={styles.frame}>
       <BeaconBackground />
-      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={[{ paddingBottom: 24 }, notchPadding("top", 16, insets.top)]}>
+      <ScrollView style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]} contentContainerStyle={[{ paddingBottom: 28 }, notchPadding("top", 16, insets.top)]}>
         <View style={styles.intro}>
           <T variant="eyebrow" color={colors.gold}>Explore</T>
           <T variant="title" color={colors.foam}>The Virgin Islands</T>
@@ -48,7 +49,9 @@ export default function ExploreScreen() {
             if ((zoneReelIds as readonly string[]).includes(id)) openChapter(id as ReelId, { pathname: "/pillar/[id]", params: { id } });
           }}
         />
-        <T variant="eyebrow" color={colors.gold} style={styles.kicker}>Island by island</T>
+        <View style={styles.kickerWrap}>
+          <T variant="eyebrow" color={colors.gold}>Island by island</T>
+        </View>
         {forum.pillars.map((pillar) => {
           const copy = AREA_COPY[pillar.id as keyof typeof AREA_COPY];
           return (
@@ -68,7 +71,9 @@ export default function ExploreScreen() {
             </Pressable>
           );
         })}
-        <T variant="eyebrow" color={colors.gold} style={styles.kicker}>Add-ons</T>
+        <View style={styles.kickerWrap}>
+          <T variant="eyebrow" color={colors.gold}>Add-ons</T>
+        </View>
         {extras.map((item) => (
           <Pressable
             key={item.id}
@@ -100,9 +105,9 @@ function sceneColor(id: string): string {
 }
 
 const styles = StyleSheet.create({
-  frame: { flex: 1, backgroundColor: "#071421" },
+  frame: { flex: 1, minHeight: 0, backgroundColor: "#071421" },
   intro: { marginHorizontal: 16, marginBottom: 12, padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
-  kicker: { marginLeft: 22, marginBottom: 8, marginTop: 4 },
+  kickerWrap: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, marginTop: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, ...nightGlass },
   island: { marginHorizontal: 16, marginBottom: 10, padding: 14, gap: 6, borderRadius: 18, ...nightGlass },
   swatch: { height: 8, borderRadius: 99, marginBottom: 4 },
   pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },

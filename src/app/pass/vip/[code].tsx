@@ -5,6 +5,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PassCheckout } from "@/components/PassCheckout";
 import { T } from "@/components/Text";
 import { dockClearance } from "@/components/Dock";
+import { notchPadding } from "@/components/notch";
+import { scrollPort } from "@/components/scrollPort";
 import { nightGlass } from "@/components/nightGlass";
 import { useAuth } from "@/community/auth";
 import { CHECKOUT_SOON, canEmbedCheckout } from "@/logic/passPay";
@@ -80,11 +82,13 @@ export default function VipSharePage() {
 
   return (
     <View style={styles.frame}>
-      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 18, paddingHorizontal: 16, paddingBottom: 28, gap: 14 }}>
-        <T variant="eyebrow" color={colors.gold}>Be on Board</T>
-        <T variant="title" color={colors.foam}>All-inclusive VIP</T>
-        {missing ? <T variant="small" color={colors.foam}>This booking link doesn't match a group.</T> : null}
-        {message ? <T variant="meta" color={colors.gold}>{message}</T> : null}
+      <ScrollView style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]} contentContainerStyle={[{ paddingHorizontal: 16, paddingBottom: 28, gap: 14 }, notchPadding("top", 18, insets.top)]}>
+        <View style={styles.card}>
+          <T variant="eyebrow" color={colors.gold}>Be on Board</T>
+          <T variant="title" color={colors.foam}>All-inclusive VIP</T>
+        </View>
+        {missing ? <View style={styles.card}><T variant="small" color={colors.foam}>This booking link doesn't match a group.</T></View> : null}
+        {message ? <View style={styles.card}><T variant="meta" color={colors.gold}>{message}</T></View> : null}
         {booking ? (
           <View style={styles.card}>
             {booking.status === "filled" ? <T variant="title" color={colors.foam}>Booking confirmed</T> : null}
@@ -144,7 +148,7 @@ export default function VipSharePage() {
 }
 
 const styles = StyleSheet.create({
-  frame: { flex: 1, backgroundColor: "#071421" },
+  frame: { flex: 1, minHeight: 0, backgroundColor: "#071421" },
   card: { padding: 16, gap: 10, borderRadius: 22, ...nightGlass },
   stepper: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   step: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },

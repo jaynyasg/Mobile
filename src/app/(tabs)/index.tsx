@@ -3,6 +3,7 @@ import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { dockClearance } from "@/components/Dock";
+import { scrollPort } from "@/components/scrollPort";
 import { notchPadding } from "@/components/notch";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { nightGlass } from "@/components/nightGlass";
@@ -136,8 +137,8 @@ export default function HomeScreen() {
     <View style={styles.frame}>
       <BeaconBackground />
       <ScrollView
-        style={styles.fill}
-        contentContainerStyle={[{ paddingBottom: dockClearance(insets.bottom) + 48 }, notchPadding("top", 8, insets.top)]}
+        style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]}
+        contentContainerStyle={[{ paddingBottom: 28 }, notchPadding("top", 8, insets.top)]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.install}>
@@ -230,13 +231,12 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  frame: { flex: 1, backgroundColor: "#071421" },
-  fill: { flex: 1 },
+  frame: { flex: 1, minHeight: 0, backgroundColor: "#071421" },
   install: { marginHorizontal: 16, marginBottom: 4 },
   switch: { flexDirection: "row", alignSelf: "center", marginBottom: 8, padding: 4, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
-  guideHead: { marginHorizontal: 16, marginBottom: 6, gap: 6 },
+  guideHead: { marginHorizontal: 16, marginBottom: 8, padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
   pills: { flexDirection: "row", gap: 8 },
   what: {
     minHeight: 44,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(7,27,42,0.88)",
   },
-  path: { position: "relative", height: 64, marginHorizontal: 12, marginBottom: 6, borderRadius: 14, overflow: "hidden", justifyContent: "center" },
+  path: { position: "relative", minHeight: 72, marginHorizontal: 12, marginBottom: 6, borderRadius: 14, overflow: "hidden", justifyContent: "center" },
   pathPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   pathShade: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.62)" },
   pathCopy: { zIndex: 1, paddingHorizontal: 12, paddingRight: 48, paddingVertical: 6, gap: 0 },
@@ -287,5 +287,5 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(255,224,138,0.48)",
   },
-  replay: { alignSelf: "center", minHeight: 44, justifyContent: "center", marginBottom: 12 },
+  replay: { alignSelf: "center", minHeight: 44, justifyContent: "center", marginBottom: 12, paddingHorizontal: 16, borderRadius: 999, ...nightGlass },
 });

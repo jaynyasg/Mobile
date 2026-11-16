@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { Image, Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ALERTS_DETAIL,
@@ -10,6 +10,7 @@ import {
   type ContactPrefs,
 } from "@/logic/contactPrefs";
 import { colors } from "@/theme";
+import { notchPadding } from "./notch";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
 
@@ -50,10 +51,11 @@ export function ContactPrefsCard({
   const insets = useSafeAreaInsets();
   const [prefs, setPrefs] = useState(initial);
   const sheet = (
-    <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Notification choices">
+    <View style={[styles.overlay, notchPadding("top", 16, insets.top), notchPadding("bottom", 16, insets.bottom)]} accessibilityViewIsModal accessibilityLabel="Notification choices">
       <Image source={{ uri: "/reels/community.jpg" }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <View style={styles.shade} />
-      <View style={[styles.card, { marginTop: insets.top + 24, marginBottom: Math.max(insets.bottom, 16) }]}>
+      <ScrollView style={styles.sheet} contentContainerStyle={styles.sheetContent} keyboardShouldPersistTaps="handled">
+      <View style={styles.card}>
         <T variant="eyebrow" color={colors.gold}>Notifications</T>
         <T variant="title" color={colors.foam}>What should we keep for you?</T>
         <T variant="small" color={colors.foam}>Both are off until you turn them on. This only saves your choice.</T>
@@ -65,6 +67,7 @@ export function ContactPrefsCard({
           <T variant="button" color={colors.gold}>Skip</T>
         </Pressable>
       </View>
+      </ScrollView>
     </View>
   );
   if (typeof document === "undefined") return sheet;
@@ -98,7 +101,9 @@ function Toggle({
 const fixed = { position: "fixed" } as unknown as ViewStyle;
 
 const styles = StyleSheet.create({
-  overlay: { ...fixed, top: 0, right: 0, bottom: 0, left: 0, zIndex: 100, backgroundColor: "#071421", justifyContent: "center" },
+  overlay: { ...fixed, top: 0, right: 0, bottom: 0, left: 0, zIndex: 100, backgroundColor: "#071421" },
+  sheet: { flex: 1, minHeight: 0 },
+  sheetContent: { flexGrow: 1, justifyContent: "center", paddingVertical: 16 },
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   shade: {
     position: "absolute",

@@ -19,6 +19,7 @@ import { shimmerStyle } from "@/components/gloss";
 import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
 import { backgrounds } from "@/components/backgrounds";
+import { nightGlass } from "@/components/nightGlass";
 import { colors, fonts, pad } from "@/theme";
 
 export default function CommunityScreen() {
@@ -121,7 +122,7 @@ export default function CommunityScreen() {
         {preview ? <T variant="meta" color={colors.onDarkSoft}>Preview</T> : null}
       </Glass>
       {offline ? (
-        <T variant="body" style={styles.pad}>Community is offline. The program is still available.</T>
+        <View style={styles.composer}><T variant="body">Community is offline. The program is still available.</T></View>
       ) : !auth.ready ? null : !auth.userId ? (
         <Glass style={styles.pad}>
           <T variant="small">Sign in to read and post.</T>
@@ -131,7 +132,7 @@ export default function CommunityScreen() {
         </Glass>
       ) : (
         <>
-          <View style={styles.pad}>
+          <View style={styles.composer}>
             <TextInput value={draft} onChangeText={setDraft} placeholder="Share a note" placeholderTextColor={colors.onDarkSoft} style={styles.input} multiline accessibilityLabel="Post" />
             <Pressable accessibilityRole="button" onPress={() => {
               pickCommunityPhoto().then((picked) => {
@@ -192,6 +193,7 @@ export default function CommunityScreen() {
 
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: pad, paddingBottom: 12, gap: 8 },
+  composer: { marginHorizontal: 16, marginBottom: 12, padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
   row: { flexDirection: "row", gap: 16, alignItems: "center" },
   link: { paddingVertical: 6 },
   attach: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(7,27,42,0.58)", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)" },

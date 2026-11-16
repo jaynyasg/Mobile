@@ -18,6 +18,7 @@ import { VipStart } from "@/components/VipStart";
 import { colors, sceneForIsland } from "@/theme";
 import { dockClearance } from "@/components/Dock";
 import { notchPadding } from "@/components/notch";
+import { scrollPort } from "@/components/scrollPort";
 import { nightGlass } from "@/components/nightGlass";
 import { StepBridge } from "@/components/StepBridge";
 
@@ -145,7 +146,7 @@ export default function TicketsScreen() {
   return (
     <View style={styles.frame}>
       <Image source={{ uri: sceneForIsland("Jost Van Dyke") }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
-      <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={[{ paddingBottom: 24 }, notchPadding("top", 16, insets.top)]}>
+      <ScrollView style={[scrollPort, { marginBottom: dockClearance(insets.bottom) }]} contentContainerStyle={[{ paddingBottom: 28 }, notchPadding("top", 16, insets.top)]}>
         <StepBridge id="pass" />
         <View style={styles.intro}>
           <T variant="eyebrow" color={colors.gold}>Tickets</T>
@@ -186,8 +187,10 @@ export default function TicketsScreen() {
         ) : null}
         {!hold.owned || catalog ? (
         <View style={styles.passes}>
-          <T variant="eyebrow" color={colors.gold}>{hold.owned ? "Other passes" : "Passes"}</T>
-          <T variant="small" color={colors.foam}>{passes.legend}</T>
+          <View testID="passes-lead" style={styles.passesLead}>
+            <T variant="eyebrow" color={colors.gold}>{hold.owned ? "Other passes" : "Passes"}</T>
+            <T variant="small" color={colors.foam}>{passes.legend}</T>
+          </View>
           {passes.items.map((item) => {
             const offer = passOffer(item.id, item.price);
             const ownsThis = hold.owned && hold.tier === item.id;
@@ -312,10 +315,11 @@ export default function TicketsScreen() {
 }
 
 const styles = StyleSheet.create({
-  frame: { flex: 1, backgroundColor: "#071421" },
+  frame: { flex: 1, minHeight: 0, backgroundColor: "#071421" },
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   intro: { marginHorizontal: 16, padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
   passes: { marginHorizontal: 16, marginTop: 16, gap: 10 },
+  passesLead: { padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
   passCard: { padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
   hero: { marginHorizontal: 16, marginTop: 16, padding: 16, gap: 8, borderRadius: 22, ...nightGlass },
   overlay: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, zIndex: 70, backgroundColor: "#071421", justifyContent: "center", padding: 16 },
