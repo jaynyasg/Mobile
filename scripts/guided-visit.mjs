@@ -59,6 +59,8 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "Sail by day, stay on land");
       await click(page, "Help me find a place");
       await click(page, "Tech");
+      await click(page, "Next · Find my sub-infrastructure");
+      await click(page, "AgriTech");
       await click(page, "See my plan");
       await click(page, "Continue to checkout");
       await page.waitForURL(/\/tickets\?tier=boat/);
@@ -74,6 +76,9 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "I'll book my ticket later");
       await page.waitForURL(/\/stays/);
       await click(page, "Enter Accommodations");
+      assert.equal(await page.getByTestId("stay-island-options").getByRole("button").count(), 1);
+      assert.ok(await page.getByRole("button", { name: "Open St. Thomas", exact: true }).isVisible());
+      await screenshot(page, `${label}-island-matches`);
       await click(page, "See all islands");
       await click(page, "Open St. Thomas");
       await page.waitForURL(/\/stays\/st-thomas/);
@@ -84,12 +89,14 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "Continue · Select your sessions");
       await page.waitForURL(/\/agenda/);
       await click(page, "Enter Sessions");
-      await click(page, "Next · Find my sub-infrastructure");
-      await click(page, "AgriTech", "checkbox");
-      await click(page, "Next · Choose my session goals");
+      const guide = page.getByTestId("session-guide").filter({ visible: true });
+      assert.equal(await guide.getByRole("checkbox").count(), 0, "Opening answers go straight to session matches");
+      assert.deepEqual((await intakeOf(page)).interests, ["AgriTech"]);
+      assert.ok(await guide.getByRole("button", { name: /^Save / }).count() > 0);
+      await screenshot(page, `${label}-initial-session-matches`);
+      await click(page, "Choose a session goal");
       await click(page, "Build something useful", "checkbox");
       await click(page, "Show my session matches");
-      const guide = page.getByTestId("session-guide").filter({ visible: true });
       await guide.getByRole("button", { name: /^Save / }).first().click();
       assert.deepEqual((await intakeOf(page)).sessionGoals, ["build"]);
       await screenshot(page, `${label}-session-matches`);
@@ -123,7 +130,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "Let's explore");
       await visible(page, "You're ready to explore.");
       await page.goto(`${base}/agenda`);
-      await visible(page, "Sessions for your kind of TATEL");
+      await visible(page, "Your sessions");
       assert.deepEqual((await intakeOf(page)).interests, ["AgriTech"]);
       await page.goto(base);
       const invitation = page.getByTestId("experience-invitation").filter({ visible: true });
@@ -149,7 +156,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await experience.getByRole("button", { name: /Find sessions with a purpose/ }).click();
       await page.waitForURL(/\/agenda/);
       await click(page, "Enter Sessions");
-      await visible(page, "Sessions for your kind of TATEL");
+      await visible(page, "Your sessions");
       await page.goto(base);
       await click(page, "What is TATEL");
       await click(page, "Pause story");
@@ -212,6 +219,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
     await click(guest, "Yes, I have a ticket");
     await click(guest, "Be on the Beach");
     await click(guest, "My stay is already arranged");
+    await click(guest, "Next · Find my sub-infrastructure");
     await click(guest, "See my plan");
     await click(guest, "Choose my sessions");
     await guest.waitForURL(/\/agenda/);
