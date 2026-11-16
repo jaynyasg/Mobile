@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { BVI_ENTRY, CHARTER_CONTRAST, FERRY_NOTE, OFFICIAL_BVI_FERRY_URL, OFFICIAL_USVI_FERRY_URL, adviceForSession, ferryLegs, type FerrySession } from "@/logic/ferrySchedule";
+import { FERRY_DOCKS, LOVANGO_FERRY_BOOK_URL, boardingFor, dockById } from "@/logic/ferryDocks";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 import { ExternalLink, ExternalText } from "./ExternalLink";
@@ -21,6 +22,12 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
       <T variant="small" color={colors.foam}>{FERRY_NOTE}</T>
       <T variant="small" color={colors.foam}>{BVI_ENTRY}</T>
       <T variant="small" color={colors.foam}>{CHARTER_CONTRAST}</T>
+      <T variant="rowTitle" color={colors.foam}>Where to board</T>
+      <T variant="small" color={colors.foam}>These are the docks with a pin. A route with no pin below does not get one invented.</T>
+      {FERRY_DOCKS.map((dock) => (
+        <ExternalLink key={dock.id} href={dock.url} label={dock.name}>{dock.name}</ExternalLink>
+      ))}
+      <ExternalLink href={LOVANGO_FERRY_BOOK_URL} label="Book the Lovango ferry">Book the Lovango ferry</ExternalLink>
       {ferryLegs.map((leg) => {
         const shown = open === leg.id;
         return (
@@ -33,6 +40,7 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
               <View style={styles.body}>
                 <T variant="small" color={colors.foam}>{leg.days}</T>
                 <T variant="meta" color={colors.gold}>Departs {leg.from}</T>
+                <LegDocks legId={leg.id} />
                 <T variant="small" color={colors.foam}>{leg.departures.join(" · ")}</T>
                 {leg.crossing ? <T variant="small" color={colors.foam}>{leg.crossing}</T> : <T variant="small" color={colors.foam}>The page does not print how long the crossing takes.</T>}
                 <T variant="meta" color={colors.foam}>{leg.asOf}</T>
@@ -66,6 +74,24 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
           </View>
         );
       })}
+    </View>
+  );
+}
+
+function LegDocks({ legId }: { legId: string }) {
+  const boarding = boardingFor(legId);
+  return (
+    <View style={styles.body}>
+      {boarding.board.map((id) => {
+        const dock = dockById(id);
+        return <ExternalLink key={id} href={dock.url} label={`Where to board: ${dock.name}`}>{`Where to board: ${dock.name}`}</ExternalLink>;
+      })}
+      {boarding.land.map((id) => {
+        const dock = dockById(id);
+        return <ExternalLink key={id} href={dock.url} label={`Lands at ${dock.name}`}>{`Lands at ${dock.name}`}</ExternalLink>;
+      })}
+      {boarding.note ? <T variant="small" color={colors.foam}>{boarding.note}</T> : null}
+      {boarding.book ? <ExternalLink href={LOVANGO_FERRY_BOOK_URL} label="Book the Lovango ferry">Book the Lovango ferry</ExternalLink> : null}
     </View>
   );
 }

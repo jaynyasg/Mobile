@@ -14,7 +14,7 @@ export const BOAT_ACCESS = [
     title: "Be on the Beach",
     pass: "This pass is public ferries and public transportation.",
     reserve: "Public ferries run on a fixed schedule. Reserve with the operator. Routes lists the current published times and links each operator's page. A timetable for January 26–29, 2027 is not published, except the Lovango resort ferry, which posts dates through April 25, 2027. Check before you travel.",
-    board: "Public docks: Red Hook and the Charlotte Amalie ferry terminal on St. Thomas, Cruz Bay on St. John, West End on Tortola, and Great Harbour on Jost Van Dyke. A taxi stays on one island, from the stay to that dock.",
+    board: "Where to board the public boats: the Red Hook ferry dock, the Charlotte Amalie ferry dock on the downtown waterfront, Cruz Bay Ferry Dock, Native Son at Blyden Marine Terminal for BVI ferries, and the Jost Van Dyke ferry dock at Great Harbour. Routes links each of those pins. West End, Road Town, Spanish Town, Trellis Bay, and Scrub Island are on the schedules and are not pinned. A taxi stays on one island, from the stay to the dock.",
     without: "Already on this pass, the public ferry is how you change islands. To ride a private day charter, upgrade to Be on the Boat in Tickets. To stay on one charter for all 5 days, upgrade to Be on Board.",
   },
   {
@@ -43,6 +43,8 @@ export interface BoatSource {
 export interface BoatDock {
   name: string;
   query: string;
+  /** Owner pin. Search is used only when this is absent. */
+  url?: string;
 }
 
 export interface BoatOption {
@@ -77,10 +79,34 @@ export function mapsDirections(origin: string, destination: string, waypoints: s
 
 const docks = {
   redHook: { name: "Red Hook, St. Thomas", query: "American Yacht Harbor, Red Hook, St. Thomas, USVI" },
-  charlotte: { name: "Charlotte Amalie ferry terminal", query: "Edward Wilmoth Blyden Marine Terminal, Charlotte Amalie, St. Thomas" },
-  cruz: { name: "Cruz Bay, St. John", query: "Cruz Bay Ferry Dock, St. John, USVI" },
+  redHookFerry: {
+    name: "Red Hook ferry dock, St. Thomas",
+    query: "Red Hook ferry dock, St. Thomas",
+    url: "https://maps.app.goo.gl/8cdjqA5aRwP3D75w9",
+  },
+  charlotteDowntown: {
+    name: "Charlotte Amalie Ferry Dock, downtown waterfront",
+    query: "Charlotte Amalie Ferry Dock, St. Thomas",
+    url: "https://maps.app.goo.gl/hTfCpLDycUMkkkzg7",
+  },
+  blyden: {
+    name: "Native Son Ferry, Blyden Marine Terminal",
+    query: "Blyden Marine Terminal, Charlotte Amalie, St. Thomas",
+    url: "https://maps.app.goo.gl/qxrNSKmnPP2ZcdsTA",
+  },
+  cruzSearch: { name: "Cruz Bay, St. John", query: "Cruz Bay Ferry Dock, St. John, USVI" },
+  cruz: {
+    name: "Cruz Bay Ferry Dock, St. John",
+    query: "Cruz Bay Ferry Dock, St. John, USVI",
+    url: "https://maps.app.goo.gl/pD3gcJcqz9q9svaD6",
+  },
   lovango: { name: "Lovango landing", query: "Lovango Resort and Beach Club, USVI" },
-  jost: { name: "Great Harbour, Jost Van Dyke", query: "Great Harbour, Jost Van Dyke, British Virgin Islands" },
+  jostSearch: { name: "Great Harbour, Jost Van Dyke", query: "Great Harbour, Jost Van Dyke, British Virgin Islands" },
+  jost: {
+    name: "Jost Van Dyke Ferry Dock, Great Harbour",
+    query: "Great Harbour, Jost Van Dyke, British Virgin Islands",
+    url: "https://maps.app.goo.gl/SkRqfXnEa1zGwPgr8",
+  },
   westEnd: { name: "West End, Tortola", query: "West End Ferry Terminal, Tortola, British Virgin Islands" },
   scrub: { name: "Scrub Island Marina", query: "Scrub Island Marina, British Virgin Islands" },
 };
@@ -99,7 +125,7 @@ export const boatOptions: BoatOption[] = [
     board: "Board at the dock named for that morning. The plan starts near Red Hook on St. Thomas and uses Cruz Bay, the Lovango landing, Great Harbour on Jost Van Dyke, and Scrub Island Marina as the other stops.",
     checkIn: "On the St. Thomas mornings, the plan says check in by 8:30am near Red Hook. Other mornings are confirmed by the team. Arrive before the boat leaves. A late arrival does not hold the boat.",
     bring: "Your pass on this phone. A passport, and the BVI entry card, on any hop from the USVI into the BVI. Dress for sun and spray.",
-    docks: [docks.redHook, docks.cruz, docks.lovango, docks.jost, docks.scrub],
+    docks: [docks.redHook, docks.cruzSearch, docks.lovango, docks.jostSearch, docks.scrub],
     sources: [
       { title: "BVI entry card and sea arrival", url: "https://www.bvitourism.com/travel/entry-requirements" },
     ],
@@ -114,10 +140,10 @@ export const boatOptions: BoatOption[] = [
     comfort: "A passenger ferry or a small resort launch. You wait for the next published boat if you miss one.",
     pass: "This is what Be on the Beach uses: public ferries between islands, and taxis on land. It is not included with Be on the Boat or Be on Board.",
     how: "Reserve with the operator. Lovango's resort ferry is for its guests and requires a reservation. Scrub Island's launch is for resort guests. New Horizon publishes a ferry between West End, Tortola and Great Harbour, Jost Van Dyke. TATEL has not booked these seats. Check the operator before you travel. To ride a private charter instead, upgrade in Tickets.",
-    board: "Public St. John boats use Red Hook and the Edward Wilmoth Blyden Marine Terminal in Charlotte Amalie, and the dock at Cruz Bay. Lovango's guest ferry uses its pier in Red Hook and Cruz Bay. Jost Van Dyke's New Horizon ferry uses West End, Tortola and Great Harbour.",
+    board: "St. Thomas to St. John boards at the Red Hook ferry dock or the Charlotte Amalie ferry dock on the downtown waterfront, and lands at the Cruz Bay Ferry Dock. BVI ferries from Charlotte Amalie board at Native Son Ferry, Blyden Marine Terminal. The Jost Van Dyke ferry dock is at Great Harbour. Lovango’s resort ferry leaves from the resort’s pier in Red Hook and from Cruz Bay. West End, Road Town, Spanish Town, Trellis Bay, and Scrub Island Marina are named on the schedules and are not pinned.",
     checkIn: "Be at the operator's dock for their check-in. One sample hop in the plan allows about 30 minutes to check in for a published ferry. Confirm that with the operator. TATEL does not hold the boat.",
     bring: "The ticket or reservation from that operator. A passport and the BVI entry card if the ferry crosses from the USVI into the BVI.",
-    docks: [docks.redHook, docks.charlotte, docks.cruz, docks.lovango, docks.westEnd, docks.jost, docks.scrub],
+    docks: [docks.redHookFerry, docks.charlotteDowntown, docks.blyden, docks.cruz, docks.jost],
     sources: [
       { title: "Lovango, getting there", url: "https://www.lovangovi.com/getting-to-lovango/" },
       { title: "Scrub Island, location and launch", url: "https://www.scrubisland.com/location/" },
@@ -139,7 +165,7 @@ export const boatOptions: BoatOption[] = [
     board: "The sample starts near Red Hook, with the yacht and crew ready, and overnight berths are named only as authorized stops at St. John, Jost Van Dyke, or the next island. The exact dock is confirmed with the captain.",
     checkIn: "There is no public check-in desk. The plan says the yacht and crew are ready for departure. The team tells you where to meet them.",
     bring: "Your pass, a passport, and the BVI entry card before any international hop. Soft bags are easier on a tender. The captain confirms the rest.",
-    docks: [docks.redHook, docks.cruz, docks.jost, docks.scrub],
+    docks: [docks.redHook, docks.cruzSearch, docks.jostSearch, docks.scrub],
     sources: [
       { title: "BVI Tourism, arriving by sea", url: "https://www.bvitourism.com/travel/arriving-by-sea" },
     ],

@@ -7,6 +7,7 @@ import { essentials } from "@/guide/essentials";
 import { colors } from "@/theme";
 import { ExternalLink } from "@/components/ExternalLink";
 import { BVI_ENTRY, OFFICIAL_BVI_FERRY_URL, OFFICIAL_USVI_FERRY_URL } from "@/logic/ferrySchedule";
+import { FERRY_DOCKS, LOVANGO_FERRY_BOOK_URL } from "@/logic/ferryDocks";
 import { StepBridge } from "@/components/StepBridge";
 import { nightGlass } from "@/components/nightGlass";
 
@@ -26,6 +27,14 @@ export default function KnowScreen() {
         <T variant="rowTitle" color={colors.foam}>Official BVI ferry schedules</T>
         <T variant="small" color={colors.foam}>Tortola, Virgin Gorda, Jost Van Dyke, and the boats from St. Thomas into the BVI. Subject to change. {BVI_ENTRY}</T>
         <ExternalLink href={OFFICIAL_BVI_FERRY_URL} label="Official BVI ferry schedules">Official BVI ferry schedules</ExternalLink>
+      </View>
+      <View style={[styles.card, nightGlass]}>
+        <T variant="rowTitle" color={colors.foam}>Where to board</T>
+        <T variant="small" color={colors.foam}>Public ferry docks with a pin. West End, Road Town, Spanish Town, Trellis Bay, and Scrub Island are on the schedules and are not pinned. Lovango’s St. Thomas boat uses the resort pier in Red Hook, not the public Red Hook ferry dock.</T>
+        {FERRY_DOCKS.map((dock) => (
+          <ExternalLink key={dock.id} href={dock.url} label={dock.name}>{dock.name}</ExternalLink>
+        ))}
+        <ExternalLink href={LOVANGO_FERRY_BOOK_URL} label="Book the Lovango ferry">Book the Lovango ferry</ExternalLink>
       </View>
       {essentials.map((item) => {
         const open = openId === item.id;
