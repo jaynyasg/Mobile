@@ -136,7 +136,7 @@ function buildCorpus(): GuideDoc[] {
       title: "Route map imagery",
       keywords: ["sentinel", "satellite", "map"],
       body: `${credits.sentinelNote} ${credits.sentinel} License ${credits.sentinelLicense}. ${credits.coastline}`,
-      citation: { title: "Sample transport", kind: "screen", id: "transport" },
+      citation: { title: "Routes", kind: "screen", id: "transport" },
     },
   ];
 
@@ -196,7 +196,7 @@ function buildCorpus(): GuideDoc[] {
       id: `panelist-${person.id}`,
       title: person.name,
       keywords: [person.company, person.title, person.proposedIsland],
-      body: `${joinLine([person.name, person.title, person.company])}. ${joinLine([pillar?.name ?? "Topic to be announced", person.proposedIsland || "Location TBC"])}. Linked sessions: ${lines.join("; ")}.`,
+      body: `${joinLine([person.name, person.title, person.company])}. ${joinLine([pillar?.name, person.proposedIsland])}. Linked sessions: ${lines.join("; ")}.`,
       citation: { title: person.name, kind: "panelist", id: person.id },
     });
   }

@@ -10,9 +10,9 @@ const tourLine: Record<string, string> = {
   welcome: "Welcome: watch the film",
   tracks: "Interests: pick your infrastructures",
   sessions: "Sessions: select your session",
-  transport: "Transport: see the routes",
+  transport: "Routes: taxis and boats",
   stay: "Stays: find where you sleep",
-  know: "Guide: know before you go",
+  know: "Preparation guide: before you travel",
   pass: "Tickets: get your pass",
   chat: "Chat: join the room",
 };
@@ -33,9 +33,9 @@ export const guideSteps = [
   { id: "welcome", headline: "Watch the welcome", line: "A short film, then you are in.", cta: "Play" },
   { id: "tracks", headline: "Pick your infrastructures", line: "Tell us which areas you're into: Tech, AI, Travel, Entertainment, Law. We'll tailor your Sessions and route.", cta: "Choose" },
   { id: "sessions", headline: "Select Your Session", line: "Save the ones you want.", cta: "Open Sessions" },
-  { id: "transport", headline: "See how to get around", line: "Powerboat, ferries, or a yacht.", cta: "Open Transport" },
+  { id: "transport", headline: "See the routes", line: "Boats are the only way between islands. A taxi stays on one island.", cta: "Open Routes" },
   { id: "stay", headline: "Find your stay", line: "Where you sleep on each island.", cta: "Open stays" },
-  { id: "know", headline: "Know before you go", line: "Passports, boats, sun, and the clock.", cta: "Open" },
+  { id: "know", headline: "Preparation guide", line: "Documents, money, driving, and the border. Island hops are by boat.", cta: "Open" },
   { id: "pass", headline: "Get your pass", line: "Beach, boat, or a VIP group.", cta: "Open Tickets" },
   { id: "chat", headline: "Join the chat", line: "Talk with people at TATEL.", cta: "Open chat" },
 ] as const satisfies readonly GuideStep[];

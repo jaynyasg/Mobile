@@ -5,8 +5,9 @@ import { quickSignIn, type QuickSignInEnv } from "./quickSignin";
 import { serveProgram } from "./program";
 import { parseSingleRange } from "./range";
 import { handleStripeWebhook, handleVipRequest, notePaidFromStatus, sendDueReminders, type VipEnv } from "./vipBooking";
+import { handleStampRequest, type StampEnv } from "./stamps";
 
-interface Env extends QuickSignInEnv, CheckoutEnv, VipEnv {
+interface Env extends QuickSignInEnv, CheckoutEnv, VipEnv, StampEnv {
   ASSETS: { fetch(input: Request | string): Promise<Response> };
 }
 
@@ -100,6 +101,10 @@ export default {
     if (url.pathname === "/api/vip-booking" || url.pathname.startsWith("/api/vip-booking/")) {
       const deps = programDeps(third);
       return handleVipRequest(request, env, { fetchImpl: deps.fetchImpl as ((input: string, init?: RequestInit) => Promise<Response>) | undefined });
+    }
+    if (url.pathname === "/api/stamps/verify" || url.pathname === "/api/stamps/posters") {
+      const stamp = await handleStampRequest(request, env);
+      if (stamp) return stamp;
     }
     const pwaType = pwaContentType(url.pathname);
     if (pwaType) return servePwaAsset(request, env, pwaType);

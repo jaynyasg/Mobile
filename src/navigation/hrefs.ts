@@ -22,7 +22,7 @@ export function citationHref(citation: Citation): Href {
         case "agenda":
           return "/agenda";
         case "transport":
-          return "/transport";
+          return "/routes";
         default:
           return "/";
       }

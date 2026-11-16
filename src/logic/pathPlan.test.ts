@@ -33,23 +33,24 @@ describe("your path", () => {
     const steps = buildPath({ hasPass: "not-yet", areas: ["tech", "ai"], needsStay: "yes" }, pillars);
     expect(steps.map((step) => step.title)).toEqual([
       "Choose your pass",
-      "Pick your stay",
       "Select your sessions",
+      "Pick your stay",
       "Build my route",
       "Join the chat",
     ]);
     expect(steps.map((step) => step.number)).toEqual([1, 2, 3, 4, 5]);
     expect(steps.every((step) => step.done)).toBe(false);
-    expect(steps[2]?.line).toBe("Tech · AI");
-    expect(steps[1]?.line).toContain("St. Thomas");
-    expect(steps[1]?.line).toContain("St. John");
+    expect(steps[1]?.line).toBe("Tech · AI");
+    expect(steps[2]?.line).toContain("St. Thomas");
+    expect(steps[2]?.line).toContain("St. John");
     expect(steps.map((step) => step.title).join(" ")).not.toMatch(/conversation/i);
   });
 
   it("has a pass and still needs a stay: no get-pass step", () => {
     const steps = buildPath({ hasPass: "have", areas: ["law"], needsStay: "yes" }, pillars);
-    expect(steps.map((step) => step.id)).toEqual(["stay", "sessions", "route", "chat"]);
-    expect(steps[0]).toMatchObject({ title: "Pick your stay", line: "Lovango", number: 1 });
+    expect(steps.map((step) => step.id)).toEqual(["sessions", "stay", "route", "chat"]);
+    expect(steps[0]).toMatchObject({ title: "Select your sessions", line: "Law", number: 1 });
+    expect(steps[1]?.line).toContain("Lovango");
     expect(steps.some((step) => step.id === "pass" || asksToGetPass(step))).toBe(false);
   });
 
@@ -102,7 +103,8 @@ describe("your path", () => {
       if (hasPass === "have") continue;
       const steps = buildPath({ hasPass, areas: ["tech"], needsStay: "yes" }, pillars, { ownedPass: true });
       expect(steps[0]).toMatchObject({ id: "pass", done: true, number: 1 });
-      expect(steps[1]).toMatchObject({ id: "stay", done: false, number: 2 });
+      expect(steps[1]).toMatchObject({ id: "sessions", done: false, number: 2 });
+      expect(steps[2]).toMatchObject({ id: "stay", done: false, number: 3 });
       expect(steps.map((step) => step.number)).toEqual([1, 2, 3, 4, 5]);
     }
     const saidHave = buildPath({ hasPass: "have", areas: ["tech"], needsStay: "yes" }, pillars, { ownedPass: true });
@@ -113,8 +115,8 @@ describe("your path", () => {
     const steps = buildPath({ hasPass: "not-yet", areas: ["tech"], needsStay: "yes" }, pillars, ["pass", "sessions"]);
     expect(steps.map((step) => `${step.number}:${step.id}:${step.done}`)).toEqual([
       "1:pass:true",
-      "2:stay:false",
-      "3:sessions:true",
+      "2:sessions:true",
+      "3:stay:false",
       "4:route:false",
       "5:chat:false",
     ]);
@@ -139,7 +141,7 @@ describe("your path", () => {
     expect(pathDestination("stay", { areas: ["tech", "ai"], needsStay: "yes" })).toEqual({ pathname: "/stays", params: { areas: "tech,ai" } });
     expect(pathDestination("stay", { areas: [], needsStay: "yes" })).toEqual({ pathname: "/stays" });
     expect(pathDestination("stay", { areas: ["tech"], needsStay: "browsing" })).toEqual({ pathname: "/stays" });
-    expect(pathDestination("route")).toEqual({ pathname: "/transport", params: { build: "1" } });
+    expect(pathDestination("route")).toEqual({ pathname: "/routes", params: { build: "1" } });
     expect(pathDestination("chat")).toEqual({ pathname: "/community" });
     const home = readFileSync("src/app/(tabs)/index.tsx", "utf8");
     expect(home).toContain("pathDestination");
@@ -169,7 +171,11 @@ describe("your path", () => {
           } else {
             expect(steps[0]?.id).toBe("pass");
             expect(steps[0]?.done).toBe(false);
-            if (needsStay === "yes") expect(steps[1]?.id).toBe("stay");
+          }
+          if (needsStay === "yes") {
+            const offset = hasPass === "have" ? 0 : 1;
+            expect(steps[offset]?.id).toBe("sessions");
+            expect(steps[offset + 1]?.id).toBe("stay");
           }
           if (needsStay === "booked") {
             expect(steps.some((step) => step.id === "stay" || asksToBookStay(step))).toBe(false);

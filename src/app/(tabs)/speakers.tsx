@@ -40,7 +40,7 @@ export default function PanelistsScreen() {
               photo={portraitFor(person.photo)}
               meta={[
                 joinLine([person.title, person.company]),
-                joinLine([pillar?.name || "Topic to be announced", person.proposedIsland || "Location TBC"]),
+                joinLine([pillar?.name, person.proposedIsland]),
               ].filter(Boolean).join("\n")}
               href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
             />

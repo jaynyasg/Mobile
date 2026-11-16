@@ -130,3 +130,75 @@ export function routeSummary(dayIndex: number, items: TransportItem[], islands: 
   const crossingLabel = `${crossings} ${crossings === 1 ? "crossing" : "crossings"}`;
   return crossings ? `Day ${dayIndex} · ${islandLabel} · ${crossingLabel}` : `Day ${dayIndex} · ${islandLabel}`;
 }
+
+const PLACE_QUERY: Record<string, string> = {
+  "st. thomas": "American Yacht Harbor, Red Hook, St. Thomas, USVI",
+  "red hook": "American Yacht Harbor, Red Hook, St. Thomas, USVI",
+  lovango: "Lovango Resort and Beach Club, USVI",
+  "st. john": "Cruz Bay Ferry Dock, St. John, USVI",
+  "cruz bay": "Cruz Bay Ferry Dock, St. John, USVI",
+  "jost van dyke": "Great Harbour, Jost Van Dyke, British Virgin Islands",
+  jost: "Great Harbour, Jost Van Dyke, British Virgin Islands",
+  "great harbour": "Great Harbour, Jost Van Dyke, British Virgin Islands",
+  "scrub island": "Scrub Island Marina, British Virgin Islands",
+  scrub: "Scrub Island Marina, British Virgin Islands",
+  "trellis bay": "Trellis Bay, Beef Island, British Virgin Islands",
+  "west end": "West End Ferry Terminal, Tortola, British Virgin Islands",
+};
+
+function placeKey(value: string): string {
+  return value.toLowerCase().replace(/\s*·.*$/, "").trim();
+}
+
+export function placeQuery(name: string): string {
+  return PLACE_QUERY[placeKey(name)] ?? `${name}, Virgin Islands`;
+}
+
+export function legStops(title: string): string[] {
+  return title.split(/\s*→\s*/).map((part) => part.replace(/\s*·.*$/, "").trim()).filter(Boolean);
+}
+
+export function mapsForStops(stops: string[]): string {
+  const points = stops.map(placeQuery);
+  if (points.length < 2) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(points[0] ?? "Virgin Islands")}`;
+  const url = new URL("https://www.google.com/maps/dir/");
+  url.searchParams.set("api", "1");
+  url.searchParams.set("origin", points[0]);
+  url.searchParams.set("destination", points[points.length - 1]);
+  const waypoints = points.slice(1, -1);
+  if (waypoints.length) url.searchParams.set("waypoints", waypoints.join("|"));
+  return url.toString();
+}
+
+const ALONG: Record<string, string> = {
+  "st. thomas|lovango": "Leave American Yacht Harbor at Red Hook. Go east through Pillsbury Sound, Great St. James to the south and St. John's north shore ahead, and land at Lovango.",
+  "red hook|lovango": "Leave the Lovango pier at Red Hook. The resort ferry crosses Pillsbury Sound to Lovango Cay. Reservations are required on the resort boat.",
+  "lovango|st. john": "Leave Lovango and head south, past Henley Cay, into the Cruz Bay dock.",
+  "lovango|cruz bay": "Leave Lovango and head south, past Henley Cay, into the Cruz Bay dock.",
+  "st. john|jost van dyke": "Leave Cruz Bay heading north. This hop leaves the USVI for the BVI. Have a passport and the BVI entry card. Great Harbour is the landing, with Tortola off to the east.",
+  "cruz bay|great harbour": "Leave Cruz Bay heading north into the BVI. Have a passport and the BVI entry card. Land at Great Harbour. Tortola is off to the east.",
+  "jost van dyke|scrub island": "Leave Great Harbour and run east. Tortola's north shore stays to the south, then Guana Island and Marina Cay, then Scrub Island Marina. You are already in the BVI.",
+  "jost|scrub": "Leave Great Harbour and run east toward Scrub Island Marina, Tortola's north shore to the south.",
+  "lovango|st. thomas": "Leave Lovango and head west through Pillsbury Sound into American Yacht Harbor at Red Hook.",
+  "st. john|lovango": "Leave Cruz Bay heading north, past Henley Cay, to the Lovango landing.",
+  "jost van dyke|st. john": "Leave Great Harbour heading south, back into the USVI. Have your passport ready. Cruz Bay is the dock.",
+  "scrub island|jost van dyke": "Leave Scrub Island Marina and run west, past Marina Cay and Guana Island, into Great Harbour.",
+};
+
+export function legInstruction(title: string): { stops: string[]; along: string; mapsUrl: string } {
+  const stops = legStops(title);
+  const mapsUrl = mapsForStops(stops);
+  const keys = stops.map(placeKey);
+  if (keys.includes("trellis")) {
+    return {
+      stops,
+      along: "This hop is more than one boat. Take the launch from Scrub Island into Trellis Bay on Beef Island, taxi across Tortola to West End, then the ferry to Jost Van Dyke. TATEL has not reserved the seats.",
+      mapsUrl,
+    };
+  }
+  const pair = `${keys[0] ?? ""}|${keys[keys.length - 1] ?? ""}`;
+  const along = ALONG[pair] ?? (stops.length > 1
+    ? `Go from ${stops[0]} to ${stops[stops.length - 1]}. Open the map for this hop. The team confirms the boat.`
+    : "Open the map for this stop.");
+  return { stops, along, mapsUrl };
+}

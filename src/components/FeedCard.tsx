@@ -34,8 +34,8 @@ export function FeedCard({
   useEffect(() => setReduce(prefersReducedMotion()), []);
   useEffect(() => setSrc(image), [image]);
   return (
-    <View ref={cardRef} style={[styles.card, lit && styles.lit, !reduce && pressed && styles.pressed]}>
-      <Image
+    <Pressable ref={cardRef as never} accessibilityRole="button" accessibilityLabel={headline} onPress={onPress} onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)} style={[styles.card, lit && styles.lit, !reduce && pressed && styles.pressed]}>
+      <Image pointerEvents="none"
         source={{ uri: src }}
         accessibilityLabel={alt}
         style={styles.photo}
@@ -57,18 +57,11 @@ export function FeedCard({
         ) : null}
         <T variant="title" color={colors.foam} numberOfLines={2}>{headline}</T>
         <T variant="small" color={colors.foam} numberOfLines={3}>{line}</T>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={cta}
-          onPress={onPress}
-          onPressIn={() => setPressed(true)}
-          onPressOut={() => setPressed(false)}
-          style={[styles.pill, !reduce && styles.shimmer]}
-        >
+        <View pointerEvents="none" style={[styles.pill, !reduce && styles.shimmer]}>
           <T variant="button" color={colors.ink}>{cta}</T>
-        </Pressable>
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

@@ -1,4 +1,4 @@
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams, type Href } from "expo-router";
 import { ticketsLocation } from "@/logic/ticketsRoute";
 
 function text(value: string | string[] | undefined): string | null {
@@ -14,7 +14,7 @@ export default function PassportRedirect() {
         checkout: text(params.checkout),
         tier: text(params.tier),
         session_id: text(params.session_id),
-      })}
+      }) as Href}
     />
   );
 }

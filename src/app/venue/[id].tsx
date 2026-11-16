@@ -1,6 +1,6 @@
 import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { placeById, placesForIsland, venueById } from "@/content";
 import { joinLine } from "@/content/labels";
 import { Glass } from "@/components/Glass";
@@ -13,6 +13,7 @@ import { VenueModel } from "@/components/VenueModel";
 import { TappablePhoto } from "@/components/TappablePhoto";
 import { plateForIsland, plateForPhoto } from "@/components/backgrounds";
 import { colors, pad } from "@/theme";
+import { ExternalText } from "@/components/ExternalLink";
 
 export default function VenueScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,9 +59,7 @@ export default function VenueScreen() {
         <View key={section.title} style={styles.note}>
           <T variant="eyebrow" color={colors.gold}>{section.title}</T>
           {section.links.map((link) => (
-            <Pressable key={link.name} accessibilityRole="link" onPress={() => link.href && Linking.openURL(link.href).catch(() => undefined)}>
-              <T variant="small">{link.name}</T>
-            </Pressable>
+            link.href ? <ExternalText key={link.name} href={link.href} label={link.name} /> : <T key={link.name} variant="small">{link.name}</T>
           ))}
         </View>
       ))}

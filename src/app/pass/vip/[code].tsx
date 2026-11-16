@@ -81,7 +81,7 @@ export default function VipSharePage() {
   return (
     <View style={styles.frame}>
       <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={{ paddingTop: insets.top + 18, paddingHorizontal: 16, paddingBottom: 28, gap: 14 }}>
-        <T variant="eyebrow" color={colors.gold}>STAY onboard</T>
+        <T variant="eyebrow" color={colors.gold}>Be on Board</T>
         <T variant="title" color={colors.foam}>All-inclusive VIP</T>
         {missing ? <T variant="small" color={colors.foam}>This booking link doesn't match a group.</T> : null}
         {message ? <T variant="meta" color={colors.gold}>{message}</T> : null}

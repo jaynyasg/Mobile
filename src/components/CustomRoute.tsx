@@ -146,6 +146,7 @@ export function CustomRoute({
   return (
     <View style={styles.fill}>
       <View style={styles.controls}>
+        <T variant="small" color={colors.foam}>Between islands you only travel by boat. Be on the Beach is the public ferry. Be on the Boat is a private day charter. Be on Board is the VIP charter you stay on. A taxi stays on one island. Upgrade in Tickets if you want a different boat.</T>
         <View style={styles.segment}>
           {modes.map((mode) => {
             const on = mode.id === modeId;

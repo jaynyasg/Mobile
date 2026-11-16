@@ -13,12 +13,13 @@ function memory(): IntakeStore & { values: Map<string, string> } {
 describe("pass purchase", () => {
   it("marks an existing path as holding a pass without dropping the stay answer", () => {
     const store = memory();
-    writeIntake(store, { hasPass: "not-yet", areas: ["tech"], needsStay: "yes", completed: ["sessions"] });
+    writeIntake(store, { hasPass: "not-yet", areas: ["tech"], needsStay: "yes", completed: ["sessions"], interests: [] });
     expect(notePassPurchased(store)).toEqual({
       hasPass: "not-yet",
       areas: ["tech"],
       needsStay: "yes",
       completed: ["sessions", "pass"],
+      interests: [],
     });
     expect(readIntake(store)?.hasPass).toBe("not-yet");
     expect(readIntake(store)?.completed).toContain("pass");
@@ -27,19 +28,19 @@ describe("pass purchase", () => {
   it("remembers a purchase when questions have not been answered yet", () => {
     const store = memory();
     notePassPurchased(store);
-    expect(readIntake(store)).toEqual({ hasPass: "have", areas: [], needsStay: "browsing", completed: ["pass"] });
+    expect(readIntake(store)).toEqual({ hasPass: "have", areas: [], needsStay: "browsing", completed: ["pass"], interests: [] });
   });
 
   it("keeps a skipped question as skipped", () => {
     const store = memory();
-    writeIntake(store, { hasPass: "skipped", areas: [], needsStay: "skipped", completed: [] });
-    expect(readIntake(store)).toEqual({ hasPass: "skipped", areas: [], needsStay: "skipped", completed: [] });
+    writeIntake(store, { hasPass: "skipped", areas: [], needsStay: "skipped", completed: [], interests: [] });
+    expect(readIntake(store)).toEqual({ hasPass: "skipped", areas: [], needsStay: "skipped", completed: [], interests: [] });
   });
 
   it("lets a retake replace the purchased answer", () => {
     const store = memory();
     notePassPurchased(store);
-    writeIntake(store, { hasPass: "not-yet", areas: ["ai"], needsStay: "yes", completed: [] });
+    writeIntake(store, { hasPass: "not-yet", areas: ["ai"], needsStay: "yes", completed: [], interests: [] });
     expect(readIntake(store)).toMatchObject({ hasPass: "not-yet", needsStay: "yes", completed: [] });
   });
 });

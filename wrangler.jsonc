@@ -12,6 +12,7 @@
     // Secrets, not vars: wrangler secret put STRIPE_SECRET_KEY
     // wrangler secret put STRIPE_WEBHOOK_SECRET
     // wrangler secret put VIP_SIGNING_PRIVATE_KEY
+    // wrangler secret put STAMP_SIGNING_SECRET
     "run_worker_first": ["/api/*", "/*.mp4", "/manifest.webmanifest", "/sw.js", "/apple-touch-icon.png", "/favicon.ico", "/icons/*"]
   },
   "triggers": {

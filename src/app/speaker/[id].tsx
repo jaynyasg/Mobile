@@ -41,8 +41,8 @@ export default function PanelistScreen() {
         <T variant="meta" numberOfLines={3}>
           {joinLine([
             person.keynote ? "Keynote speaker" : "",
-            pillar?.name || "Topic to be announced",
-            person.proposedIsland || "Location TBC",
+            pillar?.name,
+            person.proposedIsland,
           ])}
         </T>
         {person.origin ? <T variant="meta">{person.origin}</T> : null}

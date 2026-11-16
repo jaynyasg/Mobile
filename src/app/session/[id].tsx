@@ -1,8 +1,5 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { addStamp, pulse, prefersReducedMotion, sessionStamp } from "@/guide/stamps";
-import { localReelStore } from "@/reels/gate";
 import { dayById, forum, panelistById, participationLabel, pillarById, placesForIsland, sessionById, venueById } from "@/content";
 import { displayCopy, SPEAKER_TBA } from "@/content/display";
 import { joinLine } from "@/content/labels";
@@ -18,6 +15,7 @@ import { TappablePhoto } from "@/components/TappablePhoto";
 import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { portraitFor } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
+import { phaseTag, sessionInterest } from "@/logic/techInterest";
 import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
 import { plateForIsland } from "@/components/backgrounds";
@@ -27,10 +25,6 @@ export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   useContent();
   const session = sessionById(id ?? "");
-  useEffect(() => {
-    if (!session) return;
-    if (addStamp(localReelStore(), sessionStamp(session.id))) pulse(prefersReducedMotion());
-  }, [session]);
   const { state, dispatch } = useApp();
   if (!session) {
     return (
@@ -56,7 +50,10 @@ export default function SessionScreen() {
       <StackHeader title={day?.label} />
       <Glass style={styles.pad}>
         <T variant="eyebrow" color={colors.gold}>{session.optional ? `${kind} · Optional` : kind}</T>
-        {pillar ? <TopicChip id={pillar.id} name={pillar.name} /> : null}
+        <View style={styles.tags}>
+          <TopicChip id={pillar?.id ?? "tech"} name={sessionInterest(session) ?? pillar?.name ?? "Session"} />
+          <TopicChip id={pillar?.id ?? "tech"} name={phaseTag(session.phase)} />
+        </View>
         <T variant="title" numberOfLines={3}>{displayCopy(session.title)}</T>
         <T variant="meta" numberOfLines={3}>
           {joinLine([pillar?.name, session.island, session.region])}
@@ -122,6 +119,7 @@ export default function SessionScreen() {
 
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: 22, paddingTop: 36, gap: 10, paddingBottom: 18 },
+  tags: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   actions: { marginTop: 8, alignSelf: "flex-start" },
   place: { marginHorizontal: 22, marginBottom: 12, height: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   placePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },

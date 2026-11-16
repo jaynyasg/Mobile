@@ -74,7 +74,7 @@ function passStep(hasPass: PassAnswer): DraftStep {
 
 function stayStep(needsStay: StayAnswer, islandLine: string): DraftStep {
   if (needsStay === "yes") {
-    return { id: "stay", title: "Pick your stay", line: islandLine, optional: false, done: false };
+    return { id: "stay", title: "Pick your stay", line: `Near your sessions · ${islandLine}`, optional: false, done: false };
   }
   if (needsStay === "browsing") {
     return { id: "stay", title: "Browse stays", line: "Optional.", optional: true, done: false };
@@ -115,13 +115,14 @@ export function buildPath(
 
 /**
  * Lower ranks first.
- * A pass they do not already have, then a stay they still need, then sessions and the route.
+ * A pass they do not already have, then sessions, then a stay they still need.
+ * The stay follows the sessions so the room can sit near the sessions they pick.
  * Chat, a stay they are only browsing, and a stay they skipped follow.
  */
 export function pathRank(step: Pick<PathStep, "id">, answers: IntakeAnswers): number {
   if (step.id === "pass") return 5;
-  if (step.id === "stay" && answers.needsStay === "yes") return 10;
-  if (step.id === "sessions") return 40;
+  if (step.id === "sessions") return 20;
+  if (step.id === "stay" && answers.needsStay === "yes") return 30;
   if (step.id === "route") return 50;
   if (step.id === "chat") return 70;
   if (step.id === "stay" && answers.needsStay === "browsing") return 80;
@@ -130,7 +131,7 @@ export function pathRank(step: Pick<PathStep, "id">, answers: IntakeAnswers): nu
 }
 
 export interface PathLink {
-  pathname: "/tickets" | "/agenda" | "/stays" | "/transport" | "/community";
+  pathname: "/tickets" | "/agenda" | "/stays" | "/routes" | "/community";
   params?: { areas: string } | { build: "1" };
 }
 
@@ -146,7 +147,7 @@ export function pathDestination(
     if (answers.needsStay === "yes" && areas) return { pathname: "/stays", params: { areas } };
     return { pathname: "/stays" };
   }
-  if (stepId === "route") return { pathname: "/transport", params: { build: "1" } };
+  if (stepId === "route") return { pathname: "/routes", params: { build: "1" } };
   return { pathname: "/community" };
 }
 
@@ -200,7 +201,7 @@ export function homePathMatrixMarkdown(pillars: readonly PathPillar[]): string {
     "# Home path",
     "",
     "Ordered steps for every onboarding answer. A need the questions already cover is omitted.",
-    "When the questions do not say they have a pass (`not-yet`, `unsure`, or `skipped`, and they did not answer `have`), that pass step is first. Choose your pass comes ahead of Pick your stay and every other step.",
+    "When the questions do not say they have a pass (`not-yet`, `unsure`, or `skipped`, and they did not answer `have`), that pass step is first. Choose your pass comes ahead of sessions. Sessions come ahead of a stay they still need, so the room can follow the sessions.",
     "Someone who answered `have` never sees a pass step. Someone who answered `booked` never sees a stay step.",
     "A step finished later in the app stays in that same place. The number does not change. The row is marked done.",
     "Buying a pass or claiming one on the device checks the pass step. It does not remove it, unless the questions already said `have`.",

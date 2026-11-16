@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 import { essentials } from "@/guide/essentials";
-import { addStamp, knowStamp, pulse, prefersReducedMotion } from "@/guide/stamps";
-import { localReelStore } from "@/reels/gate";
 import { colors } from "@/theme";
+import { ExternalLink } from "./ExternalLink";
 import { DOCK_PILL } from "./Dock";
 import { nightGlass } from "./nightGlass";
 import { T } from "./Text";
@@ -16,7 +15,7 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
   return (
     <View style={styles.overlay}>
       <View style={styles.bar}>
-        <T variant="eyebrow" color={colors.gold}>Need to know</T>
+        <T variant="eyebrow" color={colors.gold}>Preparation guide</T>
         <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} style={styles.close}>
           <T variant="button" color={colors.foam}>Close</T>
         </Pressable>
@@ -32,10 +31,7 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={open ? "Hide details" : "More"}
-                onPress={() => {
-                  if (!open && addStamp(localReelStore(), knowStamp(item.id))) pulse(prefersReducedMotion());
-                  setMoreId(open ? null : item.id);
-                }}
+                onPress={() => setMoreId(open ? null : item.id)}
                 style={styles.more}
               >
                 <T variant="button" color={colors.ink}>{open ? "Hide" : "More"}</T>
@@ -44,9 +40,7 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
                 <ScrollView style={styles.detail}>
                   <T variant="meta" color={colors.foam}>{item.more}</T>
                   {item.sources.map((source) => (
-                    <Pressable key={source.url} accessibilityRole="link" accessibilityLabel={source.title} onPress={() => Linking.openURL(source.url).catch(() => undefined)} style={styles.more}>
-                      <T variant="button" color={colors.ink} numberOfLines={2}>{source.title}</T>
-                    </Pressable>
+                    <ExternalLink key={source.url} href={source.url} label={source.title}>{source.title}</ExternalLink>
                   ))}
                 </ScrollView>
               ) : null}

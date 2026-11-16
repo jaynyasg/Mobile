@@ -9174,9 +9174,21 @@
                     "name": "The Ritz-Carlton, St. Thomas",
                     "href": null,
                     "localDeck": true
+                  },
+                  {
+                    "name": "Emerald Beach Resort",
+                    "href": "https://www.emeraldbeach.com",
+                    "localDeck": false
+                  },
+                  {
+                    "name": "Lindbergh Bay Hotel & Villas",
+                    "href": "https://www.lindberghbayhotelandvillas.com/",
+                    "localDeck": false
                   }
                 ],
-                "notes": []
+                "notes": [
+                  "Emerald Beach Resort and Lindbergh Bay Hotel & Villas are the on-beach hotels on St. Thomas. Book on the hotel's own site."
+                ]
               }
             ]
           },
@@ -9367,38 +9379,44 @@
         "unit": "PER GUEST",
         "minimum": null,
         "paragraphs": [
-          "Beach pass details to be confirmed."
+          "Be on the Beach uses public ferries and public transportation. Those ferries run on a fixed schedule. You ride them between islands, and a taxi only on land, from where you sleep to the dock. A January 26–29, 2027 timetable is not published. Use the current schedule in Routes and check the operator before you travel."
         ],
-        "bullets": []
+        "bullets": [
+          "Public ferries between islands. TATEL has not reserved those seats.",
+          "Taxis stay on one island.",
+          "Reserve with the ferry operator and check their schedule. This pass does not publish a TATEL timetable."
+        ]
       },
       {
         "id": "boat",
-        "name": "BE on the boat.",
+        "name": "Be on the Boat",
         "price": "$2,500",
         "unit": "PER GUEST",
         "minimum": null,
         "paragraphs": [
-          "Journey one route across three islands and conference on the water — dock panels and beach panels with builders, founders, and investors, plus the onboard mini-panel underway between every leg."
+          "Be on the Boat is a private charter for the day. The charter takes a group to the sessions. Groups leave at different times. The team confirms the boat and the departure. Nothing in the plan is a reserved January timetable yet."
         ],
         "bullets": [
-          "Dock and beach panels for builders, founders & investors",
-          "One route · 3 islands — choose Route 1 or Route 2",
-          "The onboard mini-panel underway between stops"
+          "Private charter, not a public ferry",
+          "You ride with a group for that day",
+          "Departures are at different times. The team confirms them.",
+          "Board at the dock named for that departure: Red Hook, Cruz Bay, the Lovango landing, Great Harbour, or Scrub Island Marina"
         ]
       },
       {
         "id": "vip",
-        "name": "STAY onboard - All inclusive VIP",
+        "name": "Be on Board",
         "price": "$5,000",
         "unit": "PER GUEST",
         "minimum": "Minimum of 8 guests",
-        "paragraphs": [],
+        "paragraphs": [
+          "Be on Board is a charter you stay on for all 5 days. A full boat is 8 shares at $5,000, $40,000 for the boat. Choose the full boat for your own group, or say you are open to sharing."
+        ],
         "bullets": [
-          "Stay on the boats for the conference — every destination, at each stop along the way",
-          "VIP sessions, beaches, boats and local water excursions with your own local guide and concierge",
-          "Personal local guides at every island with curated lunches & dinners",
-          "Sessions not just on the water — but in the water",
-          "The entire four-day conference"
+          "One charter for all 5 days, not a public ferry and not the day charter",
+          "Full boat for your group of 8, or open to sharing a boat",
+          "The team confirms the boat, the berth, and where you board",
+          "VIP sessions, local guides, and curated lunches and dinners"
         ]
       }
     ]

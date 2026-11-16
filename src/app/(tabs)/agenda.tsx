@@ -20,6 +20,10 @@ import { suggestedDayId } from "@/logic/phase";
 import { useApp } from "@/store";
 import { backgrounds } from "@/components/backgrounds";
 import { colors, sceneForIsland } from "@/theme";
+import { StepBridge } from "@/components/StepBridge";
+import { readIntake } from "@/logic/intake";
+import { phaseTag, sessionInterest, suggestSessions } from "@/logic/techInterest";
+import { webStorage } from "@/welcome";
 
 const kinds: { id: SessionKind; label: string }[] = [
   { id: "all", label: "All" },
@@ -77,6 +81,8 @@ export default function AgendaScreen() {
   return (
     <View style={styles.frame}>
       <Screen docked photo={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).day} night={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).night} phase={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).phase}>
+        <StepBridge id="sessions" />
+        <SuggestedSessions />
         <Glass tone="dark" style={styles.titleRow}>
           <T variant="title" foil>Sessions</T>
           <Pressable accessibilityRole="button" accessibilityLabel="About this draft" onPress={() => setNote((open) => !open)} style={styles.info}>
@@ -179,6 +185,23 @@ export default function AgendaScreen() {
           </View>
         </View>
       ) : null}
+    </View>
+  );
+}
+
+function SuggestedSessions() {
+  const { program } = useContent();
+  const intake = readIntake(webStorage());
+  if (!intake) return null;
+  const picks = suggestSessions(program.sessions, intake.interests ?? [], intake.areas, 4);
+  if (!picks.length) return null;
+  return (
+    <View>
+      <T variant="eyebrow" color={colors.gold} style={{ marginLeft: 22, marginBottom: 8 }}>Here are your suggested sessions</T>
+      {picks.map((session) => (
+        <SessionRow key={`suggest-${session.id}`} session={session} />
+      ))}
+      <T variant="meta" color={colors.gold} style={{ marginLeft: 22, marginBottom: 8 }}>{picks.map((session) => [sessionInterest(session), phaseTag(session.phase)].filter(Boolean).join(" ")).join(" · ")}</T>
     </View>
   );
 }
