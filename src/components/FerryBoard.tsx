@@ -17,13 +17,15 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
 
   return (
     <View style={styles.wrap}>
-      <T variant="eyebrow" color={colors.gold}>Be on the Beach · public ferries</T>
-      <ExternalLink href={OFFICIAL_USVI_FERRY_URL} label="Official USVI ferry schedule">Official USVI ferry schedule</ExternalLink>
-      <ExternalLink href={OFFICIAL_BVI_FERRY_URL} label="Official BVI ferry schedules">Official BVI ferry schedules</ExternalLink>
-      <T variant="small" color={colors.foam}>{FERRY_NOTE}</T>
-      <T variant="small" color={colors.foam}>{BVI_ENTRY}</T>
-      <T variant="small" color={colors.foam}>{CHARTER_CONTRAST}</T>
-      <WhereToBoard />
+      <View style={styles.lead}>
+        <T variant="eyebrow" color={colors.gold}>Be on the Beach · public ferries</T>
+        <ExternalLink href={OFFICIAL_USVI_FERRY_URL} label="Official USVI ferry schedule">Official USVI ferry schedule</ExternalLink>
+        <ExternalLink href={OFFICIAL_BVI_FERRY_URL} label="Official BVI ferry schedules">Official BVI ferry schedules</ExternalLink>
+        <T variant="small" color={colors.foam}>{FERRY_NOTE}</T>
+        <T variant="small" color={colors.foam}>{BVI_ENTRY}</T>
+        <T variant="small" color={colors.foam}>{CHARTER_CONTRAST}</T>
+        <WhereToBoard />
+      </View>
       {ferryLegs.map((leg) => {
         const shown = open === leg.id;
         return (
@@ -49,8 +51,10 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
           </View>
         );
       })}
-      <T variant="eyebrow" color={colors.gold}>Which ferry for this day's sessions</T>
-      <T variant="small" color={colors.foam}>Featured sessions with a start time. Rooms aren’t set yet, so this is the boat to the island, not a walk from the dock.</T>
+      <View style={styles.lead}>
+        <T variant="eyebrow" color={colors.gold}>Which ferry for this day's sessions</T>
+        <T variant="small" color={colors.foam}>Featured sessions with a start time. Rooms aren’t set yet, so this is the boat to the island, not a walk from the dock.</T>
+      </View>
       {daySessions.length === 0 ? <T variant="small" color={colors.foam}>No timed featured session on this day.</T> : null}
       {daySessions.map((session) => {
         const advice = adviceForSession(session);
@@ -101,6 +105,7 @@ function LegDocks({ legId }: { legId: string }) {
 
 const styles = StyleSheet.create({
   wrap: { gap: 8 },
+  lead: { padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
   card: { padding: 12, gap: 6, borderRadius: 16, ...nightGlass },
   body: { gap: 6 },
 });

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { pillarById } from "@/content";
 import { useContent } from "@/content/provider";
 import { PersonRow } from "@/components/PersonRow";
@@ -12,6 +12,7 @@ import { portraitFor } from "@/images";
 import { searchPanelists } from "@/logic/directory";
 import { useApp } from "@/store";
 import { backgrounds } from "@/components/backgrounds";
+import { nightGlass } from "@/components/nightGlass";
 import { colors, pad } from "@/theme";
 
 export default function NetworkScreen() {
@@ -28,7 +29,7 @@ export default function NetworkScreen() {
         title="Network"
         subtitle="Opt in to open a local note next to a panelist. Nothing is sent. The roster is published panelist information, not a confirmed opt-in directory."
       />
-      <View style={{ paddingHorizontal: pad, gap: 10 }}>
+      <View style={styles.opt}>
         {state.networkingOptIn ? (
           <SecondaryButton label="Leave the local directory" onPress={() => dispatch({ type: "setNetworkingOptIn", value: false })} />
         ) : (
@@ -64,3 +65,7 @@ export default function NetworkScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  opt: { marginHorizontal: 16, marginBottom: 8, padding: 14, gap: 10, borderRadius: 18, ...nightGlass },
+});

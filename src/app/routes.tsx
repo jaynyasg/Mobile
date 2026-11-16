@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Link, useLocalSearchParams } from "expo-router";
 import { credits, sessionById } from "@/content";
 import { useContent } from "@/content/provider";
@@ -24,7 +23,7 @@ import {
 import { colors } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
 import { CustomRoute } from "@/components/CustomRoute";
-import { dockClearance } from "@/components/Dock";
+import { scrollPort } from "@/components/scrollPort";
 import { BoatCallout, BoatCards } from "@/components/BoatCards";
 import { VirginIslandsMap } from "@/components/VirginIslandsMap";
 import { FerryBoard } from "@/components/FerryBoard";
@@ -57,7 +56,6 @@ export default function RoutesScreen() {
   const { program } = useContent();
   const { forum, transport } = program;
   const viewer = useImageViewer();
-  const insets = useSafeAreaInsets();
   const [modeId, setModeId] = useState(transport.modes[0].id);
   const [date, setDate] = useState(transport.modes[0].days[0].date);
   const [selected, setSelected] = useState<string | null>(null);
@@ -88,19 +86,25 @@ export default function RoutesScreen() {
     viewer.open([{ uri, alt: day.mapDescription }]);
   }
 
+  const choiceRow = (flush: boolean) => (
+    <View style={[styles.choices, flush ? styles.choicesFlush : null]}>
+      <ChoiceTile label="Sample routes" selected={view === "sample"} onPress={() => setView("sample")} map />
+      <ChoiceTile label="Build my route" image={BUILD_TILE} fallback={SAMPLE_TILE} selected={view === "mine"} onPress={() => setView("mine")} />
+    </View>
+  );
+
   return (
     <Screen edge="none" scroll={false}>
       <View style={styles.column}>
         <StackHeader title="Routes" />
-        <View style={styles.choices}>
-          <ChoiceTile label="Sample routes" selected={view === "sample"} onPress={() => setView("sample")} map />
-          <ChoiceTile label="Build my route" image={BUILD_TILE} fallback={SAMPLE_TILE} selected={view === "mine"} onPress={() => setView("mine")} />
-        </View>
         {view === "mine" ? (
-          <CustomRoute sessions={program.sessions} days={forum.days} modes={transport.modes} pillars={forum.pillars} timeZone={forum.timezone} />
+          <View style={styles.sample}>
+            {choiceRow(false)}
+            <CustomRoute sessions={program.sessions} days={forum.days} modes={transport.modes} pillars={forum.pillars} timeZone={forum.timezone} />
+          </View>
         ) : (
-        <View style={styles.sample}>
-        <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, { paddingBottom: dockClearance(insets.bottom) }]} keyboardShouldPersistTaps="handled">
+        <ScrollView style={scrollPort} contentContainerStyle={[styles.scroll, { paddingBottom: 28 }]} keyboardShouldPersistTaps="handled">
+        {choiceRow(true)}
         <BoatCallout />
         <StepBridge id="route" />
         <View style={styles.intro}>
@@ -216,7 +220,6 @@ export default function RoutesScreen() {
             </View>
           ) : null}
         </ScrollView>
-        </View>
         )}
         {creditsOpen ? (
           <View style={styles.sheetWrap}>
@@ -355,10 +358,11 @@ function StopCard({
 }
 
 const styles = StyleSheet.create({
-  column: { flex: 1 },
-  sample: { flex: 1 },
+  column: { flex: 1, minHeight: 0 },
+  sample: { flex: 1, minHeight: 0 },
   choices: { gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
-  choice: { height: 96, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  choicesFlush: { paddingHorizontal: 0 },
+  choice: { minHeight: 96, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
   choiceMap: { borderRadius: 16, overflow: "hidden", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
   chartFrame: { width: "100%", aspectRatio: 800 / 480 },
   choiceOn: { borderColor: colors.gold },
@@ -373,8 +377,7 @@ const styles = StyleSheet.create({
   },
   choiceLabel: { paddingHorizontal: 10, paddingBottom: 10, zIndex: 1 },
   intro: { padding: 14, gap: 6, borderRadius: 18, ...nightGlass },
-  fill: { flex: 1 },
-  sticky: { paddingHorizontal: 12, paddingBottom: 8, gap: 8 },
+  sticky: { paddingBottom: 8, gap: 8 },
   segment: { flexDirection: "row", gap: 4, padding: 4, borderRadius: 16, ...nightGlass },
   segmentItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", paddingHorizontal: 4, paddingVertical: 6, borderRadius: 12 },
   segmentOn: { backgroundColor: colors.gold },

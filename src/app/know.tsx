@@ -17,7 +17,9 @@ export default function KnowScreen() {
     <Screen edge="none">
       <StackHeader title="Preparation guide" />
       <StepBridge id="know" />
-      <T variant="small" style={styles.lead}>What to have ready before you travel: documents, money, driving, and the border. You change islands only by boat. Be on the Beach is the public ferry, on a fixed schedule, and a taxi on land. Be on the Boat is a private charter for the day, leaving at set group times. Be on Board is the VIP charter you stay on for all 5 days, on your group's own schedule. St. Thomas to St. John times are on the official USVI ferry schedule. They can change. Check it before you travel.</T>
+      <View style={styles.lead}>
+        <T variant="small">What to have ready before you travel: documents, money, driving, and the border. You change islands only by boat. Be on the Beach is the public ferry, on a fixed schedule, and a taxi on land. Be on the Boat is a private charter for the day, leaving at set group times. Be on Board is the VIP charter you stay on for all 5 days, on your group's own schedule. St. Thomas to St. John times are on the official USVI ferry schedule. They can change. Check it before you travel.</T>
+      </View>
       <View style={[styles.card, nightGlass]}>
         <T variant="rowTitle" color={colors.foam}>Official USVI ferry schedule</T>
         <T variant="small" color={colors.foam}>Red Hook, Charlotte Amalie, and Cruz Bay. Effective November 1, 2026. Not a separate January 26–29, 2027 poster.</T>
@@ -70,7 +72,7 @@ export default function KnowScreen() {
 }
 
 const styles = StyleSheet.create({
-  lead: { marginHorizontal: 20, marginBottom: 8 },
+  lead: { marginHorizontal: 16, marginBottom: 10, padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
   card: { marginHorizontal: 16, marginBottom: 10, paddingHorizontal: 16, paddingVertical: 16, gap: 8, borderRadius: 18 },
   more: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });

@@ -8,6 +8,7 @@ import { routeMaps } from "@/images";
 import { describeStop, routePins, type PlanDay } from "@/logic/customRoute";
 import { sessionClock } from "@/logic/dayTheme";
 import { MAP_CROP } from "@/logic/transportPlan";
+import { scrollPort } from "@/components/scrollPort";
 import { colors } from "@/theme";
 
 const BASE_MAP = routeMaps["powerboat-2027-01-26.png"];
@@ -32,7 +33,7 @@ export function RouteBoard({
   const line = pins.map((pin) => `${pin.x * 100},${pin.y * 100}`).join(" ");
   let number = 0;
   return (
-    <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, { paddingBottom: bottom }]} keyboardShouldPersistTaps="handled">
+    <ScrollView style={scrollPort} contentContainerStyle={[styles.scroll, { paddingBottom: bottom }]} keyboardShouldPersistTaps="handled">
       <Pressable accessibilityRole="button" accessibilityLabel="Edit picks" onPress={onEdit} style={styles.edit}>
         <T variant="meta" color={colors.gold}>Edit picks</T>
       </Pressable>
@@ -57,12 +58,12 @@ export function RouteBoard({
           <T variant="meta" color={colors.ink}>{modeName}</T>
         </View>
       </View>
-      <T variant="small" color={colors.foam}>{pins.map((pin) => `${pin.n} ${pin.island}`).join("  ·  ")}</T>
+      <View style={styles.dayLabel}><T variant="small" color={colors.foam}>{pins.map((pin) => `${pin.n} ${pin.island}`).join("  ·  ")}</T></View>
       {plan.map((day) => {
         const meta = days.find((item) => item.id === day.dayId);
         return (
           <View key={day.dayId} style={styles.day}>
-            <T variant="small" color={colors.gold}>{meta?.label ?? day.dayId}</T>
+            <View style={styles.dayLabel}><T variant="small" color={colors.gold}>{meta?.label ?? day.dayId}</T></View>
             {day.stops.map((stop) => {
               number += 1;
               const when = sessionClock({ start: stop.session.start, end: stop.session.end, timeLabel: null }, timeZone);
@@ -89,7 +90,6 @@ export function RouteBoard({
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1 },
   scroll: { paddingHorizontal: 12, gap: 12 },
   edit: { alignSelf: "flex-start", minHeight: 44, justifyContent: "center" },
   map: {
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.gold,
   },
+  dayLabel: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, ...nightGlass },
   day: { gap: 8 },
   card: { flexDirection: "row", gap: 10, padding: 12, borderRadius: 16, ...nightGlass },
   cardWarn: { borderColor: colors.gold, borderWidth: 1 },

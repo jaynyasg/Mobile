@@ -20,6 +20,7 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
           <T variant="button" color={colors.foam}>Close</T>
         </Pressable>
       </View>
+      <ScrollView style={styles.sheet} contentContainerStyle={styles.sheetContent}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.row} decelerationRate="fast">
         {essentials.map((item) => {
           const open = moreId === item.id;
@@ -37,16 +38,17 @@ export function EssentialsDeck({ onClose }: { onClose: () => void }) {
                 <T variant="button" color={colors.ink}>{open ? "Hide" : "More"}</T>
               </Pressable>
               {open ? (
-                <ScrollView style={styles.detail}>
+                <View style={styles.detail}>
                   <T variant="meta" color={colors.foam}>{item.more}</T>
                   {item.sources.map((source) => (
                     <ExternalLink key={source.url} href={source.url} label={source.title}>{source.title}</ExternalLink>
                   ))}
-                </ScrollView>
+                </View>
               ) : null}
             </View>
           );
         })}
+      </ScrollView>
       </ScrollView>
     </View>
   );
@@ -56,8 +58,10 @@ const styles = StyleSheet.create({
   overlay: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, zIndex: 40, justifyContent: "flex-end", backgroundColor: "rgba(6,14,24,0.45)", paddingBottom: DOCK_PILL + 16 },
   bar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, marginBottom: 8 },
   close: { minHeight: 44, justifyContent: "center", paddingHorizontal: 8 },
+  sheet: { maxHeight: "86%", width: "100%" },
+  sheetContent: { paddingBottom: 8 },
   row: { paddingHorizontal: 16, gap: 12 },
-  card: { height: 360, borderRadius: 22, padding: 18, gap: 10, justifyContent: "flex-end" },
+  card: { minHeight: 280, borderRadius: 22, padding: 18, gap: 10, justifyContent: "flex-end" },
   more: { alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
-  detail: { maxHeight: 140 },
+  detail: { gap: 8 },
 });

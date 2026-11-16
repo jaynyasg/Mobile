@@ -19,6 +19,7 @@ import { phaseTag, sessionInterest } from "@/logic/techInterest";
 import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
 import { plateForIsland } from "@/components/backgrounds";
+import { nightGlass } from "@/components/nightGlass";
 import { colors, pad, sceneForIsland } from "@/theme";
 
 export default function SessionScreen() {
@@ -30,7 +31,9 @@ export default function SessionScreen() {
     return (
       <Screen edge="none">
         <StackHeader title="Session" />
-        <T variant="body" style={styles.pad}>This session is not in the draft.</T>
+        <View style={styles.missing}>
+          <T variant="body">This session is not in the draft.</T>
+        </View>
       </Screen>
     );
   }
@@ -121,7 +124,8 @@ const styles = StyleSheet.create({
   pad: { paddingHorizontal: 22, paddingTop: 36, gap: 10, paddingBottom: 18 },
   tags: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   actions: { marginTop: 8, alignSelf: "flex-start" },
-  place: { marginHorizontal: 22, marginBottom: 12, height: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
+  missing: { marginHorizontal: 16, marginTop: 12, padding: 16, borderRadius: 18, ...nightGlass },
+  place: { marginHorizontal: 22, marginBottom: 12, minHeight: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   placePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
-  placeCopy: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, zIndex: 1, minWidth: 0 },
+  placeCopy: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, zIndex: 1, minWidth: 0 },
 });

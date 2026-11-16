@@ -60,7 +60,7 @@ export function SessionRow({ session }: { session: Session }) {
 
 const styles = StyleSheet.create({
   card: {
-    height: 220,
+    minHeight: 220,
     marginHorizontal: 16,
     marginBottom: 12,
     borderRadius: 18,

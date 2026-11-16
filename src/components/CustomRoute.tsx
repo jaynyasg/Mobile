@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Day, Pillar, Session, TransportMode } from "@/content/types";
 import { displayCopy } from "@/content/display";
 import { ChipRail } from "@/components/ChipRail";
 import { Icon } from "@/components/Icon";
 import { T } from "@/components/Text";
 import { nightGlass } from "@/components/nightGlass";
-import { dockClearance } from "@/components/Dock";
+import { scrollPort } from "@/components/scrollPort";
 import {
   buildRoute,
   canCreateRoute,
@@ -56,7 +55,6 @@ export function CustomRoute({
   timeZone: string;
 }) {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { state, hydrated } = useApp();
   const [ids, setIds] = useState<string[] | null>(null);
   const [modeId, setModeId] = useState(modes[0]?.id ?? "powerboat");
@@ -138,15 +136,17 @@ export function CustomRoute({
         modeName={boat}
         timeZone={timeZone}
         onEdit={() => setView("edit")}
-        bottom={dockClearance(insets.bottom)}
+        bottom={28}
       />
     );
   }
 
   return (
-    <View style={styles.fill}>
-      <View style={styles.controls}>
+    <ScrollView style={scrollPort} contentContainerStyle={[styles.scroll, { paddingBottom: 28 }]} keyboardShouldPersistTaps="handled">
+      <View style={styles.lead}>
         <T variant="small" color={colors.foam}>Between islands you only travel by boat. Be on the Beach is the public ferry. Be on the Boat is a private day charter. Be on Board is the VIP charter you stay on. A taxi stays on one island. Upgrade in Tickets if you want a different boat.</T>
+      </View>
+      <View style={styles.controls}>
         <View style={styles.segment}>
           {modes.map((mode) => {
             const on = mode.id === modeId;
@@ -208,7 +208,6 @@ export function CustomRoute({
       >
         <T variant="button" color={colors.ink}>Create my route</T>
       </Pressable>
-    <ScrollView style={styles.fill} contentContainerStyle={[styles.scroll, { paddingBottom: dockClearance(insets.bottom) }]} keyboardShouldPersistTaps="handled">
       {ids !== null && ids.length === 0 ? (
         <View style={styles.empty}>
           <T variant="rowTitle" color={colors.foam}>No sessions yet</T>
@@ -225,7 +224,7 @@ export function CustomRoute({
       ) : null}
       {showPicker ? (
         <View style={styles.picker}>
-          {visible.length === 0 ? <T variant="small" color={colors.foam}>No sessions for this day.</T> : null}
+          {visible.length === 0 ? <View style={styles.empty}><T variant="small" color={colors.foam}>No sessions for this day.</T></View> : null}
           {visible.map((session) => {
             const on = ids?.includes(session.id) ?? false;
             return (
@@ -256,7 +255,7 @@ export function CustomRoute({
         const meta = days.find((item) => item.id === day.dayId);
         return (
           <View key={day.dayId} style={styles.day}>
-            <T variant="small" color={colors.gold}>{meta?.label ?? day.dayId}</T>
+            <View style={styles.dayLabel}><T variant="small" color={colors.gold}>{meta?.label ?? day.dayId}</T></View>
             {day.stops.map((stop) => (
               <View key={stop.session.id} style={styles.stopBlock}>
                 {stop.leg ? (
@@ -293,7 +292,6 @@ export function CustomRoute({
         );
       }) : null}
     </ScrollView>
-    </View>
   );
 }
 
@@ -306,15 +304,16 @@ function IslandChip({ label, selected, onPress }: { label: string; selected: boo
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1 },
-  controls: { paddingHorizontal: 12, paddingBottom: 8, gap: 8 },
+  lead: { padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
+  controls: { paddingBottom: 8, gap: 8 },
   segment: { flexDirection: "row", gap: 4, padding: 4, borderRadius: 16, ...nightGlass },
   segmentItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", paddingHorizontal: 4, paddingVertical: 6, borderRadius: 12 },
   segmentOn: { backgroundColor: colors.gold },
   segmentLabel: { textAlign: "center" },
-  infra: { gap: 6 },
+  infra: { gap: 6, padding: 12, borderRadius: 16, ...nightGlass },
+  dayLabel: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, ...nightGlass },
   areasChip: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
-  create: { marginHorizontal: 12, marginBottom: 8, minHeight: 48, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
+  create: { marginBottom: 8, minHeight: 48, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   createOff: { opacity: 0.4 },
   chip: { flexGrow: 0, flexShrink: 0, alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,224,138,0.48)", backgroundColor: "rgba(7,27,42,0.86)" },
   chipLabel: { flexShrink: 0, ...({ whiteSpace: "nowrap" } as ViewStyle) },

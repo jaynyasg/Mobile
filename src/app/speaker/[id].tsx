@@ -21,7 +21,7 @@ export default function PanelistScreen() {
     return (
       <Screen edge="none">
         <StackHeader title="Panelist" />
-        <T variant="body" style={styles.pad}>This name is not on the roster.</T>
+        <View style={styles.pad}><T variant="body">This name is not on the roster.</T></View>
       </Screen>
     );
   }

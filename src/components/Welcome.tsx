@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   ask: { letterSpacing: 0, fontSize: 30, lineHeight: 36 },
   trackScroll: { paddingHorizontal: 20, paddingBottom: 16, gap: 10 },
-  track: { height: 92, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", padding: 14, borderWidth: 2, borderColor: "transparent" },
+  track: { minHeight: 92, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", padding: 14, borderWidth: 2, borderColor: "transparent" },
   trackOn: { borderColor: colors.gold },
   trackPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   trackPhotoCenter: { width: "240%", left: "-70%", right: "auto" },

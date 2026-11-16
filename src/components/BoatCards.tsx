@@ -10,7 +10,7 @@ import { T } from "./Text";
 export function BoatCallout() {
   const router = useRouter();
   return (
-    <View style={styles.callout}>
+    <View testID="boats-callout" style={styles.callout}>
       <T variant="eyebrow" color={colors.ink}>Between islands</T>
       <T variant="title" color={colors.ink}>Boats only</T>
       <T variant="small" color={colors.ink}>{BOATS_ONLY}</T>
@@ -34,13 +34,17 @@ export function BoatCallout() {
 export function BoatCards() {
   return (
     <View style={styles.wrap}>
-      <T variant="eyebrow" color={colors.gold}>Which boat</T>
-      <T variant="small" color={colors.foam}>Three passes, three boats. Be on the Beach is the public ferry. Be on the Boat is a private charter for the day. Be on Board is the VIP charter you stay on for all 5 days. A taxi never leaves its island.</T>
+      <View style={styles.lead}>
+        <T variant="eyebrow" color={colors.gold}>Which boat</T>
+        <T variant="small" color={colors.foam}>Three passes, three boats. Be on the Beach is the public ferry. Be on the Boat is a private charter for the day. Be on Board is the VIP charter you stay on for all 5 days. A taxi never leaves its island.</T>
+      </View>
       {boatOptions.map((boat) => (
         <BoatCard key={boat.id} boat={boat} />
       ))}
-      <T variant="eyebrow" color={colors.gold}>Taxi, on one island</T>
-      <T variant="small" color={colors.foam}>A taxi does not go to another island. It takes you on land, from the place you sleep to the dock where the boat leaves. The exact session room is still to be confirmed.</T>
+      <View style={styles.lead}>
+        <T variant="eyebrow" color={colors.gold}>Taxi, on one island</T>
+        <T variant="small" color={colors.foam}>A taxi does not go to another island. It takes you on land, from the place you sleep to the dock where the boat leaves. The exact session room is still to be confirmed.</T>
+      </View>
       {stayHops.map((hop) => (
         <View key={hop.island} style={styles.card}>
           <T variant="rowTitle" color={colors.foam}>{hop.island}</T>
@@ -97,9 +101,10 @@ function BoatCard({ boat }: { boat: BoatOption }) {
 
 const styles = StyleSheet.create({
   wrap: { gap: 10, marginBottom: 8 },
-  callout: { marginHorizontal: 12, marginBottom: 8, padding: 16, gap: 8, borderRadius: 22, backgroundColor: colors.gold },
+  callout: { marginBottom: 8, padding: 16, gap: 8, borderRadius: 22, backgroundColor: colors.gold },
   access: { gap: 4, padding: 12, borderRadius: 16, backgroundColor: "#10283A" },
   upgrade: { minHeight: 48, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: "#10283A" },
+  lead: { padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
   card: { padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
   row: { gap: 2 },
 });

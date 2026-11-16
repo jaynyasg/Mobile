@@ -2,6 +2,7 @@ import { Href, Link } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
 import { type ReelId } from "@/content/reels";
 import { useReels } from "@/reels/ReelHost";
+import { nightGlass } from "./nightGlass";
 import { colors, fonts, pad } from "@/theme";
 import { clip } from "./clip";
 import { CrystalMark } from "./CrystalMark";
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
   chipOn: { backgroundColor: "rgba(16,52,68,0.92)", borderColor: colors.gold },
   chipLabel: { fontFamily: fonts.medium, fontSize: 13, lineHeight: 16, flexShrink: 0 },
   swatch: { width: 8, height: 8, borderRadius: 4 },
-  empty: { paddingHorizontal: pad, paddingVertical: 28, gap: 8 },
+  empty: { marginHorizontal: 16, marginBottom: 12, paddingHorizontal: pad, paddingVertical: 28, gap: 8, borderRadius: 18, ...nightGlass },
   emptyTitle: { fontSize: 26 },
   meterBlock: { gap: 8 },
   meterTrack: { height: 4, backgroundColor: colors.line, borderRadius: 2, overflow: "hidden" },
