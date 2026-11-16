@@ -59,11 +59,12 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
     go(3);
   }
 
-  function choice(id: string, title: string, line: string, dimension: keyof SessionPreferences) {
+  function choice(id: string, title: string, line: string, dimension: keyof SessionPreferences, areaLabel?: string) {
     const selected = (preferences[dimension] as string[]).includes(id);
-    return <Pressable key={id} accessibilityRole="checkbox" accessibilityLabel={title} accessibilityState={{ checked: selected }} onPress={() => toggle(dimension, id)} style={[styles.option, selected && styles.selected]}>
+    return <Pressable key={id} accessibilityRole="checkbox" accessibilityLabel={title} accessibilityState={{ checked: selected }} aria-checked={selected} onPress={() => toggle(dimension, id)} style={[styles.option, selected && styles.selected]}>
       <T variant="rowTitle" color={colors.gold}>{selected ? "✓ " : ""}{title}</T>
       <T variant="small">{line}</T>
+      {areaLabel ? <T variant="meta" color={colors.gold}>{areaLabel}</T> : null}
     </Pressable>;
   }
 
@@ -76,8 +77,11 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
         {program.forum.pillars.map((pillar) => choice(pillar.id, pillar.name, AREA_COPY[pillar.id as keyof typeof AREA_COPY]?.body ?? `Explore sessions in ${pillar.name}.`, "areas"))}
       </> : null}
       {step === 1 ? <>
-        <T variant="small">Sub-infrastructure means a more specific field, such as AgriTech for food systems or FilmTech for filmmaking. These options have sessions in your chosen areas; a field may connect several areas.</T>
-        {topics.map((topic) => choice(topic.id, topic.id, `${topic.line} · ${topic.count} sessions`, "interests"))}
+        <T variant="small">Sub-infrastructure means a specific field, such as AgriTech for food systems. These options come from all your selected areas. Shared fields appear once and list their matching areas.</T>
+        <T variant="rowTitle" color={colors.gold}>Fields from {preferences.areas.length ? program.forum.pillars.filter((pillar) => preferences.areas.includes(pillar.id)).map((pillar) => pillar.name).join(" · ") : "all infrastructure areas"}</T>
+        <View testID="sub-infrastructure-options" style={styles.topics}>
+          {topics.map((topic) => choice(topic.id, topic.id, `${topic.line} · ${topic.count} session${topic.count === 1 ? "" : "s"}`, "interests", `In ${program.forum.pillars.filter((pillar) => topic.areaIds.includes(pillar.id)).map((pillar) => pillar.name).join(" · ")}`))}
+        </View>
       </> : null}
       {step === 2 ? <>
         <T variant="small">Give your ambition a direction. Each summit day moves the work forward: understand, plan, build, then showcase. Choose what you'd love to accomplish, or make the whole journey part of your experience.</T>
@@ -109,6 +113,7 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
 
 const styles = StyleSheet.create({
   card: { marginHorizontal: 16, marginBottom: 16, padding: 18, gap: 12, borderRadius: 20, ...nightGlass },
+  topics: { gap: 12 },
   option: { padding: 14, gap: 6, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,224,138,0.3)", backgroundColor: "rgba(7,27,42,0.8)" },
   selected: { borderColor: colors.gold, backgroundColor: "rgba(71,58,28,0.8)" },
   primary: { minHeight: 48, padding: 14, borderRadius: 24, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center" },

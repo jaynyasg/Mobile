@@ -73,6 +73,8 @@ Require valid name, email, phone, and boat preference before Board booking. A gr
 
 Ask for infrastructure and sub-infrastructure in the opening questions. Use those saved answers to put matching island options and session cards at the top of Accommodations and Sessions. Keep choice editing and optional goal refinement available without repeating the questionnaire on entry. Show booking guidance and next-step actions after the options.
 
+When guests choose several infrastructure areas, combine their sub-infrastructure options. Show shared fields once and label every matching selected area. Adding an area preserves existing choices; removing one only clears fields that no longer belong to any selected area.
+
 Present the opening summary as the guest's plan based on their choices. Name the suggested ticket once in its numbered step. After verified payment, briefly confirm success and automatically continue to the next unfinished step. Offer an explicit booking-later action inside checkout and Board booking; it continues the plan without recording a purchase. Back and Close still let guests review or change their ticket.
 
 ## Verification

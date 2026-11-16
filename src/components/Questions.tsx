@@ -40,10 +40,11 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
     setAreas(next);
     setInterests((current) => current.filter((interest) => available.some((topic) => topic.id === interest)));
   }
-  const option = (key: string, title: string, line: string, action: () => void, selected = false) => (
-    <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={title} onPress={action} style={[styles.tile, selected && styles.selected]}>
+  const option = (key: string, title: string, line: string, action: () => void, selected = false, areaLabel?: string) => (
+    <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected }} aria-pressed={step === 3 || step === 4 ? selected : undefined} accessibilityLabel={title} onPress={action} style={[styles.tile, selected && styles.selected]}>
       <T variant="rowTitle" color={colors.foam}>{title}</T>
       <T variant="small" color={colors.foam}>{line}</T>
+      {areaLabel ? <T variant="meta" color={colors.gold}>{areaLabel}</T> : null}
     </Pressable>
   );
   const sheet = (
@@ -81,8 +82,11 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
             {program.forum.pillars.map((pillar) => option(pillar.id, `${areas.includes(pillar.id) ? "✓ " : ""}${pillar.name}`, `Sessions on or near ${pillar.island}`, () => toggleArea(pillar.id), areas.includes(pillar.id)))}
           </> : null}
           {step === 4 ? <>
-            <T variant="small" color={colors.foam}>Choose your sub-infrastructure: the specific fields you'd love to explore. AgriTech connects technology and food systems; FilmTech focuses on filmmaking. Pick as many as you like, or leave them blank to see every field in your chosen areas.</T>
-            {topics.map((topic) => option(topic.id, `${interests.includes(topic.id) ? "✓ " : ""}${topic.id}`, `${topic.line} · ${topic.count} sessions`, () => setInterests(toggle(interests, topic.id)), interests.includes(topic.id)))}
+            <T variant="small" color={colors.foam}>Choose your sub-infrastructure: specific fields from all the areas you selected. Shared fields appear once and list their matching areas. Pick as many as you like, or leave them blank to explore every field.</T>
+            <T variant="rowTitle" color={colors.gold}>Fields from {areas.length ? program.forum.pillars.filter((pillar) => areas.includes(pillar.id)).map((pillar) => pillar.name).join(" · ") : "all infrastructure areas"}</T>
+            <View testID="sub-infrastructure-options" style={styles.plan}>
+              {topics.map((topic) => option(topic.id, `${interests.includes(topic.id) ? "✓ " : ""}${topic.id}`, `${topic.line} · ${topic.count} session${topic.count === 1 ? "" : "s"}`, () => setInterests(toggle(interests, topic.id)), interests.includes(topic.id), `In ${program.forum.pillars.filter((pillar) => topic.areaIds.includes(pillar.id)).map((pillar) => pillar.name).join(" · ")}`))}
+            </View>
             {!topics.length ? <T variant="small" color={colors.foam}>No specific fields are listed for these areas yet. We'll show their available sessions.</T> : null}
           </> : null}
           {step === 5 ? <>
