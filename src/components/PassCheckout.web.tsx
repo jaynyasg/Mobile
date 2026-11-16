@@ -120,8 +120,8 @@ export function PassCheckout({
           <T variant="eyebrow" color={colors.gold}>{tier === "vip" ? "VIP shares" : title}</T>
           <T variant="title" color={colors.foam}>{title}</T>
           <T variant="small" color={colors.foam}>{detail}</T>
+          {message ? <T variant="meta" color={colors.foam} accessibilityLiveRegion="polite">{message}</T> : null}
           {preview ? <CheckoutMock /> : <View ref={mountRef as never} style={styles.mount} />}
-          {message ? <T variant="meta" color={colors.foam}>{message}</T> : null}
         </View>
       </View>
     </View>

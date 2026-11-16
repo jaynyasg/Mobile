@@ -130,6 +130,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
     page.on("pageerror", error => failures.push(error.message));
     await click(page, "Book Be on the Beach");
     await page.getByText("Checkout could not load.", { exact: false }).waitFor();
+    assert.ok(await page.getByText("Checkout could not load.", { exact: false }).evaluate(node => node.getBoundingClientRect().bottom <= innerHeight), "Checkout errors must be visible without scrolling past an empty form");
     assert.equal(await page.evaluate(() => window.__checkoutKeys.length), 0, "A failed session must not initialize Stripe");
     assert.equal(await page.evaluate(() => localStorage.getItem("tatel.ownedPass.v1")), null);
     await click(page, "Close checkout");
