@@ -98,7 +98,7 @@ export function PassCheckout({
           <T variant="button" color={colors.gold}>Back</T>
         </Pressable>
         <View style={styles.barTitle}>
-          {tier === "vip" ? <T variant="meta" color={colors.gold} numberOfLines={1}>STAY onboard</T> : null}
+          {tier === "vip" ? <T variant="meta" color={colors.gold} numberOfLines={1}>Be on Board</T> : null}
           <T variant="small" color={colors.foam} numberOfLines={2}>{title}</T>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Close checkout" onPress={dismiss} style={styles.barHit}>

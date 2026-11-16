@@ -46,3 +46,6 @@ example
 
 # tests
 .vitest/
+
+# generated stamp posters contain live codes
+stamp-posters.html

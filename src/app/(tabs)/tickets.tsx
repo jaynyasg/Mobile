@@ -19,6 +19,7 @@ import { colors, sceneForIsland } from "@/theme";
 import { dockClearance } from "@/components/Dock";
 import { notchPadding } from "@/components/notch";
 import { nightGlass } from "@/components/nightGlass";
+import { StepBridge } from "@/components/StepBridge";
 
 function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string | string[]; session_id?: string | string[] }) {
   const fromRouter = (value: string | string[] | undefined) => (typeof value === "string" ? value : null);
@@ -145,11 +146,12 @@ export default function TicketsScreen() {
     <View style={styles.frame}>
       <Image source={{ uri: sceneForIsland("Jost Van Dyke") }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
       <ScrollView style={{ marginBottom: dockClearance(insets.bottom) }} contentContainerStyle={[{ paddingBottom: 24 }, notchPadding("top", 16, insets.top)]}>
+        <StepBridge id="pass" />
         <View style={styles.intro}>
           <T variant="eyebrow" color={colors.gold}>Tickets</T>
           <T variant="title" color={colors.foam}>{hold.owned ? "Your pass" : "Choose a pass"}</T>
           <T variant="small" color={colors.foam}>
-            {hold.owned ? "Show it at the sessions." : "Beach, boat, or a VIP group. Eight shares fill a boat."}
+            {hold.owned ? "Show it at the sessions." : "Be on the Beach is the public ferry. Be on the Boat is a day charter. Be on Board is the VIP charter for all 5 days."}
           </T>
         </View>
         {heldPass ? (
@@ -206,14 +208,11 @@ export default function TicketsScreen() {
                 }}
                 style={styles.passCard}
               >
-                {item.id === "vip" ? (
-                  <>
-                    <T variant="rowTitle" color={colors.foam}>STAY onboard</T>
-                    <T variant="rowTitle" color={colors.foam}>All-inclusive VIP</T>
-                  </>
-                ) : <T variant="rowTitle" color={colors.foam}>{item.name}</T>}
+                <T variant="rowTitle" color={colors.foam}>{item.id === "vip" ? "Be on Board" : item.name}</T>
+                {item.id === "vip" ? <T variant="meta" color={colors.gold}>VIP charter · all 5 days</T> : null}
                 <T variant="small" color={colors.foam}>{item.id === "vip" ? `${offer.guests} · ${offer.total}` : `${item.price} ${item.unit}`}</T>
-                {item.id === "vip" ? <T variant="meta" color={colors.gold}>$5,000 a share. A full boat is 8 shares.</T> : null}
+                {item.paragraphs[0] ? <T variant="small" color={colors.foam}>{item.paragraphs[0]}</T> : null}
+                {item.id === "vip" ? <T variant="meta" color={colors.gold}>$5,000 a share. A full boat is 8 shares, $40,000. Full boat, or open to sharing.</T> : null}
                 <View style={[styles.pill, !ownsThis && !checkoutReady && styles.pillOff]}>
                   <T variant="button" color={colors.ink}>{ownsThis ? "Your pass" : checkoutReady ? (item.id === "vip" ? "Start a group booking" : "Pay") : CHECKOUT_SOON}</T>
                 </View>

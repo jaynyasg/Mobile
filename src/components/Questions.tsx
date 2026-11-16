@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { reels } from "@/content/reels";
 import { useContent } from "@/content/provider";
 import type { PassAnswer, StayAnswer } from "@/logic/pathPlan";
+import { TECH_INTERESTS, phaseTag, sessionInterest, suggestSessions } from "@/logic/techInterest";
 import { colors } from "@/theme";
 import { notchPadding } from "./notch";
 import { T } from "./Text";
@@ -25,8 +26,8 @@ export function Questions({
   onDone,
   onSkip,
 }: {
-  onDone: (answers: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer }) => void;
-  onSkip: (answers: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer }) => void;
+  onDone: (answers: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer; interests: string[] }) => void;
+  onSkip: (answers: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer; interests: string[] }) => void;
 }) {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
@@ -34,13 +35,14 @@ export function Questions({
   const [hasPass, setHasPass] = useState<PassAnswer | null>(null);
   const [areas, setAreas] = useState<string[]>([]);
   const [needsStay, setNeedsStay] = useState<StayAnswer | null>(null);
+  const [interests, setInterests] = useState<string[]>([]);
 
-  function finish(next: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer }) {
+  function finish(next: { hasPass: PassAnswer; areas: string[]; needsStay: StayAnswer; interests: string[] }) {
     onDone(next);
   }
 
   function skip() {
-    onSkip({ hasPass: hasPass ?? "skipped", areas, needsStay: needsStay ?? "skipped" });
+    onSkip({ hasPass: hasPass ?? "skipped", areas, needsStay: needsStay ?? "skipped", interests });
   }
 
   const photo = step === 0 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
@@ -53,7 +55,7 @@ export function Questions({
           <Pressable accessibilityRole="button" accessibilityLabel="Back" disabled={step === 0} onPress={() => setStep((current) => Math.max(0, current - 1))} style={styles.ghost}>
             <T variant="button" color={step === 0 ? "rgba(245,241,232,0.35)" : colors.foam}>Back</T>
           </Pressable>
-          <T variant="meta" color={colors.gold}>{step + 1} of 3</T>
+          <T variant="meta" color={colors.gold}>{step + 1} of 5</T>
           <Pressable accessibilityRole="button" accessibilityLabel="Skip" onPress={skip} style={styles.ghost}>
             <T variant="button" color={colors.gold}>Skip</T>
           </Pressable>
@@ -124,7 +126,7 @@ export function Questions({
                 accessibilityLabel={option.label}
                 onPress={() => {
                   setNeedsStay(option.id);
-                  finish({ hasPass: hasPass ?? "unsure", areas, needsStay: option.id });
+                  setStep(3);
                 }}
                 style={styles.tile}
               >
@@ -133,9 +135,49 @@ export function Questions({
             ))}
           </View>
         ) : null}
+        {step === 3 ? (
+          <View style={[styles.body, styles.bodyTop]}>
+            <T variant="title" color={colors.foam}>Which kinds of tech are you here for?</T>
+            <T variant="small" color={colors.foam}>Pick any. These show up later on the sessions.</T>
+            <ScrollView style={styles.areaScroll} contentContainerStyle={styles.chips}>
+              {TECH_INTERESTS.map((interest) => {
+                const on = interests.includes(interest);
+                return (
+                  <Pressable key={interest} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={interest} onPress={() => setInterests((current) => current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest])} style={[styles.chip, on && styles.chipOn]}>
+                    <T variant="meta" color={on ? colors.ink : colors.foam}>{interest}</T>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+            <Pressable accessibilityRole="button" accessibilityLabel="See suggested sessions" onPress={() => setStep(4)} style={styles.next}>
+              <T variant="button" color={colors.ink}>See suggested sessions</T>
+            </Pressable>
+          </View>
+        ) : null}
+        {step === 4 ? (
+          <View style={[styles.body, styles.bodyTop]}>
+            <T variant="title" color={colors.foam}>Here are your suggested sessions</T>
+            <T variant="small" color={colors.foam}>From the tech you picked. You will land on your pass or these sessions next, without a stop on Home.</T>
+            <ScrollView style={styles.areaScroll} contentContainerStyle={styles.areaList}>
+              {suggestSessions(program.sessions, interests, areas).map((session) => (
+                <View key={session.id} style={styles.suggest}>
+                  <T variant="meta" color={colors.gold}>{[sessionInterestName(session), phaseTag(session.phase)].filter(Boolean).join(" · ")}</T>
+                  <T variant="rowTitle" color={colors.foam}>{session.title}</T>
+                </View>
+              ))}
+            </ScrollView>
+            <Pressable accessibilityRole="button" accessibilityLabel="Continue" onPress={() => finish({ hasPass: hasPass ?? "unsure", areas, needsStay: needsStay ?? "skipped", interests })} style={styles.next}>
+              <T variant="button" color={colors.ink}>Continue</T>
+            </Pressable>
+          </View>
+        ) : null}
       </View>
     </View>
   );
+  function sessionInterestName(session: { title: string; description: string; pillarId: string }) {
+    return sessionInterest(session) ?? program.forum.pillars.find((pillar) => pillar.id === session.pillarId)?.name ?? "";
+  }
+
   if (typeof document === "undefined") return sheet;
   return createPortal(sheet, document.body);
 }
@@ -183,4 +225,8 @@ const styles = StyleSheet.create({
   areaCopy: { zIndex: 1, paddingHorizontal: 14, paddingBottom: 10, gap: 2 },
   check: { position: "absolute", top: 10, right: 10, zIndex: 2, width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   next: { minHeight: 52, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 8 },
+  chip: { minHeight: 40, paddingHorizontal: 12, borderRadius: 999, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,224,138,0.55)", backgroundColor: "rgba(7,27,42,0.72)" },
+  chipOn: { backgroundColor: colors.gold, borderColor: colors.gold },
+  suggest: { padding: 12, borderRadius: 14, gap: 4, backgroundColor: "rgba(7,27,42,0.72)", borderWidth: 1, borderColor: "rgba(255,224,138,0.35)" },
 });

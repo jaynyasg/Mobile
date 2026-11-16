@@ -8,6 +8,7 @@ import { notchPadding } from "./notch";
 import { colors, pad } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
+import { goAppBack } from "@/navigation/appHistory";
 
 export function StackHeader({ title, right }: { title?: string; right?: ReactNode }) {
   const insets = useSafeAreaInsets();
@@ -18,7 +19,7 @@ export function StackHeader({ title, right }: { title?: string; right?: ReactNod
         accessibilityRole="button"
         accessibilityLabel="Go back"
         hitSlop={12}
-        onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
+        onPress={() => goAppBack(router)}
         style={styles.back}
       >
         <Icon name="back" color={colors.gold} />

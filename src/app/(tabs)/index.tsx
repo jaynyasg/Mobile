@@ -81,6 +81,16 @@ export default function HomeScreen() {
     setIntake(record);
     setAsking(false);
     if (userId && !preview) void saveIntakeRemote(userId, record);
+    const steps = buildPath(record, forum.pillars, { completed: record.completed, ownedPass: readOwnedPass(store) != null });
+    const first = steps.find((step) => step.id === "pass" || step.id === "sessions" || step.id === "stay");
+    if (!first) return;
+    const target = pathDestination(first.id, record);
+    if (target.pathname === "/tickets") router.push("/tickets");
+    else if (target.pathname === "/agenda") router.push("/agenda");
+    else if (target.pathname === "/stays") {
+      const areas = target.params && "areas" in target.params ? target.params.areas : "";
+      router.push(areas ? { pathname: "/stays", params: { areas } } : "/stays");
+    }
   }
 
   function markStep(id: string) {
@@ -107,8 +117,8 @@ export default function HomeScreen() {
       router.push(areas ? { pathname: "/stays", params: { areas } } : "/stays");
       return;
     }
-    if (target.pathname === "/transport") {
-      openChapter("transport", { pathname: "/transport", params: { build: "1" } });
+    if (target.pathname === "/routes") {
+      router.push({ pathname: "/routes", params: { build: "1" } });
       return;
     }
     openChapter("community", "/community");
@@ -211,7 +221,7 @@ export default function HomeScreen() {
       {asking && !reelActive ? (
         <Questions
           onDone={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
-          onSkip={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
+          onSkip={(answers) => storeAnswers({ ...answers, interests: answers.interests ?? [], completed: answers.needsStay === "booked" ? ["stay"] : [] })}
         />
       ) : null}
       {deck ? <EssentialsDeck onClose={() => setDeck(false)} /> : null}

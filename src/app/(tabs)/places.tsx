@@ -1,5 +1,5 @@
-import { Link } from "expo-router";
-import { Pressable, StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { placesForIsland } from "@/content";
 import { useContent } from "@/content/provider";
 import type { Place } from "@/content/types";
@@ -7,12 +7,13 @@ import { Glass } from "@/components/Glass";
 import { PhotoShade } from "@/components/PhotoShade";
 import { Screen } from "@/components/Screen";
 import { T } from "@/components/Text";
-import { TappablePhoto } from "@/components/TappablePhoto";
+import { resolveUri } from "@/components/TappablePhoto";
 import { backgrounds } from "@/components/backgrounds";
 import { colors } from "@/theme";
 
 export default function VenuesTab() {
   const { program } = useContent();
+  const router = useRouter();
   return (
     <Screen docked photo={backgrounds.venues.day} night={backgrounds.venues.night} phase={backgrounds.venues.phase}>
       <Glass tone="dark" style={styles.header}>
@@ -27,18 +28,17 @@ export default function VenuesTab() {
           {placesForIsland(venue.island).map((place) => {
             const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
             return (
-              <View key={place.id} style={styles.card}>
+              <Pressable key={place.id} accessibilityRole="button" accessibilityLabel={place.name} onPress={() => router.push({ pathname: "/venue/[id]", params: { id: place.id } })} style={styles.card}>
                 {hero ? (
-                  <TappablePhoto source={hero.webp1280} alt={hero.alt || place.name} gallery={placeShots(place)} index={place.photos.findIndex((photo) => photo.id === hero.id)} style={styles.photo} />
+                  <Image pointerEvents="none" source={{ uri: resolveUri(hero.webp1280) ?? "" }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
                 ) : null}
                 <PhotoShade />
-                <Link href={{ pathname: "/venue/[id]", params: { id: place.id } }} asChild>
-                  <Pressable accessibilityRole="button" accessibilityLabel={place.name} style={styles.copy}>
-                    <T variant="rowTitle" color={colors.onDark} numberOfLines={2}>{place.name}</T>
-                    <T variant="meta" color={colors.gold} numberOfLines={2}>{place.photos.length} photos{place.models.length ? " · 3D" : ""}</T>
-                  </Pressable>
-                </Link>
-              </View>
+                <View pointerEvents="none" style={styles.copy}>
+                  <T variant="rowTitle" color={colors.onDark} numberOfLines={2}>{place.name}</T>
+                  <T variant="meta" color={colors.gold} numberOfLines={2}>{place.photos.length} photos{place.models.length ? " · 3D" : ""}</T>
+                  <T variant="button" color={colors.gold}>Open</T>
+                </View>
+              </Pressable>
             );
           })}
         </View>

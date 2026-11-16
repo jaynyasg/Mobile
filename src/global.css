@@ -3,7 +3,17 @@ body,
 #root {
   height: 100%;
   margin: 0;
-  background: #071b2a;
+  background: #071421;
+}
+
+a, button, [role="button"], [role="link"] {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+video {
+  pointer-events: none !important;
 }
 
 @keyframes tatel-drift {

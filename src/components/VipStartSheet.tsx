@@ -99,7 +99,7 @@ export function VipStartSheet({
     >
       <View style={styles.card}>
         <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-          <T variant="eyebrow" color={colors.gold}>STAY onboard</T>
+          <T variant="eyebrow" color={colors.gold}>Be on Board</T>
           <T variant="title" color={colors.foam}>All-inclusive VIP</T>
           {link ? (
             <>

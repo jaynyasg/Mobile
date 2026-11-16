@@ -63,8 +63,8 @@ export const reels = {
   },
   transport: {
     id: "transport",
-    title: "Transport",
-    kicker: "Sample/Custom Routes",
+    title: "Routes",
+    kicker: "Taxis and boats",
     mp4: "/reels/transport.mp4",
     poster: "/reels/transport.jpg",
     durationMs: 7_042,
@@ -99,8 +99,8 @@ export const reels = {
   },
   guide: {
     id: "guide",
-    title: "Guide",
-    kicker: "Need to know",
+    title: "Preparation guide",
+    kicker: "Before you travel",
     mp4: "/reels/guide.mp4",
     poster: "/reels/guide.jpg",
     durationMs: 7_000,

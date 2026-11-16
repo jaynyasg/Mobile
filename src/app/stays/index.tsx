@@ -1,13 +1,15 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Linking, Pressable, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
 import { StackHeader } from "@/components/StackHeader";
 import { T } from "@/components/Text";
-import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
+import { resolveUri } from "@/components/TappablePhoto";
 import { colors, pad } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
+import { ExternalLink } from "@/components/ExternalLink";
+import { StepBridge } from "@/components/StepBridge";
 
 export default function StaysScreen() {
   const { program } = useContent();
@@ -24,15 +26,14 @@ export default function StaysScreen() {
   return (
     <Screen edge="none">
       <StackHeader title="Accommodations" />
+      <StepBridge id="stay" />
       <View style={styles.pad}>
         <T variant="eyebrow">Where you stay · five island stops</T>
         <T variant="title">Across the islands</T>
         <T variant="small">{stays.intro}</T>
         {islands.size ? <T variant="meta" color={colors.gold}>Your islands</T> : null}
         {stays.brochureUrl ? (
-          <Pressable accessibilityRole="link" accessibilityLabel="See partner stays" onPress={() => Linking.openURL(stays.brochureUrl).catch(() => undefined)} style={styles.open}>
-            <T variant="button" color={colors.ink}>See partner stays</T>
-          </Pressable>
+          <ExternalLink href={stays.brochureUrl} label="See partner stays">See partner stays</ExternalLink>
         ) : null}
       </View>
       {groups.map((group) => (
@@ -43,22 +44,17 @@ export default function StaysScreen() {
           </T>
           {group.intro ? <T variant="meta" style={styles.groupIntro}>{group.intro}</T> : null}
           {group.islands.map((island) => (
-            <View key={island.id} style={styles.card}>
-              <TappablePhoto source={sceneImages[island.image]} alt={island.imageAlt || island.island} style={styles.image} />
-              <View style={styles.copy}>
+            <Pressable key={island.id} accessibilityRole="button" accessibilityLabel={`Open ${island.island}`} onPress={() => router.push({ pathname: "/stays/[id]", params: { id: island.id } })} style={styles.card}>
+              <Image pointerEvents="none" source={{ uri: resolveUri(sceneImages[island.image]) ?? "" }} accessibilityLabel={island.imageAlt || island.island} style={styles.image} resizeMode="cover" accessibilityIgnoresInvertColors />
+              <View pointerEvents="none" style={styles.copy}>
                 <T variant="eyebrow" numberOfLines={2}>{island.route}</T>
                 <T variant="rowTitle" numberOfLines={2}>{island.island}</T>
                 <T variant="meta" numberOfLines={3}>{island.dock}</T>
-                <Pressable
-                  accessibilityRole="link"
-                  accessibilityLabel={`Open ${island.island}`}
-                  onPress={() => router.push({ pathname: "/stays/[id]", params: { id: island.id } })}
-                  style={({ pressed }) => [styles.open, pressed && styles.pressed]}
-                >
+                <View style={styles.open}>
                   <T variant="button" color={colors.ink}>Open</T>
-                </Pressable>
+                </View>
               </View>
-            </View>
+            </Pressable>
           ))}
         </View>
       ))}

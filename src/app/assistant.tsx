@@ -26,14 +26,14 @@ export default function AssistantScreen() {
 
   return (
     <Screen edge="none">
-      <StackHeader title="Guide" />
+      <StackHeader title="Ask" />
       <View style={styles.pad}>
         <T variant="meta">
           The guide reads the TATEL draft stored in this app. It is not a hosted model, and it will not invent a confirmation.
         </T>
         {state.guide.map((turn) => (
           <View key={turn.id} style={styles.turn}>
-            <T variant="eyebrow">{turn.role === "you" ? "You" : "Guide"}</T>
+            <T variant="eyebrow">{turn.role === "you" ? "You" : "TATEL"}</T>
             <T variant="small">{turn.text}</T>
             {turn.citations.map((citation) => (
               <Link key={`${citation.kind}-${citation.id}`} href={citationHref(citation)} asChild>

@@ -1,5 +1,5 @@
 import { Link, useLocalSearchParams } from "expo-router";
-import { Linking, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { stayById } from "@/content";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
@@ -9,6 +9,7 @@ import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
+import { ExternalLink } from "@/components/ExternalLink";
 
 export default function StayScreen() {
   useContent();
@@ -50,9 +51,7 @@ export default function StayScreen() {
               <View key={provider.name} style={styles.link}>
                 <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
                 {provider.href ? (
-                  <Pressable accessibilityRole="link" accessibilityLabel={`Visit ${provider.name}`} onPress={() => Linking.openURL(provider.href!).catch(() => undefined)} style={styles.open}>
-                    <T variant="button" color={colors.ink}>Visit website</T>
-                  </Pressable>
+                  <ExternalLink href={provider.href} label={`Visit ${provider.name}`}>Visit website</ExternalLink>
                 ) : null}
               </View>
             ),

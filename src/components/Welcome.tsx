@@ -35,9 +35,11 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
 
   const arrival = (
     <View style={styles.overlay}>
-      <Image source={beaconPoster} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
-      <View style={styles.shade} />
-      <View style={[styles.copy, notchPadding("top", 24, insets.top), notchPadding("bottom", 40, insets.bottom)]}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Continue" onPress={() => setStep(1)} style={styles.photoHit}>
+        <Image pointerEvents="none" source={beaconPoster} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />
+      </Pressable>
+      <View pointerEvents="none" style={styles.shade} />
+      <View pointerEvents="box-none" style={[styles.copy, notchPadding("top", 24, insets.top), notchPadding("bottom", 40, insets.bottom)]}>
         <T variant="eyebrow" color={colors.gold}>{visitorEdition(forum.edition)}</T>
         <T variant="title" color={colors.foam}>{forum.kicker}</T>
         <T variant="small" color={colors.foam}>{forum.dateLabel}</T>
@@ -98,6 +100,7 @@ const fixed = { position: "fixed" } as unknown as ViewStyle;
 
 const styles = StyleSheet.create({
   overlay: { ...fixed, top: 0, right: 0, bottom: 0, left: 0, zIndex: 90, backgroundColor: "#071421" },
+  photoHit: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   shade: {
     position: "absolute",

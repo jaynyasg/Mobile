@@ -5,6 +5,7 @@ export const INTAKE_RETAKE_KEY = "tatel.intake.retake";
 
 export interface IntakeRecord extends IntakeAnswers {
   completed: string[];
+  interests: string[];
 }
 
 export interface IntakeStore {
@@ -23,7 +24,8 @@ export function readIntake(store: IntakeStore | null): IntakeRecord | null {
     if (!parsed || !passes.has(parsed.hasPass as PassAnswer) || !stays.has(parsed.needsStay as StayAnswer)) return null;
     const areas = Array.isArray(parsed.areas) ? parsed.areas.filter((item): item is string => typeof item === "string") : [];
     const completed = Array.isArray(parsed.completed) ? parsed.completed.filter((item): item is string => typeof item === "string") : [];
-    return { hasPass: parsed.hasPass as PassAnswer, needsStay: parsed.needsStay as StayAnswer, areas, completed };
+    const interests = Array.isArray(parsed.interests) ? parsed.interests.filter((item): item is string => typeof item === "string") : [];
+    return { hasPass: parsed.hasPass as PassAnswer, needsStay: parsed.needsStay as StayAnswer, areas, completed, interests };
   } catch {
     return null;
   }
@@ -35,6 +37,7 @@ export function writeIntake(store: IntakeStore | null, record: IntakeRecord): vo
     areas: [...new Set(record.areas)],
     needsStay: record.needsStay,
     completed: [...new Set(record.completed)],
+    interests: [...new Set(record.interests ?? [])],
   }));
 }
 
@@ -60,6 +63,7 @@ export function notePassPurchased(store: IntakeStore | null): IntakeRecord {
     areas: current?.areas ?? [],
     needsStay: current?.needsStay ?? "browsing",
     completed: [...new Set([...(current?.completed ?? []), "pass"])],
+    interests: current?.interests ?? [],
   };
   writeIntake(store, next);
   if (typeof window !== "undefined") window.dispatchEvent(new Event("tatel-pass-owned"));

@@ -1,8 +1,9 @@
-import { Linking, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import type { CommunityProfile } from "@/community/types";
 import { colors } from "@/theme";
 import { CommunityAvatar } from "./CommunityAvatar";
 import { T } from "./Text";
+import { ExternalText } from "./ExternalLink";
 
 export function ProfileSheet({ profile, onClose }: { profile: CommunityProfile | null; onClose: () => void }) {
   if (!profile) return null;
@@ -16,9 +17,7 @@ export function ProfileSheet({ profile, onClose }: { profile: CommunityProfile |
         {role ? <T variant="meta" color={colors.gold}>{role}</T> : null}
         {profile.bio ? <T variant="body">{profile.bio}</T> : null}
         {profile.link ? (
-          <Pressable accessibilityRole="link" accessibilityLabel={profile.link} onPress={() => Linking.openURL(profile.link!)}>
-            <T variant="small" color={colors.gold}>{profile.link.replace(/^https?:\/\//, "")}</T>
-          </Pressable>
+          <ExternalText href={profile.link} label={profile.link.replace(/^https?:\/\//, "")} />
         ) : null}
         <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} style={styles.close}>
           <T variant="button" color={colors.ink}>Close</T>

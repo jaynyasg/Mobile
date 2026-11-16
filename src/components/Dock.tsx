@@ -14,7 +14,8 @@ export const DOCK_PILL = 112;
 
 /** Space the page should leave so the dock never covers the last line. */
 export function dockClearance(bottomInset: number): number {
-  return DOCK_PILL + 12 + Math.max(bottomInset, 6);
+  const safe = Platform.OS === "web" ? Math.max(bottomInset, 34) : bottomInset;
+  return DOCK_PILL + 18 + safe;
 }
 
 type DockItem = {
@@ -36,8 +37,8 @@ const rows: DockItem[][] = [
   [
     { href: "/community", label: "Chat", icon: "chat", chapter: "community", active: (path) => path.startsWith("/community") },
     { href: "/speakers", label: "Panelists", icon: "mic", chapter: "panelists", active: (path) => path.startsWith("/speaker") },
-    { href: "/know", label: "Guide", icon: "menu", chapter: "guide", active: (path) => path.startsWith("/know") },
-    { href: "/transport", label: "Transport", icon: "boat", chapter: "transport", active: (path) => path.startsWith("/transport") },
+    { href: "/know", label: "Prep guide", icon: "menu", chapter: "guide", active: (path) => path.startsWith("/know") },
+    { href: "/routes", label: "Routes", icon: "boat", chapter: "transport", active: (path) => path.startsWith("/routes") || path.startsWith("/transport") },
     { href: "/stays", label: "Stays", icon: "seat", chapter: "stays", active: (path) => path.startsWith("/stays") },
   ],
 ];

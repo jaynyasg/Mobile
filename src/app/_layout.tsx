@@ -16,7 +16,11 @@ import { Dock } from "@/components/Dock";
 import { ReelHost } from "@/reels/ReelHost";
 import { AppProvider, useApp } from "@/store";
 import { shellColor } from "@/shell";
+import { NavMemory } from "@/navigation/NavMemory";
+import { installLinkGuard } from "@/navigation/pwaNav";
 import "@/global.css";
+
+installLinkGuard();
 
 listenForInstallPrompt();
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -42,6 +46,7 @@ export default function RootLayout() {
         <ImageViewerProvider>
           <Frame>
             <ReelHost>
+              <NavMemory />
               <Stack
                 screenOptions={{
                   headerShown: false,

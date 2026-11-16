@@ -9,6 +9,7 @@ import { prefersReducedMotion } from "@/guide/stamps";
 import { colors, fonts } from "@/theme";
 import { Icon } from "./Icon";
 import { notchPadding } from "./notch";
+import { useOverlayHistory } from "./useOverlayHistory";
 import { T } from "./Text";
 
 export function TatelExplainer({ onClose }: { onClose: () => void }) {
@@ -20,6 +21,7 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   const start = useRef<{ x: number; y: number } | null>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
+  useOverlayHistory(true, onClose);
   const slides = useMemo(() => {
     const formatsByDay: Record<string, string[]> = {};
     for (const session of sessions) (formatsByDay[session.dayId] ??= []).push(session.format);
@@ -117,8 +119,9 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
             ))}
           </View>
         ) : (
-          <T style={styles.phase}>{slide.title}</T>
+          <T style={slide.title.length > 28 ? styles.phaseSmall : styles.phase}>{slide.title}</T>
         )}
+        {slide.kind === "letter" ? <T variant="rowTitle" color={colors.gold}>{slide.title}</T> : null}
         <T variant="headline" color={colors.foam}>{slide.line}</T>
         {slide.note ? <T variant="small" color={colors.foam}>{slide.note}</T> : null}
         <View style={styles.dots}>
@@ -238,6 +241,7 @@ const styles = StyleSheet.create({
   markOn: { color: colors.gold },
   markOff: { color: "rgba(245,241,232,0.35)" },
   phase: { fontFamily: fonts.display, fontSize: 48, lineHeight: 52, color: colors.gold },
+  phaseSmall: { fontFamily: fonts.display, fontSize: 28, lineHeight: 34, color: colors.gold },
   dots: { flexDirection: "row", gap: 4 },
   dotHit: { minWidth: 22, minHeight: 28, alignItems: "center", justifyContent: "center" },
   dot: { width: 8, height: 8, borderRadius: 99, backgroundColor: "rgba(255,224,138,0.35)" },
