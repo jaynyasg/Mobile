@@ -1,8 +1,26 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
-import { CHECKOUT_SOON, canEmbedCheckout, passOffer, passTier } from "./passPay";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { CHECKOUT_SOON, canEmbedCheckout, passOffer, passTier, stripePublishableKey } from "./passPay";
 
 describe("pass checkout client", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("keeps production checkout available when the build has no environment override", () => {
+    vi.stubEnv("EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY", undefined);
+    expect(stripePublishableKey()).toMatch(/^pk_live_[A-Za-z0-9]{20,}$/);
+    expect(canEmbedCheckout()).toBe(true);
+    vi.stubEnv("EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY", "  ");
+    expect(canEmbedCheckout()).toBe(true);
+  });
+
+  it("allows an explicit test-account override without accepting secret keys", () => {
+    vi.stubEnv("EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY", " pk_test_example ");
+    expect(stripePublishableKey()).toBe("pk_test_example");
+    expect(canEmbedCheckout()).toBe(true);
+    expect(canEmbedCheckout("sk_live_example")).toBe(false);
+    expect(canEmbedCheckout("pk_invalid_example")).toBe(false);
+  });
+
   it("embeds only when a publishable key is present", () => {
     expect(canEmbedCheckout("")).toBe(false);
     expect(canEmbedCheckout("pk_live_example")).toBe(true);

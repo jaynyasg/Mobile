@@ -32,9 +32,9 @@ describe("guided visit", () => {
     expect(buildPath({ ...answers, hasPass: "have" }, pillars).map((step) => step.id)).toEqual(["sessions", "explore"]);
     expect(buildPath({ ...answers, needsStay: "yes" }, pillars, { ownedTier: "vip" }).find((step) => step.id === "stay")?.title).toBe("Arrange extra nights");
   });
-  it("routes a recommended ticket without opening checkout or completing anything", () => {
+  it("opens checkout for the selected ticket and keeps comparison for undecided guests", () => {
     for (const ticketPreference of ["beach", "boat", "vip"] as const) {
-      expect(pathDestination("pass", { areas: [], needsStay: "yes", ticketPreference })).toEqual({ pathname: "/tickets", params: { tier: ticketPreference } });
+      expect(pathDestination("pass", { areas: [], needsStay: "yes", ticketPreference })).toEqual({ pathname: "/tickets", params: { tier: ticketPreference, checkout: "start" } });
     }
     expect(pathDestination("pass")).toEqual({ pathname: "/tickets" });
     expect(pathDestination("stay", { areas: ["tech"], needsStay: "yes" })).toEqual({ pathname: "/stays", params: { areas: "tech" } });

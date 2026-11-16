@@ -1,7 +1,13 @@
+import { passTier, type PassTier } from "./passPay";
+
 export interface TicketQuery {
   checkout?: string | null;
   tier?: string | null;
   session_id?: string | null;
+}
+
+export function checkoutStartTier(query: TicketQuery): PassTier | null {
+  return query.checkout === "start" || query.checkout === "preview" ? passTier(query.tier) : null;
 }
 
 /** Old /passport links open Tickets and keep the checkout query. */

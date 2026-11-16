@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Pressable, StyleSheet, View, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { checkoutDismissPlan, hasCheckoutMarker, holdCheckout, withCheckoutMarker } from "@/logic/checkoutDismiss";
-import { CHECKOUT_SOON, confirmedPayment, stripePublishableKey, type PassTier } from "@/logic/passPay";
+import { confirmedPayment, stripePublishableKey, type PassTier } from "@/logic/passPay";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 import { notchPadding } from "./notch";
@@ -33,6 +33,8 @@ export function PassCheckout({
   const insets = useSafeAreaInsets();
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [message, setMessage] = useState<string | null>(preview ? null : "Opening checkout");
+  const onBookedRef = useRef(onBooked);
+  onBookedRef.current = onBooked;
   const dismiss = useCheckoutDismiss(onClose);
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export function PassCheckout({
               .then(async (response) => {
                 const status = response.ok ? await response.json() : {};
                 if (!live) return;
-                if (confirmedPayment(status, tier)) onBooked();
+                if (confirmedPayment(status, tier)) onBookedRef.current();
                 else setMessage("Your payment is still being confirmed. Check your confirmation email before trying again.");
               })
               .catch(() => { if (live) setMessage("We couldn't check your payment yet. Check your confirmation email before trying again."); });
@@ -88,14 +90,14 @@ export function PassCheckout({
         setMessage(null);
       } catch {
         if (!live) return;
-        setMessage(CHECKOUT_SOON);
+        setMessage("Checkout could not load. Close this screen and try again. No payment has been taken here.");
       }
     })();
     return () => {
       live = false;
       holdCheckout(null);
     };
-  }, [email, onBooked, preview, secretBody, secretPath, tier]);
+  }, [email, preview, secretBody, secretPath, tier]);
 
   const sheet = (
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Checkout">

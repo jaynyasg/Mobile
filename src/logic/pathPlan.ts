@@ -138,15 +138,15 @@ export function pathRank(step: Pick<PathStep, "id">, _answers: IntakeAnswers): n
 
 export interface PathLink {
   pathname: "/tickets" | "/agenda" | "/stays" | "/routes" | "/community" | "/explore";
-  params?: { areas: string } | { build: "1" } | { tier: PassTier };
+  params?: { areas: string } | { build: "1" } | { tier: PassTier; checkout: "start" };
 }
 
-/** Where a path step opens. The pass step always lands on Tickets, in the app. */
+/** A selected ticket opens its checkout; undecided guests can compare tickets. */
 export function pathDestination(
   stepId: PathStep["id"],
   answers: Pick<IntakeAnswers, "areas" | "needsStay" | "ticketPreference"> = { areas: [], needsStay: "skipped" },
 ): PathLink {
-  if (stepId === "pass") return answers.ticketPreference ? { pathname: "/tickets", params: { tier: answers.ticketPreference } } : { pathname: "/tickets" };
+  if (stepId === "pass") return answers.ticketPreference ? { pathname: "/tickets", params: { tier: answers.ticketPreference, checkout: "start" } } : { pathname: "/tickets" };
   if (stepId === "explore") return { pathname: "/explore" };
   if (stepId === "sessions") return { pathname: "/agenda" };
   if (stepId === "stay") {

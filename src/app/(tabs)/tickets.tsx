@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Image, Platform, Pressable, ScrollView, StyleSheet, View, type ViewStyle } from "react-native";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PassCheckout } from "@/components/PassCheckout";
 import { QrMark } from "@/components/QrMark";
@@ -11,6 +11,7 @@ import { useContent } from "@/content/provider";
 import { readContactPrefs } from "@/logic/contactPrefs";
 import { notePassPurchased, readIntake, writeIntake } from "@/logic/intake";
 import { ticketGuide } from "@/content/tickets";
+import { checkoutStartTier } from "@/logic/ticketsRoute";
 import { readOwnedPass, writeOwnedPass } from "@/logic/ownedPass";
 import { CHECKOUT_SOON, confirmedPayment, canEmbedCheckout, passOffer, passTier, type PassTier } from "@/logic/passPay";
 import { passPayload } from "@/logic/state";
@@ -25,16 +26,8 @@ import { nightGlass } from "@/components/nightGlass";
 import { StepBridge } from "@/components/StepBridge";
 
 function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string | string[]; session_id?: string | string[] }) {
-  const fromRouter = (value: string | string[] | undefined) => (typeof value === "string" ? value : null);
-  if (typeof window === "undefined") {
-    return { checkout: fromRouter(params.checkout), tier: fromRouter(params.tier), sessionId: fromRouter(params.session_id) };
-  }
-  const search = new URLSearchParams(window.location.search);
-  return {
-    checkout: search.get("checkout") ?? fromRouter(params.checkout),
-    tier: search.get("tier") ?? fromRouter(params.tier),
-    sessionId: search.get("session_id") ?? fromRouter(params.session_id),
-  };
+  const fromRouter = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? null;
+  return { checkout: fromRouter(params.checkout), tier: fromRouter(params.tier), sessionId: fromRouter(params.session_id) };
 }
 
 function readHold(): { owned: boolean; tier: PassTier | null } {
@@ -46,32 +39,25 @@ function readHold(): { owned: boolean; tier: PassTier | null } {
 
 export default function TicketsScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { program } = useContent();
   const { email, userId } = useAuth();
   const { state } = useApp();
   const params = useLocalSearchParams<{ checkout?: string; tier?: string; session_id?: string }>();
+  const checkoutQuery = readCheckoutQuery(params);
+  const requestedTier = checkoutStartTier(checkoutQuery);
   const { passes } = program;
   const recommended = passTier(params.tier) ?? readIntake(webStorage())?.ticketPreference;
   const [passId, setPassId] = useState(() => readHold().tier ?? recommended ?? passes.items[0]?.id ?? "");
   const [shown, setShown] = useState(false);
   const [hold, setHold] = useState(readHold);
-  const [paying, setPaying] = useState<PassTier | null>(() => {
-    if (typeof window === "undefined") return null;
-    const search = new URLSearchParams(window.location.search);
-    if (search.get("checkout") !== "preview" || search.get("tier") === "vip") return null;
-    return passTier(search.get("tier"));
-  });
-  const [starting, setStarting] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const search = new URLSearchParams(window.location.search);
-    return search.get("checkout") === "preview" && search.get("tier") === "vip";
-  });
+  const [paying, setPaying] = useState<PassTier | null>(requestedTier !== "vip" ? requestedTier : null);
+  const [starting, setStarting] = useState(requestedTier === "vip");
   const [booked, setBooked] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const [catalog, setCatalog] = useState(false);
   const pass = passes.items.find((item) => item.id === passId) ?? passes.items[0];
 
-  const checkoutQuery = readCheckoutQuery(params);
   const refreshHold = useCallback(() => setHold(readHold()), []);
 
   useFocusEffect(useCallback(() => {
@@ -79,16 +65,17 @@ export default function TicketsScreen() {
   }, [refreshHold]));
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const search = new URLSearchParams(window.location.search);
-    if (search.get("checkout") !== "preview") return;
-    if (search.get("tier") === "vip") {
-      setStarting(true);
-      return;
-    }
-    const tier = passTier(search.get("tier"));
-    if (tier) setPaying(tier);
-  }, []);
+    if (!requestedTier) return;
+    setStarting(requestedTier === "vip");
+    setPaying(requestedTier === "vip" ? null : requestedTier);
+    setCancelled(false);
+  }, [requestedTier, checkoutQuery.checkout]);
+
+  function closeCheckout() {
+    setPaying(null);
+    setStarting(false);
+    if (requestedTier) router.replace({ pathname: "/tickets", params: { tier: requestedTier } });
+  }
 
   useEffect(() => {
     if (!booked) return;
@@ -121,7 +108,7 @@ export default function TicketsScreen() {
 
   function buy(id: string) {
     const tier = passTier(id);
-    if (!tier || !checkoutReady) return;
+    if (!tier || (tier !== "vip" && !checkoutReady)) return;
     const intake = readIntake(webStorage());
     if (intake) writeIntake(webStorage(), { ...intake, ticketPreference: tier });
     if (tier === "vip") {
@@ -195,6 +182,7 @@ export default function TicketsScreen() {
             const tier = passTier(item.id);
             const guide = tier ? ticketGuide[tier] : null;
             const ownsThis = hold.owned && hold.tier === item.id;
+            const canBook = item.id === "vip" || checkoutReady;
             return (
               <View key={item.id} style={[styles.passCard, item.id === recommended && styles.recommended]} testID={`ticket-${item.id}`}>
                 {item.id === recommended && !hold.owned ? <T variant="eyebrow" color={colors.gold}>Suggested for your travel style</T> : null}
@@ -214,9 +202,9 @@ export default function TicketsScreen() {
                 <Pressable
                 key={item.id}
                 accessibilityRole="button"
-                accessibilityState={{ disabled: ownsThis ? false : !checkoutReady }}
-                accessibilityLabel={ownsThis ? `Your ${item.name} ticket` : checkoutReady ? (item.id === "vip" ? "Start a Be on Board booking" : `Book ${item.name}`) : `${CHECKOUT_SOON}, ${item.name}`}
-                disabled={ownsThis ? false : !checkoutReady}
+                accessibilityState={{ disabled: ownsThis ? false : !canBook }}
+                accessibilityLabel={ownsThis ? `Your ${guide?.name ?? item.name} ticket` : canBook ? (item.id === "vip" ? "Start a Be on Board booking" : `Book ${guide?.name ?? item.name}`) : `${CHECKOUT_SOON}, ${guide?.name ?? item.name}`}
+                disabled={ownsThis ? false : !canBook}
                 onPress={() => {
                   if (ownsThis) {
                     setPassId(item.id);
@@ -225,9 +213,9 @@ export default function TicketsScreen() {
                   }
                   buy(item.id);
                 }}
-                style={[styles.pill, !ownsThis && !checkoutReady && styles.pillOff]}
+                style={[styles.pill, !ownsThis && !canBook && styles.pillOff]}
               >
-                  <T variant="button" color={colors.ink}>{ownsThis ? "View my ticket" : checkoutReady ? (item.id === "vip" ? "Start a group booking" : `Book ${guide?.name ?? item.name}`) : CHECKOUT_SOON}</T>
+                  <T variant="button" color={colors.ink}>{ownsThis ? "View my ticket" : canBook ? (item.id === "vip" ? "Start a group booking" : `Book ${guide?.name ?? item.name}`) : CHECKOUT_SOON}</T>
               </Pressable>
               </View>
             );
@@ -260,14 +248,14 @@ export default function TicketsScreen() {
       {paying && payingPass && paying !== "vip" ? (
         <PassCheckout
           tier={paying}
-          title={payingPass.name}
+          title={ticketGuide[paying].name}
           detail={`${payingPass.price} ${payingPass.unit}`}
           email={email}
           preview={checkoutQuery.checkout === "preview"}
-          onClose={() => setPaying(null)}
+          onClose={closeCheckout}
           onBooked={() => {
             writeOwnedPass(webStorage(), paying);
-            setPaying(null);
+            closeCheckout();
             setBooked(true);
           }}
         />
@@ -278,7 +266,7 @@ export default function TicketsScreen() {
           name={state.profile.name}
           phone={readContactPrefs(webStorage())?.phone ?? null}
           userId={userId}
-          onClose={() => setStarting(false)}
+          onClose={closeCheckout}
         />
       ) : null}
       {booked ? (

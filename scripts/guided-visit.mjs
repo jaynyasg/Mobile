@@ -60,9 +60,12 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "Help me find a place");
       await click(page, "Tech");
       await click(page, "See my plan");
-      await click(page, "Find my ticket");
+      await click(page, "Continue to checkout");
       await page.waitForURL(/\/tickets\?tier=boat/);
-      await click(page, "Enter Tickets");
+      await page.getByLabel("Checkout", { exact: true }).waitFor();
+      assert.equal(new URL(page.url()).searchParams.get("checkout"), "start");
+      await click(page, "Close checkout");
+      await page.waitForURL(url => !url.searchParams.has("checkout"));
       await page.getByTestId("ticket-boat").waitFor();
       assert.deepEqual(await page.locator('[data-testid^="ticket-"]').evaluateAll((nodes) => nodes.map((node) => node.dataset.testid)), ["ticket-boat", "ticket-beach", "ticket-vip"]);
       assert.equal(await page.getByTestId("pass-next-step").evaluate((footer) => Boolean(document.querySelector('[data-testid="ticket-vip"]').compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING)), true);
