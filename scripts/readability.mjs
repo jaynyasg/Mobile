@@ -176,6 +176,58 @@ async function readProblems(page) {
   });
 }
 
+/** Text cut by a box that does not scroll, or parked outside the main scroller. */
+async function clippedOrUnreachable(page) {
+  return page.evaluate(() => {
+    const problems = [];
+    const scrollers = [...document.querySelectorAll("*")].filter((el) => {
+      const style = getComputedStyle(el);
+      const oy = style.overflowY;
+      return (oy === "auto" || oy === "scroll" || oy === "hidden") && el.scrollHeight > el.clientHeight + 8;
+    });
+    const main = scrollers.sort((a, b) => (b.scrollHeight - b.clientHeight) - (a.scrollHeight - a.clientHeight))[0] ?? null;
+
+    for (const el of document.querySelectorAll("body *")) {
+      const textNode = [...el.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+      if (!textNode) continue;
+      const text = textNode.textContent.trim().replace(/\s+/g, " ");
+      if (!text) continue;
+      const style = getComputedStyle(el);
+      if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) continue;
+      const rect = el.getBoundingClientRect();
+      if (rect.height < 2 || rect.width < 2) continue;
+
+      let parent = el.parentElement;
+      while (parent && parent !== document.body) {
+        const parentStyle = getComputedStyle(parent);
+        const oy = parentStyle.overflowY;
+        const clips = oy === "hidden" || oy === "clip" || oy === "auto" || oy === "scroll";
+        const scrolls = parent.scrollHeight > parent.clientHeight + 4 && (oy === "auto" || oy === "scroll" || oy === "hidden");
+        if (scrolls) break;
+        if (clips) {
+          const box = parent.getBoundingClientRect();
+          const seen = Math.min(rect.bottom, box.bottom) - Math.max(rect.top, box.top);
+          if (seen < rect.height - 4) problems.push({ kind: "clipped", text: text.slice(0, 90) });
+          break;
+        }
+        parent = parent.parentElement;
+      }
+
+      if (!main || !main.contains(el)) continue;
+      const host = main.getBoundingClientRect();
+      const top = rect.top - host.top + main.scrollTop;
+      const height = rect.height;
+      const view = main.clientHeight;
+      const maxScroll = Math.max(0, main.scrollHeight - view);
+      const unreachable = height <= view + 1
+        ? Math.max(0, top + height - view) > Math.min(maxScroll, top) + 2
+        : top < -2 || top > maxScroll + 2 || top + height - view < -2 || top + height - view > maxScroll + 2;
+      if (unreachable) problems.push({ kind: "unreachable", text: text.slice(0, 90) });
+    }
+    return problems;
+  });
+}
+
 async function sweep(page) {
   const found = [];
   for (let step = 0; step < 14; step += 1) {
@@ -239,7 +291,7 @@ try {
           await dismissChrome(page);
           await scaleText(page, scale);
           await page.waitForTimeout(80);
-          const issues = await sweep(page);
+          const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];
           for (const issue of issues) failures.push({ ...issue, where: `${label} ${route}` });
           if (issues.length) console.error(`FAIL ${label} ${route}: ${issues.map((item) => `${item.kind}: ${item.text}`).join(" | ")}`);
           else console.log(`ok ${label} ${route}`);
@@ -251,12 +303,12 @@ try {
           await dismissChrome(page);
           await scaleText(page, scale);
           if (await clickIf(page, "What is TATEL")) {
-            const issues = await sweep(page);
+            const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];
             for (const issue of issues) failures.push({ ...issue, where: `${label} / story` });
             await clickIf(page, "Skip");
           }
           if (await clickIf(page, "Retake questions")) {
-            const issues = await sweep(page);
+            const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];
             for (const issue of issues) failures.push({ ...issue, where: `${label} / questions` });
             await clickIf(page, "Skip");
           }
@@ -264,7 +316,7 @@ try {
           await page.waitForTimeout(300);
           await scaleText(page, scale);
           if (await clickIf(page, "Filter")) {
-            const issues = await sweep(page);
+            const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];
             for (const issue of issues) failures.push({ ...issue, where: `${label} /agenda filter` });
             await clickIf(page, "Done");
           }
@@ -272,7 +324,7 @@ try {
           await page.waitForTimeout(300);
           await scaleText(page, scale);
           if (await clickIf(page, "Scan an island code")) {
-            const issues = await sweep(page);
+            const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];
             for (const issue of issues) failures.push({ ...issue, where: `${label} /explore scan` });
             await clickIf(page, "Close scanner");
           }
