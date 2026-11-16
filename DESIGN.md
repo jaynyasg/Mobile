@@ -73,6 +73,8 @@ Require valid name, email, phone, and boat preference before Board booking. A gr
 
 Ask for infrastructure and sub-infrastructure in the opening questions. Use those saved answers to put matching island options and session cards at the top of Accommodations and Sessions. Keep choice editing and optional goal refinement available without repeating the questionnaire on entry. Show booking guidance and next-step actions after the options.
 
+Present the opening summary as the guest's plan based on their choices. Name the suggested ticket once in its numbered step. After verified payment, briefly confirm success and automatically continue to the next unfinished step. Offer an explicit booking-later action inside checkout and Board booking; it continues the plan without recording a purchase. Back and Close still let guests review or change their ticket.
+
 ## Verification
 
 Use the existing typecheck, tests, guided-visit browser checks, and readability sweep when changes affect their coverage. Check phone layouts at 320×568 and 390×844, larger text, and browser/standalone behavior. iPhone installation instructions must explain Safari's Add to Home Screen flow; an actual device is needed to verify the final operating-system action.

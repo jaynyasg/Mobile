@@ -18,7 +18,7 @@ A guest confirms accommodation after booking with the property. Opening a provid
 
 Questions said not-yet and yes. Pass and stay were then finished in the app.
 
-| 1. Choose your ticket ✓ — Stay ashore, sail by day, or live aboard.<br>2. Find your accommodation ✓ — Choose your island and a place to stay.<br>3. Select your sessions — Every area<br>4. Explore TATEL — Meet the people. Discover the islands. Plan your route. |
+| 1. Choose your ticket ✓ — Your ticket is saved. You're ready for your next step.<br>2. Find your accommodation ✓ — Choose your island and a place to stay.<br>3. Select your sessions — Every area<br>4. Explore TATEL — Meet the people. Discover the islands. Plan your route. |
 
 ## Pass and stay
 

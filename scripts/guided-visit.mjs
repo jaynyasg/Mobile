@@ -237,21 +237,15 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
     await checkout.goto(`${base}/tickets?checkout=return&session_id=local-test-unpaid`);
     await visible(checkout, "Check your payment");
     assert.equal(await checkout.evaluate(() => localStorage.getItem("tatel.ownedPass.v1")), null);
-    await click(checkout, "Close payment message");
-    await click(checkout, "I'll book my ticket later");
+    await checkout.getByLabel("Check your payment", { exact: true }).getByRole("button", { name: "I'll book my ticket later", exact: true }).click();
     await checkout.waitForURL(/\/agenda/);
     await click(checkout, "Enter Sessions");
     paid = true;
     await checkout.goto(`${base}/tickets?checkout=return&session_id=local-test-paid`);
-    await visible(checkout, "You're booked");
-    assert.equal(await checkout.evaluate(() => localStorage.getItem("tatel.ownedPass.v1")), "beach");
-    const closeNotice = checkout.getByRole("button", { name: "Close booking", exact: true });
-    await closeNotice.scrollIntoViewIfNeeded();
-    assert.equal(await closeNotice.evaluate((button) => { const box = button.getBoundingClientRect(); return button.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)); }), true, "Navigation must not cover the payment confirmation");
-    await screenshot(checkout, `${engineName}-payment-confirmation`);
-    await checkout.getByLabel("You're booked", { exact: true }).getByRole("button", { name: "Continue · Select your sessions", exact: true }).click();
     await checkout.waitForURL(/\/agenda/);
+    assert.equal(await checkout.evaluate(() => localStorage.getItem("tatel.ownedPass.v1")), "beach");
     await click(checkout, "Enter Sessions");
+    await screenshot(checkout, `${engineName}-after-payment`);
     await payment.close();
     console.log(`${engineName}: mocked payment verification and already-arranged stay passed`);
   } finally {

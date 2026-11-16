@@ -1,4 +1,5 @@
 import type { PassTier } from "./passPay";
+import { ticketGuide } from "../content/tickets";
 
 export const PASS_CHOICES = ["have", "not-yet", "unsure", "skipped"] as const;
 export const STAY_CHOICES = ["yes", "booked", "browsing", "skipped"] as const;
@@ -67,7 +68,8 @@ function asStay(value: StayAnswer | null | undefined): StayAnswer {
   return STAY_CHOICES.includes(value as StayAnswer) ? (value as StayAnswer) : "skipped";
 }
 
-function passStep(hasPass: PassAnswer): DraftStep {
+function passStep(hasPass: PassAnswer, tier?: PassTier | null): DraftStep {
+  if (tier) return { id: "pass", title: ticketGuide[tier].name, line: "Your suggested ticket. Review the details and book when you're ready.", optional: hasPass === "skipped", done: false };
   if (hasPass === "unsure") {
     return { id: "pass", title: "Compare tickets", line: "Find your way to experience TATEL.", optional: false, done: false };
   }
@@ -114,7 +116,7 @@ export function buildPath(
     return finished.has(id);
   };
   const steps: DraftStep[] = [];
-  if (!holdsPass(normalized, pathState)) steps.push({ ...passStep(normalized.hasPass), done: done("pass") });
+  if (!holdsPass(normalized, pathState)) steps.push({ ...passStep(normalized.hasPass, pathState.ownedTier ?? answers.ticketPreference), ...(done("pass") ? { line: "Your ticket is saved. You're ready for your next step." } : {}), done: done("pass") });
   steps.push({ id: "sessions", title: "Select your sessions", line: areaLine, optional: false, done: done("sessions") });
   const onboard = (pathState.ownedTier ?? answers.ticketPreference) === "vip";
   if (!stayBooked(normalized) && (!onboard || normalized.needsStay === "yes")) steps.push({ ...stayStep(normalized.needsStay), ...(onboard ? { title: "Arrange extra nights", line: "Find a hotel for before or after your charter." } : {}), done: done("stay") });
@@ -163,6 +165,11 @@ export function orderPath<T extends Pick<PathStep, "id">>(steps: readonly T[], a
     .map((step, index) => ({ step, index }))
     .sort((a, b) => pathRank(a.step, answers) - pathRank(b.step, answers) || a.index - b.index)
     .map((item) => item.step);
+}
+
+/** Continue through the same ordered plan, leaving completed arrangements out. */
+export function nextPathStep(steps: readonly PathStep[], after: PathStep["id"]): PathStep | undefined {
+  return steps.slice(steps.findIndex((step) => step.id === after) + 1).find((step) => !step.done);
 }
 
 export function areaSubsets(pillars: readonly PathPillar[]): string[][] {

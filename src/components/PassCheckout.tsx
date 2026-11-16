@@ -11,6 +11,7 @@ export function PassCheckout(_props: {
   secretBody?: string;
   onClose: () => void;
   onBooked?: () => void;
+  onLater?: () => void;
 }) {
   return null;
 }

@@ -7,6 +7,7 @@ export function VipStart(props: {
   phone?: string | null;
   userId?: string | null;
   onClose: () => void;
+  onLater?: () => void;
 }) {
   const sheet = <VipStartSheet {...props} />;
   if (typeof document === "undefined") return sheet;
