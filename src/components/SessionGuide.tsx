@@ -61,7 +61,7 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
 
   function choice(id: string, title: string, line: string, dimension: keyof SessionPreferences, areaLabel?: string) {
     const selected = (preferences[dimension] as string[]).includes(id);
-    return <Pressable key={id} accessibilityRole="checkbox" accessibilityLabel={title} accessibilityState={{ checked: selected }} onPress={() => toggle(dimension, id)} style={[styles.option, selected && styles.selected]}>
+    return <Pressable key={id} accessibilityRole="checkbox" accessibilityLabel={title} accessibilityState={{ checked: selected }} aria-checked={selected} onPress={() => toggle(dimension, id)} style={[styles.option, selected && styles.selected]}>
       <T variant="rowTitle" color={colors.gold}>{selected ? "✓ " : ""}{title}</T>
       <T variant="small">{line}</T>
       {areaLabel ? <T variant="meta" color={colors.gold}>{areaLabel}</T> : null}

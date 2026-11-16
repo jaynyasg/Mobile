@@ -126,7 +126,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       for (const field of [...techFields, "MedTech", "TravelTech", "HospitalityTech"]) assert.ok(combined.includes(field), `${field} is included from the selected areas`);
       assert.equal(new Set(combined).size, combined.length, "Shared fields are offered once");
       await fields.getByRole("button", { name: "EdTech", exact: true }).getByText("In Tech · AI", { exact: true }).waitFor();
-      assert.equal(await fields.getByRole("button", { name: "✓ AgriTech", exact: true }).count(), 1, "Adding areas preserves previous choices");
+      assert.equal(await fields.getByRole("button", { name: "✓ AgriTech", exact: true }).getAttribute("aria-pressed"), "true", "Adding areas preserves previous choices");
       await click(multi, "MedTech");
       await click(multi, "HospitalityTech");
       await fields.getByRole("button", { name: "✓ HospitalityTech", exact: true }).scrollIntoViewIfNeeded();

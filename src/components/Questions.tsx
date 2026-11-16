@@ -41,7 +41,7 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
     setInterests((current) => current.filter((interest) => available.some((topic) => topic.id === interest)));
   }
   const option = (key: string, title: string, line: string, action: () => void, selected = false, areaLabel?: string) => (
-    <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={title} onPress={action} style={[styles.tile, selected && styles.selected]}>
+    <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected }} aria-pressed={step === 3 || step === 4 ? selected : undefined} accessibilityLabel={title} onPress={action} style={[styles.tile, selected && styles.selected]}>
       <T variant="rowTitle" color={colors.foam}>{title}</T>
       <T variant="small" color={colors.foam}>{line}</T>
       {areaLabel ? <T variant="meta" color={colors.gold}>{areaLabel}</T> : null}
