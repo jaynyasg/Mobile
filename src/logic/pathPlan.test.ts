@@ -66,6 +66,6 @@ describe("guided visit", () => {
     }
   });
   it("keeps the review matrix current", () => {
-    expect(readFileSync("docs/home-path-matrix.md", "utf8")).toBe(homePathMatrixMarkdown(pillars));
+    expect(readFileSync("docs/home-path-matrix.md", "utf8").replace(/\r\n/g, "\n")).toBe(homePathMatrixMarkdown(pillars));
   });
 });

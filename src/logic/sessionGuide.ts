@@ -34,7 +34,12 @@ export function sessionGoal(phase: string) {
 }
 
 export function availableSubtopics(sessions: readonly Session[], areas: readonly string[]) {
-  return TECH_INTERESTS.map((id) => ({ id, line: SUBTOPIC_COPY[id], count: sessions.filter((session) => (!areas.length || areas.includes(session.pillarId)) && sessionInterest(session) === id).length })).filter((item) => item.count > 0);
+  // Combine all selected areas. A shared field appears once, with all of its matching areas.
+  const included = sessions.filter((session) => !areas.length || areas.includes(session.pillarId));
+  return TECH_INTERESTS.map((id) => {
+    const matches = included.filter((session) => sessionInterest(session) === id);
+    return { id, line: SUBTOPIC_COPY[id], count: matches.length, areaIds: [...new Set(matches.map((session) => session.pillarId))] };
+  }).filter((item) => item.count > 0);
 }
 
 /** Match every selected dimension; never label an unrelated fallback as a match. */

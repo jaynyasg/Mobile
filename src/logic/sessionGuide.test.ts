@@ -18,6 +18,38 @@ describe("guided session selection", () => {
       expect(topics.every((topic) => topic.count > 0)).toBe(true);
     }
   });
+  it("combines fields from every selected infrastructure area without duplicating shared fields", () => {
+    const example = sessions[0];
+    const program = [
+      { ...example, id: "farm", pillarId: "tech", title: "Local food", description: "" },
+      { ...example, id: "tech-health", pillarId: "tech", title: "Health services", description: "" },
+      { ...example, id: "ai-health", pillarId: "ai", title: "Health services", description: "" },
+      { ...example, id: "travel", pillarId: "travel", title: "Charter bookings", description: "" },
+      { ...example, id: "law", pillarId: "law", title: "Legal rights", description: "" },
+    ];
+    const topics = availableSubtopics(program, ["tech", "ai", "travel"]);
+    expect(topics.map((topic) => topic.id)).toEqual(["AgriTech", "MedTech", "TravelTech"]);
+    expect(topics.find((topic) => topic.id === "MedTech")).toMatchObject({ count: 2, areaIds: ["tech", "ai"] });
+    expect(topics.find((topic) => topic.id === "TravelTech")).toMatchObject({ count: 1, areaIds: ["travel"] });
+    const matches = guidedSessions(program, { areas: ["tech", "ai", "travel"], interests: ["AgriTech", "MedTech", "TravelTech"], goals: [] });
+    expect(new Set(matches.map((session) => session.id))).toEqual(new Set(["farm", "tech-health", "ai-health", "travel"]));
+  });
+  it("covers the union for every combination of the five infrastructure areas", () => {
+    const areas = ["tech", "ai", "travel", "entertainment", "law"];
+    for (let mask = 0; mask < 32; mask++) {
+      const selected = areas.filter((_, index) => mask & (1 << index));
+      const included = selected.length ? selected : areas;
+      const expected = new Set(included.flatMap((area) => availableSubtopics(sessions, [area]).map((topic) => topic.id)));
+      const topics = availableSubtopics(sessions, selected);
+      expect(new Set(topics.map((topic) => topic.id))).toEqual(expected);
+      expect(topics).toHaveLength(expected.size);
+      for (const topic of topics) {
+        const matches = sessions.filter((session) => included.includes(session.pillarId) && sessionInterest(session) === topic.id);
+        expect(topic.count).toBe(matches.length);
+        expect(new Set(topic.areaIds)).toEqual(new Set(matches.map((session) => session.pillarId)));
+      }
+    }
+  });
   it("keeps open choices broad and does not replace an empty match with unrelated featured sessions", () => {
     expect(guidedSessions(sessions, { areas: [], interests: [], goals: [] })).toHaveLength(sessions.length);
     expect(guidedSessions(sessions, { areas: ["missing"], interests: [], goals: [] })).toEqual([]);
