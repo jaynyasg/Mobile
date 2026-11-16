@@ -19,6 +19,7 @@ export function PassCheckout({
   secretBody,
   onClose,
   onBooked,
+  onLater,
 }: {
   tier: PassTier;
   title: string;
@@ -29,13 +30,14 @@ export function PassCheckout({
   secretBody?: string;
   onClose: () => void;
   onBooked: () => void;
+  onLater?: () => void;
 }) {
   const insets = useSafeAreaInsets();
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [message, setMessage] = useState<string | null>(preview ? null : "Opening checkout");
   const onBookedRef = useRef(onBooked);
   onBookedRef.current = onBooked;
-  const dismiss = useCheckoutDismiss(onClose);
+  const { dismiss, finishWith } = useCheckoutDismiss(onClose);
 
   useEffect(() => {
     if (preview) return;
@@ -72,7 +74,7 @@ export function PassCheckout({
               .then(async (response) => {
                 const status = response.ok ? await response.json() : {};
                 if (!live) return;
-                if (confirmedPayment(status, tier)) onBookedRef.current();
+                if (confirmedPayment(status, tier)) finishWith(() => onBookedRef.current());
                 else setMessage("Your payment is still being confirmed. Check your confirmation email before trying again.");
               })
               .catch(() => { if (live) setMessage("We couldn't check your payment yet. Check your confirmation email before trying again."); });
@@ -124,16 +126,22 @@ export function PassCheckout({
           {preview ? <CheckoutMock /> : <View ref={mountRef as never} style={styles.mount} />}
         </View>
       </View>
+      {onLater ? <View style={[styles.later, notchPadding("bottom", 8, insets.bottom)]}>
+        <Pressable accessibilityRole="button" onPress={() => finishWith(onLater)} style={styles.laterButton}>
+          <T variant="button" color={colors.gold}>I'll book my ticket later</T>
+        </Pressable>
+      </View> : null}
     </View>
   );
   if (typeof document === "undefined") return sheet;
   return createPortal(sheet, document.body);
 }
 
-function useCheckoutDismiss(onClose: () => void): () => void {
+function useCheckoutDismiss(onClose: () => void) {
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const armed = useRef(false);
+  const afterDismiss = useRef<(() => void) | null>(null);
   const dismissRef = useRef<() => void>(() => onClose());
 
   useEffect(() => {
@@ -144,7 +152,9 @@ function useCheckoutDismiss(onClose: () => void): () => void {
     const finish = () => {
       if (!armed.current) return;
       armed.current = false;
-      onCloseRef.current();
+      const action = afterDismiss.current ?? onCloseRef.current;
+      afterDismiss.current = null;
+      action();
     };
     const dismiss = () => {
       if (!armed.current) return;
@@ -173,7 +183,14 @@ function useCheckoutDismiss(onClose: () => void): () => void {
     };
   }, []);
 
-  return () => dismissRef.current();
+  return {
+    dismiss: () => dismissRef.current(),
+    finishWith: (action: () => void) => {
+      if (!armed.current || afterDismiss.current) return;
+      afterDismiss.current = action;
+      dismissRef.current();
+    },
+  };
 }
 
 function CheckoutMock() {
@@ -218,6 +235,8 @@ const styles = StyleSheet.create({
   },
   barHit: { minWidth: 64, minHeight: 44, alignItems: "center", justifyContent: "center", paddingHorizontal: 8 },
   barTitle: { flex: 1, minWidth: 0 },
+  later: { flexShrink: 0, paddingHorizontal: 16, backgroundColor: "#071B2A", borderTopWidth: 1, borderTopColor: "rgba(255,224,138,0.3)" },
+  laterButton: { minHeight: 44, alignItems: "center", justifyContent: "center", paddingVertical: 10 },
   mark: { fontSize: 22, lineHeight: 26 },
   scroll: { flex: 1, minHeight: 0, overflow: "scroll" },
   card: { margin: 12, padding: 16, gap: 10, borderRadius: 22, ...nightGlass, backgroundColor: "rgba(7,27,42,0.92)" },

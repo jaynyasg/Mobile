@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { forum } from "../content";
-import { PASS_CHOICES, STAY_CHOICES, areaSubsets, buildPath, homePathMatrixMarkdown, pathDestination } from "./pathPlan";
+import { PASS_CHOICES, STAY_CHOICES, areaSubsets, buildPath, homePathMatrixMarkdown, nextPathStep, pathDestination } from "./pathPlan";
 
 const pillars = forum.pillars;
 describe("guided visit", () => {
@@ -40,6 +40,30 @@ describe("guided visit", () => {
     expect(pathDestination("stay", { areas: ["tech"], needsStay: "yes" })).toEqual({ pathname: "/stays", params: { areas: "tech" } });
     expect(pathDestination("sessions")).toEqual({ pathname: "/agenda" });
     expect(pathDestination("explore")).toEqual({ pathname: "/explore" });
+  });
+  it("names the suggested ticket in the plan and uses the purchased ticket after a change", () => {
+    for (const [ticketPreference, title] of [["beach", "Be on the Beach"], ["boat", "Be on the Boat"], ["vip", "Be on Board"]] as const) {
+      const answers = { hasPass: "not-yet" as const, needsStay: "yes" as const, areas: [], ticketPreference };
+      expect(buildPath(answers, pillars)[0]).toMatchObject({ title, line: expect.stringContaining("suggested ticket"), done: false });
+      expect(buildPath(answers, pillars, { ownedTier: "boat" })[0]).toMatchObject({ title: "Be on the Boat", line: expect.stringContaining("ticket is saved"), done: true });
+    }
+  });
+  it("continues to the same next unfinished step after paying or choosing to book later", () => {
+    const answers = { hasPass: "not-yet" as const, needsStay: "yes" as const, areas: ["tech"], ticketPreference: "beach" as const };
+    for (const ownedTier of [undefined, "beach"] as const) {
+      expect(nextPathStep(buildPath(answers, pillars, { ownedTier }), "pass")?.id).toBe("stay");
+      expect(nextPathStep(buildPath(answers, pillars, { ownedTier, completed: ["stay"], savedSessionCount: 0 }), "pass")?.id).toBe("sessions");
+      expect(nextPathStep(buildPath(answers, pillars, { ownedTier, completed: ["stay"], savedSessionCount: 1 }), "pass")?.id).toBe("explore");
+    }
+    expect(buildPath(answers, pillars)[0].done).toBe(false);
+    expect(nextPathStep(buildPath({ ...answers, hasPass: "have", needsStay: "booked" }, pillars), "pass")?.id).toBe("sessions");
+  });
+  it("continues Board guests to sessions unless their plan includes extra nights", () => {
+    const answers = { hasPass: "not-yet" as const, needsStay: "browsing" as const, areas: [], ticketPreference: "vip" as const };
+    for (const ownedTier of [undefined, "vip"] as const) {
+      expect(nextPathStep(buildPath(answers, pillars, { ownedTier }), "pass")?.id).toBe("sessions");
+      expect(nextPathStep(buildPath({ ...answers, needsStay: "yes" }, pillars, { ownedTier }), "pass")?.title).toBe("Arrange extra nights");
+    }
   });
   it("keeps the review matrix current", () => {
     expect(readFileSync("docs/home-path-matrix.md", "utf8")).toBe(homePathMatrixMarkdown(pillars));

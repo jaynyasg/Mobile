@@ -24,6 +24,7 @@ import { notchPadding } from "@/components/notch";
 import { scrollPort } from "@/components/scrollPort";
 import { nightGlass } from "@/components/nightGlass";
 import { StepBridge } from "@/components/StepBridge";
+import { useTicketContinuation } from "@/logic/useTicketContinuation";
 
 function readCheckoutQuery(params: { checkout?: string | string[]; tier?: string | string[]; session_id?: string | string[] }) {
   const fromRouter = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? null;
@@ -43,6 +44,7 @@ export default function TicketsScreen() {
   const { program } = useContent();
   const { email, userId } = useAuth();
   const { state } = useApp();
+  const continueAfterTicket = useTicketContinuation();
   const params = useLocalSearchParams<{ checkout?: string; tier?: string; session_id?: string }>();
   const checkoutQuery = readCheckoutQuery(params);
   const requestedTier = checkoutStartTier(checkoutQuery);
@@ -77,17 +79,31 @@ export default function TicketsScreen() {
     if (requestedTier) router.replace({ pathname: "/tickets", params: { tier: requestedTier } });
   }
 
+  function bookLater() {
+    setPaying(null);
+    setStarting(false);
+    setCancelled(false);
+    router.setParams({ checkout: undefined, session_id: undefined });
+    continueAfterTicket();
+  }
+
   useEffect(() => {
     if (!booked) return;
     notePassPurchased(webStorage());
     refreshHold();
-  }, [booked, refreshHold]);
+    router.setParams({ checkout: undefined, session_id: undefined });
+    const timer = setTimeout(() => {
+      setBooked(false);
+      continueAfterTicket();
+    }, 1600);
+    return () => clearTimeout(timer);
+  }, [booked, continueAfterTicket, refreshHold, router]);
 
   useEffect(() => {
     if (checkoutQuery.checkout !== "return" || !checkoutQuery.sessionId) return;
     let live = true;
     fetch(`/api/checkout/status?session_id=${encodeURIComponent(checkoutQuery.sessionId)}`)
-      .then((response) => response.json())
+      .then((response) => response.ok ? response.json() : {})
       .then((body: { status?: string; paymentStatus?: string | null; tier?: string | null }) => {
         if (!live) return;
         if (confirmedPayment(body)) {
@@ -253,6 +269,7 @@ export default function TicketsScreen() {
           email={email}
           preview={checkoutQuery.checkout === "preview"}
           onClose={closeCheckout}
+          onLater={bookLater}
           onBooked={() => {
             writeOwnedPass(webStorage(), paying);
             closeCheckout();
@@ -267,6 +284,7 @@ export default function TicketsScreen() {
           phone={readContactPrefs(webStorage())?.phone ?? null}
           userId={userId}
           onClose={closeCheckout}
+          onLater={bookLater}
         />
       ) : null}
       {booked ? (
@@ -274,11 +292,8 @@ export default function TicketsScreen() {
           <ScrollView style={styles.notice} contentContainerStyle={styles.noticeContent}>
             <T variant="eyebrow" color={colors.gold}>Tickets</T>
             <T variant="title" color={colors.foam}>You're booked</T>
-            <T variant="small" color={colors.foam}>Your payment is complete. Continue with your personal plan to get ready for TATEL.</T>
+            <T variant="small" color={colors.foam}>Your payment is complete. We're taking you to the next step in your plan.</T>
             <StepBridge id="pass" footer onContinue={() => setBooked(false)} />
-            <Pressable accessibilityRole="button" accessibilityLabel="Close booking" onPress={() => setBooked(false)} style={styles.pill}>
-              <T variant="button" color={colors.ink}>Done</T>
-            </Pressable>
           </ScrollView>
         </TicketNotice>
       ) : null}
@@ -290,6 +305,9 @@ export default function TicketsScreen() {
             <T variant="small" color={colors.foam}>We couldn't confirm a completed payment. Check your confirmation email before trying again.</T>
             <Pressable accessibilityRole="button" accessibilityLabel="Close payment message" onPress={() => setCancelled(false)} style={styles.pill}>
               <T variant="button" color={colors.ink}>Close</T>
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={bookLater} style={styles.pill}>
+              <T variant="button" color={colors.ink}>I'll book my ticket later</T>
             </Pressable>
           </ScrollView>
         </TicketNotice>

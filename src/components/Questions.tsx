@@ -32,7 +32,7 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
   const path = buildPath(answers, program.forum.pillars);
   const nextLabel = step === 3 ? "Next · Find my sub-infrastructure" : step === 4 ? "See my plan" : path[0]?.id === "pass" ? (ticketPreference === "vip" ? "Start my Board booking" : ticketPreference ? "Continue to checkout" : "Compare tickets") : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
   const photo = step < 2 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
-  const titles = ["Your invitation to something extraordinary.", hasPass === "have" ? "Which ticket do you have?" : "How do you want to experience it?", "Where will you wake up?", "What sparks your ambition?", "Where do you want to make waves?", "This is where your story starts."];
+  const titles = ["Your invitation to something extraordinary.", hasPass === "have" ? "Which ticket do you have?" : "How do you want to experience it?", "Where will you wake up?", "What sparks your ambition?", "Where do you want to make waves?", "Your plan for TATEL."];
   const toggle = (items: string[], item: string) => items.includes(item) ? items.filter((id) => id !== item) : [...items, item];
   function toggleArea(id: string) {
     const next = toggle(areas, id);
@@ -86,9 +86,11 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
             {!topics.length ? <T variant="small" color={colors.foam}>No specific fields are listed for these areas yet. We'll show their available sessions.</T> : null}
           </> : null}
           {step === 5 ? <>
-            <T variant="small" color={colors.foam}>A place for your ambition, your people, and your next adventure. Here's your way in. Your choices are saved on this device; change them from Home whenever inspiration strikes.</T>
-            {ticketPreference ? <T variant="rowTitle" color={colors.gold}>{hasPass === "have" ? "Your ticket" : "Your suggested ticket"}: {ticketGuide[ticketPreference].name}</T> : null}
-            {path.map((item) => <View key={item.id} style={styles.tile}><T variant="rowTitle" color={colors.foam}>{item.number}. {item.title}</T><T variant="small" color={colors.foam}>{item.line}</T></View>)}
+            <T variant="small" color={colors.foam}>This is your plan, based on your choices. We'll guide you through these steps in order. Your answers are saved on this device; you can change them from Home.</T>
+            {ticketPreference && hasPass === "have" ? <T variant="rowTitle" color={colors.gold}>Your ticket: {ticketGuide[ticketPreference].name}</T> : null}
+            <View testID="opening-step-plan" style={styles.plan}>
+              {path.map((item) => <View key={item.id} style={styles.tile}><T variant="rowTitle" color={colors.foam}>{item.number}. {item.title}</T><T variant="small" color={colors.foam}>{item.line}</T></View>)}
+            </View>
           </> : null}
         </ScrollView>
         {step >= 3 ? <Pressable accessibilityRole="button" accessibilityLabel={nextLabel} onPress={() => step < 5 ? setStep(step + 1) : onDone(answers)} style={styles.next}><T variant="button" color={colors.ink}>{nextLabel}</T></Pressable> : null}
@@ -107,6 +109,7 @@ const styles = StyleSheet.create({
   ghost: { minHeight: 44, justifyContent: "center" },
   scroll: { flex: 1, minHeight: 0 },
   body: { gap: 14, paddingVertical: 12, paddingBottom: 24 },
+  plan: { gap: 14 },
   tile: { padding: 18, gap: 6, borderRadius: 16, backgroundColor: "rgba(7,27,42,0.86)", borderWidth: 1, borderColor: "rgba(255,224,138,0.35)" },
   selected: { borderColor: colors.gold, backgroundColor: "rgba(67,58,32,0.9)" },
   next: { minHeight: 52, padding: 14, borderRadius: 28, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },

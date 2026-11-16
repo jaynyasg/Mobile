@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { confirmAccommodation, readIntake } from "@/logic/intake";
 import { readOwnedPass } from "@/logic/ownedPass";
-import { buildPath, pathDestination, type PathStep } from "@/logic/pathPlan";
+import { buildPath, nextPathStep, pathDestination, type PathStep } from "@/logic/pathPlan";
 import { useApp } from "@/store";
 import { useReels } from "@/reels/ReelHost";
 import { colors } from "@/theme";
@@ -41,7 +41,7 @@ export function StepBridge({ id, footer = false, onContinue }: { id: PathStep["i
   const steps = intake ? buildPath(intake, program.forum.pillars, { completed: intake.completed, ownedPass: ownedTier != null, ownedTier, savedSessionCount: saved }) : [];
   const index = steps.findIndex((step) => step.id === id);
   const current = steps[index];
-  const next = steps.slice(index + 1).find((step) => !step.done);
+  const next = id === "know" ? steps.find((step) => !step.done) : nextPathStep(steps, id);
   const complete = current?.done || (id === "pass" && (ownedTier != null || intake?.hasPass === "have")) || (id === "stay" && intake?.needsStay === "booked");
   const block = copy[id];
   function goNext() {

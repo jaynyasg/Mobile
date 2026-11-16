@@ -20,12 +20,14 @@ export function VipStartSheet({
   phone,
   userId,
   onClose,
+  onLater,
 }: {
   email?: string | null;
   name?: string | null;
   phone?: string | null;
   userId?: string | null;
   onClose: () => void;
+  onLater?: () => void;
 }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -162,6 +164,9 @@ export function VipStartSheet({
             </>
           )}
         </ScrollView>
+        {onLater ? <Pressable accessibilityRole="button" onPress={onLater} style={styles.close}>
+          <T variant="button" color={colors.gold}>I'll book my ticket later</T>
+        </Pressable> : null}
         <Pressable accessibilityRole="button" accessibilityLabel="Close booking" onPress={onClose} style={styles.close}>
           <T variant="button" color={colors.gold}>Close</T>
         </Pressable>

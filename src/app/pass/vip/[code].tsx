@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PassCheckout } from "@/components/PassCheckout";
 import { T } from "@/components/Text";
@@ -16,6 +16,7 @@ import { webStorage } from "@/welcome";
 import { StepBridge } from "@/components/StepBridge";
 import { boatPreferenceLabel, money, timeLeftLine, TOTAL_DOLLARS, type BoatPreference, type BookingStatus } from "@/logic/vipGroup";
 import { colors } from "@/theme";
+import { useTicketContinuation } from "@/logic/useTicketContinuation";
 
 interface BookingView {
   code: string;
@@ -31,7 +32,9 @@ interface BookingView {
 export default function VipSharePage() {
   const insets = useSafeAreaInsets();
   const { email } = useAuth();
-  const params = useLocalSearchParams<{ code?: string }>();
+  const params = useLocalSearchParams<{ code?: string; checkout?: string; session_id?: string }>();
+  const router = useRouter();
+  const continueAfterTicket = useTicketContinuation();
   const code = typeof params.code === "string" ? params.code : "";
   const [booking, setBooking] = useState<BookingView | null>(null);
   const [missing, setMissing] = useState(false);
@@ -46,6 +49,19 @@ export default function VipSharePage() {
   }, []);
   const [now, setNow] = useState(() => Date.now());
   const checkoutReady = canEmbedCheckout();
+
+  function bookLater() {
+    setPaying(false);
+    router.setParams({ checkout: undefined, session_id: undefined });
+    continueAfterTicket();
+  }
+
+  useEffect(() => {
+    if (!paidHere) return;
+    router.setParams({ checkout: undefined, session_id: undefined });
+    const timer = setTimeout(() => { setPaidHere(false); continueAfterTicket(); }, 1600);
+    return () => clearTimeout(timer);
+  }, [paidHere, continueAfterTicket, router]);
 
   const load = useCallback(async () => {
     if (!code) return;
@@ -71,18 +87,18 @@ export default function VipSharePage() {
 
   useEffect(() => {
     if (!code) return;
-    const search = typeof window === "undefined" ? null : new URLSearchParams(window.location.search);
-    const sessionId = search?.get("session_id");
-    if (search?.get("checkout") === "return" && sessionId) {
+    let live = true;
+    const sessionId = params.session_id;
+    if (params.checkout === "return" && sessionId) {
       fetch(`/api/checkout/status?session_id=${encodeURIComponent(sessionId)}`)
         .then((response) => response.ok ? response.json() : {})
-        .then((body) => { if (confirmedPayment(body, "vip")) rememberPayment(); })
+        .then((body) => { if (live && confirmedPayment(body, "vip")) rememberPayment(); })
         .catch(() => undefined)
-        .finally(() => { void load(); });
-      return;
+        .finally(() => { if (live) void load(); });
+      return () => { live = false; };
     }
     void load();
-  }, [code, load, rememberPayment]);
+  }, [code, params.checkout, params.session_id, load, rememberPayment]);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 60_000);
@@ -140,7 +156,8 @@ export default function VipSharePage() {
             ) : null}
           </View>
         ) : null}
-        {paidHere ? <><T variant="small" color={colors.foam}>Your share payment is complete. The team will confirm your charter arrangements. You can start choosing sessions now.</T><StepBridge id="pass" footer /></> : null}
+        {paidHere ? <T variant="small" color={colors.foam} accessibilityLiveRegion="polite">Your share payment is complete. The team will confirm your charter arrangements. We're taking you to the next step in your plan.</T> : null}
+        <StepBridge id="pass" footer onContinue={() => setPaidHere(false)} />
       </ScrollView>
       {paying && booking ? (
         <PassCheckout
@@ -151,6 +168,7 @@ export default function VipSharePage() {
           secretPath={`/api/vip-booking/${booking.code}/checkout`}
           secretBody={shareBody}
           onClose={() => setPaying(false)}
+          onLater={bookLater}
           onBooked={() => {
             setPaying(false);
             rememberPayment();
