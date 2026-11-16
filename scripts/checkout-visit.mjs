@@ -25,7 +25,7 @@ async function setup(browser, width) {
       window.__checkoutKeys.push(key);
       return {
         async createEmbeddedCheckoutPage(options) {
-          await options.fetchClientSecret();
+          if (!options.clientSecret) throw new Error("Checkout session is required before opening Stripe");
           let mounted;
           return {
             mount(node) {
@@ -126,8 +126,20 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
     await click(page, "Enter Tickets");
     assert.equal(new URL(page.url()).searchParams.has("checkout"), false);
     assert.equal(await page.getByTestId("stripe-test-form").count(), 0);
+    const failures = [];
+    page.on("pageerror", error => failures.push(error.message));
+    await click(page, "Book Be on the Beach");
+    await page.getByText("Checkout could not load.", { exact: false }).waitFor();
+    assert.equal(await page.evaluate(() => window.__checkoutKeys.length), 0, "A failed session must not initialize Stripe");
+    assert.equal(await page.evaluate(() => localStorage.getItem("tatel.ownedPass.v1")), null);
+    await click(page, "Close checkout");
+    await context.route("**/api/checkout", route => route.fulfill({ contentType: "application/json", body: JSON.stringify({ clientSecret: "isolated-retry", sessionId: "cs_test_retry" }) }));
+    await click(page, "Book Be on the Beach");
+    await page.getByTestId("stripe-test-form").waitFor();
+    await click(page, "Close checkout");
+    assert.deepEqual(failures, []);
     await context.close();
-    console.log(`${engineName}: undecided guests can compare before checkout`);
+    console.log(`${engineName}: comparison, unavailable checkout, and retry passed`);
   } finally { await browser.close(); }
 }
 console.log("Selected-ticket checkout checks passed. Payment requests and Stripe UI were isolated test doubles.");

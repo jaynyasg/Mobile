@@ -42,25 +42,26 @@ export function PassCheckout({
     const node = mountRef.current;
     if (!node) return;
     let live = true;
+    const controller = new AbortController();
     (async () => {
       try {
+        // Handle an unavailable checkout ourselves before handing a session to Stripe.
+        const response = await fetch(secretPath ?? "/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: secretBody ?? JSON.stringify({ tier, email: email ?? undefined }),
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("unavailable");
+        const body = (await response.json()) as { clientSecret?: string; sessionId?: string };
+        if (!body.clientSecret) throw new Error("unavailable");
+        if (!live) return;
         const { loadStripe } = await import("@stripe/stripe-js");
         const stripe = await loadStripe(stripePublishableKey());
         if (!stripe || !live) throw new Error("unavailable");
-        let sessionId = "";
+        const sessionId = body.sessionId ?? "";
         const page = await stripe.createEmbeddedCheckoutPage({
-          fetchClientSecret: async () => {
-            const response = await fetch(secretPath ?? "/api/checkout", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: secretBody ?? JSON.stringify({ tier, email: email ?? undefined }),
-            });
-            if (!response.ok) throw new Error("unavailable");
-            const body = (await response.json()) as { clientSecret?: string; sessionId?: string };
-            if (!body.clientSecret) throw new Error("unavailable");
-            sessionId = body.sessionId ?? "";
-            return body.clientSecret;
-          },
+          clientSecret: body.clientSecret,
           onComplete: () => {
             if (!live) return;
             if (!sessionId) {
@@ -95,6 +96,7 @@ export function PassCheckout({
     })();
     return () => {
       live = false;
+      controller.abort();
       holdCheckout(null);
     };
   }, [email, preview, secretBody, secretPath, tier]);
