@@ -26,6 +26,7 @@ import { nightGlass } from "@/components/nightGlass";
 import { CustomRoute } from "@/components/CustomRoute";
 import { dockClearance } from "@/components/Dock";
 import { BoatCallout, BoatCards } from "@/components/BoatCards";
+import { VirginIslandsMap } from "@/components/VirginIslandsMap";
 import { FerryBoard } from "@/components/FerryBoard";
 import { StepBridge } from "@/components/StepBridge";
 import { ExternalLink } from "@/components/ExternalLink";
@@ -92,7 +93,7 @@ export default function RoutesScreen() {
       <View style={styles.column}>
         <StackHeader title="Routes" />
         <View style={styles.choices}>
-          <ChoiceTile label="Sample routes" image={SAMPLE_TILE} fallback={BUILD_TILE} selected={view === "sample"} onPress={() => setView("sample")} sketch />
+          <ChoiceTile label="Sample routes" selected={view === "sample"} onPress={() => setView("sample")} map />
           <ChoiceTile label="Build my route" image={BUILD_TILE} fallback={SAMPLE_TILE} selected={view === "mine"} onPress={() => setView("mine")} />
         </View>
         {view === "mine" ? (
@@ -238,35 +239,40 @@ export default function RoutesScreen() {
   );
 }
 
-function ChoiceTile({ label, image, fallback, selected, onPress, sketch }: { label: string; image: string; fallback: string; selected: boolean; onPress: () => void; sketch?: boolean }) {
-  const [src, setSrc] = useState(image);
+function ChoiceTile({
+  label,
+  image,
+  fallback,
+  selected,
+  onPress,
+  map = false,
+}: {
+  label: string;
+  image?: string;
+  fallback?: string;
+  selected: boolean;
+  onPress: () => void;
+  map?: boolean;
+}) {
+  const [src, setSrc] = useState(image ?? "");
   return (
-    <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[styles.choice, selected && styles.choiceOn]}>
-      {sketch ? <RouteSketch /> : <Image
-        source={{ uri: src }}
-        style={styles.choicePhoto}
-        resizeMode="cover"
-        accessibilityIgnoresInvertColors
-        onError={() => setSrc((current) => (current === fallback ? current : fallback))}
-      />}
-      <View style={styles.choiceShade} />
+    <Pressable accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={label} onPress={onPress} style={[map ? styles.choiceMap : styles.choice, selected && styles.choiceOn]}>
+      {map ? (
+        <View style={styles.chartFrame}>
+          <VirginIslandsMap />
+        </View>
+      ) : (
+        <Image
+          source={{ uri: src }}
+          style={styles.choicePhoto}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+          onError={() => setSrc((current) => (current === fallback || !fallback ? current : fallback))}
+        />
+      )}
+      {map ? null : <View style={styles.choiceShade} />}
       <T variant="small" color={colors.foam} style={styles.choiceLabel}>{label}</T>
     </Pressable>
-  );
-}
-
-function RouteSketch() {
-  const stops = ["STT", "Lov", "STJ", "Jost", "Scrub"];
-  return (
-    <View style={styles.sketch}>
-      <View style={styles.sketchLine} />
-      {stops.map((stop) => (
-        <View key={stop} style={styles.sketchStop}>
-          <View style={styles.sketchDot} />
-          <T variant="meta" color={colors.foam} style={styles.sketchLabel}>{stop}</T>
-        </View>
-      ))}
-    </View>
   );
 }
 
@@ -351,8 +357,10 @@ function StopCard({
 const styles = StyleSheet.create({
   column: { flex: 1 },
   sample: { flex: 1 },
-  choices: { flexDirection: "row", gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
-  choice: { flex: 1, height: 108, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  choices: { gap: 8, paddingHorizontal: 12, paddingBottom: 8 },
+  choice: { height: 96, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  choiceMap: { borderRadius: 16, overflow: "hidden", borderWidth: 2, borderColor: "transparent", backgroundColor: "#071421" },
+  chartFrame: { width: "100%", aspectRatio: 800 / 480 },
   choiceOn: { borderColor: colors.gold },
   choicePhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   choiceShade: {
@@ -364,11 +372,6 @@ const styles = StyleSheet.create({
     ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.92), rgba(6,14,24,0))" } as ViewStyle),
   },
   choiceLabel: { paddingHorizontal: 10, paddingBottom: 10, zIndex: 1 },
-  sketch: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 8, backgroundColor: "#0B3A4A" },
-  sketchLine: { position: "absolute", left: 16, right: 16, height: 2, backgroundColor: colors.gold, top: "42%" },
-  sketchStop: { alignItems: "center", gap: 2, zIndex: 1 },
-  sketchDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.gold, borderWidth: 2, borderColor: "#10283A" },
-  sketchLabel: { fontSize: 9, lineHeight: 12 },
   intro: { padding: 14, gap: 6, borderRadius: 18, ...nightGlass },
   fill: { flex: 1 },
   sticky: { paddingHorizontal: 12, paddingBottom: 8, gap: 8 },

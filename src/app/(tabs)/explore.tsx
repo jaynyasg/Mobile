@@ -12,15 +12,16 @@ import { dockClearance } from "@/components/Dock";
 import { notchPadding } from "@/components/notch";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { ExternalLink } from "@/components/ExternalLink";
+import { openExternal } from "@/navigation/pwaNav";
 import { nightGlass } from "@/components/nightGlass";
 
 const extras = [
-  { id: "vip", title: "VIP passes", line: "A group of 8 on the boats, with local guides, lunches, and dinners. Open Tickets to start a group.", href: "/tickets" },
+  { id: "vip", title: "VIP charter", line: "Be on Board: a charter you stay on for all 5 days, with local guides and private dinners. Open Tickets to start the group.", href: "/tickets" },
   { id: "show", title: "Performances", line: "The red-carpet screening of island films, and the sessions that put the work on a stage.", href: "/session/ENT-SCREENING-D3" },
-  { id: "dinner", title: "Private dinners", line: "The VIP pass is the one that names curated lunches and dinners. No separate price is listed here.", href: "/tickets" },
+  { id: "dinner", title: "Private dinners", line: "Curated dinners with a local guide, named on the VIP charter. No separate price is listed here.", href: "/tickets" },
   { id: "water", title: "Watersports", line: "Cruz Bay Watersports is the operator already named on the St. John stay list.", url: "https://bestofusvi.com/usvi-charters/boat/cruz-bay-watersports-usvi/" },
-  { id: "food", title: "Food tour with a local", line: "A local guide and a meal. That is part of the VIP local-guide line, not a separate tour company.", href: "/tickets" },
-  { id: "intro", title: "Intro tour with a local", line: "A first look at the island with a local guide. Ask for it with the VIP pass. The team confirms the guide.", href: "/tickets" },
+  { id: "food", title: "Food tour with a local", line: "A meal with a local guide, asked for with the VIP charter. The team confirms the guide.", href: "/tickets" },
+  { id: "intro", title: "Intro tour with a local", line: "A first look at the island with a local guide. Ask for it with the VIP charter.", href: "/tickets" },
 ];
 
 export default function ExploreScreen() {
@@ -74,7 +75,8 @@ export default function ExploreScreen() {
             accessibilityRole="button"
             accessibilityLabel={item.title}
             onPress={() => {
-              if (item.href) router.push(item.href as "/tickets");
+              if (item.url) openExternal(item.url);
+              else if (item.href) router.push(item.href as "/tickets");
             }}
             style={styles.island}
           >
