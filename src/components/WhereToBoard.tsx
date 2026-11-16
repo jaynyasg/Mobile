@@ -9,7 +9,7 @@ export function WhereToBoard() {
   return (
     <View style={styles.wrap}>
       <T variant="rowTitle" color={colors.foam}>Where to board</T>
-      <T variant="small" color={colors.foam}>Docks with a pin, by island. A route card links a pin only when the official schedule names that end of the trip. Spanish Town, Scrub Island, and Lovango’s own Red Hook pier are not pinned.</T>
+      <T variant="small" color={colors.foam}>Ferry docks, by island. Tap one to open it in Maps.</T>
       {DOCK_GROUPS.map((group) => (
         <View key={group.id} style={styles.group}>
           <T variant="meta" color={colors.gold}>{group.island}</T>

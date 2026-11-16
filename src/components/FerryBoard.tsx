@@ -35,13 +35,14 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
             {shown ? (
               <View style={styles.body}>
                 <T variant="small" color={colors.foam}>{leg.days}</T>
+                {leg.intro ? <T variant="small" color={colors.foam}>{leg.intro}</T> : null}
                 <T variant="meta" color={colors.gold}>Departs {leg.from}</T>
                 <LegDocks legId={leg.id} />
                 <T variant="small" color={colors.foam}>{leg.departures.join(" · ")}</T>
                 {leg.special ? <T variant="small" color={colors.foam}>{leg.special}</T> : null}
                 {leg.phone && leg.phoneLabel ? <ExternalLink href={leg.phone} label={leg.phoneLabel}>{leg.phoneLabel}</ExternalLink> : null}
-                {leg.crossing ? <T variant="small" color={colors.foam}>{leg.crossing}</T> : <T variant="small" color={colors.foam}>The page does not print how long the crossing takes.</T>}
-                <T variant="meta" color={colors.foam}>{leg.asOf}</T>
+                {leg.crossing ? <T variant="small" color={colors.foam}>{leg.crossing}</T> : leg.crossingMinutes == null ? <T variant="small" color={colors.foam}>The timetable doesn’t list how long this crossing takes. Leave a little extra time, and check with the operator.</T> : null}
+                {leg.asOf !== leg.days ? <T variant="meta" color={colors.foam}>{leg.asOf}</T> : null}
                 <ExternalText href={leg.sourceUrl} label={leg.sourceTitle} />
               </View>
             ) : null}
@@ -49,7 +50,7 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
         );
       })}
       <T variant="eyebrow" color={colors.gold}>Which ferry for this day's sessions</T>
-      <T variant="small" color={colors.foam}>Featured sessions with a clock time. The session room is still to be confirmed, so this is the boat to the island, not a walk from the dock.</T>
+      <T variant="small" color={colors.foam}>Featured sessions with a start time. Rooms aren’t set yet, so this is the boat to the island, not a walk from the dock.</T>
       {daySessions.length === 0 ? <T variant="small" color={colors.foam}>No timed featured session on this day.</T> : null}
       {daySessions.map((session) => {
         const advice = adviceForSession(session);
@@ -67,7 +68,7 @@ export function FerryBoard({ dayId, sessions }: { dayId: string; sessions: reado
               <T key={line} variant="small" color="#FFB4A2">{line}</T>
             ))}
             {advice.catches.length === 0 && advice.missed.length === 0 ? (
-              <T variant="small" color={colors.foam}>No public ferry in this list ends on {session.island}. Stay on that island, or use the day charter.</T>
+              <T variant="small" color={colors.foam}>No ferry on this list arrives on {session.island}. Stay on the island, or take the day charter.</T>
             ) : null}
           </View>
         );

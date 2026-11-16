@@ -20,6 +20,8 @@ export interface FerryLeg {
   sourceTitle: string;
   sourceUrl: string;
   asOf: string;
+  /** Short guest note under the schedule label. */
+  intro?: string;
   /** Resort host line, when the schedule prints a phone number. */
   phone?: string;
   phoneLabel?: string;
@@ -36,7 +38,7 @@ export const BVI_ENTRY =
   "A trip into the British Virgin Islands needs a passport and a customs check. Complete the BVI entry card before you go. These times are subject to change.";
 
 const BVI_AS_OF =
-  "Official BVI ferry schedules. Subject to change. BVI Tourism says the regular schedule resumed November 1, 2026. Not a separate January 26–29, 2027 table. Check the official page before you travel.";
+  "Subject to change. BVI Tourism says the regular schedule resumed November 1, 2026. This is not a separate timetable for January 26–29, 2027. Check the official page before you travel.";
 
 export const FERRY_NOTE =
   "Public ferries run on a fixed schedule. St. Thomas to St. John times below are from the official USVI ferry schedule, effective November 1, 2026. They are not a separate poster for January 26–29, 2027. Schedules can change. Check the official schedule before you travel.";
@@ -48,8 +50,10 @@ export const CHARTER_CONTRAST =
 export const SCRUB_FERRY_URL = "https://www.scrubisland.com/";
 export const SCRUB_FERRY_LABEL = "Complimentary guest ferry, effective Oct 29, 2026, subject to change.";
 export const SCRUB_FERRY_PHONE = "tel:+12843943440";
-export const SCRUB_FERRY_SPECIAL =
-  "Special runs are $300 one way during regular hours. Any run after 10:30 pm must be requested through Resort Hosts. Call Resort Hosts.";
+export const SCRUB_FERRY_GUEST =
+  "Free for Scrub Island guests. Board at Trellis Bay, Beef Island (Tortola). About 10 minutes each way. Need a different time? Call Resort Hosts. Special runs are $300 one way; after 10:30 pm, book through Resort Hosts.";
+export const SCRUB_FERRY_RETURN =
+  "Free for Scrub Island guests. This boat leaves Scrub Island for Trellis Bay, Beef Island (Tortola). About 10 minutes each way. Need a different time? Call Resort Hosts. Special runs are $300 one way; after 10:30 pm, book through Resort Hosts.";
 const SCRUB_FROM_TRELLIS = ["5:45am", "6:45am", "7:45am", "8:45am", "9:45am", "11:45am", "1:45pm", "2:45pm", "3:45pm", "4:45pm", "5:45pm", "7:45pm", "9:45pm", "10:45pm"];
 const SCRUB_FROM_ISLAND = ["6:30am", "7:30am", "8:30am", "9:30am", "11:30am", "1:30pm", "2:30pm", "3:30pm", "4:30pm", "5:30pm", "7:30pm", "9:30pm", "10:30pm"];
 
@@ -61,13 +65,13 @@ export const ferryLegs: FerryLeg[] = [
     to: "Cruz Bay, St. John",
     island: "St. John",
     operator: "St. John Ferry Ticketing Co., for Transportation Services of St. John and Varlack Ventures",
-    days: "Daily. 5:30am from Red Hook is Monday–Friday only. From the schedule image effective November 1, 2026.",
+    days: "Daily. The 5:30am from Red Hook runs Monday–Friday only. Effective November 1, 2026.",
     departures: ["5:30am Mon–Fri", "6:00am", "7:00am", "8:00am", "9:00am", "10:00am", "11:00am", "12:00pm", "1:00pm", "2:00pm", "3:00pm", "4:00pm", "5:00pm", "6:00pm", "7:00pm", "8:00pm", "10:00pm", "11:30pm"],
-    crossing: "St. John Ferry Ticketing says the Red Hook ferry time is approximately 20 minutes.",
+    crossing: "About 20 minutes from Red Hook.",
     crossingMinutes: 20,
     sourceTitle: "Official USVI ferry schedule",
     sourceUrl: OFFICIAL_USVI_FERRY_URL,
-    asOf: "Official schedule effective November 1, 2026. Subject to change. Not a separate January 26–29, 2027 table. Check the official schedule before you travel.",
+    asOf: "Subject to change. Effective November 1, 2026. There isn’t a separate timetable just for January 26–29, 2027. Check the official schedule before you travel.",
   },
   {
     id: "charlotte-cruz",
@@ -76,9 +80,9 @@ export const ferryLegs: FerryLeg[] = [
     to: "Cruz Bay, St. John",
     island: "St. John",
     operator: "St. John Ferry Ticketing Co., for Transportation Services of St. John and Varlack Ventures",
-    days: "The same official schedule, effective November 1, 2026. The page had said this downtown boat was suspended until that date.",
+    days: "Same official schedule, effective November 1, 2026. Downtown service is included again from that date.",
     departures: ["10:00am", "12:30pm"],
-    crossing: "The official page prints these departure times and does not give a separate downtown crossing time. The 20-minute note is for the Red Hook boat.",
+    crossing: "The schedule lists these departures and doesn’t give a separate downtown crossing time. The 20-minute note is for the Red Hook boat.",
     crossingMinutes: null,
     sourceTitle: "Official USVI ferry schedule",
     sourceUrl: OFFICIAL_USVI_FERRY_URL,
@@ -183,11 +187,11 @@ export const ferryLegs: FerryLeg[] = [
     operator: "Lovango Resort ferry",
     days: "January 1–April 25, 2027, which includes the summit. Monday–Saturday from Cruz Bay, and a shorter Sunday list. Reservations are required.",
     departures: ["10:35am", "1:00pm", "3:30pm", "8:00pm Mon–Sat", "9:15pm", "9:45pm Mon–Sat"],
-    crossing: "The resort says about a 10-minute crossing from Cruz Bay.",
+    crossing: "About 10 minutes from Cruz Bay.",
     crossingMinutes: 10,
     sourceTitle: "Lovango Resort, getting there",
     sourceUrl: "https://www.lovangovi.com/getting-to-lovango/",
-    asOf: "Published by the resort for January 1–April 25, 2027. This one does cover January 26–29. It can still change.",
+    asOf: "The resort posts this schedule for January 1–April 25, 2027, which includes the summit. It can still change.",
   },
   {
     id: "red-hook-lovango",
@@ -198,11 +202,11 @@ export const ferryLegs: FerryLeg[] = [
     operator: "Lovango Resort ferry",
     days: "Every day, December 17, 2026–July 16, 2027. Reservations are required.",
     departures: ["10:00am", "12:45pm", "2:15pm", "3:15pm", "4:15pm", "5:15pm", "8:40pm"],
-    crossing: "The resort says about 15–30 minutes from Red Hook.",
+    crossing: "About 15–30 minutes from Red Hook.",
     crossingMinutes: 30,
     sourceTitle: "Lovango Resort, getting there",
     sourceUrl: "https://www.lovangovi.com/getting-to-lovango/",
-    asOf: "Published by the resort through July 16, 2027, so it covers the summit week. It can still change.",
+    asOf: "The resort posts this schedule through July 16, 2027, so it covers the summit. It can still change.",
   },
   {
     id: "trellis-scrub",
@@ -212,15 +216,15 @@ export const ferryLegs: FerryLeg[] = [
     island: "Scrub Island",
     operator: "Scrub Island resort guest ferry",
     days: SCRUB_FERRY_LABEL,
+    intro: SCRUB_FERRY_GUEST,
     departures: SCRUB_FROM_TRELLIS,
-    crossing: "The resort sheet says the ferry runs are approximately 10 minutes each way.",
+    crossing: null,
     crossingMinutes: 10,
     sourceTitle: "Scrub Island",
     sourceUrl: SCRUB_FERRY_URL,
     asOf: SCRUB_FERRY_LABEL,
     phone: SCRUB_FERRY_PHONE,
     phoneLabel: "Resort Hosts +1 284-394-3440",
-    special: SCRUB_FERRY_SPECIAL,
   },
   {
     id: "scrub-trellis",
@@ -230,15 +234,15 @@ export const ferryLegs: FerryLeg[] = [
     island: "Trellis Bay",
     operator: "Scrub Island resort guest ferry",
     days: SCRUB_FERRY_LABEL,
+    intro: SCRUB_FERRY_RETURN,
     departures: SCRUB_FROM_ISLAND,
-    crossing: "The resort sheet says the ferry runs are approximately 10 minutes each way.",
+    crossing: null,
     crossingMinutes: 10,
     sourceTitle: "Scrub Island",
     sourceUrl: SCRUB_FERRY_URL,
     asOf: SCRUB_FERRY_LABEL,
     phone: SCRUB_FERRY_PHONE,
     phoneLabel: "Resort Hosts +1 284-394-3440",
-    special: SCRUB_FERRY_SPECIAL,
   },
 ];
 
@@ -299,8 +303,8 @@ export function catchFerry(sessionMinutes: number, leg: FerryLeg): FerryCatch | 
       status = sessionMinutes - depart < 90 ? "tight" : "ok";
     }
     const line = known
-      ? `${label} from ${leg.from}. About ${leg.crossingMinutes} minutes on the water, then ${DOCK_BUFFER} minutes to leave the dock. The session room is not confirmed.`
-      : `${label} from ${leg.from}. This page does not print the crossing time, so a boat inside 90 minutes of the session is tight.`;
+      ? `${label} from ${leg.from}. About ${leg.crossingMinutes} minutes on the water, then about ${DOCK_BUFFER} minutes to step off. The room isn’t set yet, so this gets you to the island.`
+      : `${label} from ${leg.from}. The timetable doesn’t list the crossing, so a departure within 90 minutes of your session is a tight connection.`;
     const candidate: FerryCatch = { legId: leg.id, operator: leg.operator, depart: label, from: leg.from, status, line };
     if (status === "miss") continue;
     if (!best || statusRank(candidate.status) < statusRank(best.status) || (candidate.status === best.status && depart > (departOnly(best.depart) ?? 0))) {
@@ -325,7 +329,7 @@ export function adviceForSession(session: FerrySession): { catches: FerryCatch[]
   for (const leg of legs) {
     const caught = catchFerry(minutes, leg);
     if (caught) catches.push(caught);
-    else if (leg.departures.length) missed.push(`${leg.title} has no published boat that lands before this session.`);
+    else if (leg.departures.length) missed.push(`${leg.title} doesn’t have a published boat that arrives before this session.`);
   }
   return { catches, missed };
 }
