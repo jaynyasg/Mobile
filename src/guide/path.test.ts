@@ -15,11 +15,11 @@ describe("home guide", () => {
     expect(guideSteps.map((step) => step.id)).toEqual([
       "welcome",
       "tracks",
+      "pass",
+      "stay",
       "sessions",
       "transport",
-      "stay",
       "know",
-      "pass",
       "chat",
     ]);
     expect(guideSteps.map((step) => step.headline).join(" ")).not.toMatch(/zone|conversation/i);
@@ -54,14 +54,10 @@ describe("home guide", () => {
   });
 
   it("names each walk-through frame and remembers that it finished", () => {
-    expect(tourCaption(1)).toBe("Steps Walk-through · Step 2 of 8 · Interests: pick your infrastructures");
-    expect(tourCaption(2)).toBe("Steps Walk-through · Step 3 of 8 · Sessions: select your session");
-    expect(guideSteps[1]?.headline).toBe("Pick your infrastructures");
-    expect(guideSteps[1]?.line).toContain("tailor your Sessions and route");
-    expect(guideSteps[2]?.headline).toBe("Select Your Session");
-    expect(tourTitle(6)).toBe("Tickets: get your pass");
-    expect(guideSteps[6]?.cta).toBe("Open Tickets");
-    expect(guideSteps[6]?.line).toBe("Beach, boat, or a VIP group.");
+    expect(tourCaption(1)).toBe("Steps Walk-through · Step 2 of 8 · Interests: choose your topics");
+    expect(guideSteps.slice(2, 5).map((step) => step.id)).toEqual(["pass", "stay", "sessions"]);
+    expect(tourTitle(2)).toBe("Tickets: get your pass");
+    expect(guideSteps[2]?.cta).toBe("Open Tickets");
     expect(TOUR_DWELL_MS).toBeGreaterThanOrEqual(7_000);
     const store = memory();
     expect(hasSeenTour(store)).toBe(false);

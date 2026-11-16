@@ -36,7 +36,7 @@ export function BoatCards() {
     <View style={styles.wrap}>
       <View style={styles.lead}>
         <T variant="eyebrow" color={colors.gold}>Which boat</T>
-        <T variant="small" color={colors.foam}>Three passes, three boats. Be on the Beach is the public ferry. Be on the Boat is a private charter for the day. Be on Board is the VIP charter you stay on for all 5 days. A taxi never leaves its island.</T>
+        <T variant="small" color={colors.foam}>Your ticket shapes how you travel. Arrange your own ferry or transfer with Be on the Beach, join a private day charter with Be on the Boat, or stay aboard for five days with Be on Board.</T>
       </View>
       {boatOptions.map((boat) => (
         <BoatCard key={boat.id} boat={boat} />

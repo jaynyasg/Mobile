@@ -12,7 +12,7 @@ import { addStamp } from "@/guide/stamps";
 import { localReelStore } from "@/reels/gate";
 import { colors } from "@/theme";
 
-const reward = "Full book. Five infrastructures, stamped on the islands. Show it to the team.";
+const reward = "All five island stamps collected. Show your completed card to the TATEL team.";
 
 export function StampCard({ pillars, onOpen }: { pillars: readonly Pillar[]; onOpen: (id: string) => void }) {
   const [tick, setTick] = useState(0);
@@ -40,9 +40,9 @@ export function StampCard({ pillars, onOpen }: { pillars: readonly Pillar[]; onO
       <T variant="eyebrow" color={colors.gold}>Stamp card</T>
       <T variant="title" color={colors.foam}>Island passport</T>
       <T variant="small" color={colors.foam}>
-        A stamp is earned on the island. Scan the code posted there, or type the short code. Opening a page does not stamp the book. The five infrastructures each meet on or near an island.
+        Five island stops, a collection of memories. Scan the code posted at each event stop or enter its short code below. Each stamp celebrates a place you've experienced in person. Your card is saved on this device, ready for your next island.
       </T>
-      <T variant="rowTitle" color={colors.foam}>{held} of {pillars.length} infrastructures</T>
+      <T variant="rowTitle" color={colors.foam}>{held} of {pillars.length} island stamps</T>
       <View style={styles.track}>
         <View style={[styles.trackFill, { width: `${pillars.length ? Math.round((held / pillars.length) * 100) : 0}%` }]} />
       </View>
@@ -72,7 +72,7 @@ export function StampCard({ pillars, onOpen }: { pillars: readonly Pillar[]; onO
       </View>
       {done ? (
         <View style={styles.reward}>
-          <T variant="eyebrow" color={colors.ink}>Reward</T>
+          <T variant="eyebrow" color={colors.ink}>Five islands. One great story.</T>
           <T variant="small" color={colors.ink}>{reward}</T>
         </View>
       ) : (

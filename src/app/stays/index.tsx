@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
 import { useContent } from "@/content/provider";
 import { Screen } from "@/components/Screen";
@@ -16,9 +17,10 @@ export default function StaysScreen() {
   const { stays, forum } = program;
   const params = useLocalSearchParams<{ areas?: string }>();
   const router = useRouter();
+  const [showAll, setShowAll] = useState(false);
   const wanted = new Set((params.areas ?? "").split(",").map((item) => item.trim()).filter(Boolean));
   const islands = new Set(forum.pillars.filter((pillar) => wanted.has(pillar.id)).map((pillar) => pillar.island));
-  const groups = islands.size
+  const groups = islands.size && !showAll
     ? stays.groups
       .map((group) => ({ ...group, islands: group.islands.filter((island) => islands.has(island.island)) }))
       .filter((group) => group.islands.length > 0)
@@ -28,10 +30,11 @@ export default function StaysScreen() {
       <StackHeader title="Accommodations" />
       <StepBridge id="stay" />
       <View style={styles.pad}>
-        <T variant="eyebrow">Where you stay · five island stops</T>
-        <T variant="title">Across the islands</T>
-        <T variant="small">{stays.intro}</T>
-        {islands.size ? <T variant="meta" color={colors.gold}>Your islands</T> : null}
+        <T variant="eyebrow">Your base between sessions</T>
+        <T variant="title">Choose your island</T>
+        <T variant="small">Explore hotels, villas, and resorts below. Book directly with the property and confirm availability, rates, and cancellation terms there. Your ticket does not reserve a hotel room.</T>
+        <T variant="small">Be on Board guests stay on their charter. Browse here if you need extra nights before or after the trip.</T>
+        {islands.size ? <><T variant="meta" color={colors.gold}>{showAll ? "Showing every island" : "Islands matched to your interests"}</T><Pressable accessibilityRole="button" onPress={() => setShowAll(!showAll)} style={styles.open}><T variant="button" color={colors.ink}>{showAll ? "Show my suggested islands" : "See all islands"}</T></Pressable></> : null}
         {stays.brochureUrl ? (
           <ExternalLink href={stays.brochureUrl} label="See partner stays">See partner stays</ExternalLink>
         ) : null}
@@ -51,13 +54,14 @@ export default function StaysScreen() {
                 <T variant="rowTitle" numberOfLines={2}>{island.island}</T>
                 <T variant="meta" numberOfLines={3}>{island.dock}</T>
                 <View style={styles.open}>
-                  <T variant="button" color={colors.ink}>Open</T>
+                  <T variant="button" color={colors.ink}>Find a stay here</T>
                 </View>
               </View>
             </Pressable>
           ))}
         </View>
       ))}
+      <StepBridge id="stay" footer />
     </Screen>
   );
 }

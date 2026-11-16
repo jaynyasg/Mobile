@@ -25,13 +25,13 @@ export default function MoreScreen() {
     {
       title: "You",
       items: [
-        { href: "/schedule", label: "My schedule", detail: "Favorites saved on this device" },
-        { href: "/tickets", label: "Tickets", detail: heldPass ? "Your pass" : "Beach, boat, or a VIP group", reelId: "pass" },
+        { href: "/schedule", label: "My schedule", detail: "Your saved sessions" },
+        { href: "/tickets", label: "Tickets", detail: heldPass ? "Your saved ticket" : "Stay ashore, sail by day, or live aboard", reelId: "pass" },
         { href: "/notifications", label: "Notifications", detail: "Summit notes on this device", badge: unread || undefined },
         { href: "/know", label: "Preparation guide", detail: "Documents, money, driving, and the border." },
         { href: "/assistant", label: "Ask", detail: "Answers from the program, on this device" },
         { href: "/community", label: "Community", detail: "Live chat", reelId: "community" },
-        { href: "/speakers", label: "Panelists", detail: "Roster from the website", reelId: "panelists" },
+        { href: "/speakers", label: "Panelists", detail: "Meet the people behind the sessions", reelId: "panelists" },
         { href: "/network", label: "Network", detail: "Opt-in introductions" },
       ],
     },
@@ -39,7 +39,7 @@ export default function MoreScreen() {
       title: "The islands",
       items: [
         { href: "/routes", label: "Routes", detail: "Boats between islands. Taxis stay on one island.", reelId: "transport" },
-        { href: "/stays", label: "Accommodations", detail: "Where you sleep on each island.", reelId: "stays" },
+        { href: "/stays", label: "Accommodations", detail: "Choose an island, hotel, or villa", reelId: "stays" },
       ],
     },
     {

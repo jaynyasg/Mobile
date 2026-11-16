@@ -5,6 +5,7 @@ import { StackHeader } from "@/components/StackHeader";
 import { EmptyState } from "@/components/ui";
 import { mySchedule } from "@/logic/agenda";
 import { useApp } from "@/store";
+import { StepBridge } from "@/components/StepBridge";
 
 export default function ScheduleScreen() {
   const { program } = useContent();
@@ -20,6 +21,7 @@ export default function ScheduleScreen() {
       ) : (
         mine.map((session) => <SessionRow key={session.id} session={session} />)
       )}
+      <StepBridge id="sessions" footer />
     </Screen>
   );
 }

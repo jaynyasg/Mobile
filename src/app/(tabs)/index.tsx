@@ -8,6 +8,7 @@ import { notchPadding } from "@/components/notch";
 import { BeaconBackground } from "@/components/BeaconBackground";
 import { nightGlass } from "@/components/nightGlass";
 import { EssentialsDeck } from "@/components/EssentialsDeck";
+import { ExperienceInvitation, ExperiencePreview } from "@/components/ExperienceInvitation";
 import { FeedCard } from "@/components/FeedCard";
 import { InstallHint } from "@/components/InstallHint";
 import { Questions } from "@/components/Questions";
@@ -27,6 +28,7 @@ import { isExplored, localReelStore } from "@/reels/gate";
 import { useReels } from "@/reels/ReelHost";
 import { colors, sceneForIsland } from "@/theme";
 import { webStorage } from "@/welcome";
+import { useApp } from "@/store";
 
 const stepPhoto: Record<PathStep["id"], string> = {
   pass: reels.pass.poster,
@@ -34,6 +36,7 @@ const stepPhoto: Record<PathStep["id"], string> = {
   stay: reels.stays.poster,
   route: reels.transport.poster,
   chat: reels.community.poster,
+  explore: reels.venues.poster,
 };
 
 export default function HomeScreen() {
@@ -41,6 +44,7 @@ export default function HomeScreen() {
   const { program } = useContent();
   const { forum, sessions } = program;
   const router = useRouter();
+  const { state } = useApp();
   const { openChapter, replayIntro, openStory, reelActive } = useReels();
   const { userId, preview } = useAuth();
   const [mode, setMode] = useState<"you" | "explore">("you");
@@ -62,7 +66,8 @@ export default function HomeScreen() {
     if (typeof window === "undefined") return;
     const onOwned = () => refresh();
     window.addEventListener("tatel-pass-owned", onOwned);
-    return () => window.removeEventListener("tatel-pass-owned", onOwned);
+    window.addEventListener("tatel-intake-changed", onOwned);
+    return () => { window.removeEventListener("tatel-pass-owned", onOwned); window.removeEventListener("tatel-intake-changed", onOwned); };
   }, [refresh]);
 
   useFocusEffect(useCallback(() => {
@@ -75,38 +80,35 @@ export default function HomeScreen() {
     if (!readIntake(webStorage())) setAsking(true);
   }, [ready, reelActive, asking]);
 
-  function storeAnswers(record: IntakeRecord) {
+  function storeAnswers(record: IntakeRecord, navigate = true) {
     const store = webStorage();
     writeIntake(store, record);
     writeTracks(webTrackStore(), [...record.areas]);
     setIntake(record);
     setAsking(false);
     if (userId && !preview) void saveIntakeRemote(userId, record);
-    const steps = buildPath(record, forum.pillars, { completed: record.completed, ownedPass: readOwnedPass(store) != null });
-    const first = steps.find((step) => step.id === "pass" || step.id === "sessions" || step.id === "stay");
+    if (!navigate) return;
+    const steps = buildPath(record, forum.pillars, { completed: record.completed, ownedPass: readOwnedPass(store) != null, ownedTier: readOwnedPass(store), savedSessionCount: state.favoriteIds.length });
+    const first = steps.find((step) => !step.done);
     if (!first) return;
     const target = pathDestination(first.id, record);
-    if (target.pathname === "/tickets") router.push("/tickets");
-    else if (target.pathname === "/agenda") router.push("/agenda");
+    if (target.pathname === "/tickets") openChapter("pass", target);
+    else if (target.pathname === "/agenda") openChapter("sessions", target);
     else if (target.pathname === "/stays") {
       const areas = target.params && "areas" in target.params ? target.params.areas : "";
-      router.push(areas ? { pathname: "/stays", params: { areas } } : "/stays");
+      openChapter("stays", areas ? { pathname: "/stays", params: { areas } } : "/stays");
     }
-  }
-
-  function markStep(id: string) {
-    if (!intake || intake.completed.includes(id)) return;
-    storeAnswers({ ...intake, completed: [...intake.completed, id] });
+    else router.push(target);
   }
 
   function openStep(step: PathStep) {
-    if (step.id !== "stay" || intake?.needsStay !== "booked") markStep(step.id);
     const target = pathDestination(step.id, {
       areas: intake?.areas ?? [],
       needsStay: intake?.needsStay ?? "skipped",
+      ticketPreference: intake?.ticketPreference,
     });
     if (target.pathname === "/tickets") {
-      openChapter("pass", "/tickets");
+      openChapter("pass", target);
       return;
     }
     if (target.pathname === "/agenda") {
@@ -115,14 +117,15 @@ export default function HomeScreen() {
     }
     if (target.pathname === "/stays") {
       const areas = target.params && "areas" in target.params ? target.params.areas : "";
-      router.push(areas ? { pathname: "/stays", params: { areas } } : "/stays");
+      openChapter("stays", areas ? { pathname: "/stays", params: { areas } } : "/stays");
       return;
     }
     if (target.pathname === "/routes") {
       router.push({ pathname: "/routes", params: { build: "1" } });
       return;
     }
-    openChapter("community", "/community");
+    if (target.pathname === "/explore") router.push("/explore");
+    else openChapter("community", "/community");
   }
 
   const dayId = suggestedDayId(new Date());
@@ -130,7 +133,7 @@ export default function HomeScreen() {
     .filter((session) => session.dayId === dayId && session.start)
     .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""))[0];
   const steps = intake
-    ? buildPath(intake, forum.pillars, { completed: intake.completed, ownedPass: readOwnedPass(webStorage()) != null })
+    ? buildPath(intake, forum.pillars, { completed: intake.completed, ownedPass: readOwnedPass(webStorage()) != null, ownedTier: readOwnedPass(webStorage()), savedSessionCount: state.favoriteIds.filter((id) => sessions.some((session) => session.id === id)).length })
     : [];
 
   return (
@@ -154,14 +157,14 @@ export default function HomeScreen() {
         </View>
         {mode === "you" ? (
           <>
+            <ExperienceInvitation onStory={openStory} />
             <View style={styles.guideHead}>
-              <T variant="headline" color={colors.foam}>Your path</T>
+              <T variant="eyebrow" color={colors.gold}>Your next chapter</T>
+              <T variant="title" color={colors.foam}>Make it yours.</T>
+              <T variant="small" color={colors.foam}>Choose how you'll arrive, where you'll wake up, and what you'll help bring to life. We'll guide the details. You bring the curiosity.</T>
               <View style={styles.pills}>
-                <Pressable accessibilityRole="button" accessibilityLabel="What is TATEL" onPress={openStory} style={styles.what}>
-                  <T variant="button" color={colors.gold}>What is TATEL</T>
-                </Pressable>
                 <Pressable accessibilityRole="button" accessibilityLabel="Retake questions" onPress={() => setAsking(true)} style={styles.retake}>
-                  <T variant="button" color={colors.foam}>Retake questions</T>
+                  <T variant="button" color={colors.foam}>Reshape my experience</T>
                 </Pressable>
               </View>
             </View>
@@ -170,7 +173,7 @@ export default function HomeScreen() {
                 <Image source={{ uri: stepPhoto[step.id] }} style={styles.pathPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
                 <View style={styles.pathShade} />
                 <View style={styles.pathCopy}>
-                  <T variant="meta" color={colors.gold} style={styles.stepLabel}>{`Step ${step.number}`}</T>
+                  <T variant="meta" color={colors.gold} style={styles.stepLabel}>{`Chapter ${step.number}`}</T>
                   <T variant="rowTitle" color={colors.foam} numberOfLines={1} style={styles.stepTitle}>{step.title}</T>
                   <T variant="meta" color={colors.foam} numberOfLines={1} style={styles.stepLine}>{step.line}</T>
                 </View>
@@ -181,14 +184,15 @@ export default function HomeScreen() {
                 ) : null}
               </Pressable>
             ))}
+            <ExperiencePreview />
             {next ? (
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Happening next, ${next.title}`}
+                accessibilityLabel={`From the program, ${next.title}`}
                 onPress={() => router.push({ pathname: "/session/[id]", params: { id: next.id } })}
                 style={styles.next}
               >
-                <T variant="meta" color={colors.gold}>Happening next</T>
+                <T variant="meta" color={colors.gold}>From the program</T>
                 <T variant="small" color={colors.foam} numberOfLines={2}>{next.title}</T>
                 <T variant="meta" color={colors.foam} numberOfLines={2}>{sessionWhen(next, forum.timezone)} · {next.island}</T>
               </Pressable>
@@ -222,7 +226,7 @@ export default function HomeScreen() {
       {asking && !reelActive ? (
         <Questions
           onDone={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
-          onSkip={(answers) => storeAnswers({ ...answers, interests: answers.interests ?? [], completed: answers.needsStay === "booked" ? ["stay"] : [] })}
+          onSkip={(answers) => storeAnswers({ ...answers, interests: answers.interests ?? [], completed: answers.needsStay === "booked" ? ["stay"] : [] }, false)}
         />
       ) : null}
       {deck ? <EssentialsDeck onClose={() => setDeck(false)} /> : null}
@@ -237,17 +241,7 @@ const styles = StyleSheet.create({
   switchItem: { minHeight: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   switchOn: { backgroundColor: colors.gold },
   guideHead: { marginHorizontal: 16, marginBottom: 8, padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
-  pills: { flexDirection: "row", gap: 8 },
-  what: {
-    minHeight: 44,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: colors.gold,
-    backgroundColor: "rgba(7,27,42,0.82)",
-  },
+  pills: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   retake: {
     ...nightGlass,
     minHeight: 44,
@@ -257,10 +251,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(7,27,42,0.88)",
   },
-  path: { position: "relative", minHeight: 72, marginHorizontal: 12, marginBottom: 6, borderRadius: 14, overflow: "hidden", justifyContent: "center" },
+  path: { position: "relative", minHeight: 104, marginHorizontal: 16, marginBottom: 10, borderRadius: 8, overflow: "hidden", justifyContent: "center" },
   pathPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   pathShade: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.62)" },
-  pathCopy: { zIndex: 1, paddingHorizontal: 12, paddingRight: 48, paddingVertical: 6, gap: 0 },
+  pathCopy: { zIndex: 1, paddingHorizontal: 18, paddingRight: 48, paddingVertical: 18, gap: 5 },
   doneMark: {
     position: "absolute",
     right: 10,
@@ -275,7 +269,7 @@ const styles = StyleSheet.create({
   },
   stepLabel: { fontSize: 11, lineHeight: 14 },
   stepTitle: { fontSize: 16, lineHeight: 20 },
-  stepLine: { fontSize: 12, lineHeight: 16 },
+  stepLine: { fontSize: 15, lineHeight: 21 },
   next: {
     marginHorizontal: 16,
     marginBottom: 14,

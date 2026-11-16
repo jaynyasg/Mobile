@@ -1,4 +1,5 @@
 import { Link, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { stayById } from "@/content";
 import { useContent } from "@/content/provider";
@@ -10,11 +11,15 @@ import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
 import { ExternalLink } from "@/components/ExternalLink";
+import { StepBridge } from "@/components/StepBridge";
+import { confirmAccommodation, readIntake } from "@/logic/intake";
+import { webStorage } from "@/welcome";
 
 export default function StayScreen() {
   useContent();
   const { id } = useLocalSearchParams<{ id: string }>();
   const island = stayById(id ?? "");
+  const [chosen, setChosen] = useState(() => readIntake(webStorage())?.accommodation);
   if (!island) {
     return (
       <Screen edge="none">
@@ -32,7 +37,7 @@ export default function StayScreen() {
         <T variant="eyebrow">{island.route}</T>
         <T variant="title">{island.island}</T>
         <T variant="small">{island.dock}</T>
-        <T variant="meta">{island.imageAlt}</T>
+        <T variant="small">Choose a property and visit its website to check rooms and book. Once your reservation is confirmed, save your accommodation below.</T>
       </View>
       {island.sections.map((section) => (
         <View key={section.heading} style={styles.section}>
@@ -51,8 +56,9 @@ export default function StayScreen() {
               <View key={provider.name} style={styles.link}>
                 <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
                 {provider.href ? (
-                  <ExternalLink href={provider.href} label={`Visit ${provider.name}`}>Visit website</ExternalLink>
+                  <ExternalLink href={provider.href} label={`Check availability at ${provider.name}`}>Check availability & book</ExternalLink>
                 ) : null}
+                {!/boat/i.test(section.heading) && readIntake(webStorage()) ? <Pressable accessibilityRole="button" accessibilityLabel={`I have booked ${provider.name}`} onPress={() => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); }} style={styles.confirm}><T variant="button" color={colors.gold}>{chosen?.name === provider.name && chosen.island === island.island ? "✓ Saved as my accommodation" : "I have booked here"}</T></Pressable> : null}
               </View>
             ),
           )}
@@ -63,6 +69,7 @@ export default function StayScreen() {
           ))}
         </View>
       ))}
+      <StepBridge id="stay" footer />
     </Screen>
   );
 }
@@ -72,5 +79,6 @@ const styles = StyleSheet.create({
   pad: { marginHorizontal: 12, marginTop: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
   section: { marginHorizontal: 12, marginBottom: 12, paddingHorizontal: 16, paddingVertical: 14, gap: 8, borderRadius: 18, ...nightGlass },
   link: { gap: 8, paddingVertical: 8 },
+  confirm: { minHeight: 44, paddingVertical: 12 },
   open: { alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 16, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold, gap: 4 },
 });

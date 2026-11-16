@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { notePassPurchased, readIntake, writeIntake, type IntakeStore } from "./intake";
+import { confirmAccommodation, INTAKE_KEY, notePassPurchased, readIntake, writeIntake, type IntakeStore } from "./intake";
 
 function memory(): IntakeStore & { values: Map<string, string> } {
   const values = new Map<string, string>();
@@ -11,6 +11,18 @@ function memory(): IntakeStore & { values: Map<string, string> } {
 }
 
 describe("pass purchase", () => {
+  it("preserves ticket preferences and confirmed accommodation through purchase and reload", () => {
+    const store = memory();
+    writeIntake(store, { hasPass: "not-yet", areas: ["law"], needsStay: "yes", completed: [], interests: [], ticketPreference: "boat" });
+    confirmAccommodation(store, { island: "St. Thomas", name: "Example hotel" });
+    notePassPurchased(store);
+    expect(readIntake(store)).toMatchObject({ ticketPreference: "boat", accommodation: { island: "St. Thomas", name: "Example hotel" }, completed: ["stay", "pass"] });
+  });
+  it("does not treat legacy screen visits as completed bookings", () => {
+    const store = memory();
+    store.setItem(INTAKE_KEY, JSON.stringify({ hasPass: "not-yet", needsStay: "yes", areas: [], completed: ["pass", "stay", "sessions"] }));
+    expect(readIntake(store)?.completed).toEqual([]);
+  });
   it("marks an existing path as holding a pass without dropping the stay answer", () => {
     const store = memory();
     writeIntake(store, { hasPass: "not-yet", areas: ["tech"], needsStay: "yes", completed: ["sessions"], interests: [] });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Rect } from "react-native-svg";
 import { Glass } from "./Glass";
@@ -236,6 +236,7 @@ function InstallSheet({ kind, bottom, onClose }: { kind: Guide; bottom: number; 
     <View style={styles.overlay} accessibilityViewIsModal accessibilityLabel="Add to Home Screen">
       <Pressable accessibilityRole="button" accessibilityLabel="Close install steps" style={styles.backdrop} onPress={onClose} />
       <Glass tone="dark" style={[styles.sheet, { marginBottom: Math.max(bottom, 16), backgroundColor: "rgba(7,27,42,0.94)" }]}>
+        <ScrollView contentContainerStyle={{ gap: 12 }} style={{ flexShrink: 1 }}>
         <T variant="eyebrow" color={colors.gold}>Home Screen</T>
         <T variant="title" color={colors.ivory}>Add TATEL</T>
         {steps.some((step) => step.icon === "share") ? (
@@ -260,6 +261,7 @@ function InstallSheet({ kind, bottom, onClose }: { kind: Guide; bottom: number; 
             <T variant="button" color={colors.gold}>{copied ? "Copied" : "Copy link"}</T>
           </Pressable>
         ) : null}
+        </ScrollView>
         <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} style={styles.done}>
           <T variant="button" color={colors.ink}>Done</T>
         </Pressable>
@@ -339,6 +341,7 @@ const styles = StyleSheet.create({
   },
   sheet: {
     marginHorizontal: 12,
+    maxHeight: "90%",
     gap: 12,
     borderRadius: 22,
   },
@@ -379,5 +382,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(7,27,42,0.88)",
   },
-  shareCall: { flexDirection: "row", alignItems: "center", gap: 10 },
+  shareCall: { flexDirection: "row", alignItems: "center", gap: 10, flexShrink: 1 },
 });

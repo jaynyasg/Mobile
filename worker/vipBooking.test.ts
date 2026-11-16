@@ -30,6 +30,20 @@ function start(preference: "shared" | "full_boat", mail: { send: (message: MailM
 }
 
 describe("VIP group booking", () => {
+  it("rejects missing or invalid host contact details before creating or emailing a booking", async () => {
+    for (const boatPreference of ["shared", "full_boat"]) {
+      for (const fields of [{}, { hostName: " ", hostEmail: "ada@example.com", hostPhone: "+13405550100" }, { hostName: "Ada", hostEmail: "bad", hostPhone: "+13405550100" }, { hostName: "Ada", hostEmail: "ada@example.com", hostPhone: "123" }]) {
+        const store = memoryVipStore();
+        const create = vi.spyOn(store, "create");
+        const mail = mailBox();
+        const response = await handleVipRequest(new Request("https://tatel.app/api/vip-booking", { method: "POST", body: JSON.stringify({ boatPreference, ...fields }) }), {}, { store, mail: mail.mail, now: NOW, book: { hits: new Map() } });
+        expect(response.status).toBe(400);
+        expect((await response.json() as { error: string }).error).toBe("contact");
+        expect(create).not.toHaveBeenCalled();
+        expect(mail.sent).toHaveLength(0);
+      }
+    }
+  });
   it("emails the team immediately when the host is open to sharing, and not for a full boat", async () => {
     const sharedMail = mailBox();
     const stripe = vi.fn(async () => { throw new Error("stripe"); });

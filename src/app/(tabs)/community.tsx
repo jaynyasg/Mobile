@@ -62,7 +62,8 @@ export default function CommunityScreen() {
 
   useEffect(() => {
     // The sign-in route is its own chunk. Start it while Chat is open so the form is ready on tap.
-    void import("../community-sign-in");
+    // Preloading is optional: navigating away or going offline can cancel the request.
+    void import("../community-sign-in").catch(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -106,6 +107,7 @@ export default function CommunityScreen() {
       <Glass tone="dark" style={styles.pad}>
         <CrystalMark size="mark" />
         <T variant="title" foil>Community</T>
+        <T variant="small">The best part of the trip might start with hello. Share what excites you, find a collaborator, or make plans to meet between sessions. Post an idea on the community board, or open Live chat and get the conversation going.</T>
         <View style={styles.row}>
           <Link href="/community-room" asChild>
             <Pressable accessibilityRole="button" style={styles.pill}>

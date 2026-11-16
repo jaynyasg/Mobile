@@ -310,7 +310,7 @@ try {
           if (await clickIf(page, "Retake questions")) {
             const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];
             for (const issue of issues) failures.push({ ...issue, where: `${label} / questions` });
-            await clickIf(page, "Skip");
+            await clickIf(page, "Plan later");
           }
           await page.goto(base + "/agenda", { waitUntil: "domcontentloaded" });
           await page.waitForTimeout(300);

@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useMemo, useRef, useState, type ComponentRef } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { panelistById } from "@/content";
@@ -10,6 +10,7 @@ import { Glass } from "@/components/Glass";
 import { Screen } from "@/components/Screen";
 import { SearchField } from "@/components/SearchField";
 import { SessionRow } from "@/components/SessionRow";
+import { SessionGuide } from "@/components/SessionGuide";
 import { T } from "@/components/Text";
 import { DayFilter } from "@/components/DayFilter";
 import { ChipRail } from "@/components/ChipRail";
@@ -24,9 +25,6 @@ import { dockClearance } from "@/components/Dock";
 import { nightGlass } from "@/components/nightGlass";
 import { colors, sceneForIsland } from "@/theme";
 import { StepBridge } from "@/components/StepBridge";
-import { readIntake } from "@/logic/intake";
-import { phaseTag, sessionInterest, suggestSessions } from "@/logic/techInterest";
-import { webStorage } from "@/welcome";
 
 const kinds: { id: SessionKind; label: string }[] = [
   { id: "all", label: "All" },
@@ -36,6 +34,9 @@ const kinds: { id: SessionKind; label: string }[] = [
 ];
 
 export default function AgendaScreen() {
+  const router = useRouter();
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const programOffset = useRef(0);
   const params = useLocalSearchParams<{ day?: string; panelist?: string; pillar?: string }>();
   const { program } = useContent();
   const { forum, panelists, sessions } = program;
@@ -84,15 +85,18 @@ export default function AgendaScreen() {
 
   return (
     <View style={styles.frame}>
-      <Screen docked photo={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).day} night={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).night} phase={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).phase}>
+      <Screen scrollRef={scrollRef} docked photo={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).day} night={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).night} phase={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).phase}>
         <StepBridge id="sessions" />
-        <SuggestedSessions />
+        <SessionGuide onStepChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })} onMatches={() => setYourAreas(false)} onBrowse={() => { setYourAreas(false); setDayId("all"); setPillarId("all"); setIsland("all"); setKind("all"); setPanelistId("all"); setQuery(""); scrollRef.current?.scrollTo({ y: programOffset.current, animated: true }); }} />
+        <Pressable accessibilityRole="button" onPress={() => router.push("/schedule")} style={styles.noteCard}><T variant="button" color={colors.gold}>My schedule · {state.favoriteIds.length} saved</T></Pressable>
+        <View onLayout={(event) => { programOffset.current = event.nativeEvent.layout.y; }}>
         <Glass tone="dark" style={styles.titleRow}>
-          <T variant="title" foil>Sessions</T>
+          <T variant="title" foil>Full program</T>
           <Pressable accessibilityRole="button" accessibilityLabel="About this draft" onPress={() => setNote((open) => !open)} style={styles.info}>
             <T variant="meta" color={colors.gold}>i</T>
           </Pressable>
         </Glass>
+        </View>
         {note ? <View style={styles.noteCard}><T variant="meta" color={colors.onDarkSoft}>{displayCopy(forum.draftNotice)}</T></View> : null}
         <View style={styles.dayBar}>
           <DayFilter days={forum.days} dayId={dayId} onChange={setDayId} />
@@ -154,6 +158,7 @@ export default function AgendaScreen() {
         ) : (
           visible.map((session) => <SessionRow key={session.id} session={session} />)
         )}
+        <StepBridge id="sessions" footer />
       </Screen>
       {filtersOpen ? (
         <View style={styles.sheet}>
@@ -193,33 +198,11 @@ export default function AgendaScreen() {
   );
 }
 
-function SuggestedSessions() {
-  const { program } = useContent();
-  const intake = readIntake(webStorage());
-  if (!intake) return null;
-  const picks = suggestSessions(program.sessions, intake.interests ?? [], intake.areas, 4);
-  if (!picks.length) return null;
-  return (
-    <View>
-      <View style={styles.suggestLabel}>
-        <T variant="eyebrow" color={colors.gold}>Here are your suggested sessions</T>
-      </View>
-      {picks.map((session) => (
-        <SessionRow key={`suggest-${session.id}`} session={session} />
-      ))}
-      <View style={styles.suggestLabel}>
-        <T variant="meta" color={colors.gold}>{picks.map((session) => [sessionInterest(session), phaseTag(session.phase)].filter(Boolean).join(" ")).join(" · ")}</T>
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   frame: { flex: 1 },
   titleRow: { marginHorizontal: 16, marginBottom: 8, flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 8, paddingHorizontal: 14 },
   info: { width: 28, height: 28, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.gold, alignItems: "center", justifyContent: "center" },
   noteCard: { alignSelf: "stretch", marginHorizontal: 16, marginBottom: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, ...nightGlass },
-  suggestLabel: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, ...nightGlass },
   count: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, paddingHorizontal: 12, paddingVertical: 6 },
   dayBar: { backgroundColor: "rgba(7,20,33,0.92)" },
   tools: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingBottom: 8 },

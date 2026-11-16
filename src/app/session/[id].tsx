@@ -16,6 +16,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui";
 import { portraitFor } from "@/images";
 import { deviceTimeZone, formatRange, sameClock } from "@/logic/time";
 import { phaseTag, sessionInterest } from "@/logic/techInterest";
+import { sessionGoal } from "@/logic/sessionGuide";
 import { useContent } from "@/content/provider";
 import { useApp } from "@/store";
 import { plateForIsland } from "@/components/backgrounds";
@@ -76,6 +77,8 @@ export default function SessionScreen() {
           {stay ? ` · ${stay.dock}` : ""}
         </T>
         <T variant="body">{displayCopy(session.description)}</T>
+        <T variant="eyebrow" color={colors.gold}>{sessionGoal(session.phase)?.title ?? "Session goal"}</T>
+        <T variant="rowTitle">What you'll work toward</T>
         <T variant="small">{displayCopy(session.outcome)}</T>
         {people.length === 0 ? <T variant="small">{SPEAKER_TBA}</T> : null}
         <View style={styles.actions}>
@@ -86,6 +89,17 @@ export default function SessionScreen() {
           )}
         </View>
       </Glass>
+      <View style={styles.missing}>
+        <T variant="rowTitle" color={colors.gold}>Meet the panelists</T>
+        <T variant="small">Open a profile to learn about their work and other sessions. Keep the conversation going in Chat.</T>
+        <Link href="/speakers" asChild><Pressable accessibilityRole="button" style={styles.peopleLink}><T variant="button" color={colors.gold}>Browse all panelists</T></Pressable></Link>
+      </View>
+      {people.map((personId) => {
+        const person = panelistById(personId);
+        if (!person) return null;
+        const role = participationLabel(session, person.id);
+        return <PersonRow key={person.id} name={person.name} photo={portraitFor(person.photo)} meta={[role ?? "", joinLine([person.title, person.company])].map((line) => line.trim()).filter(Boolean).join("\n")} href={{ pathname: "/speaker/[id]", params: { id: person.id } }} />;
+      })}
       {candidates.map((place) => {
         const hero = place.photos.find((photo) => photo.hero) ?? place.photos[0];
         return (
@@ -102,20 +116,6 @@ export default function SessionScreen() {
           </View>
         );
       })}
-      {people.map((personId) => {
-        const person = panelistById(personId);
-        if (!person) return null;
-        const role = participationLabel(session, person.id);
-        return (
-          <PersonRow
-            key={person.id}
-            name={person.name}
-            photo={portraitFor(person.photo)}
-            meta={[role ?? "", joinLine([person.title, person.company])].map((line) => line.trim()).filter(Boolean).join("\n")}
-            href={{ pathname: "/speaker/[id]", params: { id: person.id } }}
-          />
-        );
-      })}
     </Screen>
   );
 }
@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
   tags: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   actions: { marginTop: 8, alignSelf: "flex-start" },
   missing: { marginHorizontal: 16, marginTop: 12, padding: 16, borderRadius: 18, ...nightGlass },
+  peopleLink: { minHeight: 44, justifyContent: "center" },
   place: { marginHorizontal: 22, marginBottom: 12, minHeight: 150, borderRadius: 16, overflow: "hidden", justifyContent: "flex-end" },
   placePhoto: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 },
   placeCopy: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, zIndex: 1, minWidth: 0 },

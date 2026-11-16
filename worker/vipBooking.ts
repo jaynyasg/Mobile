@@ -1,4 +1,5 @@
 import { DEFAULT_PASS_PRICES, STRIPE_API_VERSION, STRIPE_UI_MODE } from "./checkout";
+import { bookingContactErrors } from "../src/logic/bookingContact";
 import { clientKey, consumeRate, normalizeEmail, type RateBook } from "./quickSignin";
 import {
   HOLD_MS,
@@ -202,6 +203,8 @@ export async function handleVipRequest(request: Request, env: VipEnv, deps: VipD
     const record = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
     const preference = boatPreference(record.boatPreference);
     if (!preference) return json({ error: "preference" }, 400);
+    const fields = bookingContactErrors({ hostName: record.hostName, hostEmail: record.hostEmail, hostPhone: record.hostPhone });
+    if (Object.keys(fields).length) return json({ error: "contact", fields }, 400);
     if (!consumeRate(deps.book ?? sharedBook, `vip:${clientKey(request)}`, now)) return json({ error: "rate" }, 429);
     let created: VipRecord;
     try {

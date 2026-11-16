@@ -89,7 +89,7 @@ The home screen also explains Add to Home Screen on iOS Safari, and shows an Ins
 
 ## What you can do
 
-Bottom tabs: **Home**, **Agenda**, **Panelists**, **Network**, **More**.
+The two-row navigation includes **Home**, **Sessions**, **Explore**, **Tickets**, **Me**, **Chat**, **Panelists**, **Prep guide**, **Routes**, and **Stays**. The approved visual direction is documented in [DESIGN.md](DESIGN.md); the guided journey and verification notes are in [docs/guided-experience-update.md](docs/guided-experience-update.md).
 
 - Home plays the beacon film behind a navy overlay, with a still frame when autoplay is blocked, reduced motion is on, or data saver is on.
 - Agenda filters by day, pillar, island, type, and panelist. Timed sessions show Atlantic time and the phone’s clock. Sessions with `timeLabel` show that label, including “Opening · Time TBC”.

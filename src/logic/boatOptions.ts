@@ -8,32 +8,32 @@ import { FERRY_DOCKS } from "./ferryDocks";
 
 /** Boats are the only way between islands. Taxis stay on one island. */
 export const BOATS_ONLY =
-  "Boats are the only way to move from island to island. Nothing drives between them. A taxi stays on the island it starts on: hotel to dock, or across one island between two boats.";
+  "Plan boat transfers between summit stops. Taxis connect your accommodation, sessions, and docks on the same island. Allow time for both parts of the journey.";
 
 export const BOAT_ACCESS = [
   {
     id: "beach",
     title: "Be on the Beach",
-    pass: "This pass is public ferries and public transportation.",
-    reserve: "Public ferries run on a fixed schedule. Reserve with the operator. Routes lists the current published times and links each operator's page. A timetable for January 26–29, 2027 is not published, except the Lovango resort ferry, which posts dates through April 25, 2027. Check before you travel.",
+    pass: "Attend land-based sessions with Be on the Beach. Arrange your own public ferries and local transfers when you visit another island.",
+    reserve: "Public ferries run on fixed schedules. Check the operator links in Routes for your travel dates, reserve your seats, and confirm the return sailing. Your TATEL ticket does not book these transfers.",
     board: "Docks are listed by island: St. Thomas, St. John, Tortola, and Jost Van Dyke. Tap one to open it in Maps. A taxi stays on the island it starts on, from where you sleep to the dock.",
-    without: "Already on this pass, the public ferry is how you change islands. To ride a private day charter, upgrade to Be on the Boat in Tickets. To stay on one charter for all 5 days, upgrade to Be on Board.",
+    without: "Compare Be on the Boat for a private day charter, or Be on Board for a five-day onboard stay. Ticket details are in Tickets.",
   },
   {
     id: "boat",
     title: "Be on the Boat",
-    pass: "This pass is a private charter for the day. It takes a group to the sessions. It is not a public ferry.",
-    reserve: "Open Tickets and choose Be on the Boat. You do not buy a public ticket. Groups leave at different times. The team confirms the boat and the time. No January departure is reserved yet.",
+    pass: "Be on the Boat connects sessions by private day charter. You travel with a group and arrange your own accommodation on land.",
+    reserve: "Choose Be on the Boat in Tickets. The team confirms your boat, boarding dock, and departure time. Wait for that confirmation before planning connecting transfers.",
     board: "Board at the dock named for that departure. The plan uses Red Hook, Cruz Bay, the Lovango landing, Great Harbour, and Scrub Island Marina.",
-    without: "If you hold Be on the Beach, you are on the public ferry instead. Upgrade in Tickets for the day charter, or keep the public ferry.",
+    without: "Be on the Beach guests arrange their own transfers. Compare the day-charter experience in Tickets if you prefer to travel with a group.",
   },
   {
     id: "board",
     title: "Be on Board",
-    pass: "This is the VIP charter you stay on for all 5 days. A full boat is 8 shares at $5,000, $40,000 for the boat. Choose the full boat for your own group, or say you are open to sharing.",
-    reserve: "Start a VIP group in Tickets and pick full boat or open to sharing. The team confirms the boat and the berth. This is not a public ferry and not the day charter.",
-    board: "The team tells you where to board. The sample plan starts near Red Hook. Later stops are confirmed with the boat.",
-    without: "Without this pass you do not stay on the charter. Upgrade in Tickets, or use Be on the Boat for a day charter, or Be on the Beach for the public ferry.",
+    pass: "Stay aboard for five days. A full boat has eight shares at $5,000 each ($40,000 total). Bring your own group of eight or ask to share with other guests.",
+    reserve: "Choose Be on Board in Tickets. Add your contact details and boat preference to start a booking. The team confirms your charter and berth.",
+    board: "Use the boarding location and time in your charter confirmation. The team will also confirm your island stops.",
+    without: "An overnight berth is part of Be on Board. Beach and Boat guests arrange accommodation on land; compare all three experiences in Tickets.",
   },
 ] as const;
 
@@ -118,12 +118,12 @@ export const boatOptions: BoatOption[] = [
     id: "powerboat",
     title: "Be on the Boat",
     kicker: "Private charter for the day",
-    what: "A private charter that takes a group to the sessions for the day. Groups leave at different times. The plan estimates a fast boat at roughly 20–25 knots where that speed is allowed. It does not name the length or the operator. The team confirms the actual boat.",
+    what: "Travel between island sessions on a private day charter with your group. The team confirms your boat and departure times. You return to accommodation on land at night.",
     shared: "Private charter, shared with your group for the day. Not a public ferry.",
     speed: "Planning speed about 20–25 knots. That is an estimate, not a reserved departure.",
     comfort: "A day boat: you ride with your group from session to session, then you are off it. It is not the charter you sleep on.",
-    pass: "Included with Be on the Boat. Open Tickets and choose that pass. Be on the Beach is the public ferry instead. Be on Board is the charter you stay on for all 5 days.",
-    how: "You do not buy a public ticket. The team assigns the day charter. Groups depart at different times. No January timetable is reserved yet.",
+    pass: "Day-charter travel is included with Be on the Boat. Book your hotel separately. Compare all three experiences in Tickets.",
+    how: "Choose Be on the Boat in Tickets, then follow the team's charter confirmation. Groups may have different departure times; check the details for your own booking.",
     board: "Board at the dock named for that morning. The plan starts near Red Hook on St. Thomas and uses Cruz Bay, the Lovango landing, Great Harbour on Jost Van Dyke, and Scrub Island Marina as the other stops.",
     checkIn: "On the St. Thomas mornings, the plan says check in by 8:30am near Red Hook. Other mornings are confirmed by the team. Arrive before the boat leaves. A late arrival does not hold the boat.",
     bring: "Your pass on this phone. A passport, and the BVI entry card, on any hop from the USVI into the BVI. Dress for sun and spray.",
@@ -140,7 +140,7 @@ export const boatOptions: BoatOption[] = [
     shared: "Shared. A public ferry or a resort launch, not your own boat.",
     speed: "Lovango says its guest ferry is about 15–30 minutes from Red Hook and about 10 minutes from Cruz Bay.",
     comfort: "A passenger ferry or a small resort launch. You wait for the next published boat if you miss one.",
-    pass: "This is what Be on the Beach uses: public ferries between islands, and taxis on land. It is not included with Be on the Boat or Be on Board.",
+    pass: "Be on the Beach gives you access to land-based sessions. Arrange and pay for your own ferries and taxis if you want to attend sessions on other islands.",
     how: "Reserve with the operator. Lovango’s resort ferry is for its guests and needs a reservation. The Scrub Island ferry is for resort guests. New Horizon runs between West End, Tortola and Great Harbour, Jost Van Dyke. These seats are not booked for you. Check with the operator before you travel. For a private charter, upgrade in Tickets.",
     board: "St. Thomas to St. John leaves from the Red Hook ferry dock or the Charlotte Amalie dock on the downtown waterfront, and lands at Cruz Bay. BVI ferries from Charlotte Amalie leave from Native Son at Blyden Marine Terminal. West End, Great Harbour, and the Road Town Fast Ferry terminal are on the list below. The Scrub Island guest ferry leaves from Trellis Bay. Lovango’s resort ferry leaves from the resort’s pier in Red Hook and from Cruz Bay.",
     checkIn: "Be at the dock in time for the operator’s check-in. A sample in the plan allows about 30 minutes. Confirm that with the operator. The boat will not wait.",
@@ -158,14 +158,14 @@ export const boatOptions: BoatOption[] = [
     id: "yacht",
     title: "Be on Board",
     kicker: "The charter you stay on",
-    what: "A charter you stay on for all 5 days. A full boat is 8 shares at $5,000, $40,000. You take the full boat for your own group, or you share. The sample notes also describe a slower overnight yacht at about six knots. That figure is a planning estimate, not a promise of which boat VIP uses. The team confirms the boat.",
+    what: "Make the yacht your home for five days. Be on Board combines an overnight stay with travel between island stops. Bring your group of eight or ask to share. A full boat costs $40,000: eight shares at $5,000 each.",
     shared: "Your group, or a boat you chose to share. Not a public ferry, and not the day charter.",
-    speed: "The team confirms the boat. A sailing sample in the plan uses about six knots and does not fit five islands in one afternoon. Do not treat that sample as the VIP timetable.",
-    comfort: "You live on this boat for the voyage. The berth and the captain are confirmed by the team. They are not booked in this plan.",
-    pass: "Included with Be on Board, the VIP pass. In Tickets, start a group of 8 shares. Choose a full boat or say you are open to sharing. Be on the Boat is only a day charter. Be on the Beach is the public ferry.",
-    how: "Start a VIP group in Tickets and pick full boat or open to sharing. The team confirms the boat, the berth, and where you meet it.",
-    board: "The sample starts near Red Hook, with the yacht and crew ready, and overnight berths are named only as authorized stops at St. John, Jost Van Dyke, or the next island. The exact dock is confirmed with the captain.",
-    checkIn: "There is no public check-in desk. The plan says the yacht and crew are ready for departure. The team tells you where to meet them.",
+    speed: "Travel times depend on your assigned boat, weather, and route. Use the itinerary confirmed by the team when choosing sessions.",
+    comfort: "Sleep aboard throughout the charter. The team confirms your berth and the facilities on your assigned boat.",
+    pass: "Be on Board includes an onboard stay. Start a booking for eight shares in Tickets, with your own group or a request to share. Be on the Boat guests use day charters; Be on the Beach guests arrange their own transfers.",
+    how: "Choose Be on Board in Tickets, select your boat preference, and enter your contact details. You'll receive a group booking link for payment. The team confirms the charter arrangements.",
+    board: "Meet your captain at the dock in your booking confirmation. Check the boarding location before arranging a taxi or connecting ferry.",
+    checkIn: "Confirm your arrival time with the team. Ask about check-in and check-out dates for the five-day charter, including any nights outside the four-day summit.",
     bring: "Your pass, a passport, and the BVI entry card before any international hop. Soft bags are easier on a tender. The captain confirms the rest.",
     docks: [docks.redHook, docks.cruzSearch, docks.jostSearch, docks.scrub],
     sources: [
@@ -187,7 +187,7 @@ export interface StayHop {
 export const stayHops: StayHop[] = [
   {
     island: "St. Thomas",
-    how: "Taxi. Emerald Beach Resort and Lindbergh Bay Hotel & Villas are on Lindbergh Bay, by Cyril E. King Airport. The conference boats in this plan leave from Red Hook, on the east end. The road crosses the island through Charlotte Amalie. The team does not publish a taxi fare or a minute count.",
+    how: "Take a taxi from Emerald Beach Resort or Lindbergh Bay Hotel & Villas to Red Hook on the east end of St. Thomas. Confirm your boarding dock first, then ask your hotel or driver about the fare and how much travel time to allow.",
     from: "Lindbergh Bay",
     to: "Red Hook",
     origin: "Emerald Beach Resort, St. Thomas",
@@ -195,7 +195,7 @@ export const stayHops: StayHop[] = [
   },
   {
     island: "St. John",
-    how: "Walk if you are staying in Cruz Bay. From the Westin in Great Cruz Bay, take a taxi back to the Cruz Bay dock. The fare is not listed here.",
+    how: "Walk to the dock if you're staying in Cruz Bay. From the Westin in Great Cruz Bay, arrange a taxi to Cruz Bay and confirm the fare with your driver.",
     from: "Great Cruz Bay",
     to: "Cruz Bay dock",
     origin: "Westin St. John, Great Cruz Bay",

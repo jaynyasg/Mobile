@@ -53,9 +53,9 @@ export function Welcome({ onClose, start = "arrival" }: { onClose: () => void; s
   const tracks = (
     <View style={styles.overlay}>
       <ScrollView contentContainerStyle={[styles.trackScroll, notchPadding("top", 20, insets.top)]}>
-        <T variant="eyebrow" color={colors.gold}>Infrastructures</T>
-        <T variant="title" color={colors.foam} style={styles.ask}>Which infrastructure areas interest you?</T>
-        <T variant="small" color={colors.foam}>Pick one or more. We'll tailor Sessions and your route.</T>
+        <T variant="eyebrow" color={colors.gold}>Your interests</T>
+        <T variant="title" color={colors.foam} style={styles.ask}>What would you like to explore?</T>
+        <T variant="small" color={colors.foam}>Choose any topics you like. We'll use them to suggest sessions.</T>
         {forum.pillars.map((pillar) => {
           const on = picked.includes(pillar.id);
           return (

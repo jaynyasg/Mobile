@@ -1,5 +1,9 @@
 export type PassTier = "beach" | "boat" | "vip";
 
+export function confirmedPayment(body: { status?: string; paymentStatus?: string | null; tier?: string | null }, expected?: PassTier): boolean {
+  return body.status === "complete" && body.paymentStatus === "paid" && passTier(body.tier) != null && (!expected || body.tier === expected);
+}
+
 export const CHECKOUT_SOON = "Checkout opening soon";
 
 export function passTier(value: string | null | undefined): PassTier | null {

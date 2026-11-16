@@ -109,7 +109,7 @@ export default function RoutesScreen() {
         <StepBridge id="route" />
         <View style={styles.intro}>
           <T variant="eyebrow" color={colors.gold}>Logistics</T>
-          <T variant="small" color={colors.foam}>Boats are the only way from island to island. Be on the Beach is the public ferry. Be on the Boat is a private charter for the day. Be on Board is the VIP charter you stay on for all 5 days. A taxi stays on one island. This is not Explore.</T>
+          <T variant="small" color={colors.foam}>Plan boat transfers between summit islands and local taxis to the dock. Beach guests arrange their own ferries or transfers; Boat guests use a day charter; Board guests stay aboard their five-day charter. Check confirmed departures before finalizing your plans.</T>
         </View>
         <BoatCards />
         <FerryBoard dayId={day.date} sessions={program.sessions} />

@@ -1,11 +1,11 @@
 const LETTERS = ["tech", "ai", "travel", "entertainment", "law"] as const;
 
 /** How long each letter stays lit before the next one. */
-export const LETTER_BEAT_MS = 3_500;
+export const LETTER_BEAT_MS = 9_000;
 /** How long each day stays up before the next one. */
-export const DAY_BEAT_MS = 5_000;
+export const DAY_BEAT_MS = 12_000;
 
-export function storyBeat(kind: "letter" | "day" | "name" | "goal" | "islands" | "arc"): number {
+export function storyBeat(kind: "letter" | "day" | "name" | "goal" | "islands" | "arc" | "experience"): number {
   return kind === "letter" ? LETTER_BEAT_MS : DAY_BEAT_MS;
 }
 
@@ -24,24 +24,24 @@ export interface AreaCopy {
 /** Website lines for the five letters. Each one is different. */
 export const AREA_COPY: Record<(typeof LETTERS)[number], AreaCopy> = {
   tech: {
-    headline: "The Place-Operating System",
-    body: "Physical assets — farms, water, ports, energy, broadband, property, public services — become one digital backbone.",
+    headline: "Technology that works here",
+    body: "Build practical tools for island life: food systems, water, energy, ports, connectivity, and public services.",
   },
   ai: {
-    headline: "AI That Understands a Place",
-    body: "Institutional records and local knowledge become governed intelligence a place can act on.",
+    headline: "AI with local knowledge",
+    body: "Explore how artificial intelligence can help people and organizations, using local knowledge and data responsibly.",
   },
   travel: {
-    headline: "One Journey Across Waters",
-    body: "Dozens of separate operators become one bookable, trackable journey that connects local businesses with the world.",
+    headline: "Better journeys, connected islands",
+    body: "Bring hotels, boats, destinations, and local businesses together to make travel easier and create new opportunities.",
   },
   entertainment: {
-    headline: "The Place as a World",
-    body: "Culture, film, sport and gaming become value the creators and the community own, and can share in new expansive ways, that matter.",
+    headline: "Island culture, new possibilities",
+    body: "Connect film, music, sport, and gaming with technology. Create experiences that benefit both creators and their communities.",
   },
   law: {
-    headline: "The Rules That Let the Build Travel",
-    body: "A working system and newly developed systems are implemented, expanded upon, applied across places, and carried to the next place.",
+    headline: "Build with trust",
+    body: "Work through the legal questions behind new ideas: data rights, ownership, business, and responsible use of technology.",
   },
 };
 
@@ -50,7 +50,7 @@ export const FULL_NAME = "Tech, AI, Travel, Entertainment, and Law";
 export const ISLANDS_LINE = "The U.S. Virgin Islands and the British Virgin Islands, in the Caribbean just east of Puerto Rico.";
 
 export const ISLANDS_NOTE =
-  "The USVI is a United States territory. Its main islands are St. Thomas, St. John, and St. Croix. The BVI is a British Overseas Territory beside it. Its main islands include Tortola, Virgin Gorda, Anegada, and Jost Van Dyke. This summit meets on or near St. Thomas, St. John, Lovango, Jost Van Dyke, and Scrub Island. Boats are the only way from one of these islands to another. Be on the Beach uses the public ferry. Be on the Boat is a private charter for the day. Be on Board is the VIP charter you stay on for all 5 days.";
+  "The summit brings you to St. Thomas, St. John, and Lovango in the U.S. Virgin Islands, and Jost Van Dyke and Scrub Island in the British Virgin Islands. Plan boat transfers between summit stops. Crossing between the two territories means clearing an international border; check the Preparation guide before you travel.";
 
 export interface TatelLetter {
   id: (typeof LETTERS)[number];
@@ -61,7 +61,7 @@ export interface TatelLetter {
 
 export interface StorySlide {
   id: string;
-  kind: "goal" | "name" | "letter" | "islands" | "arc" | "day";
+  kind: "goal" | "name" | "letter" | "islands" | "arc" | "day" | "experience";
   kicker: string;
   title: string;
   line: string;
@@ -71,19 +71,19 @@ export interface StorySlide {
 }
 
 export function letterPlaceLine(name: string, island: string): string {
-  return `${name}: located on or near ${island}`;
+  return `${name} · on or near ${island}`;
 }
 
 export function dayCoverLine(dayNumber: string, phase: string): string {
-  return `Jan ${dayNumber} sessions cover ${phase}`;
+  return `January ${dayNumber} · ${phase}`;
 }
 
 /** Plain line for a phase that is already in the program. Unknown phases stay blank. */
 export function dayFlowLine(phase: string): string {
-  if (phase === "The Problem") return "Jan 26 sessions name what is broken in these places: the farms, water, ports, energy, records, journeys, stories, and rules.";
-  if (phase === "The Plan / Solution") return "Jan 27 takes that problem and turns it into a plan the island can run.";
-  if (phase === "Build") return "Jan 28 builds solutions across the infrastructure areas, so a tech economy forms here. The aim is production we can ship, and use later to grow that area.";
-  if (phase === "Showcase") return "Jan 29 shows what the build produced, so it can be carried to the next place and grow that infrastructure area.";
+  if (phase === "The Problem") return "Hear from people who know the islands. Use the sessions to understand local needs, share evidence, and choose a challenge worth solving.";
+  if (phase === "The Plan / Solution") return "Turn what you've learned into a practical plan. Work with people from other fields to decide what to build and who it will help.";
+  if (phase === "Build") return "Put the plan to work. Collaborate on prototypes, tools, and services that can support a lasting island technology economy.";
+  if (phase === "Showcase") return "Share what you've made, meet potential partners, and decide how the work can continue after the summit.";
   return "";
 }
 
@@ -138,18 +138,18 @@ export function storySlides(input: {
   const goal: StorySlide = {
     id: "goal",
     kind: "goal",
-    kicker: "The goal",
-    title: "Solve it where it is",
-    line: `The work is the problems in five infrastructure areas: ${FULL_NAME}.`,
-    note: "Each problem belongs to a place. Farms, water, ports, energy, broadband, property, and public services. Then the records, the journeys, the stories, and the rules around them.",
+    kicker: "An extraordinary setting. A shared ambition.",
+    title: "Make waves. Make it matter.",
+    line: "TATEL brings local communities and global experts together in the Virgin Islands to turn bold ideas into useful work.",
+    note: "Come for the people, the blue water, and the possibility. Help build practical technology through an incubator and expert network that keeps the work moving long after the summit. The adventure should leave something lasting.",
   };
   const name: StorySlide = {
     id: "name",
     kind: "name",
     kicker: "The name",
     title: FULL_NAME,
-    line: `TATEL spells ${FULL_NAME}.`,
-    note: "The long form first. The next screens take one letter at a time.",
+    line: "Five infrastructure areas. One invitation to make things happen.",
+    note: "Bring your expertise, your questions, or your next big idea. Founders, creators, learners, investors, and island organizations come together in hands-on sessions on shore and on the water. You don't need to know every field. Curiosity belongs here.",
   };
   const letterSlides: StorySlide[] = letters.map((item) => ({
     id: item.id,
@@ -165,17 +165,17 @@ export function storySlides(input: {
     id: "islands",
     kind: "islands",
     kicker: "The Virgin Islands",
-    title: "Two territories, one archipelago",
+    title: "Let the islands draw you in.",
     line: ISLANDS_LINE,
     note: ISLANDS_NOTE,
   };
   const arc: StorySlide = {
     id: "arc",
     kind: "arc",
-    kicker: "Why the days run in this order",
-    title: "Problem, then plan, then build, then showcase",
-    line: "Jan 26, then 27, then 28, then 29. Each day uses what the day before made.",
-    note: "Name the problem in the place. Turn it into a plan. Build solutions across the infrastructure areas so a tech economy can form, with production we can ship. Then show that production so it can grow the area later.",
+    kicker: "January 26–29, 2027",
+    title: "Four days to move an idea forward",
+    line: "Understand the problem. Make a plan. Build together. Share the results.",
+    note: "Find a challenge you care about. Meet your collaborators. Make something tangible together. Around that shared purpose, leave space for a swim, a beautiful meal, and a conversation you didn't see coming. Venues and some timings are still being confirmed.",
   };
   const days: StorySlide[] = input.days.map((day) => ({
     id: day.id,
@@ -185,5 +185,15 @@ export function storySlides(input: {
     line: dayCoverLine(day.dayNumber, day.phase),
     note: dayFlowLine(day.phase),
   }));
-  return [goal, name, ...letterSlides, islands, arc, ...days];
+  const people: StorySlide = {
+    id: "people", kind: "experience", kicker: "The company is part of the magic", title: "A spark. A conversation. A possibility.",
+    line: "Meet people who make you think bigger—and make the trip more fun.",
+    note: "Explore the panelists, find sessions around your interests and goals, and break the ice in Chat. Come with a question. Leave room for the collaborator, friend, or unexpected introduction that changes what happens next.",
+  };
+  const getaway: StorySlide = {
+    id: "getaway", kind: "experience", kicker: "Ambition meets island life", title: "Come alive between the sessions.",
+    line: "Sun on your skin. Salt in the air. A reason to dress up after a day of big ideas.",
+    note: "Discover beaches, local flavors, and the program's red-carpet screening. Collect island stamps as you go. Shape a trip with time to build, time to connect, and time to let go. Your ticket, stay, sessions, and island guide are next.",
+  };
+  return [goal, name, ...letterSlides, islands, arc, ...days, people, getaway];
 }

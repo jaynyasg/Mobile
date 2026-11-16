@@ -1,4 +1,4 @@
-const CACHE = "tatel-shell-v9";
+const CACHE = "tatel-shell-v10";
 const SHELL = ["/", "/index.html", "/manifest.webmanifest", "/favicon.ico", "/apple-touch-icon.png", "/icons/icon-192.png", "/icons/icon-512.png", "/icons/icon-192-maskable.png", "/icons/icon-512-maskable.png", "/beacon/coast/white-bay-day.jpg"];
 
 self.addEventListener("install", (event) => {
@@ -25,6 +25,9 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Payment, booking, and account responses must always come from the server.
+  // The program already has its own explicit offline fallback in the app.
+  if (url.pathname.startsWith("/api/")) return;
   // Let the browser fetch video itself. A service worker in the middle drops Range
   // responses on Android Chrome and the film stays on the first frame.
   if (/\.(mp4|webm)$/i.test(url.pathname)) return;

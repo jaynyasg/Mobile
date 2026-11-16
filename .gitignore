@@ -49,3 +49,6 @@ example
 
 # generated stamp posters contain live codes
 stamp-posters.html
+
+# AgentOps session artifacts
+/.agents/
