@@ -20,6 +20,10 @@ export interface FerryLeg {
   sourceTitle: string;
   sourceUrl: string;
   asOf: string;
+  /** Resort host line, when the schedule prints a phone number. */
+  phone?: string;
+  phoneLabel?: string;
+  special?: string;
 }
 
 /** Primary source for St. Thomas–St. John passenger ferries. */
@@ -39,6 +43,15 @@ export const FERRY_NOTE =
 
 export const CHARTER_CONTRAST =
   "Be on the Boat day charters leave at set group times the team confirms. Be on Board is the charter you stay on, and it runs on your group's own schedule. Neither one uses this public timetable.";
+
+/** Scrub Island resort guest ferry. Times are the owner's Oct 29, 2026 sheet, not the hourly BVI Tourism line. */
+export const SCRUB_FERRY_URL = "https://www.scrubisland.com/";
+export const SCRUB_FERRY_LABEL = "Complimentary guest ferry, effective Oct 29, 2026, subject to change.";
+export const SCRUB_FERRY_PHONE = "tel:+12843943440";
+export const SCRUB_FERRY_SPECIAL =
+  "Special runs are $300 one way during regular hours. Any run after 10:30 pm must be requested through Resort Hosts. Call Resort Hosts.";
+const SCRUB_FROM_TRELLIS = ["5:45am", "6:45am", "7:45am", "8:45am", "9:45am", "11:45am", "1:45pm", "2:45pm", "3:45pm", "4:45pm", "5:45pm", "7:45pm", "9:45pm", "10:45pm"];
+const SCRUB_FROM_ISLAND = ["6:30am", "7:30am", "8:30am", "9:30am", "11:30am", "1:30pm", "2:30pm", "3:30pm", "4:30pm", "5:30pm", "7:30pm", "9:30pm", "10:30pm"];
 
 export const ferryLegs: FerryLeg[] = [
   {
@@ -194,17 +207,38 @@ export const ferryLegs: FerryLeg[] = [
   {
     id: "trellis-scrub",
     title: "Trellis Bay to Scrub Island",
-    from: "Trellis Bay, Beef Island",
+    from: "Trellis Bay, Beef Island, Tortola",
     to: "Scrub Island",
     island: "Scrub Island",
-    operator: "Scrub Island ferry, as listed by BVI Tourism",
-    days: "Daily. Departs Trellis Bay at 5:45am and every hour on the :45 until 10:45pm.",
-    departures: ["5:45am", "6:45am", "7:45am", "8:45am", "9:45am", "10:45am", "11:45am", "12:45pm", "1:45pm", "2:45pm", "3:45pm", "4:45pm", "5:45pm"],
-    crossing: null,
-    crossingMinutes: null,
-    sourceTitle: "Official BVI ferry schedules",
-    sourceUrl: OFFICIAL_BVI_FERRY_URL,
-    asOf: BVI_AS_OF,
+    operator: "Scrub Island resort guest ferry",
+    days: SCRUB_FERRY_LABEL,
+    departures: SCRUB_FROM_TRELLIS,
+    crossing: "The resort sheet says the ferry runs are approximately 10 minutes each way.",
+    crossingMinutes: 10,
+    sourceTitle: "Scrub Island",
+    sourceUrl: SCRUB_FERRY_URL,
+    asOf: SCRUB_FERRY_LABEL,
+    phone: SCRUB_FERRY_PHONE,
+    phoneLabel: "Resort Hosts +1 284-394-3440",
+    special: SCRUB_FERRY_SPECIAL,
+  },
+  {
+    id: "scrub-trellis",
+    title: "Scrub Island to Trellis Bay",
+    from: "Scrub Island",
+    to: "Trellis Bay, Beef Island, Tortola",
+    island: "Trellis Bay",
+    operator: "Scrub Island resort guest ferry",
+    days: SCRUB_FERRY_LABEL,
+    departures: SCRUB_FROM_ISLAND,
+    crossing: "The resort sheet says the ferry runs are approximately 10 minutes each way.",
+    crossingMinutes: 10,
+    sourceTitle: "Scrub Island",
+    sourceUrl: SCRUB_FERRY_URL,
+    asOf: SCRUB_FERRY_LABEL,
+    phone: SCRUB_FERRY_PHONE,
+    phoneLabel: "Resort Hosts +1 284-394-3440",
+    special: SCRUB_FERRY_SPECIAL,
   },
 ];
 

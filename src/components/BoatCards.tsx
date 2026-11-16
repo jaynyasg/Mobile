@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { BOAT_ACCESS, BOATS_ONLY, boatOptions, mapsDirections, mapsSearch, stayHops, type BoatOption } from "@/logic/boatOptions";
-import { LOVANGO_FERRY_BOOK_URL } from "@/logic/ferryDocks";
+import { WhereToBoard } from "./WhereToBoard";
 import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 import { ExternalLink, ExternalText } from "./ExternalLink";
@@ -77,15 +77,16 @@ function BoatCard({ boat }: { boat: BoatOption }) {
           <T variant="small" color={colors.foam}>{body}</T>
         </View>
       ))}
-      <T variant="meta" color={colors.gold}>{boat.id === "ferry" ? "Where to board" : "Docks"}</T>
-      {boat.docks.map((dock) => (
-        <ExternalLink key={dock.name} href={dock.url ?? mapsSearch(dock.query)} label={dock.name}>
-          {dock.name}
-        </ExternalLink>
-      ))}
-      {boat.id === "ferry" ? (
-        <ExternalLink href={LOVANGO_FERRY_BOOK_URL} label="Book the Lovango ferry">Book the Lovango ferry</ExternalLink>
-      ) : null}
+      {boat.id === "ferry" ? <WhereToBoard /> : (
+        <>
+          <T variant="meta" color={colors.gold}>Docks</T>
+          {boat.docks.map((dock) => (
+            <ExternalLink key={dock.name} href={dock.url ?? mapsSearch(dock.query)} label={dock.name}>
+              {dock.name}
+            </ExternalLink>
+          ))}
+        </>
+      )}
       <T variant="meta" color={colors.gold}>Sources</T>
       {boat.sources.map((source) => (
         <ExternalText key={source.url} href={source.url} label={source.title} />

@@ -6,8 +6,8 @@ import { T } from "@/components/Text";
 import { essentials } from "@/guide/essentials";
 import { colors } from "@/theme";
 import { ExternalLink } from "@/components/ExternalLink";
-import { BVI_ENTRY, OFFICIAL_BVI_FERRY_URL, OFFICIAL_USVI_FERRY_URL } from "@/logic/ferrySchedule";
-import { FERRY_DOCKS, LOVANGO_FERRY_BOOK_URL } from "@/logic/ferryDocks";
+import { BVI_ENTRY, OFFICIAL_BVI_FERRY_URL, OFFICIAL_USVI_FERRY_URL, SCRUB_FERRY_LABEL, SCRUB_FERRY_PHONE, SCRUB_FERRY_SPECIAL, SCRUB_FERRY_URL } from "@/logic/ferrySchedule";
+import { WhereToBoard } from "@/components/WhereToBoard";
 import { StepBridge } from "@/components/StepBridge";
 import { nightGlass } from "@/components/nightGlass";
 
@@ -29,12 +29,15 @@ export default function KnowScreen() {
         <ExternalLink href={OFFICIAL_BVI_FERRY_URL} label="Official BVI ferry schedules">Official BVI ferry schedules</ExternalLink>
       </View>
       <View style={[styles.card, nightGlass]}>
-        <T variant="rowTitle" color={colors.foam}>Where to board</T>
-        <T variant="small" color={colors.foam}>Public ferry docks with a pin. West End, Road Town, Spanish Town, Trellis Bay, and Scrub Island are on the schedules and are not pinned. Lovango’s St. Thomas boat uses the resort pier in Red Hook, not the public Red Hook ferry dock.</T>
-        {FERRY_DOCKS.map((dock) => (
-          <ExternalLink key={dock.id} href={dock.url} label={dock.name}>{dock.name}</ExternalLink>
-        ))}
-        <ExternalLink href={LOVANGO_FERRY_BOOK_URL} label="Book the Lovango ferry">Book the Lovango ferry</ExternalLink>
+        <T variant="rowTitle" color={colors.foam}>Scrub Island ferry</T>
+        <T variant="small" color={colors.foam}>{SCRUB_FERRY_LABEL} About 10 minutes each way. Trellis Bay departs 5:45, 6:45, 7:45, 8:45, 9:45, and 11:45am, then 1:45, 2:45, 3:45, 4:45, 5:45, 7:45, 9:45, and 10:45pm. Scrub Island departs 6:30, 7:30, 8:30, 9:30, and 11:30am, then 1:30, 2:30, 3:30, 4:30, 5:30, 7:30, 9:30, and 10:30pm.</T>
+        <T variant="small" color={colors.foam}>{SCRUB_FERRY_SPECIAL}</T>
+        <ExternalLink href={SCRUB_FERRY_PHONE} label="Resort Hosts +1 284-394-3440">Resort Hosts +1 284-394-3440</ExternalLink>
+        <ExternalLink href="https://maps.app.goo.gl/EQJk9J5TPCWS2RxG7" label="Trellis Bay, Beef Island, Tortola">Trellis Bay, Beef Island, Tortola</ExternalLink>
+        <ExternalLink href={SCRUB_FERRY_URL} label="Scrub Island">Scrub Island</ExternalLink>
+      </View>
+      <View style={[styles.card, nightGlass]}>
+        <WhereToBoard />
       </View>
       {essentials.map((item) => {
         const open = openId === item.id;

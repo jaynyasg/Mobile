@@ -1,3 +1,5 @@
+import { FERRY_DOCKS } from "./ferryDocks";
+
 /**
  * How someone actually gets on a boat.
  * Speeds and the "not reserved" line come from the program transport notes.
@@ -14,7 +16,7 @@ export const BOAT_ACCESS = [
     title: "Be on the Beach",
     pass: "This pass is public ferries and public transportation.",
     reserve: "Public ferries run on a fixed schedule. Reserve with the operator. Routes lists the current published times and links each operator's page. A timetable for January 26–29, 2027 is not published, except the Lovango resort ferry, which posts dates through April 25, 2027. Check before you travel.",
-    board: "Where to board the public boats: the Red Hook ferry dock, the Charlotte Amalie ferry dock on the downtown waterfront, Cruz Bay Ferry Dock, Native Son at Blyden Marine Terminal for BVI ferries, and the Jost Van Dyke ferry dock at Great Harbour. Routes links each of those pins. West End, Road Town, Spanish Town, Trellis Bay, and Scrub Island are on the schedules and are not pinned. A taxi stays on one island, from the stay to the dock.",
+    board: "Where to board is grouped by island: St. Thomas, St. John, Tortola, and Jost Van Dyke. Each pin opens in Maps. Spanish Town, Scrub Island, and Lovango’s own Red Hook pier are not pinned. A taxi stays on one island, from the stay to the dock.",
     without: "Already on this pass, the public ferry is how you change islands. To ride a private day charter, upgrade to Be on the Boat in Tickets. To stay on one charter for all 5 days, upgrade to Be on Board.",
   },
   {
@@ -140,10 +142,10 @@ export const boatOptions: BoatOption[] = [
     comfort: "A passenger ferry or a small resort launch. You wait for the next published boat if you miss one.",
     pass: "This is what Be on the Beach uses: public ferries between islands, and taxis on land. It is not included with Be on the Boat or Be on Board.",
     how: "Reserve with the operator. Lovango's resort ferry is for its guests and requires a reservation. Scrub Island's launch is for resort guests. New Horizon publishes a ferry between West End, Tortola and Great Harbour, Jost Van Dyke. TATEL has not booked these seats. Check the operator before you travel. To ride a private charter instead, upgrade in Tickets.",
-    board: "St. Thomas to St. John boards at the Red Hook ferry dock or the Charlotte Amalie ferry dock on the downtown waterfront, and lands at the Cruz Bay Ferry Dock. BVI ferries from Charlotte Amalie board at Native Son Ferry, Blyden Marine Terminal. The Jost Van Dyke ferry dock is at Great Harbour. Lovango’s resort ferry leaves from the resort’s pier in Red Hook and from Cruz Bay. West End, Road Town, Spanish Town, Trellis Bay, and Scrub Island Marina are named on the schedules and are not pinned.",
+    board: "St. Thomas to St. John boards at the Red Hook ferry dock or the Charlotte Amalie ferry dock on the downtown waterfront, and lands at the Cruz Bay Ferry Dock. BVI ferries from Charlotte Amalie board at Native Son, Blyden Marine Terminal. West End and Great Harbour have their own pins. Road Town Fast Ferry uses its waterfront terminal. The Scrub Island ferry leaves from Trellis Bay. The Beef Island Ferry Dock is a separate pin. Lovango’s resort ferry leaves from the resort’s pier in Red Hook and from Cruz Bay. Spanish Town and Scrub Island are not pinned.",
     checkIn: "Be at the operator's dock for their check-in. One sample hop in the plan allows about 30 minutes to check in for a published ferry. Confirm that with the operator. TATEL does not hold the boat.",
     bring: "The ticket or reservation from that operator. A passport and the BVI entry card if the ferry crosses from the USVI into the BVI.",
-    docks: [docks.redHookFerry, docks.charlotteDowntown, docks.blyden, docks.cruz, docks.jost],
+    docks: FERRY_DOCKS.map((dock) => ({ name: dock.name, query: dock.name, url: dock.url })),
     sources: [
       { title: "Lovango, getting there", url: "https://www.lovangovi.com/getting-to-lovango/" },
       { title: "Scrub Island, location and launch", url: "https://www.scrubisland.com/location/" },
