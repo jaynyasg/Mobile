@@ -150,10 +150,12 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(multi, "Sessions");
       await click(multi, "Enter Sessions");
       const multiGuide = multi.getByTestId("session-guide").filter({ visible: true });
+      await multiGuide.getByText("Your sessions", { exact: true }).waitFor();
+      const cards = multiGuide.getByRole("button", { name: /^Open / });
+      await cards.first().waitFor();
       assert.equal(await multiGuide.getByRole("checkbox").count(), 0);
       const more = multiGuide.getByRole("button", { name: "Show more matching sessions", exact: true });
       while (await more.count()) await more.click();
-      const cards = multiGuide.getByRole("button", { name: /^Open / });
       for (const area of ["Tech", "AI", "Travel"]) assert.ok(await cards.filter({ has: multi.getByText(area, { exact: true }) }).count() > 0, `Results include ${area}`);
       await multiGuide.getByRole("button", { name: "Change my session choices", exact: true }).click();
       for (const area of ["Tech", "AI", "Travel"]) assert.equal(await multiGuide.getByRole("checkbox", { name: area, exact: true }).getAttribute("aria-checked"), "true");
