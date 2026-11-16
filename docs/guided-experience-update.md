@@ -52,6 +52,7 @@ The operating-system installation step still requires Safari on an actual iPhone
 
 ## Sources and decisions
 
+- The user chose to keep the current visual direction after reviewing the consultation alternatives. `DESIGN.md` records the existing imagery, films, navy glass, gold accents, typography, and navigation; the alternative palettes and four-destination dock are not part of this release.
 - Remote code: [jaynyasg/Mobile](https://github.com/jaynyasg/Mobile), fetched into `codex/guided-tatel-experience` from `origin/main`.
 - Brand and mission: [TATEL / 1878](https://tatel.18seventy8.com/), [TATEL introduction](https://intro.tatel.io/), and [partnership overview](https://partner.tatel.io/).
 - Ticket descriptions follow the user's Beach / Boat / Board definitions and the app's existing package data. Public pages also use older package names; those were not substituted into the app.
@@ -88,4 +89,4 @@ The guided browser script exercises Chromium and WebKit at 390×844 and 320×568
 
 The readability sweep covers 26 routes at three phone sizes, normal and 130% text, and browser and standalone layouts. Unit tests cover the answer combinations, progress migration, contact/API validation, and payment status checks. Build logs and browser reports are kept under `.vitest/` and are not committed.
 
-This update is local. It has not been pushed or deployed; the frontend and worker changes belong in the same release.
+The frontend and worker changes belong in the same release. Production publication is authorized by the user and requires an authenticated Cloudflare account. A Git commit or push alone does not deploy the app.
