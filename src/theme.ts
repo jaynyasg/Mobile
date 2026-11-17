@@ -43,6 +43,7 @@ export const scenePhotos = {
 };
 
 export function sceneForIsland(island?: string | null): string {
+  if (island === "Near Tortola") return scenePhotos.byIsland["Jost Van Dyke"];
   if (island && scenePhotos.byIsland[island]) return scenePhotos.byIsland[island];
   return scenePhotos.day;
 }

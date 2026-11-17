@@ -11,8 +11,10 @@ import { Icon } from "./Icon";
 import { notchPadding } from "./notch";
 import { useOverlayHistory } from "./useOverlayHistory";
 import { T } from "./Text";
+import type { EntryIntent } from "@/logic/entryIntent";
+import { IslandStory } from "./IslandStory";
 
-export function TatelExplainer({ onClose }: { onClose: () => void }) {
+export function TatelExplainer({ onClose }: { onClose: (intent?: EntryIntent) => void }) {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
   const { forum, sessions } = program;
@@ -26,7 +28,13 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   const start = useRef<{ x: number; y: number } | null>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
-  useOverlayHistory(true, onClose);
+  const chosenIntent = useRef<EntryIntent | undefined>(undefined);
+  useOverlayHistory(true, () => onClose(chosenIntent.current));
+  function finish(intent?: EntryIntent) {
+    chosenIntent.current = intent;
+    if (typeof window !== "undefined" && window.history.state?.tatelOverlay) window.history.back();
+    else onClose(intent);
+  }
   const slides = useMemo(() => {
     const formatsByDay: Record<string, string[]> = {};
     for (const session of sessions) (formatsByDay[session.dayId] ??= []).push(session.format);
@@ -58,7 +66,7 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const slide = slides[index];
-    if (!slide || held || paused || prefersReducedMotion()) return;
+    if (!slide || held || paused || slide.id === "islands" || index === slides.length - 1 || prefersReducedMotion()) return;
     const timer = setTimeout(() => {
       const next = advanceStory(index, slides.length);
       if (next === null) closeRef.current();
@@ -70,7 +78,7 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
   function go(next: number) {
     if (next < 0) return;
     if (next >= slides.length) {
-      onClose();
+      finish();
       return;
     }
     setIndex(next);
@@ -134,6 +142,10 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
         {slide.kind === "letter" ? <T variant="rowTitle" color={colors.gold}>{slide.title}</T> : null}
         <T variant="headline" color={colors.foam} style={compact && styles.lineCompact}>{slide.line}</T>
         {slide.note ? <T variant="small" color={colors.foam}>{slide.note}</T> : null}
+        {slide.id === "islands" ? <IslandStory intro /> : null}
+        {last ? <View style={{ gap: 12, marginTop: 16 }}>
+          {([['ticket', 'Find my ticket'], ['stay', 'I have a ticket · Plan my stay'], ['explore', 'Explore TATEL']] as const).map(([intent, label]) => <Pressable key={intent} accessibilityRole="button" onPress={() => finish(intent)} style={[styles.next, { minHeight: 48, paddingVertical: 14 }]}><T variant="button" color={colors.ink}>{label}</T></Pressable>)}
+        </View> : null}
         </ScrollView>
         <View style={styles.dots}>
           {slides.map((item, dot) => (
@@ -147,7 +159,7 @@ export function TatelExplainer({ onClose }: { onClose: () => void }) {
             <Icon name="back" size={18} color={index === 0 ? "rgba(245,241,232,0.35)" : colors.foam} />
             <T variant="button" color={index === 0 ? "rgba(245,241,232,0.35)" : colors.foam}>Back</T>
           </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Skip" onPress={onClose} style={styles.ghost}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Skip" onPress={() => finish()} style={styles.ghost}>
             <T variant="button" color={colors.gold}>Skip</T>
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel={last ? "Done" : "Next"} onPress={() => go(index + 1)} style={styles.next}>

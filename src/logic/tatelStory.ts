@@ -1,3 +1,4 @@
+import { METHOD } from "./sessionJourney";
 const LETTERS = ["tech", "ai", "travel", "entertainment", "law"] as const;
 
 /** How long each letter stays lit before the next one. */
@@ -25,23 +26,23 @@ export interface AreaCopy {
 export const AREA_COPY: Record<(typeof LETTERS)[number], AreaCopy> = {
   tech: {
     headline: "Technology that works here",
-    body: "Build practical tools for island life: food systems, water, energy, ports, connectivity, and public services.",
+    body: "Build the digital and technical systems islands run on. Pilot practical tools locally, then adapt and expand them to other places.",
   },
   ai: {
     headline: "AI with local knowledge",
-    body: "Explore how artificial intelligence can help people and organizations, using local knowledge and data responsibly.",
+    body: "Put artificial intelligence to work on real island problems with local operators, students, and developers. Build with local knowledge and responsible use of data.",
   },
   travel: {
     headline: "Better journeys, connected islands",
-    body: "Bring hotels, boats, destinations, and local businesses together to make travel easier and create new opportunities.",
+    body: "Improve how people are hosted and move to, between, and around the islands. Connect hospitality, transport, and local businesses.",
   },
   entertainment: {
     headline: "Island culture, new possibilities",
-    body: "Connect film, music, sport, and gaming with technology. Create experiences that benefit both creators and their communities.",
+    body: "Build the creators, platforms, and economy for culture and entertainment from the islands. Connect film, music, sport, and gaming with ownership and opportunity.",
   },
   law: {
     headline: "Build with trust",
-    body: "Work through the legal questions behind new ideas: data rights, ownership, business, and responsible use of technology.",
+    body: "Develop the legal frameworks and legal technology that help new products, ownership, and investment take root—and travel responsibly to new places.",
   },
 };
 
@@ -50,7 +51,7 @@ export const FULL_NAME = "Tech, AI, Travel, Entertainment, and Law";
 export const ISLANDS_LINE = "The U.S. Virgin Islands and the British Virgin Islands, in the Caribbean just east of Puerto Rico.";
 
 export const ISLANDS_NOTE =
-  "The summit brings you to St. Thomas, St. John, and Lovango in the U.S. Virgin Islands, and Jost Van Dyke and Scrub Island in the British Virgin Islands. Plan boat transfers between summit stops. Crossing between the two territories means clearing an international border; check the Preparation guide before you travel.";
+  "The summit connects St. Thomas, St. John, and Lovango in the USVI with Scrub Island and a location near Tortola in the BVI. The Entertainment venue and landing point are being confirmed. St. Croix is part of the wider Virgin Islands story, not a summit stop. Check Routes and the Preparation guide for island transfers and international arrivals.";
 
 export interface TatelLetter {
   id: (typeof LETTERS)[number];
@@ -71,7 +72,7 @@ export interface StorySlide {
 }
 
 export function letterPlaceLine(name: string, island: string): string {
-  return `${name} · on or near ${island}`;
+  return `${name} · ${island === "Near Tortola" ? "near Tortola" : island}`;
 }
 
 export function dayCoverLine(dayNumber: string, phase: string): string {
@@ -80,11 +81,7 @@ export function dayCoverLine(dayNumber: string, phase: string): string {
 
 /** Plain line for a phase that is already in the program. Unknown phases stay blank. */
 export function dayFlowLine(phase: string): string {
-  if (phase === "The Problem") return "Hear from people who know the islands. Use the sessions to understand local needs, share evidence, and choose a challenge worth solving.";
-  if (phase === "The Plan / Solution") return "Turn what you've learned into a practical plan. Work with people from other fields to decide what to build and who it will help.";
-  if (phase === "Build") return "Put the plan to work. Collaborate on prototypes, tools, and services that can support a lasting island technology economy.";
-  if (phase === "Showcase") return "Share what you've made, meet potential partners, and decide how the work can continue after the summit.";
-  return "";
+  return METHOD.find(step => step.phase === phase)?.line ?? "";
 }
 
 export function storyIntro(days: readonly { id: string; dayNumber: string }[]): string {
@@ -138,23 +135,23 @@ export function storySlides(input: {
   const goal: StorySlide = {
     id: "goal",
     kind: "goal",
-    kicker: "An extraordinary setting. A shared ambition.",
-    title: "Make waves. Make it matter.",
-    line: "TATEL brings local communities and global experts together in the Virgin Islands to turn bold ideas into useful work.",
-    note: "Come for the people, the blue water, and the possibility. Help build practical technology through an incubator and expert network that keeps the work moving long after the summit. The adventure should leave something lasting.",
+    kicker: "What is TATEL?",
+    title: "A Technology Mill. An island adventure.",
+    line: "A four-day summit across the U.S. and British Virgin Islands, turning real island needs into technology that can grow beyond them.",
+    note: "Founders, creators, developers, investors, students, and industry leaders come together with island communities. Sessions connect resorts, beaches, and hospitality venues by water. Build useful ideas, meet extraordinary people, and make room for the islands. Your ticket determines your transport and accommodation arrangements.",
   };
   const name: StorySlide = {
     id: "name",
     kind: "name",
-    kicker: "The name",
-    title: FULL_NAME,
-    line: "Five infrastructure areas. One invitation to make things happen.",
-    note: "Bring your expertise, your questions, or your next big idea. Founders, creators, learners, investors, and island organizations come together in hands-on sessions on shore and on the water. You don't need to know every field. Curiosity belongs here.",
+    kicker: "Built here. Shared with the world.",
+    title: "The people behind the purpose",
+    line: "Founders building systems and community under 1878, LLC, alongside legal technologists and education operators at the Center for Educational Growth (CFEG).",
+    note: "CFEG is a nonprofit school creating Learning Labs and pathways for professional advancement. TATEL connects people, knowledge, technology, and investment so the islands can build, own, and shape what comes next. The ambition is local opportunity with global reach.",
   };
   const letterSlides: StorySlide[] = letters.map((item) => ({
     id: item.id,
     kind: "letter",
-    kicker: "What TATEL stands for",
+    kicker: "The infrastructure we are building",
     title: AREA_COPY[item.id].headline,
     line: letterPlaceLine(item.name, item.island),
     note: AREA_COPY[item.id].body,
@@ -165,35 +162,39 @@ export function storySlides(input: {
     id: "islands",
     kind: "islands",
     kicker: "The Virgin Islands",
-    title: "Let the islands draw you in.",
+    title: "Why the Virgin Islands?",
     line: ISLANDS_LINE,
-    note: ISLANDS_NOTE,
+    note: "A meeting place for Caribbean people, cultures, food, and ideas. Sailing, reefs, beautiful beaches, and shared tables become the setting for new collaborations. From St. Croix's wider island story to the summit's five areas, this is a place to build opportunity that stays with the community—and can reach the world.",
   };
   const arc: StorySlide = {
     id: "arc",
     kind: "arc",
     kicker: "January 26–29, 2027",
-    title: "Four days to move an idea forward",
-    line: "Understand the problem. Make a plan. Build together. Share the results.",
-    note: "Find a challenge you care about. Meet your collaborators. Make something tangible together. Around that shared purpose, leave space for a swim, a beautiful meal, and a conversation you didn't see coming. Venues and some timings are still being confirmed.",
+    title: "Four days. Connected work.",
+    line: "Identify. Plan. Build and test. Showcase and expand.",
+    note: "Connected sessions carry a challenge through the four days. You can follow a full series or join where your experience helps most. Each day works across the five infrastructure areas; your session choices and confirmed transport shape your route. Exact venues and some timings remain to be confirmed.",
   };
   const days: StorySlide[] = input.days.map((day) => ({
     id: day.id,
     kind: "day",
     kicker: "Sessions",
-    title: day.phase,
+    title: METHOD.find(step => step.phase === day.phase)?.title ?? day.phase,
     line: dayCoverLine(day.dayNumber, day.phase),
     note: dayFlowLine(day.phase),
   }));
   const people: StorySlide = {
     id: "people", kind: "experience", kicker: "The company is part of the magic", title: "A spark. A conversation. A possibility.",
     line: "Meet people who make you think bigger—and make the trip more fun.",
-    note: "Explore the panelists, find sessions around your interests and goals, and break the ice in Chat. Come with a question. Leave room for the collaborator, friend, or unexpected introduction that changes what happens next.",
+    note: "Meet panelists from the Caribbean and a wider international network. Open their profiles, follow connected sessions, and break the ice in Chat. Bring a question; leave room for the collaborator, friend, or unexpected introduction that changes what happens next.",
   };
   const getaway: StorySlide = {
     id: "getaway", kind: "experience", kicker: "Ambition meets island life", title: "Come alive between the sessions.",
     line: "Sun on your skin. Salt in the air. A reason to dress up after a day of big ideas.",
-    note: "Discover beaches, local flavors, and the program's red-carpet screening. Collect island stamps as you go. Shape a trip with time to build, time to connect, and time to let go. Your ticket, stay, sessions, and island guide are next.",
+    note: "Discover beaches, local flavors, sailing, and the program's red-carpet screening. Collect island stamps as you go. Choose your ticket, plan your stay, save meaningful sessions, and discover the rest. Independent activities and accommodation have their own availability and prices.",
   };
-  return [goal, name, ...letterSlides, islands, arc, ...days, people, getaway];
+  const mill: StorySlide = { id: "mill", kind: "goal", kicker: "The Technology Mill", title: "From island industry to island possibility", line: "The Caribbean's history of industry and trade meets its future as a place to build, own, and create.", note: "TATEL uses the idea of a Technology Mill to turn needs, stories, and challenges into practical technology and businesses. Pilot locally, adapt what works elsewhere, and leave a legacy that the next generation can build on." };
+  const method: StorySlide = { id: "method", kind: "arc", kicker: "How panels and sessions work", title: "Working rooms. Real island needs.", line: "Name the gap. Bring the right people together. Build an answer and test it.", note: "Across connected sessions, operators, students, experts, and investors identify the problem, shape a solution, build and test a use case, then showcase the results. Each session advances one part of the journey; the work develops across all four days." };
+  const needs: StorySlide = { id: "needs", kind: "name", kicker: "Island needs, shared possibilities", title: "Where will you make a difference?", line: "Food & agriculture · Banking & local commerce · Health & public services · Energy & resilience", note: "Ocean, climate & environment · Hospitality & mobility · Education & workforce · Culture, film, sport & gaming. These needs connect the five TATEL infrastructure areas. Choose the needs and specific fields you care about to find relevant sessions and island stays." };
+  const continuation: StorySlide = { id: "continuation", kind: "experience", kicker: "After the showcase", title: "Carry it across the water", line: "Pilot locally. Expand thoughtfully. Return to the work each year.", note: "Record what was tested, what you learned, who owns the next step, and what needs another trial. Your work notebook helps you carry the thread forward. Share progress with collaborators in Chat and bring evidence back to the next annual review." };
+  return [goal, name, mill, method, ...letterSlides, needs, arc, ...days, continuation, islands, people, getaway];
 }

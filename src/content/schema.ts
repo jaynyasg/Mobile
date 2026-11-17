@@ -1,6 +1,7 @@
 import type { Panelist, ProgramData, Session, SessionVenue, Venue } from "./types";
 import { bundle } from "./bundle";
 import { visitorEdition } from "./labels";
+import { applyExperienceContent } from "./experience";
 
 export type ParseResult = { ok: true; program: ProgramData } | { ok: false; error: string };
 
@@ -45,6 +46,11 @@ function looksLikeSiteSession(value: unknown): boolean {
 }
 
 export function parseContent(input: unknown, base: ProgramData = bundle): ParseResult {
+  const result = parseIncomingContent(input, base);
+  return result.ok ? { ok: true, program: applyExperienceContent(result.program) } : result;
+}
+
+function parseIncomingContent(input: unknown, base: ProgramData): ParseResult {
   if (!isRecord(input)) return { ok: false, error: "Content is not an object" };
   const first = Array.isArray(input.sessions) ? input.sessions[0] : undefined;
   if (looksLikeSiteSession(first) || (input.presenters && input.program)) return normalizeSite(input, base);

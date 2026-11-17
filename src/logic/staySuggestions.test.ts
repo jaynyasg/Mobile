@@ -5,7 +5,7 @@ import { suggestedStayIslands } from "./staySuggestions";
 describe("islands from opening answers", () => {
   it.each([
     ["tech", ["St. Thomas"]], ["ai", ["St. John"]], ["travel", ["Scrub Island"]],
-    ["entertainment", ["Jost Van Dyke", "St. Thomas", "Scrub Island"]], ["law", ["Lovango"]],
+    ["entertainment", ["Near Tortola", "St. Thomas", "Scrub Island"]], ["law", ["Lovango"]],
   ] as const)("suggests all islands hosting %s sessions", (area, islands) => {
     expect(suggestedStayIslands(sessions, { areas: [area], interests: [] })).toEqual(islands);
   });

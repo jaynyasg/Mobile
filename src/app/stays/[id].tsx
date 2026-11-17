@@ -10,10 +10,11 @@ import { TappablePhoto } from "@/components/TappablePhoto";
 import { scenes as sceneImages } from "@/images";
 import { colors, pad } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
-import { ExternalLink } from "@/components/ExternalLink";
 import { StepBridge } from "@/components/StepBridge";
 import { confirmAccommodation, readIntake } from "@/logic/intake";
 import { webStorage } from "@/welcome";
+import { BookingLink } from "@/components/BookingLink";
+import { canConfirmStay } from "@/logic/providerPreview";
 
 export default function StayScreen() {
   useContent();
@@ -37,7 +38,7 @@ export default function StayScreen() {
         <T variant="eyebrow">{island.route}</T>
         <T variant="title">{island.island}</T>
         <T variant="small">{island.dock}</T>
-        <T variant="small">Choose a property and visit its website to check rooms and book. Once your reservation is confirmed, save your accommodation below.</T>
+        <T variant="small">Choose a property to browse and book in a TATEL provider window. Some providers require their own tab. Your plan stays here; save your accommodation once the provider confirms your reservation.</T>
       </View>
       {island.sections.map((section) => (
         <View key={section.heading} style={styles.section}>
@@ -56,9 +57,9 @@ export default function StayScreen() {
               <View key={provider.name} style={styles.link}>
                 <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
                 {provider.href ? (
-                  <ExternalLink href={provider.href} label={`Check availability at ${provider.name}`}>Check availability & book</ExternalLink>
+                  <BookingLink href={provider.href} name={provider.name} detail={`${provider.name} · ${island.island}. ${island.dock}`} onConfirmed={canConfirmStay(section.heading, provider) ? () => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); } : undefined} />
                 ) : null}
-                {!/boat/i.test(section.heading) && readIntake(webStorage()) ? <Pressable accessibilityRole="button" accessibilityLabel={`I have booked ${provider.name}`} onPress={() => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); }} style={styles.confirm}><T variant="button" color={colors.gold}>{chosen?.name === provider.name && chosen.island === island.island ? "✓ Saved as my accommodation" : "I have booked here"}</T></Pressable> : null}
+                {canConfirmStay(section.heading, provider) && readIntake(webStorage()) ? <Pressable accessibilityRole="button" accessibilityLabel={`I have booked ${provider.name}`} onPress={() => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); }} style={styles.confirm}><T variant="button" color={colors.gold}>{chosen?.name === provider.name && chosen.island === island.island ? "✓ Saved as my accommodation" : "I have booked here"}</T></Pressable> : null}
               </View>
             ),
           )}

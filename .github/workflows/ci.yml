@@ -40,7 +40,7 @@ jobs:
   readability:
     name: Readability
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     container:
       image: mcr.microsoft.com/playwright:v1.55.0-noble
     env:
@@ -72,3 +72,4 @@ jobs:
           BASE_URL=http://127.0.0.1:4173 npm run readability
           BASE_URL=http://127.0.0.1:4173 node scripts/checkout-visit.mjs
           BASE_URL=http://127.0.0.1:4173 node scripts/personalized-visit.mjs
+          BASE_URL=http://127.0.0.1:4173 node scripts/ceo-visit.mjs

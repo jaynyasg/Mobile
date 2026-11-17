@@ -17,6 +17,9 @@ import { BeaconBackground } from "@/components/BeaconBackground";
 import { ExternalLink } from "@/components/ExternalLink";
 import { openExternal } from "@/navigation/pwaNav";
 import { nightGlass } from "@/components/nightGlass";
+import { BookingLink } from "@/components/BookingLink";
+import { IslandStory } from "@/components/IslandStory";
+import { ShareInvitation } from "@/components/ShareInvitation";
 
 const extras = [
   { id: "vip", title: "Five days aboard", line: "Wake up on the water with Be on Board. Explore the overnight charter and start a booking for your group, or ask to share.", href: "/tickets?tier=vip" },
@@ -30,7 +33,7 @@ const islandIdeas = [
   { title: "Trade your shoes for the shoreline", line: "Let a good session become a long walk, a swim, or a slow afternoon by the sea. Find a beach on St. Thomas or St. John that fits the day you want to have.", url: "https://www.visitusvi.com/explore/beaches/", label: "Explore USVI beaches" },
   { title: "Get out on the water", line: "Snorkeling, paddling, or a boat outing can turn your free time into a highlight. Find local operators and check conditions, availability, and costs with them.", url: "https://www.visitusvi.com/explore/water-activities/", label: "Find water activities" },
   { title: "Taste, wander, discover", line: "Explore local food, culture, shopping, and island sights. Leave room for the unexpected conversation or the place you want to linger.", url: "https://www.visitusvi.com/explore/things-to-do/", label: "Explore USVI things to do" },
-  { title: "Make time for Jost Van Dyke", line: "Discover the character of this British Virgin Islands stop. Browse the tourism board's island guide and plan around your return boat.", url: "https://www.bvitourism.com/the-islands/jost-van-dyke", label: "Explore Jost Van Dyke" },
+  { title: "Discover the islands around Tortola", line: "Get to know this part of the British Virgin Islands. TATEL's Entertainment venue near Tortola and its landing point are being confirmed; plan independent outings around your confirmed transport.", url: "https://www.bvitourism.com/", label: "Explore the British Virgin Islands" },
 ];
 
 export default function ExploreScreen() {
@@ -58,6 +61,15 @@ export default function ExploreScreen() {
         </View>
         <View onLayout={(event) => { offsets.current.guide = event.nativeEvent.layout.y; }}>
           <ExperienceGuide onStepChange={() => scrollRef.current?.scrollTo({ y: offsets.current.guide, animated: false })} onActivities={() => scrollRef.current?.scrollTo({ y: offsets.current.activities, animated: true })} onStamps={() => scrollRef.current?.scrollTo({ y: offsets.current.stamps, animated: true })} />
+        </View>
+        <IslandStory />
+        <View style={styles.intro}>
+          <T variant="title">Tell someone about TATEL.</T>
+          <T variant="small">A Technology Mill in the Virgin Islands. Four days to identify a need, build and test an answer, and carry it forward—with extraordinary company along the way.</T>
+          <ShareInvitation />
+          <Pressable accessibilityRole="button" onPress={() => router.push("/program-overview")} style={styles.islandsToggle}><T variant="button" color={colors.gold}>See the four-day experience</T></Pressable>
+          <Pressable accessibilityRole="button" onPress={() => router.push("/updates")} style={styles.islandsToggle}><T variant="button" color={colors.gold}>TATEL updates</T></Pressable>
+          <Pressable accessibilityRole="button" onPress={() => router.push("/work")} style={styles.islandsToggle}><T variant="button" color={colors.gold}>My work notebook</T></Pressable>
         </View>
         <View style={styles.intro}>
           <Pressable accessibilityRole="button" accessibilityState={{ expanded: islandsOpen }} onPress={() => setIslandsOpen(!islandsOpen)} style={styles.islandsToggle}>
@@ -91,7 +103,7 @@ export default function ExploreScreen() {
               style={styles.island}
             >
               <Image source={{ uri: reels[pillar.id as ReelId]?.poster }} style={styles.islandPhoto} resizeMode="cover" />
-              <T variant="meta" color={colors.gold}>{pillar.region === "BVI" ? "British Virgin Islands" : "U.S. Virgin Islands"} · on or near {pillar.island}</T>
+              <T variant="meta" color={colors.gold}>{pillar.region === "BVI" ? "British Virgin Islands" : "U.S. Virgin Islands"} · {pillar.island}</T>
               <T variant="rowTitle" color={colors.foam}>{pillar.name}</T>
               {copy ? <T variant="small" color={colors.gold}>{copy.headline}</T> : null}
               {copy ? <T variant="small" color={colors.foam}>{copy.body}</T> : null}
@@ -106,7 +118,7 @@ export default function ExploreScreen() {
           <T variant="meta">Choose and book independent outings separately; they may cost extra and are not automatically included in your TATEL ticket.</T>
         </View>
         {islandIdeas.map((idea) => <View key={idea.title} style={styles.island}><T variant="rowTitle" color={colors.gold}>{idea.title}</T><T variant="small">{idea.line}</T><ExternalLink href={idea.url} label={idea.label}>{idea.label}</ExternalLink></View>)}
-        {extras.map((item) => (
+        {extras.map((item) => item.url ? <View key={item.id} style={styles.island}><T variant="rowTitle">{item.title}</T><T variant="small">{item.line}</T><BookingLink href={item.url} name={item.title} detail={item.line} label="Explore & book" /></View> : (
           <Pressable
             key={item.id}
             accessibilityRole="button"

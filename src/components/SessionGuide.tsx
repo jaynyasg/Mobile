@@ -13,6 +13,8 @@ import { colors } from "@/theme";
 import { nightGlass } from "./nightGlass";
 import { SessionRow } from "./SessionRow";
 import { T } from "./Text";
+import { availableNeeds } from "@/logic/islandNeeds";
+import { InterestChoices } from "./InterestChoices";
 
 export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: () => void; onStepChange: () => void; onMatches: () => void }) {
   const { program } = useContent();
@@ -32,7 +34,6 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
     setStep(3);
     setLimit(4);
   }, [savedPreferences]);
-  const topics = availableSubtopics(program.sessions, preferences.areas);
   const matches = guidedSessions(program.sessions, preferences);
   const saved = state.favoriteIds.filter((id) => program.sessions.some((session) => session.id === id)).length;
   const titles = ["Start with your infrastructure areas", "Find your sub-infrastructure", "What do you want to accomplish?", "Your sessions"];
@@ -43,7 +44,7 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
       const values = current[dimension] as string[];
       const next = { ...current, [dimension]: values.includes(id) ? values.filter((item) => item !== id) : [...values, id] } as SessionPreferences;
       if (dimension === "areas") {
-        const available = availableSubtopics(program.sessions, next.areas);
+        const available = [...availableSubtopics(program.sessions, next.areas), ...availableNeeds(program.sessions, next.areas)];
         next.interests = next.interests.filter((interest) => available.some((topic) => topic.id === interest));
       }
       return next;
@@ -77,14 +78,10 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
         {program.forum.pillars.map((pillar) => choice(pillar.id, pillar.name, AREA_COPY[pillar.id as keyof typeof AREA_COPY]?.body ?? `Explore sessions in ${pillar.name}.`, "areas"))}
       </> : null}
       {step === 1 ? <>
-        <T variant="small">Sub-infrastructure means a specific field, such as AgriTech for food systems. These options come from all your selected areas. Shared fields appear once and list their matching areas.</T>
-        <T variant="rowTitle" color={colors.gold}>Fields from {preferences.areas.length ? program.forum.pillars.filter((pillar) => preferences.areas.includes(pillar.id)).map((pillar) => pillar.name).join(" · ") : "all infrastructure areas"}</T>
-        <View testID="sub-infrastructure-options" style={styles.topics}>
-          {topics.map((topic) => choice(topic.id, topic.id, `${topic.line} · ${topic.count} session${topic.count === 1 ? "" : "s"}`, "interests", `In ${program.forum.pillars.filter((pillar) => topic.areaIds.includes(pillar.id)).map((pillar) => pillar.name).join(" · ")}`))}
-        </View>
+        <InterestChoices sessions={program.sessions} pillars={program.forum.pillars} areas={preferences.areas} selected={preferences.interests} onToggle={id => toggle("interests", id)} />
       </> : null}
       {step === 2 ? <>
-        <T variant="small">Give your ambition a direction. Each summit day moves the work forward: understand, plan, build, then showcase. Choose what you'd love to accomplish, or make the whole journey part of your experience.</T>
+        <T variant="small">Connected sessions progress through four days: identify the problem, shape the solution, build and test, then showcase and expand. Choose where you'd like to contribute, or follow the whole journey.</T>
         {SESSION_GOALS.map((goal) => choice(goal.id, goal.title, goal.line, "goals"))}
       </> : null}
       {step < 3 ? <>

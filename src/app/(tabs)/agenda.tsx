@@ -56,6 +56,11 @@ export default function AgendaScreen() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [note, setNote] = useState(false);
   const insets = useSafeAreaInsets();
+  useEffect(() => {
+    if (!params.day || !forum.days.some(day => day.id === params.day)) return;
+    setDayId(params.day); setYourAreas(false); setPillarId("all"); setIsland("all"); setKind("all"); setPanelistId("all"); setQuery("");
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [params.day, forum.days]);
 
   const visible = useMemo(
     () =>
@@ -89,7 +94,7 @@ export default function AgendaScreen() {
   return (
     <View style={styles.frame}>
       <Screen scrollRef={scrollRef} docked photo={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).day} night={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).night} phase={(island === "all" ? backgrounds.program : backgrounds.session[island] ?? backgrounds.program).phase}>
-        <SessionGuide onStepChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })} onMatches={() => setYourAreas(false)} onBrowse={() => { setYourAreas(false); setDayId("all"); setPillarId("all"); setIsland("all"); setKind("all"); setPanelistId("all"); setQuery(""); scrollRef.current?.scrollTo({ y: programOffset.current, animated: true }); }} />
+        {!params.day ? <SessionGuide onStepChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })} onMatches={() => setYourAreas(false)} onBrowse={() => { setYourAreas(false); setDayId("all"); setPillarId("all"); setIsland("all"); setKind("all"); setPanelistId("all"); setQuery(""); scrollRef.current?.scrollTo({ y: programOffset.current, animated: true }); }} /> : <Pressable accessibilityRole="button" onPress={() => router.setParams({ day: undefined })} style={styles.noteCard}><T variant="button" color={colors.gold}>See sessions matched to my interests</T></Pressable>}
         <Pressable accessibilityRole="button" onPress={() => router.push("/schedule")} style={styles.noteCard}><T variant="button" color={colors.gold}>My schedule · {state.favoriteIds.length} saved</T></Pressable>
         <View onLayout={(event) => { programOffset.current = event.nativeEvent.layout.y; }}>
         <Glass tone="dark" style={styles.titleRow}>

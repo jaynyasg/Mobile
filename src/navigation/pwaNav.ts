@@ -37,12 +37,12 @@ export function installLinkGuard(): () => void {
     const target = event.target;
     if (!(target instanceof Element)) return;
     const anchor = target.closest("a[href]");
-    if (!anchor) return;
+    if (!anchor || anchor.hasAttribute("download")) return;
     const href = anchor.getAttribute("href") || "";
     const plan = clickPlan(href, window.location.origin);
     if (plan === "ignore") return;
-    event.preventDefault();
     if (plan === "external") {
+      event.preventDefault();
       event.stopPropagation();
       const url = href.startsWith("mailto:") || href.startsWith("tel:") ? href : new URL(href, window.location.origin).href;
       openExternal(url);

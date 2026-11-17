@@ -60,6 +60,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "Help me find a place");
       await click(page, "Tech");
       await click(page, "Next · Find my sub-infrastructure");
+      await click(page, "Show specific fields");
       await click(page, "AgriTech");
       await click(page, "See my plan");
       await click(page, "Continue to checkout");

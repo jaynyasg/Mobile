@@ -29,6 +29,7 @@ import { useReels } from "@/reels/ReelHost";
 import { colors, sceneForIsland } from "@/theme";
 import { webStorage } from "@/welcome";
 import { useApp } from "@/store";
+import { takeEntryIntent, type EntryIntent } from "@/logic/entryIntent";
 
 const stepPhoto: Record<PathStep["id"], string> = {
   pass: reels.pass.poster,
@@ -50,6 +51,7 @@ export default function HomeScreen() {
   const [mode, setMode] = useState<"you" | "explore">("you");
   const [deck, setDeck] = useState(false);
   const [asking, setAsking] = useState(false);
+  const [entryIntent, setEntryIntent] = useState<EntryIntent | null>(null);
   const [intake, setIntake] = useState<IntakeRecord | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -72,11 +74,20 @@ export default function HomeScreen() {
 
   useFocusEffect(useCallback(() => {
     refresh();
-    if (consumeIntakeRequest(webStorage())) setAsking(true);
+    if (consumeIntakeRequest(webStorage())) { setEntryIntent(null); setAsking(true); }
   }, [refresh]));
 
   useEffect(() => {
-    if (!ready || reelActive || asking) return;
+    if (!ready || reelActive) return;
+    const intent = takeEntryIntent(webStorage());
+    if (intent === "explore") {
+      if (!readIntake(webStorage())) writeIntake(webStorage(), { hasPass: "skipped", needsStay: "skipped", areas: [], interests: [], completed: [] });
+      setAsking(false);
+      router.navigate("/explore");
+      return;
+    }
+    if (intent) { setEntryIntent(intent); setAsking(true); return; }
+    if (asking) return;
     if (!readIntake(webStorage())) setAsking(true);
   }, [ready, reelActive, asking]);
 
@@ -86,6 +97,7 @@ export default function HomeScreen() {
     writeTracks(webTrackStore(), [...record.areas]);
     setIntake(record);
     setAsking(false);
+    setEntryIntent(null);
     if (userId && !preview) void saveIntakeRemote(userId, record);
     if (!navigate) return;
     const steps = buildPath(record, forum.pillars, { completed: record.completed, ownedPass: readOwnedPass(store) != null, ownedTier: readOwnedPass(store), savedSessionCount: state.favoriteIds.length });
@@ -171,7 +183,7 @@ export default function HomeScreen() {
               <T variant="title" color={colors.foam}>Make it yours.</T>
               <T variant="small" color={colors.foam}>Choose how you'll arrive, where you'll wake up, and what you'll help bring to life. We'll guide the details. You bring the curiosity.</T>
               <View style={styles.pills}>
-                <Pressable accessibilityRole="button" accessibilityLabel="Retake questions" onPress={() => setAsking(true)} style={styles.retake}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Retake questions" onPress={() => { setEntryIntent(null); setAsking(true); }} style={styles.retake}>
                   <T variant="button" color={colors.foam}>Reshape my experience</T>
                 </Pressable>
               </View>
@@ -233,6 +245,9 @@ export default function HomeScreen() {
       </ScrollView>
       {asking && !reelActive ? (
         <Questions
+          key={entryIntent ?? "questions"}
+          initial={entryIntent ? { ...intake, hasPass: entryIntent === "stay" ? "have" : "not-yet", ticketPreference: readOwnedPass(webStorage()) ?? intake?.ticketPreference } : undefined}
+          startAt={entryIntent ? 1 : 0}
           onDone={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
           onSkip={(answers) => storeAnswers({ ...answers, interests: answers.interests ?? [], completed: answers.needsStay === "booked" ? ["stay"] : [] }, false)}
         />

@@ -17,7 +17,7 @@ const islands = [
   ["tech", "Tech", "St. Thomas"],
   ["ai", "AI", "St. John"],
   ["travel", "Travel", "Scrub Island"],
-  ["entertainment", "Entertainment", "Jost Van Dyke"],
+  ["entertainment", "Entertainment", "Near Tortola"],
   ["law", "Law", "Lovango"],
 ];
 

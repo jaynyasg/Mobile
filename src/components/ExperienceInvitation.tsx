@@ -15,7 +15,7 @@ export function ExperienceInvitation({ onStory }: { onStory: () => void }) {
     <T variant="display" color={colors.gold} style={styles.title}>Make it matter.</T>
     <T variant="body">Brilliant minds. Salt on your skin. Something worth building together.</T>
     <View style={styles.rule} />
-    <T variant="small">Four days of bold ideas, island adventure, and beautiful company. Bring your ambition to the water. Help turn real challenges into plans, prototypes, and partnerships with a future.</T>
+    <T variant="small">TATEL is a four-day Technology Mill across the U.S. and British Virgin Islands. Identify real needs, shape solutions, build and test, then showcase what can grow. Island adventure and extraordinary company are part of the journey.</T>
     <Pressable accessibilityRole="button" accessibilityLabel="What is TATEL" onPress={onStory} style={styles.outline}>
       <T variant="button" color={colors.gold}>Step inside TATEL ↗</T>
     </Pressable>

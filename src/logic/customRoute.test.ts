@@ -96,7 +96,7 @@ describe("custom route", () => {
     expect(hop?.from).toBe("St. John");
     expect(hop?.to).toBe("Jost Van Dyke");
     expect(hop?.tight).toBe(true);
-    expect(hop?.estimated).toBe(false);
+    expect(hop?.estimated).toBe(true);
     expect(clockMinutes("2027-01-26T09:45:00-04:00")).toBe(9 * 60 + 45);
     expect(formatClock(10 * 60 + 10)).toBe("10:10 AM");
     expect(ARRIVE_BUFFER).toBe(20);

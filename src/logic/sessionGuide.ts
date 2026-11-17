@@ -1,11 +1,13 @@
 import type { Session } from "../content/types";
 import { sessionInterest, TECH_INTERESTS } from "./techInterest";
+import { sessionNeeds } from "./islandNeeds";
+import { METHOD } from "./sessionJourney";
 
 export const SESSION_GOALS = [
   { id: "understand", title: "Understand the challenge", phase: "The Problem", line: "Hear local perspectives, examine evidence, and find a problem worth solving." },
   { id: "plan", title: "Shape a solution", phase: "The Plan / Solution", line: "Turn a challenge into a practical plan with people from different fields." },
-  { id: "build", title: "Build something useful", phase: "Build", line: "Work on a prototype, tool, or service and put your skills into practice." },
-  { id: "share", title: "Share ideas and find partners", phase: "Showcase", line: "Explore the results, offer feedback, and find ways to keep collaborating." },
+  { id: "build", title: "Build and test a use case", phase: "Build", line: METHOD[2].line },
+  { id: "share", title: "Showcase and expand the work", phase: "Showcase", line: METHOD[3].line },
 ] as const;
 
 export type SessionGoal = typeof SESSION_GOALS[number]["id"];
@@ -47,7 +49,8 @@ export function guidedSessions(sessions: readonly Session[], preferences: Sessio
   return sessions.filter((session) => {
     if (preferences.areas.length && !preferences.areas.includes(session.pillarId)) return false;
     const interest = sessionInterest(session);
-    if (preferences.interests.length && (!interest || !preferences.interests.includes(interest))) return false;
+    const fields: string[] = [...sessionNeeds(session), ...(interest ? [interest] : [])];
+    if (preferences.interests.length && !preferences.interests.some(value => fields.includes(value))) return false;
     const goal = sessionGoal(session.phase);
     if (preferences.goals.length && (!goal || !preferences.goals.includes(goal.id))) return false;
     return true;

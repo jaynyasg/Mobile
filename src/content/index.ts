@@ -64,10 +64,12 @@ export function stayIslands(): StayIsland[] {
 }
 
 export function stayById(id: string): StayIsland | undefined {
+  if (id === "jost-van-dyke") id = "near-tortola";
   return stayIslands().find((island) => island.id === id);
 }
 
 export function venueById(id: string): Venue | undefined {
+  if (id === "jost-van-dyke") id = "near-tortola";
   return getProgram().venues.find((venue) => venue.id === id);
 }
 
