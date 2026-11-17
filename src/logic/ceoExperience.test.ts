@@ -5,7 +5,7 @@ import { parseContent } from "../content/schema";
 import { availableNeeds, ISLAND_NEEDS, sessionNeeds } from "./islandNeeds";
 import { guidedSessions } from "./sessionGuide";
 import { connectedSessions } from "./sessionJourney";
-import { buildRoute, routePins } from "./customRoute";
+import { buildRoute, describeStop, routePins } from "./customRoute";
 import { canConfirmStay, providerPreview } from "./providerPreview";
 import { emptyWorkNote, readWorkNote, saveWorkNote, workNoteText, WORK_KEY } from "./workNotes";
 import { saveEntryIntent, takeEntryIntent } from "./entryIntent";
@@ -46,6 +46,8 @@ describe("CEO experience integration", () => {
     const leg = route.flatMap(d => d.stops).find(s => s.leg)?.leg;
     expect(leg?.depart).toBeNull(); expect(leg?.arrive).toBeNull();
     expect(leg?.duration).toMatch(/pending/);
+    const stop = route.flatMap(day => day.stops).find(stop => stop.leg)!;
+    expect(describeStop(stop, "11 AM", "Session").join(" ")).toMatch(/once the venue and landing point are announced/);
     expect(routePins(route).some(pin => pin.island === "Near Tortola")).toBe(false);
   });
   it("supports provider windows and explicit fallbacks without unsafe URLs", () => {

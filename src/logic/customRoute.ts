@@ -162,6 +162,9 @@ export function describeStop(stop: PlanStop, when: string, title: string): strin
     lines.push(`Start at ${place}.`);
     lines.push(`${title} runs ${when}.`);
     lines.push(`Arrive ${ARRIVE_BUFFER} minutes early.`);
+  } else if (stop.leg.from === "Near Tortola" || stop.leg.to === "Near Tortola") {
+    lines.push(`The connection from ${stop.leg.from} to ${stop.leg.to} will be confirmed once the venue and landing point are announced.`);
+    lines.push(`${title} runs ${when}. Confirm your transfer with the operator before booking.`);
   } else {
     lines.push(stop.leg.depart ? `Leave ${stop.leg.from} by ${stop.leg.depart}.` : `Leave ${stop.leg.from}.`);
     const estimate = stop.leg.estimated ? " This is an estimate." : "";
@@ -305,7 +308,7 @@ export function buildRoute(picks: PlanSession[], modes: TransportMode[], buffer 
       const ride = crossing(modes, dayId, previous.island, session.island, modeId);
       const gap = previousEnd != null && nextStart != null ? nextStart - previousEnd : null;
       if (previous.island === "Near Tortola" || session.island === "Near Tortola") {
-        stops.push({ session, clash, leg: { from: previous.island, to: session.island, depart: null, arrive: null, mode: "Transfer to be confirmed", duration: "Timing pending the venue", estimated: true, tight: false } });
+        stops.push({ session, clash, leg: { from: previous.island, to: session.island, depart: null, arrive: null, mode: "Transfer to be confirmed", duration: "Timing pending the venue", estimated: false, tight: false } });
         return;
       }
       const needed = ride.minutes[1] + buffer;
