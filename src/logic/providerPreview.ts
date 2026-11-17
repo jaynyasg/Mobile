@@ -1,4 +1,7 @@
 const OWN_SITE_ONLY = new Set(["igymarinas.com", "ritzcarltonyachtcollection.com", "voyagecharters.com", "scrubisland.com", "marriott.com"]);
+export function canConfirmStay(section: string, provider: { name: string; href: string | null }): boolean {
+  return !/boat/i.test(section) && !/Explore BVI/.test(provider.name) && !provider.href?.includes("/beach-club/");
+}
 /** Same provider-window approach as the TATEL website. */
 export function providerPreview(href: string): { href: string; host: string; embedded: boolean } | null {
   try {

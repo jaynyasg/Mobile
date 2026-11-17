@@ -14,6 +14,8 @@ Source: the user-supplied CEO brief and clarifications on November 16, 2026. Boo
 
 ## Boundaries and outstanding event information
 
+The Ritz-Carlton, St. Thomas listing now links to its [official hotel booking page](https://www.ritzcarlton.com/en/hotels/sttrz-the-ritz-carlton-st-thomas/overview/), replacing the unrelated boat-detail link. A marina or beach-club day visit cannot be saved as overnight accommodation.
+
 The website uses a provider iframe/overview pattern, not a common hotel inventory or reservation API. A provider controls availability, checkout, confirmation, cookies, and whether its pages can be embedded. Complete booking inside every provider window cannot be guaranteed without provider integration agreements.
 
 The specific Entertainment venue, landing point, and transfers near Tortola still need confirmation. The brief's 50+ confirmed panelists, 50+ participants, and five daily island hops were not independently established; the app retains actual program counts and proposed status, with conditional transport language. Current program contains 48 panelists and 205 sessions.

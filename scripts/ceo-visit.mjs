@@ -58,12 +58,12 @@ for (const [name, engine] of [["chromium", chromium], ["webkit", webkit]]) {
       await page.waitForURL(url => url.pathname === "/agenda" && url.searchParams.get("day") === "2027-01-28");
       assert.equal(await page.getByTestId("session-guide").count(), 0);
       await button(page, "See sessions matched to my interests").click(); await page.getByTestId("session-guide").waitFor();
-      await page.goto(`${base}/stays/lovango`); await page.getByRole("button", { name: /^View & book:/ }).first().click();
+      await page.goto(`${base}/stays/lovango`); await button(page, "View & book: Lovango Resort & Beach Club").click();
       console.log(`${name} ${width}: providers`);
       const dialog = page.getByRole("dialog"); await dialog.waitFor(); assert.equal(await dialog.locator("iframe").count(), 1);
       await page.keyboard.press("Escape"); await dialog.waitFor({ state: "hidden" });
       assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("tatel.intake.v1")).accommodation), undefined);
-      await page.getByRole("button", { name: /^View & book:/ }).first().click(); await button(page, "I have a confirmed reservation").click();
+      await button(page, "View & book: Lovango Resort & Beach Club").click(); await button(page, "I have a confirmed reservation").click();
       await dialog.waitFor({ state: "hidden" }); assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("tatel.intake.v1")).accommodation.island), "Lovango");
       await page.goto(`${base}/stays/scrub-island`); await page.getByRole("button", { name: /^View & book:/ }).first().click();
       await dialog.waitFor(); assert.equal(await dialog.locator("iframe").count(), 0); await dialog.getByText(/requires its own website/).waitFor();

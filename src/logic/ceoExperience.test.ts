@@ -6,7 +6,7 @@ import { availableNeeds, ISLAND_NEEDS, sessionNeeds } from "./islandNeeds";
 import { guidedSessions } from "./sessionGuide";
 import { connectedSessions } from "./sessionJourney";
 import { buildRoute, routePins } from "./customRoute";
-import { providerPreview } from "./providerPreview";
+import { canConfirmStay, providerPreview } from "./providerPreview";
 import { emptyWorkNote, readWorkNote, saveWorkNote, workNoteText, WORK_KEY } from "./workNotes";
 import { saveEntryIntent, takeEntryIntent } from "./entryIntent";
 
@@ -49,6 +49,12 @@ describe("CEO experience integration", () => {
     expect(routePins(route).some(pin => pin.island === "Near Tortola")).toBe(false);
   });
   it("supports provider windows and explicit fallbacks without unsafe URLs", () => {
+    const land = "On the beach or on land";
+    expect(canConfirmStay(land, { name: "Lovango Resort", href: "https://www.lovangovi.com/accommodations/" })).toBe(true);
+    expect(canConfirmStay(land, { name: "Caribbean Beach Club", href: "https://www.lovangovi.com/beach-club/" })).toBe(false);
+    expect(canConfirmStay("On the boat", { name: "Marina", href: "https://example.com" })).toBe(false);
+    const ritz = bundle.stays.groups.flatMap(group => group.islands).flatMap(island => island.sections).flatMap(section => section.providers).find(provider => provider.name === "The Ritz-Carlton, St. Thomas");
+    expect(ritz?.localDeck).toBe(false); expect(ritz?.href).toContain("ritzcarlton.com");
     expect(providerPreview("https://www.lovangovi.com/accommodations/")?.embedded).toBe(true);
     expect(providerPreview("https://booking.marriott.com/rooms")?.embedded).toBe(false);
     for (const url of ["javascript:alert(1)", "http://example.com", "https://localhost", "https://127.0.0.1", "https://[::1]", "https://user:pass@example.com", "https://tatel.app"]) expect(providerPreview(url)).toBeNull();

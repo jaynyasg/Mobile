@@ -14,6 +14,7 @@ import { StepBridge } from "@/components/StepBridge";
 import { confirmAccommodation, readIntake } from "@/logic/intake";
 import { webStorage } from "@/welcome";
 import { BookingLink } from "@/components/BookingLink";
+import { canConfirmStay } from "@/logic/providerPreview";
 
 export default function StayScreen() {
   useContent();
@@ -56,9 +57,9 @@ export default function StayScreen() {
               <View key={provider.name} style={styles.link}>
                 <T variant="rowTitle" numberOfLines={2}>{provider.name}</T>
                 {provider.href ? (
-                  <BookingLink href={provider.href} name={provider.name} detail={`${provider.name} · ${island.island}. ${island.dock}`} onConfirmed={!/boat/i.test(section.heading) && !/Explore BVI/.test(provider.name) ? () => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); } : undefined} />
+                  <BookingLink href={provider.href} name={provider.name} detail={`${provider.name} · ${island.island}. ${island.dock}`} onConfirmed={canConfirmStay(section.heading, provider) ? () => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); } : undefined} />
                 ) : null}
-                {!/boat/i.test(section.heading) && !/Explore BVI/.test(provider.name) && readIntake(webStorage()) ? <Pressable accessibilityRole="button" accessibilityLabel={`I have booked ${provider.name}`} onPress={() => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); }} style={styles.confirm}><T variant="button" color={colors.gold}>{chosen?.name === provider.name && chosen.island === island.island ? "✓ Saved as my accommodation" : "I have booked here"}</T></Pressable> : null}
+                {canConfirmStay(section.heading, provider) && readIntake(webStorage()) ? <Pressable accessibilityRole="button" accessibilityLabel={`I have booked ${provider.name}`} onPress={() => { const accommodation = { island: island.island, name: provider.name }; confirmAccommodation(webStorage(), accommodation); setChosen(accommodation); }} style={styles.confirm}><T variant="button" color={colors.gold}>{chosen?.name === provider.name && chosen.island === island.island ? "✓ Saved as my accommodation" : "I have booked here"}</T></Pressable> : null}
               </View>
             ),
           )}

@@ -25,7 +25,7 @@ export function applyExperienceContent(program: ProgramData): ProgramData {
     stays: { ...program.stays, groups: program.stays.groups.map(group => ({ ...group, islands: group.islands.map(island => island.id === "jost-van-dyke" || island.id === ENTERTAINMENT_VENUE ? {
       ...island, id: ENTERTAINMENT_VENUE, island: ENTERTAINMENT_AREA, dock: "Confirm your base with the team once the venue is announced.",
       sections: [{ heading: "Plan your stay near Tortola", providers: [{ name: "Explore BVI accommodation", href: "https://www.bvitourism.com/", localDeck: false }], notes: [LOCATION_NOTE, "Property availability and access to the summit venue must be confirmed before booking."] }],
-    } : island) })) },
+    } : { ...island, sections: island.sections.map(section => ({ ...section, providers: section.providers.map(provider => provider.name === "The Ritz-Carlton, St. Thomas" ? { ...provider, localDeck: false, href: "https://www.ritzcarlton.com/en/hotels/sttrz-the-ritz-carlton-st-thomas/overview/" } : provider) })) }) })) },
     transport: { ...program.transport, venueAssumptions: LOCATION_NOTE, modes: program.transport.modes.map(mode => ({
       ...mode, description: replaceArea(mode.description), warning: `${LOCATION_NOTE} ${replaceArea(mode.warning)}`.replace(`${LOCATION_NOTE} ${LOCATION_NOTE} `, `${LOCATION_NOTE} `),
       days: mode.days.map(day => ({ ...day, start: oldArea.test(day.start) ? "Start near Tortola; boarding point and departure time to be confirmed." : day.start,
