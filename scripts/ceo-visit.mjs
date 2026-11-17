@@ -61,6 +61,7 @@ for (const [name, engine] of [["chromium", chromium], ["webkit", webkit]]) {
       await page.goto(`${base}/stays/lovango`); await button(page, "View & book: Lovango Resort & Beach Club").click();
       console.log(`${name} ${width}: providers`);
       const dialog = page.getByRole("dialog"); await dialog.waitFor(); assert.equal(await dialog.locator("iframe").count(), 1);
+      assert.ok((await dialog.boundingBox()).width <= width, "Provider window fits the phone width");
       await page.keyboard.press("Escape"); await dialog.waitFor({ state: "hidden" });
       assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("tatel.intake.v1")).accommodation), undefined);
       await button(page, "View & book: Lovango Resort & Beach Club").click(); await button(page, "I have a confirmed reservation").click();

@@ -105,7 +105,7 @@ video {
   [data-gloss="shimmer"] { animation: tatel-sheen 4.8s ease-in-out infinite; }
 }
 /* Provider windows retain the guest's TATEL plan and return path. */
-.provider-window { position: fixed; inset: 0; margin: auto; width: min(100%, 900px); height: 100dvh; max-width: 100vw; max-height: 100dvh; padding: 0; border: 1px solid #FFE08A; background: #071421; color: #F5F1E8; font-family: Manrope-Regular, sans-serif; overflow: auto; }
+.provider-window { box-sizing: border-box; position: fixed; inset: 0; margin: auto; width: min(100%, 900px); height: 100dvh; max-width: 100vw; max-height: 100dvh; padding: 0; border: 1px solid #FFE08A; background: #071421; color: #F5F1E8; font-family: Manrope-Regular, sans-serif; overflow: auto; }
 .provider-window[open] { display: flex; flex-direction: column; }
 .provider-window::backdrop { background: rgba(0,0,0,.7); }
 .provider-toolbar { padding: max(12px, env(safe-area-inset-top)) 16px 12px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
