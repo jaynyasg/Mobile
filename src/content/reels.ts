@@ -138,7 +138,7 @@ export const reels = {
   },
   entertainment: {
     id: "entertainment",
-    title: "Jost Van Dyke · Entertainment",
+    title: "Near Tortola · Entertainment",
     kicker: "Island",
     mp4: "/reels/entertainment.mp4",
     poster: "/reels/entertainment-poster.jpg",

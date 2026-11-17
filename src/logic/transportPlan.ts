@@ -187,6 +187,7 @@ const ALONG: Record<string, string> = {
 
 export function legInstruction(title: string): { stops: string[]; along: string; mapsUrl: string } {
   const stops = legStops(title);
+  if (stops.some(stop => /near tortola/i.test(stop))) return { stops, along: "The venue and landing point near Tortola are being confirmed. Arrange this connection with your operator once the location is announced.", mapsUrl: "" };
   const mapsUrl = mapsForStops(stops);
   const keys = stops.map(placeKey);
   if (keys.includes("trellis")) {

@@ -79,6 +79,10 @@ Present the opening summary as the guest's plan based on their choices. Name the
 
 ## Verification
 
+The CEO content update keeps this visual system and all current panelists, films, and background assets. Introduce the Technology Mill and CFEG Learning Labs, the connected four-day method, eight island needs, the daily overview, and the Virgin Islands story before the three entry choices. Keep St. Croix in the wider destination story only. Replace the former Jost Van Dyke program location with near Tortola, without inventing a dock or moving real hotels. Preserve existing sessions on other islands.
+
+Provider windows follow the booking website: embed where supported, show a readable overview and external fallback otherwise, and only record accommodation after the guest explicitly confirms a reservation. The work notebook stores private notes on the current device and offers an export; it does not imply a shared project backend or automatic annual reminders.
+
 Use the existing typecheck, tests, guided-visit browser checks, and readability sweep when changes affect their coverage. Check phone layouts at 320×568 and 390×844, larger text, and browser/standalone behavior. iPhone installation instructions must explain Safari's Add to Home Screen flow; an actual device is needed to verify the final operating-system action.
 
 ## Decisions

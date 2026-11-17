@@ -19,6 +19,8 @@ import {
   type ReelStore,
 } from "./gate";
 import { playReelNow, reelPlaybackSrc } from "./playback";
+import { saveEntryIntent } from "@/logic/entryIntent";
+import { webStorage } from "@/welcome";
 
 interface PendingReel {
   id: ReelId;
@@ -158,7 +160,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
             onDone={(reason) => complete(reason, pending.nonce)}
           />
         ) : null}
-        {story ? <TatelExplainer onClose={() => setStory(false)} /> : null}
+        {story ? <TatelExplainer onClose={(intent) => { if (intent) { saveEntryIntent(webStorage(), intent); router.navigate("/"); } setStory(false); }} /> : null}
       </View>
     </ReelContext.Provider>
   );

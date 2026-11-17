@@ -15,6 +15,7 @@ import { useReels } from "@/reels/ReelHost";
 import { useApp } from "@/store";
 import { colors, fonts, pad } from "@/theme";
 import { nightGlass } from "@/components/nightGlass";
+import { WORK_KEY } from "@/logic/workNotes";
 
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
@@ -37,12 +38,13 @@ export default function SettingsScreen() {
 
   function erase() {
     dispatch({ type: "deleteAllData" });
+    webStorage()?.setItem(WORK_KEY, "{}");
     setConfirming(false);
     setCleared(true);
   }
 
   function ask() {
-    const message = "Delete favorites, messages, guide history, notification reads, your opt-in, and your profile from this device?";
+    const message = "Delete favorites, messages, your work notebook, guide history, notification reads, your opt-in, and your profile from this device?";
     if (Platform.OS === "web") {
       if (window.confirm(message)) erase();
       return;
@@ -78,7 +80,7 @@ export default function SettingsScreen() {
         <SecondaryButton label="Replay intro" onPress={replayIntro} />
         <SecondaryButton label="What is TATEL" onPress={openStory} />
         <T variant="eyebrow">Your path</T>
-        <T variant="small">Answer the three questions again.</T>
+        <T variant="small">Update your ticket, accommodation, and session interests.</T>
         <SecondaryButton label="Retake questions" onPress={() => {
           requestIntake(webStorage());
           router.push("/");

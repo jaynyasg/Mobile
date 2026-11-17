@@ -22,10 +22,12 @@ import { useApp } from "@/store";
 import { plateForIsland } from "@/components/backgrounds";
 import { nightGlass } from "@/components/nightGlass";
 import { colors, pad, sceneForIsland } from "@/theme";
+import { connectedSessions, METHOD } from "@/logic/sessionJourney";
+import { ISLAND_NEEDS, sessionNeeds } from "@/logic/islandNeeds";
 
 export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  useContent();
+  const { program } = useContent();
   const session = sessionById(id ?? "");
   const { state, dispatch } = useApp();
   if (!session) {
@@ -80,6 +82,8 @@ export default function SessionScreen() {
         <T variant="eyebrow" color={colors.gold}>{sessionGoal(session.phase)?.title ?? "Session goal"}</T>
         <T variant="rowTitle">What you'll work toward</T>
         <T variant="small">{displayCopy(session.outcome)}</T>
+        <T variant="meta">{ISLAND_NEEDS.filter(need => sessionNeeds(session).includes(need.id)).map(need => need.title).join(" · ")}</T>
+        <T variant="small">{METHOD.find(step => step.phase === session.phase)?.line}</T>
         {people.length === 0 ? <T variant="small">{SPEAKER_TBA}</T> : null}
         <View style={styles.actions}>
           {favored ? (
@@ -89,6 +93,12 @@ export default function SessionScreen() {
           )}
         </View>
       </Glass>
+      <View style={styles.missing}>
+        <T variant="rowTitle" color={colors.gold}>Follow the work across four days</T>
+        <T variant="small">Connected sessions move from the problem to a solution, a tested use case, and a showcase. Follow the series or contribute at the stage that fits you.</T>
+        {connectedSessions(program.sessions, session).map(item => <Link key={item.id} href={{ pathname: "/session/[id]", params: { id: item.id } }} asChild><Pressable accessibilityRole="button" style={styles.peopleLink}><T variant="meta" color={colors.gold}>{METHOD.find(step => step.phase === item.phase)?.title ?? item.phase} · {item.dayId.slice(5)}</T><T variant="small">{item.title}{item.id === session.id ? " · You're here" : ""}</T></Pressable></Link>)}
+        <Link href={{ pathname: "/work", params: { session: session.id } }} asChild><Pressable accessibilityRole="button" style={styles.peopleLink}><T variant="button" color={colors.gold}>Open my work notebook</T></Pressable></Link>
+      </View>
       <View style={styles.missing}>
         <T variant="rowTitle" color={colors.gold}>Meet the panelists</T>
         <T variant="small">Open a profile to learn about their work and other sessions. Keep the conversation going in Chat.</T>

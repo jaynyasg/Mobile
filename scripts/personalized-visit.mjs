@@ -65,6 +65,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "Help me find a place");
       await click(page, "Tech");
       await click(page, "Next · Find my sub-infrastructure");
+      await click(page, "Show specific fields");
       await click(page, "AgriTech");
       await page.screenshot({ path: `${output}/${engineName}-${width}-opening-subtopics.png` });
       await click(page, "See my plan");
@@ -116,6 +117,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       const questions = multi.getByLabel("Plan your TATEL visit", { exact: true });
       const fields = questions.getByTestId("sub-infrastructure-options");
       const techFields = await fields.getByRole("button").evaluateAll(nodes => nodes.map(node => node.getAttribute("aria-label")));
+      await click(multi, "Show specific fields");
       await click(multi, "AgriTech");
       await questions.getByRole("button", { name: "Back", exact: true }).click();
       await click(multi, "AI");

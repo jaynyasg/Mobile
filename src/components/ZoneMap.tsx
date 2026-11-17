@@ -8,7 +8,7 @@ const zones = [
   { id: "tech", name: "Tech", island: "St. Thomas", x: 18, y: 58 },
   { id: "ai", name: "AI", island: "St. John", x: 38, y: 34 },
   { id: "law", name: "Law", island: "Lovango", x: 56, y: 62 },
-  { id: "entertainment", name: "Entertainment", island: "Jost Van Dyke", x: 74, y: 28 },
+  { id: "entertainment", name: "Entertainment", island: "Near Tortola", x: 74, y: 28 },
   { id: "travel", name: "Travel", island: "Scrub Island", x: 84, y: 52 },
 ] as const;
 

@@ -67,7 +67,7 @@ export const essentials: Essential[] = [
     id: "ferries",
     title: "A ferry crosses a border",
     line: "USVI to BVI means a passport and clearance.",
-    more: "Jost Van Dyke and Scrub Island are in the British Virgin Islands. A boat from St. Thomas or St. John is an international arrival. Have your passport, and complete the BVI entry card before you travel. Office hours and the boat itself can change.",
+    more: "Scrub Island and the Entertainment area near Tortola are in the British Virgin Islands. A boat from St. Thomas or St. John is an international arrival. Check the current entry requirements with your operator before you travel. The Entertainment landing point is being confirmed.",
     check: true,
     sources: [
       { title: "BVI Tourism, customs and immigration", url: "https://www.bvitourism.com/travel/entry-requirements" },

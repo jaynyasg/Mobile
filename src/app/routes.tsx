@@ -160,7 +160,7 @@ export default function RoutesScreen() {
           <T variant="small" color={colors.foam}>{summary}</T>
           {dayMeta ? <T variant="meta" color={colors.gold}>{dayMeta.phase}</T> : null}
         </View>
-          <Pressable
+          {day.map ? <Pressable
             accessibilityRole="button"
             accessibilityLabel={`View ${day.mapDescription}`}
             testID="transport-map"
@@ -180,7 +180,7 @@ export default function RoutesScreen() {
                 ]}
               />
             ) : null}
-          </Pressable>
+          </Pressable> : <View style={{ margin: 16, padding: 18, gap: 10 }}><T variant="rowTitle" color={colors.gold}>Your route is taking shape</T><T variant="small">Entertainment is now near Tortola. The exact landing point and transfer times are being confirmed. Use the session stops below to plan your interests; confirm the journey with your operator before booking.</T></View>}
           <Pressable accessibilityRole="button" accessibilityLabel="Map credits" onPress={() => setCreditsOpen(true)} style={styles.creditsLink}>
             <T variant="meta" color={colors.gold}>Map credits</T>
           </Pressable>
@@ -348,7 +348,7 @@ function StopCard({
             <T variant="meta">From {leg.from}{leg.to ? ` to ${leg.to}` : ""}</T>
             <T variant="small" color={colors.foam}>{guide.along}</T>
             <T variant="meta">{leg.detail}</T>
-            <ExternalLink href={guide.mapsUrl} label={`Map from ${leg.from} to ${leg.to}`}>Map this hop</ExternalLink>
+            {guide.mapsUrl ? <ExternalLink href={guide.mapsUrl} label={`Map from ${leg.from} to ${leg.to}`}>Map this hop</ExternalLink> : null}
           </View>
         </View>
         );

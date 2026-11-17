@@ -26,6 +26,9 @@ export default function MoreScreen() {
       title: "You",
       items: [
         { href: "/schedule", label: "My schedule", detail: "Your saved sessions" },
+        { href: "/work", label: "My work notebook", detail: "Use cases, tests, next steps, and annual review" },
+        { href: "/program-overview", label: "The four-day experience", detail: "See how the connected sessions progress" },
+        { href: "/updates", label: "TATEL updates", detail: "Program notes and an invitation to share" },
         { href: "/tickets", label: "Tickets", detail: heldPass ? "Your saved ticket" : "Stay ashore, sail by day, or live aboard", reelId: "pass" },
         { href: "/notifications", label: "Notifications", detail: "Summit notes on this device", badge: unread || undefined },
         { href: "/know", label: "Preparation guide", detail: "Documents, money, driving, and the border." },

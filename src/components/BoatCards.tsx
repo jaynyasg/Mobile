@@ -50,9 +50,9 @@ export function BoatCards() {
           <T variant="rowTitle" color={colors.foam}>{hop.island}</T>
           <T variant="meta" color={colors.gold}>{hop.from} → {hop.to}</T>
           <T variant="small" color={colors.foam}>{hop.how}</T>
-          <ExternalLink href={mapsDirections(hop.origin, hop.destination)} label={`Map from ${hop.from} to ${hop.to}`}>
+          {hop.island !== "Near Tortola" ? <ExternalLink href={mapsDirections(hop.origin, hop.destination)} label={`Map from ${hop.from} to ${hop.to}`}>
             Map this taxi
-          </ExternalLink>
+          </ExternalLink> : null}
         </View>
       ))}
     </View>

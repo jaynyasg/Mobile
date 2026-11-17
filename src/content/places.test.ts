@@ -6,7 +6,6 @@ describe("candidate venues", () => {
     expect(places.map((place) => place.id).sort()).toEqual([
       "emerald-beach-resort",
       "gallows-point-resort",
-      "hideout-white-bay",
       "lovango-resort-beach-club",
       "margaritaville-vacation-club",
       "ritz-carlton-st-thomas",

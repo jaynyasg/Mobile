@@ -7,6 +7,8 @@ import { ticketGuide } from "@/content/tickets";
 import { buildPath, type IntakeAnswers, type PassAnswer, type StayAnswer } from "@/logic/pathPlan";
 import { type PassTier } from "@/logic/passPay";
 import { availableSubtopics } from "@/logic/sessionGuide";
+import { availableNeeds } from "@/logic/islandNeeds";
+import { InterestChoices } from "./InterestChoices";
 import { colors } from "@/theme";
 import { notchPadding } from "./notch";
 import { T } from "./Text";
@@ -18,16 +20,15 @@ const experiences: { id: PassTier; title: string; line: string }[] = [
   { id: "vip", title: "Live aboard for five days", line: "An overnight charter for your group of eight, or a request to share a boat." },
 ];
 
-export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => void; onSkip: (answers: Answers) => void }) {
+export function Questions({ onDone, onSkip, initial, startAt = 0 }: { onDone: (answers: Answers) => void; onSkip: (answers: Answers) => void; initial?: Partial<Answers>; startAt?: number }) {
   const insets = useSafeAreaInsets();
   const { program } = useContent();
-  const [step, setStep] = useState(0);
-  const [hasPass, setHasPass] = useState<PassAnswer>("skipped");
-  const [ticketPreference, setTicketPreference] = useState<PassTier>();
-  const [needsStay, setNeedsStay] = useState<StayAnswer>("skipped");
-  const [areas, setAreas] = useState<string[]>([]);
-  const [interests, setInterests] = useState<string[]>([]);
-  const topics = availableSubtopics(program.sessions, areas);
+  const [step, setStep] = useState(startAt);
+  const [hasPass, setHasPass] = useState<PassAnswer>(initial?.hasPass ?? "skipped");
+  const [ticketPreference, setTicketPreference] = useState<PassTier | undefined>(initial?.ticketPreference);
+  const [needsStay, setNeedsStay] = useState<StayAnswer>(initial?.needsStay ?? "skipped");
+  const [areas, setAreas] = useState<string[]>([...(initial?.areas ?? [])]);
+  const [interests, setInterests] = useState<string[]>(initial?.interests ?? []);
   const answers = { hasPass, ticketPreference, needsStay, areas, interests };
   const path = buildPath(answers, program.forum.pillars);
   const nextLabel = step === 3 ? "Next · Find my sub-infrastructure" : step === 4 ? "See my plan" : path[0]?.id === "pass" ? (ticketPreference === "vip" ? "Start my Board booking" : ticketPreference ? "Continue to checkout" : "Compare tickets") : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
@@ -36,7 +37,7 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
   const toggle = (items: string[], item: string) => items.includes(item) ? items.filter((id) => id !== item) : [...items, item];
   function toggleArea(id: string) {
     const next = toggle(areas, id);
-    const available = availableSubtopics(program.sessions, next);
+    const available = [...availableSubtopics(program.sessions, next), ...availableNeeds(program.sessions, next)];
     setAreas(next);
     setInterests((current) => current.filter((interest) => available.some((topic) => topic.id === interest)));
   }
@@ -79,15 +80,10 @@ export function Questions({ onDone, onSkip }: { onDone: (answers: Answers) => vo
           </> : null}
           {step === 3 ? <>
             <T variant="small" color={colors.foam}>Pick the infrastructure areas that excite you. Next, choose the fields within them. We'll use both to suggest islands for your stay and sessions you can save. Leave these blank if you're open to everything.</T>
-            {program.forum.pillars.map((pillar) => option(pillar.id, `${areas.includes(pillar.id) ? "✓ " : ""}${pillar.name}`, `Sessions on or near ${pillar.island}`, () => toggleArea(pillar.id), areas.includes(pillar.id)))}
+            {program.forum.pillars.map((pillar) => option(pillar.id, `${areas.includes(pillar.id) ? "✓ " : ""}${pillar.name}`, `Home area · ${pillar.island}`, () => toggleArea(pillar.id), areas.includes(pillar.id)))}
           </> : null}
           {step === 4 ? <>
-            <T variant="small" color={colors.foam}>Choose your sub-infrastructure: specific fields from all the areas you selected. Shared fields appear once and list their matching areas. Pick as many as you like, or leave them blank to explore every field.</T>
-            <T variant="rowTitle" color={colors.gold}>Fields from {areas.length ? program.forum.pillars.filter((pillar) => areas.includes(pillar.id)).map((pillar) => pillar.name).join(" · ") : "all infrastructure areas"}</T>
-            <View testID="sub-infrastructure-options" style={styles.plan}>
-              {topics.map((topic) => option(topic.id, `${interests.includes(topic.id) ? "✓ " : ""}${topic.id}`, `${topic.line} · ${topic.count} session${topic.count === 1 ? "" : "s"}`, () => setInterests(toggle(interests, topic.id)), interests.includes(topic.id), `In ${program.forum.pillars.filter((pillar) => topic.areaIds.includes(pillar.id)).map((pillar) => pillar.name).join(" · ")}`))}
-            </View>
-            {!topics.length ? <T variant="small" color={colors.foam}>No specific fields are listed for these areas yet. We'll show their available sessions.</T> : null}
+            <InterestChoices sessions={program.sessions} pillars={program.forum.pillars} areas={areas} selected={interests} onToggle={id => setInterests(toggle(interests, id))} buttons />
           </> : null}
           {step === 5 ? <>
             <T variant="small" color={colors.foam}>This is your plan, based on your choices. We'll guide you through these steps in order. Your answers are saved on this device; you can change them from Home.</T>

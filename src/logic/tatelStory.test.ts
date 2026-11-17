@@ -5,11 +5,11 @@ import { AREA_COPY, advanceStory, storyBackground, storyBeat, storySlides, tatel
 const slides = storySlides({ pillars: forum.pillars, days: forum.days, formatsByDay: {} });
 describe("TATEL introduction", () => {
   it("explains the purpose, five topics, islands, and four days in order", () => {
-    expect(slides.map((slide) => slide.kind)).toEqual(["goal", "name", "letter", "letter", "letter", "letter", "letter", "islands", "arc", "day", "day", "day", "day", "experience", "experience"]);
+    expect(slides.map((slide) => slide.id)).toEqual(["goal", "name", "mill", "method", "tech", "ai", "travel", "entertainment", "law", "needs", "arc", ...forum.days.map(day => day.id), "continuation", "islands", "people", "getaway"]);
     expect(tatelLetters(forum.pillars).map((item) => item.letter).join("")).toBe("TATEL");
-    expect(slides[0].line).toMatch(/local communities and global experts/);
-    expect(slides[0].note).toMatch(/incubator and expert network/);
-    expect(slides.find((slide) => slide.kind === "islands")?.note).toMatch(/international border/);
+    expect(slides[0].line).toMatch(/turning real island needs into technology/);
+    expect(slides.find(slide => slide.id === "name")?.note).toMatch(/Learning Labs/);
+    expect(slides.find((slide) => slide.kind === "islands")?.note).toMatch(/St. Croix/);
     expect(slides.filter((slide) => slide.kind === "day").map((slide) => slide.id)).toEqual(forum.days.map((day) => day.id));
   });
   it("keeps every slide readable and gives guests time to read", () => {

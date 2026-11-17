@@ -43,7 +43,7 @@ describe("transport plan", () => {
     expect(stops[1].legs[0]?.time).toBe("9:45–10:40am");
     expect(stops.map((stop) => stop.number)).toEqual([1, 2, 3, 4, 5]);
     const islands = stops.map((stop) => stop.island ?? "");
-    expect(routeSummary(1, day.items, islands)).toBe("Day 1 · 5 islands · 90–145 min underway");
+    expect(routeSummary(1, day.items, islands)).toBe("Day 1 · 5 islands · 4 crossings");
   });
 
   it("keeps a crossing that does not end at a featured stop", () => {

@@ -9,7 +9,7 @@ import { chromium } from "playwright";
 const base = process.env.BASE_URL ?? "http://127.0.0.1:8081";
 const only = process.env.ROUTES?.split(",").map((item) => item.trim()).filter(Boolean);
 const viewports = [
-  { width: 360, height: 740 },
+  { width: 320, height: 568 },
   { width: 390, height: 844 },
   { width: 412, height: 915 },
 ];
@@ -43,6 +43,10 @@ const routes = only ?? [
   "/venue/st-thomas",
   "/pass/vip/preview",
   "/deck",
+  "/program-overview",
+  "/updates",
+  "/work?session=T2-D1",
+  "/stays/near-tortola",
 ];
 
 function dayKey() {

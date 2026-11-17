@@ -70,7 +70,7 @@ export default function StaysScreen() {
       </View>
       <View style={styles.pad}>
         {personalized ? <Pressable accessibilityRole="button" onPress={() => { setShowAll(!showAll); scrollRef.current?.scrollTo({ y: 0, animated: false }); }} style={styles.open}><T variant="button" color={colors.ink}>{showAll ? "Show my suggested islands" : "See all islands"}</T></Pressable> : null}
-        <T variant="small">Book directly with the property and confirm availability, rates, and cancellation terms there. Your ticket does not reserve a hotel room. Check island connections against your session plans before booking.</T>
+        <T variant="small">Open a property to browse and book in a provider window. Some sites require a new tab; your TATEL plan stays saved. Confirm availability, rates, and cancellation terms with the property. Your ticket does not reserve a hotel room.</T>
         {stays.brochureUrl ? <ExternalLink href={stays.brochureUrl} label="See partner stays">See partner stays</ExternalLink> : null}
       </View>
       <StepBridge id="stay" footer />

@@ -133,14 +133,17 @@ export interface RoutePin {
 export function routePins(days: PlanDay[]): RoutePin[] {
   const seen = new Map<string, number>();
   const pins: RoutePin[] = [];
+  let stopNumber = 0;
   for (const day of days) {
     for (const stop of day.stops) {
+      stopNumber += 1;
+      if (stop.session.island === "Near Tortola") continue;
       const key = normIsland(stop.session.island);
       const count = seen.get(key) ?? 0;
       seen.set(key, count + 1);
       const spot = pinSpot(stop.session.island);
       pins.push({
-        n: pins.length + 1,
+        n: stopNumber,
         island: stop.session.island,
         dayId: day.dayId,
         x: Math.min(0.94, Math.max(0.06, spot.x + (count % 2) * 0.035)),
@@ -301,6 +304,10 @@ export function buildRoute(picks: PlanSession[], modes: TransportMode[], buffer 
       }
       const ride = crossing(modes, dayId, previous.island, session.island, modeId);
       const gap = previousEnd != null && nextStart != null ? nextStart - previousEnd : null;
+      if (previous.island === "Near Tortola" || session.island === "Near Tortola") {
+        stops.push({ session, clash, leg: { from: previous.island, to: session.island, depart: null, arrive: null, mode: "Transfer to be confirmed", duration: "Timing pending the venue", estimated: true, tight: false } });
+        return;
+      }
       const needed = ride.minutes[1] + buffer;
       const tight = !clash && gap != null && gap < needed;
       const depart = nextStart == null ? null : nextStart - buffer - ride.minutes[1];

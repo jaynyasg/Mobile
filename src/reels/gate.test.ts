@@ -70,7 +70,7 @@ describe("reel gate", () => {
       "St. Thomas · Tech",
       "St. John · AI",
       "Scrub Island · Travel",
-      "Jost Van Dyke · Entertainment",
+      "Near Tortola · Entertainment",
       "Lovango · Law",
     ]);
     expect(zoneReelIds.map((id) => reels[id].kicker).join(" ")).not.toMatch(/zone/i);
