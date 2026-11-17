@@ -31,6 +31,14 @@ for (const [name, engine] of [["chromium", chromium], ["webkit", webkit]]) {
         console.log(`${name} ${width}: ${choice}`);
         await page.goto(base); await button(page, "What is TATEL").click();
         await button(page, "Page 4 of 19").click(); await page.getByText("Working rooms. Real island needs.", { exact: true }).waitFor();
+        if (choice === "Find my ticket") {
+          await button(page, "Page 17 of 19").click();
+          const story = page.locator('div[aria-label="What is TATEL"]');
+          await button(story, "Next island").click();
+          await story.getByTestId("island-story").getByText("St. John", { exact: true }).waitFor();
+          await page.screenshot({ path: `.vitest/ceo-visit/${name}-${width}-islands.png` });
+          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
+        }
         await button(page, "Page 19 of 19").click(); await button(page.locator('div[aria-label="What is TATEL"]'), choice).click();
         if (next) { await button(page, next).waitFor(); await button(page, "Plan later").click(); }
         else await page.waitForURL(url => url.pathname === "/explore");
