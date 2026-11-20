@@ -246,7 +246,7 @@ export default function HomeScreen() {
       {asking && !reelActive ? (
         <Questions
           key={entryIntent ?? "questions"}
-          initial={entryIntent ? { areas: readTracks(webTrackStore()), ...intake, hasPass: entryIntent === "stay" ? "have" : "not-yet", ticketPreference: readOwnedPass(webStorage()) ?? intake?.ticketPreference } : intake ?? { areas: readTracks(webTrackStore()) }}
+          initial={entryIntent ? { areas: readTracks(webTrackStore()), ...intake, hasPass: entryIntent === "stay" ? "have" : "not-yet", ticketPreference: readOwnedPass(webStorage()) ?? intake?.ticketPreference } : intake ? undefined : { areas: readTracks(webTrackStore()) }}
           startAt={entryIntent ? 1 : 0}
           onDone={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
           onSkip={(answers) => storeAnswers({ ...answers, interests: answers.interests ?? [], completed: answers.needsStay === "booked" ? ["stay"] : [] }, false)}
