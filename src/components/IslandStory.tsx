@@ -21,8 +21,8 @@ export function IslandStory({ intro = false }: { intro?: boolean }) {
   const island = islands[index];
   const place = program.places.find(item => item.id === island.place);
   const photo = place?.photos.find(item => item.hero);
-  return <View style={styles.card} testID="island-story">
-    <View style={styles.copy}><T variant="eyebrow" color={colors.gold}>Why the Virgin Islands?</T><T variant="title">A place to build. A place to belong.</T><T variant="small">Caribbean culture, shared tables, sailing, reefs, and unforgettable beaches. The setting is extraordinary. The purpose is to create opportunity that stays with the community and can reach the world.</T></View>
+  return <View style={[styles.card, intro && { margin: 0 }]} testID="island-story">
+    {!intro ? <View style={styles.copy}><T variant="eyebrow" color={colors.gold}>Why the Virgin Islands?</T><T variant="title">A place to build. A place to belong.</T><T variant="small">Caribbean culture, shared tables, sailing, reefs, and unforgettable beaches. The setting is extraordinary. The purpose is to create opportunity that stays with the community and can reach the world.</T></View> : null}
     {photo ? <Image source={{ uri: photo.webp1280 }} accessibilityLabel={`${place?.name}, ${island.name}`} style={styles.photo} resizeMode="cover" /> : null}
     <View style={styles.copy} accessibilityLiveRegion="polite"><T variant="eyebrow" color={colors.gold}>{index + 1} of {islands.length} · {island.region}</T><T variant="title">{island.name}</T><T variant="small">{island.line}</T><T variant="small">{island.role}</T>{photo ? <T variant="meta">Pictured: {place?.name}. Confirm your venue and reservation before travel.</T> : null}
       <View style={styles.navigation}>{[-1, 1].map(direction => <Pressable key={direction} accessibilityRole="button" accessibilityLabel={direction < 0 ? "Previous island" : "Next island"} onPress={() => setIndex((index + direction + islands.length) % islands.length)} style={styles.button}><T variant="button" color={colors.gold}>{direction < 0 ? "← Previous" : "Next →"}</T></Pressable>)}</View>

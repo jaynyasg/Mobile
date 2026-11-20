@@ -310,6 +310,7 @@ try {
             const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];
             for (const issue of issues) failures.push({ ...issue, where: `${label} / story` });
             await clickIf(page, "Skip");
+            await clickIf(page, "Close");
           }
           if (await clickIf(page, "Retake questions")) {
             const issues = [...await clippedOrUnreachable(page), ...await sweep(page)];

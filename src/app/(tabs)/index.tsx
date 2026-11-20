@@ -18,7 +18,7 @@ import { useAuth } from "@/community/auth";
 import { useContent } from "@/content/provider";
 import { islandTrackLabel } from "@/content/labels";
 import { reels, zoneReelIds, type ReelId } from "@/content/reels";
-import { webTrackStore, writeTracks } from "@/guide/interests";
+import { readTracks, webTrackStore, writeTracks } from "@/guide/interests";
 import { consumeIntakeRequest, readIntake, writeIntake, type IntakeRecord } from "@/logic/intake";
 import { saveIntakeRemote } from "@/logic/intakeSync";
 import { readOwnedPass } from "@/logic/ownedPass";
@@ -81,7 +81,7 @@ export default function HomeScreen() {
     if (!ready || reelActive) return;
     const intent = takeEntryIntent(webStorage());
     if (intent === "explore") {
-      if (!readIntake(webStorage())) writeIntake(webStorage(), { hasPass: "skipped", needsStay: "skipped", areas: [], interests: [], completed: [] });
+      if (!readIntake(webStorage())) writeIntake(webStorage(), { hasPass: "skipped", needsStay: "skipped", areas: readTracks(webTrackStore()), interests: [], completed: [] });
       setAsking(false);
       router.navigate("/explore");
       return;
@@ -246,7 +246,7 @@ export default function HomeScreen() {
       {asking && !reelActive ? (
         <Questions
           key={entryIntent ?? "questions"}
-          initial={entryIntent ? { ...intake, hasPass: entryIntent === "stay" ? "have" : "not-yet", ticketPreference: readOwnedPass(webStorage()) ?? intake?.ticketPreference } : undefined}
+          initial={entryIntent ? { areas: readTracks(webTrackStore()), ...intake, hasPass: entryIntent === "stay" ? "have" : "not-yet", ticketPreference: readOwnedPass(webStorage()) ?? intake?.ticketPreference } : intake ?? { areas: readTracks(webTrackStore()) }}
           startAt={entryIntent ? 1 : 0}
           onDone={(answers) => storeAnswers({ ...answers, completed: answers.needsStay === "booked" ? ["stay"] : [] })}
           onSkip={(answers) => storeAnswers({ ...answers, interests: answers.interests ?? [], completed: answers.needsStay === "booked" ? ["stay"] : [] }, false)}

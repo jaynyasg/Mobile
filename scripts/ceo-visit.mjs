@@ -6,6 +6,39 @@ const base = process.env.BASE_URL ?? "http://127.0.0.1:8082";
 const program = { ...JSON.parse(await readFile("src/content/tatel.json", "utf8")), places: JSON.parse(await readFile("src/content/places.json", "utf8")) };
 await mkdir(".vitest/ceo-visit", { recursive: true });
 const button = (page, name) => page.getByRole("button", { name, exact: true }).filter({ visible: true }).first();
+
+async function checkTouchStory(browser) {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: "block" });
+  await page.route("**/api/**", route => route.fulfill({ json: program }));
+  try {
+    await page.goto(base);
+    const story = page.getByRole("dialog", { name: "What is TATEL" });
+    const heading = story.getByRole("heading");
+    await heading.filter({ hasText: "TATEL is a Technology Mill." }).waitFor();
+    await page.clock.install();
+    await button(story, "Inside the Technology Mill").click();
+    await page.clock.fastForward(20000);
+    await story.getByText(/Learning Labs for professional advancement/).waitFor();
+    await button(story, "Back to the film").click();
+    await page.clock.fastForward(18000);
+    await heading.filter({ hasText: "Build it in the room" }).waitFor();
+    const touch = await page.context().newCDPSession(page);
+    const send = (type, x, y) => touch.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y }] });
+    await send("touchStart", 250, 160);
+    await send("touchMove", 95, 161);
+    await send("touchEnd");
+    await heading.filter({ hasText: "Five letters" }).waitFor();
+    await send("touchStart", 250, 160);
+    await page.clock.fastForward(20000);
+    await send("touchEnd");
+    await heading.filter({ hasText: "Five letters" }).waitFor();
+    await page.touchscreen.tap(250, 160);
+    await heading.filter({ hasText: "Four days" }).waitFor();
+    await page.keyboard.press("ArrowLeft");
+    await heading.filter({ hasText: "Five letters" }).waitFor();
+  } finally { await page.close(); }
+}
+
 async function seed(browser, width) {
   const context = await browser.newContext({ viewport: { width, height: width === 320 ? 568 : 844 }, isMobile: true, hasTouch: true, reducedMotion: "reduce", serviceWorkers: "block", acceptDownloads: true });
   context.setDefaultTimeout(20000); context.setDefaultNavigationTimeout(20000);
@@ -24,22 +57,41 @@ async function seed(browser, width) {
 for (const [name, engine] of [["chromium", chromium], ["webkit", webkit]]) {
   const browser = await engine.launch();
   try {
+    if (name === "chromium") await checkTouchStory(browser);
     for (const width of [390, 320]) {
       const context = await seed(browser, width); const page = await context.newPage();
       const errors = []; page.on("pageerror", error => errors.push(error.message));
       for (const [choice, next] of [["Find my ticket", "Stay on land"], ["I have a ticket · Plan my stay", "Be on the Beach"], ["Explore TATEL", null]]) {
         console.log(`${name} ${width}: ${choice}`);
         await page.goto(base); await button(page, "What is TATEL").click();
-        await button(page, "Page 4 of 19").click(); await page.getByText("Working rooms. Real island needs.", { exact: true }).waitFor();
+        const story = page.getByRole("dialog", { name: "What is TATEL" });
         if (choice === "Find my ticket") {
-          await button(page, "Page 17 of 19").click();
-          const story = page.locator('div[aria-label="What is TATEL"]');
+          assert.equal(await story.locator("video").count(), 0, "Reduced motion uses the chapter poster");
+          await page.screenshot({ path: `.vitest/ceo-visit/${name}-${width}-opening.png` });
+        }
+        await button(story, "Next").click();
+        await story.getByRole("heading", { name: "Build it in the room, then test it live." }).waitFor();
+        if (choice === "Find my ticket") {
+          await button(story, "Next").click();
+          await button(story, "Explore the five areas").click();
+          const law = story.getByRole("checkbox", { name: "Law", exact: true });
+          await law.check();
+          assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("tatel.intake.v1")).areas.includes("law")), true);
+          await button(story, "Back to the film").click();
+          await button(story, "Next").click();
+          await button(story, "See the days and islands").click();
+          await button(story, "January 28").click();
+          await story.getByText("Build & test", { exact: true }).waitFor();
+          await button(story, "Back to the film").click();
+          await button(story, "Next").click();
+          await button(story, "Meet the islands").click();
           await button(story, "Next island").click();
           await story.getByTestId("island-story").getByText("St. John", { exact: true }).waitFor();
           await page.screenshot({ path: `.vitest/ceo-visit/${name}-${width}-islands.png` });
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
         }
-        await button(page, "Page 19 of 19").click(); await button(page.locator('div[aria-label="What is TATEL"]'), choice).click();
+        await button(story, "Skip").click();
+        await button(story, choice).click();
         if (next) { await button(page, next).waitFor(); await button(page, "Plan later").click(); }
         else await page.waitForURL(url => url.pathname === "/explore");
       }

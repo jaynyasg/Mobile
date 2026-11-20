@@ -53,10 +53,15 @@ export default function ExploreScreen() {
         <View style={styles.cover}>
           <Image source={{ uri: reels.venues.poster }} style={styles.coverPhoto} resizeMode="cover" accessibilityLabel="The island setting of TATEL" />
           <View style={styles.coverCopy}>
-            <T variant="eyebrow" color={colors.gold}>Beyond the extraordinary conversations</T>
-            <T variant="display">Let the islands tempt you.</T>
-            <T variant="small">A morning that moves an idea forward. An afternoon in blue water. An evening worth dressing up for. Make room for every side of TATEL.</T>
-            <T variant="meta" color={colors.gold}>Five island stops. Countless ways to make it yours.</T>
+            <T variant="eyebrow" color={colors.gold}>Explore TATEL</T>
+            <T variant="display">Keep up with us</T>
+            <View style={styles.hubLinks}>
+              <Pressable accessibilityRole="button" onPress={() => router.push("/community")} style={styles.hubLink}><T variant="rowTitle" color={colors.gold}>Join the conversation</T></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => router.push("/updates")} style={styles.hubLink}><T variant="rowTitle" color={colors.gold}>TATEL updates</T></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => router.push("/program-overview")} style={styles.hubLink}><T variant="rowTitle" color={colors.gold}>See the four-day experience</T></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => scrollRef.current?.scrollTo({ y: offsets.current.activities, animated: false })} style={styles.hubLink}><T variant="rowTitle" color={colors.gold}>Find island activities</T></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => router.push("/work")} style={styles.hubLink}><T variant="rowTitle" color={colors.gold}>My work notebook</T></Pressable>
+            </View>
           </View>
         </View>
         <View onLayout={(event) => { offsets.current.guide = event.nativeEvent.layout.y; }}>
@@ -67,9 +72,6 @@ export default function ExploreScreen() {
           <T variant="title">Tell someone about TATEL.</T>
           <T variant="small">A Technology Mill in the Virgin Islands. Four days to identify a need, build and test an answer, and carry it forward—with extraordinary company along the way.</T>
           <ShareInvitation />
-          <Pressable accessibilityRole="button" onPress={() => router.push("/program-overview")} style={styles.islandsToggle}><T variant="button" color={colors.gold}>See the four-day experience</T></Pressable>
-          <Pressable accessibilityRole="button" onPress={() => router.push("/updates")} style={styles.islandsToggle}><T variant="button" color={colors.gold}>TATEL updates</T></Pressable>
-          <Pressable accessibilityRole="button" onPress={() => router.push("/work")} style={styles.islandsToggle}><T variant="button" color={colors.gold}>My work notebook</T></Pressable>
         </View>
         <View style={styles.intro}>
           <Pressable accessibilityRole="button" accessibilityState={{ expanded: islandsOpen }} onPress={() => setIslandsOpen(!islandsOpen)} style={styles.islandsToggle}>
@@ -147,6 +149,8 @@ const styles = StyleSheet.create({
   cover: { marginHorizontal: 16, marginBottom: 24, backgroundColor: "#091D2B", borderRadius: 8, overflow: "hidden" },
   coverPhoto: { width: "100%", height: 240 },
   coverCopy: { padding: 22, gap: 16 },
+  hubLinks: { marginTop: 4 },
+  hubLink: { minHeight: 48, paddingVertical: 10, justifyContent: "center", borderTopWidth: 1, borderColor: colors.inkSoft },
   islandsToggle: { minHeight: 44, justifyContent: "center" },
   islandPhoto: { width: "100%", height: 170, borderRadius: 6, marginBottom: 10 },
   pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },

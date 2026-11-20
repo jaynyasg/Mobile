@@ -17,6 +17,39 @@ video {
   pointer-events: none !important;
 }
 
+.tatel-story {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  width: min(100%, 640px);
+  height: 100%;
+  height: 100dvh;
+  max-width: 100%;
+  max-height: 100%;
+  background: #071421;
+  overflow: hidden;
+}
+.tatel-story[open] { display: flex; flex-direction: column; }
+.tatel-story::backdrop { background: #071421; }
+.tatel-story :focus-visible { outline: 2px solid #ffe08a; outline-offset: -3px; }
+#tatel-story-heading [role="heading"] { text-wrap: balance; }
+#tatel-story-gestures, #tatel-story-gestures [role="button"] { touch-action: pinch-zoom; }
+@media (prefers-reduced-motion: no-preference) {
+  #tatel-story-heading { animation: tatel-caption-in 240ms ease-out both; }
+  #tatel-story-reading { animation: tatel-sheet-in 220ms ease-out both; }
+}
+@keyframes tatel-caption-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tatel-sheet-in {
+  from { transform: translateY(10px); }
+  to { transform: translateY(0); }
+}
+
 @keyframes tatel-drift {
   from { transform: scale(1); }
   to { transform: scale(1.06); }

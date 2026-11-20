@@ -1,283 +1,236 @@
-import { createElement, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Image, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View, ViewStyle } from "react-native";
+import { AccessibilityInfo, Image, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View, type PointerEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useContent } from "@/content/provider";
-import { reels } from "@/content/reels";
-import { advanceStory, storyBackground, storyBeat, storySlides } from "@/logic/tatelStory";
-import { prefersReducedMotion } from "@/guide/stamps";
-import { colors, fonts } from "@/theme";
-import { Icon } from "./Icon";
-import { notchPadding } from "./notch";
-import { useOverlayHistory } from "./useOverlayHistory";
-import { T } from "./Text";
+import { reels, type Reel } from "@/content/reels";
 import type { EntryIntent } from "@/logic/entryIntent";
-import { IslandStory } from "./IslandStory";
+import { readIntake } from "@/logic/intake";
+import { readOwnedPass } from "@/logic/ownedPass";
+import { storyChapters } from "@/logic/tatelStory";
+import { readConnection } from "@/reels/gate";
+import { colors, fonts } from "@/theme";
+import { webStorage } from "@/welcome";
+import { notchPadding } from "./notch";
+import { StoryDetails, type StoryArea } from "./StoryDetails";
+import { T } from "./Text";
+import { useOverlayHistory } from "./useOverlayHistory";
+
+const doors = {
+  ticket: "Find my ticket",
+  stay: "I have a ticket · Plan my stay",
+  explore: "Explore TATEL",
+} as const;
 
 export function TatelExplainer({ onClose }: { onClose: (intent?: EntryIntent) => void }) {
   const insets = useSafeAreaInsets();
-  const { program } = useContent();
-  const { forum, sessions } = program;
+  const compact = useWindowDimensions().height < 650;
   const [index, setIndex] = useState(0);
-  const [held, setHeld] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [paused, setPaused] = useState(false);
-  const { width, height } = useWindowDimensions();
-  const compact = width < 360 || height < 700;
-  const [contentHeight, setContentHeight] = useState(0);
-  const [viewportHeight, setViewportHeight] = useState(0);
-  const start = useRef<{ x: number; y: number } | null>(null);
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-  const chosenIntent = useRef<EntryIntent | undefined>(undefined);
-  useOverlayHistory(true, () => onClose(chosenIntent.current));
-  function finish(intent?: EntryIntent) {
-    chosenIntent.current = intent;
-    if (typeof window !== "undefined" && window.history.state?.tatelOverlay) window.history.back();
-    else onClose(intent);
+  const [held, setHeld] = useState(false);
+  const [areaFilm, setAreaFilm] = useState<StoryArea>("tech");
+  const [hidden, setHidden] = useState(false);
+  const [connection, setConnection] = useState(readConnection);
+  const [reader, setReader] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const origin = useRef<{ x: number; y: number; time: number } | null>(null);
+  const suppressTap = useRef(0);
+  const intent = useRef<EntryIntent | undefined>(undefined);
+  const chapter = storyChapters[index];
+  const film = chapter?.id === "needs" ? areaFilm : chapter?.film ?? "venues";
+  const hub = !chapter;
+  const still = connection.reducedMotion || connection.saveData || connection.slow || Platform.OS !== "web";
+  const stopped = paused || held || expanded || hidden || hub || reader || connection.reducedMotion;
+  const holder = readOwnedPass(webStorage()) || readIntake(webStorage())?.hasPass === "have";
+  const order: EntryIntent[] = holder ? ["stay", "ticket", "explore"] : ["ticket", "stay", "explore"];
+
+  useOverlayHistory(Platform.OS === "web", () => onClose(intent.current));
+  function finish(choice?: EntryIntent) {
+    intent.current = choice;
+    if (typeof window !== "undefined" && window.history?.state?.tatelOverlay) window.history.back();
+    else onClose(choice);
   }
-  const slides = useMemo(() => {
-    const formatsByDay: Record<string, string[]> = {};
-    for (const session of sessions) (formatsByDay[session.dayId] ??= []).push(session.format);
-    return storySlides({ pillars: forum.pillars, days: forum.days, formatsByDay });
-  }, [forum.days, forum.pillars, sessions]);
-  const slide = slides[index] ?? slides[0];
-  const last = index >= slides.length - 1;
-  const [film, setFilm] = useState(() => {
-    const first = storyBackground(slides[0], null, reels) ?? reels.venues;
-    return { poster: first.poster, mp4: first.mp4 };
-  });
+  function move(to: number) {
+    setExpanded(false);
+    setHeld(false);
+    setIndex(Math.max(0, Math.min(to, storyChapters.length)));
+  }
 
   useEffect(() => {
-    setFilm((current) => {
-      const next = storyBackground(slide, current, reels);
-      if (!next || next.mp4 === current.mp4) return current;
-      return { poster: next.poster, mp4: next.mp4 };
-    });
-  }, [slide]);
-
-  useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (Platform.OS !== "web") {
+      let live = true;
+      void AccessibilityInfo.isScreenReaderEnabled().then(value => { if (live) setReader(value); });
+      void AccessibilityInfo.isReduceMotionEnabled().then(value => { if (live) setConnection(state => ({ ...state, reducedMotion: value })); });
+      const screenReader = AccessibilityInfo.addEventListener("screenReaderChanged", setReader);
+      const motion = AccessibilityInfo.addEventListener("reduceMotionChanged", value => setConnection(state => ({ ...state, reducedMotion: value })));
+      return () => { live = false; screenReader.remove(); motion.remove(); };
+    }
+    const node = dialog.current;
+    node?.showModal();
+    node?.focus();
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const network = (navigator as Navigator & { connection?: EventTarget }).connection;
+    const refresh = () => setConnection(readConnection());
+    const visibility = () => setHidden(document.hidden);
+    visibility();
+    motion.addEventListener("change", refresh);
+    network?.addEventListener?.("change", refresh);
+    document.addEventListener("visibilitychange", visibility);
     return () => {
+      motion.removeEventListener("change", refresh);
+      network?.removeEventListener?.("change", refresh);
+      document.removeEventListener("visibilitychange", visibility);
       document.body.style.overflow = previous;
+      node?.close();
     };
   }, []);
 
   useEffect(() => {
-    const slide = slides[index];
-    if (!slide || held || paused || slide.id === "islands" || index === slides.length - 1 || prefersReducedMotion()) return;
-    const timer = setTimeout(() => {
-      const next = advanceStory(index, slides.length);
-      if (next === null) closeRef.current();
-      else setIndex(next);
-    }, Math.max(storyBeat(slide.kind), `${slide.title} ${slide.line} ${slide.note}`.split(/\s+/).length / 3 * 1000 + 2000));
+    if (stopped) return;
+    const timer = setTimeout(() => setIndex(index + 1), index === 0 ? reels.intro.durationMs : 16000);
     return () => clearTimeout(timer);
-  }, [held, paused, index, slides]);
+  }, [index, stopped]);
 
-  function go(next: number) {
-    if (next < 0) return;
-    if (next >= slides.length) {
-      finish();
+  useEffect(() => {
+    if (!expanded) return;
+    const heading = dialog.current?.querySelector<HTMLElement>('[role="heading"]');
+    if (heading) {
+      heading.tabIndex = -1;
+      heading.focus({ preventScroll: true });
+    }
+  }, [expanded]);
+
+  function endGesture(event: PointerEvent) {
+    const start = origin.current;
+    origin.current = null;
+    setHeld(false);
+    if (!start) return;
+    const dx = event.nativeEvent.clientX - start.x;
+    const dy = event.nativeEvent.clientY - start.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 48) {
+      if (Date.now() - start.time > 400) suppressTap.current = Date.now() + 500;
       return;
     }
-    setIndex(next);
+    suppressTap.current = Date.now() + 500;
+    if (Math.abs(dx) > Math.abs(dy)) move(index + (dx < 0 ? 1 : -1));
+    else if (dy < 0) setExpanded(true);
   }
 
-  function point(event: { nativeEvent: { pageX?: number; pageY?: number; locationX?: number; locationY?: number } }) {
-    const native = event.nativeEvent;
-    return { x: native.pageX ?? native.locationX ?? 0, y: native.pageY ?? native.locationY ?? 0 };
+  function stageButton(back: boolean) {
+    return <Pressable accessibilityRole="button" accessibilityLabel={back ? "Back" : "Next"}
+      disabled={back && index === 0} style={back ? styles.backZone : styles.nextZone}
+      onPress={() => { if (Date.now() >= suppressTap.current) move(index + (back ? -1 : 1)); }}
+    />;
   }
 
-  function end(event: { nativeEvent: { pageX?: number; pageY?: number; locationX?: number; locationY?: number } }) {
-    const origin = start.current;
-    start.current = null;
-    if (!origin) return;
-    const next = point(event);
-    const dx = next.x - origin.x;
-    const dy = next.y - origin.y;
-    if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy)) return;
-    go(dx < 0 ? index + 1 : index - 1);
-  }
-
-  if (!slide) return null;
-  const sheet = (
-    <View
-      style={styles.overlay}
-      accessibilityViewIsModal
-      accessibilityLabel="What is TATEL"
-      onTouchStart={(event) => {
-        start.current = point(event);
-        setHeld(true);
-      }}
-      onTouchEnd={(event) => {
-        setHeld(false);
-        end(event);
-      }}
-      onTouchCancel={() => setHeld(false)}
-      {...({
-        onMouseDown: () => setHeld(true),
-        onMouseUp: () => setHeld(false),
-        onMouseLeave: () => setHeld(false),
-      } as ViewStyle)}
-    >
-      <Film poster={film.poster} mp4={film.mp4} />
-      <View style={styles.shade} />
-      <View style={[styles.copy, notchPadding("top", 20, insets.top), notchPadding("bottom", 24, insets.bottom)]}>
-        <View style={styles.row}>
-          <View style={styles.pageInfo}><T variant="meta" color={colors.foam}>{index + 1} / {slides.length}</T>{contentHeight > viewportHeight + 2 ? <T variant="meta" color={colors.gold}>Scroll to read</T> : null}</View>
-          <Pressable accessibilityRole="button" accessibilityLabel={paused ? "Resume story" : "Pause story"} onPress={() => setPaused(!paused)} style={styles.ghost}><T variant="button" color={colors.gold}>{paused ? "Resume" : "Pause"}</T></Pressable>
-        </View>
-        <ScrollView key={slide.id} style={styles.scroll} contentContainerStyle={styles.storyCopy} onContentSizeChange={(_, height) => setContentHeight(height)} onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}>
-        <T variant="eyebrow" color={colors.gold}>{slide.kicker}</T>
-        {slide.kind === "letter" ? (
-          <View style={styles.letters}>
-            {slides.filter((item) => item.kind === "letter").map((item) => (
-              <T key={item.id} style={[styles.mark, compact && styles.markCompact, item.id === slide.id ? styles.markOn : styles.markOff]}>{item.letter}</T>
-            ))}
-          </View>
-        ) : (
-          <T style={slide.title.length > 28 ? styles.phaseSmall : [styles.phase, compact && styles.phaseCompact]}>{slide.title}</T>
-        )}
-        {slide.kind === "letter" ? <T variant="rowTitle" color={colors.gold}>{slide.title}</T> : null}
-        <T variant="headline" color={colors.foam} style={compact && styles.lineCompact}>{slide.line}</T>
-        {slide.note ? <T variant="small" color={colors.foam}>{slide.note}</T> : null}
-        {slide.id === "islands" ? <IslandStory intro /> : null}
-        {last ? <View style={{ gap: 12, marginTop: 16 }}>
-          {([['ticket', 'Find my ticket'], ['stay', 'I have a ticket · Plan my stay'], ['explore', 'Explore TATEL']] as const).map(([intent, label]) => <Pressable key={intent} accessibilityRole="button" onPress={() => finish(intent)} style={[styles.next, { minHeight: 48, paddingVertical: 14 }]}><T variant="button" color={colors.ink}>{label}</T></Pressable>)}
-        </View> : null}
-        </ScrollView>
-        <View style={styles.dots}>
-          {slides.map((item, dot) => (
-            <Pressable key={item.id} accessibilityRole="button" accessibilityLabel={`Page ${dot + 1} of ${slides.length}`} onPress={() => setIndex(dot)} style={styles.dotHit}>
-              <View style={[styles.dot, dot === index && styles.dotOn]} />
-            </Pressable>
-          ))}
-        </View>
-        <View style={styles.row}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Back" disabled={index === 0} onPress={() => go(index - 1)} style={[styles.nav, index === 0 && styles.navOff]}>
-            <Icon name="back" size={18} color={index === 0 ? "rgba(245,241,232,0.35)" : colors.foam} />
-            <T variant="button" color={index === 0 ? "rgba(245,241,232,0.35)" : colors.foam}>Back</T>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Skip" onPress={() => finish()} style={styles.ghost}>
-            <T variant="button" color={colors.gold}>Skip</T>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel={last ? "Done" : "Next"} onPress={() => go(index + 1)} style={styles.next}>
-            <T variant="button" color={colors.ink}>{last ? "Done" : "Next"}</T>
+  const sheet = <View style={[styles.frame, Platform.OS !== "web" && styles.nativeOverlay]} accessibilityViewIsModal>
+    <View style={[styles.chrome, notchPadding("top", 4, insets.top)]}>
+      <View style={styles.progress} accessibilityElementsHidden aria-hidden>
+        {storyChapters.map((item, i) => <View key={item.id} style={[styles.segment, i <= index && styles.complete]} />)}
+      </View>
+      <View style={styles.toolbar}>
+        <T color={colors.gold} style={styles.brand}>TATEL</T>
+        <View style={styles.tools}>
+          {!hub && !expanded && !connection.reducedMotion && !reader ? <Pressable accessibilityRole="button" accessibilityLabel={paused ? "Resume story" : "Pause story"} onPress={() => setPaused(!paused)} style={styles.control}>
+            <T variant="button" color={colors.foam}>{paused ? "Resume" : "Pause"}</T>
+          </Pressable> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel={hub ? "Close" : "Skip"} onPress={() => hub ? finish() : move(storyChapters.length)} style={styles.control}>
+            <T variant="button" color={colors.gold}>{hub ? "Close" : "Skip"}</T>
           </Pressable>
         </View>
       </View>
     </View>
-  );
+    <View style={[styles.stage, expanded && styles.stageSmall]}>
+      <StoryFilm key={film} reel={reels[film]} still={still} stopped={stopped} />
+      {!hub && !expanded ? <View nativeID="tatel-story-gestures" style={styles.zones}
+        onPointerDown={event => {
+          origin.current = { x: event.nativeEvent.clientX, y: event.nativeEvent.clientY, time: Date.now() };
+          suppressTap.current = 0;
+          setHeld(true);
+        }}
+        onPointerUp={endGesture}
+        onPointerCancel={() => { origin.current = null; setHeld(false); }}
+        onPointerLeave={() => { origin.current = null; setHeld(false); }}>
+        {stageButton(true)}{stageButton(false)}
+      </View> : null}
+    </View>
+    <View nativeID={expanded ? "tatel-story-reading" : undefined} style={[styles.panel, expanded && styles.reading, notchPadding("bottom", compact ? 8 : 12, insets.bottom)]} testID="story-caption">
+      <ScrollView key={`${index}-${expanded}`} style={styles.scroll} contentContainerStyle={[styles.copy, compact && styles.compactCopy]} keyboardShouldPersistTaps="handled">
+        <View nativeID="tatel-story-heading" style={[styles.textGroup, compact && styles.compactGroup]} accessibilityLiveRegion="polite">
+          <T variant="eyebrow" color={colors.gold}>{hub ? "Your next move" : `${chapter.numeral} / V   ·   ${chapter.heading}`}</T>
+          <T variant="title" accessibilityRole="header" style={compact && styles.compactTitle}>{hub ? "Make it yours." : chapter.headline}</T>
+          {!hub && !expanded ? <T variant="body">{chapter.caption}</T> : null}
+        </View>
+        {expanded && chapter ? <StoryDetails chapter={chapter} onAreaPick={setAreaFilm} /> : null}
+        {hub ? order.map((choice, i) => <Pressable accessibilityRole="button" key={choice} onPress={() => finish(choice)} style={styles.door}>
+          <T variant="rowTitle" color={i === 0 ? colors.gold : colors.foam}>{doors[choice]}</T>
+        </Pressable>) : null}
+      </ScrollView>
+      <View style={styles.footer}>
+        {hub ? <Pressable accessibilityRole="button" accessibilityLabel="Back" style={styles.detailButton} onPress={() => move(storyChapters.length - 1)}><T variant="button" color={colors.gold}>Back to the story</T></Pressable>
+          : <Pressable accessibilityRole="button" aria-expanded={expanded} onPress={() => setExpanded(!expanded)} style={styles.detailButton}>
+            <T variant="button" color={colors.gold}>{expanded ? "Back to the film" : chapter.readLabel}</T>
+            <T variant="rowTitle" color={colors.gold} aria-hidden>{expanded ? "−" : "+"}</T>
+          </Pressable>}
+        {index === 0 && !expanded ? <T variant="meta" color={colors.muted}>Tap right to advance, left to go back.</T> : null}
+      </View>
+    </View>
+  </View>;
 
   if (typeof document === "undefined") return sheet;
-  return createPortal(sheet, document.body);
+  return createPortal(createElement("dialog", {
+    ref: dialog, className: "tatel-story", tabIndex: -1, "aria-label": "What is TATEL",
+    onCancel: (event: { preventDefault(): void }) => { event.preventDefault(); if (expanded) setExpanded(false); else finish(); },
+    onKeyDown: (event: React.KeyboardEvent) => {
+      if (event.key === "Tab" && !stopped) setPaused(true);
+      if (expanded || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) return;
+      event.preventDefault();
+      move(index + (event.key === "ArrowLeft" ? -1 : 1));
+    },
+  }, sheet), document.body);
 }
 
-function Film({ poster, mp4 }: { poster: string; mp4: string }) {
-  const ref = useRef<HTMLVideoElement | null>(null);
+function StoryFilm({ reel, still, stopped }: { reel: Reel; still: boolean; stopped: boolean }) {
+  const video = useRef<HTMLVideoElement>(null);
   const [failed, setFailed] = useState(false);
-  const reduce = prefersReducedMotion();
-
   useEffect(() => {
-    const node = ref.current;
-    if (!node || reduce) return;
+    const node = video.current;
+    if (!node || still || failed) return;
+    if (stopped) { node.pause(); return; }
     let live = true;
-    const arm = () => {
-      if (!live || !node.paused) return;
-      node.muted = true;
-      node.defaultMuted = true;
-      node.loop = true;
-      node.playsInline = true;
-      node.autoplay = true;
-      node.setAttribute("muted", "");
-      node.setAttribute("playsinline", "");
-      node.setAttribute("webkit-playsinline", "");
-      const attempt = node.play();
-      if (attempt) attempt.catch(() => undefined);
-    };
-    arm();
-    node.addEventListener("pause", arm);
-    node.addEventListener("ended", arm);
-    const onVis = () => {
-      if (document.visibilityState === "visible") arm();
-    };
-    document.addEventListener("visibilitychange", onVis);
-    const retry = window.setInterval(arm, 1500);
-    return () => {
-      live = false;
-      window.clearInterval(retry);
-      node.removeEventListener("pause", arm);
-      node.removeEventListener("ended", arm);
-      document.removeEventListener("visibilitychange", onVis);
-      node.pause();
-    };
-  }, [mp4, reduce]);
-
-  if (Platform.OS !== "web" || failed || reduce) {
-    return <Image source={{ uri: poster }} style={styles.photo} resizeMode="cover" accessibilityIgnoresInvertColors />;
-  }
-  return (
-    <View style={styles.photo} pointerEvents="none">
-      {createElement("video", {
-        autoPlay: true,
-        muted: true,
-        loop: true,
-        playsInline: true,
-        poster,
-        src: mp4,
-        onError: () => setFailed(true),
-        ref: (node: HTMLVideoElement | null) => {
-          ref.current = node;
-          if (!node) return;
-          node.muted = true;
-          node.defaultMuted = true;
-          node.loop = true;
-          node.playsInline = true;
-          node.setAttribute("muted", "");
-          node.setAttribute("playsinline", "");
-          node.setAttribute("webkit-playsinline", "");
-          node.setAttribute("data-testid", "story-film");
-        },
-        style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" },
-      })}
-    </View>
-  );
+    node.muted = true;
+    void node.play()?.catch(() => { if (live) setFailed(true); });
+    return () => { live = false; node.pause(); };
+  }, [still, stopped, failed]);
+  return <View style={StyleSheet.absoluteFill} pointerEvents="none" aria-hidden>
+    <Image source={{ uri: reel.poster }} style={styles.photo} resizeMode="cover" />
+    {!still && !failed ? createElement("video", {
+      ref: video, muted: true, playsInline: true, loop: true, poster: reel.poster, src: reel.mp4,
+      "aria-hidden": true, "data-testid": "story-film", onError: () => setFailed(true),
+      style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" },
+    }) : null}
+  </View>;
 }
-
-const fixed = { position: "fixed" } as unknown as ViewStyle;
 
 const styles = StyleSheet.create({
-  overlay: { ...fixed, top: 0, right: 0, bottom: 0, left: 0, zIndex: 110, backgroundColor: "#071421" },
-  photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  shade: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    ...({ backgroundImage: "linear-gradient(to top, rgba(6,14,24,0.94) 0%, rgba(6,14,24,0.55) 42%, rgba(6,14,24,0.28) 100%)" } as ViewStyle),
-  },
-  copy: { flex: 1, minHeight: 0, paddingHorizontal: 22, gap: 12, width: "100%", maxWidth: 640, alignSelf: "center" },
-  scroll: { flex: 1, minHeight: 0 },
-  storyCopy: { flexGrow: 1, justifyContent: "flex-end", gap: 14, paddingVertical: 20 },
-  letters: { flexDirection: "row", gap: 10 },
-  mark: { fontFamily: fonts.display, fontSize: 52, lineHeight: 60 },
-  markCompact: { fontSize: 40, lineHeight: 48 },
-  markOn: { color: colors.gold },
-  markOff: { color: "rgba(245,241,232,0.35)" },
-  phase: { fontFamily: fonts.display, fontSize: 48, lineHeight: 52, color: colors.gold },
-  phaseCompact: { fontSize: 36, lineHeight: 40 },
-  lineCompact: { fontSize: 20, lineHeight: 26 },
-  phaseSmall: { fontFamily: fonts.display, fontSize: 28, lineHeight: 34, color: colors.gold },
-  dots: { flexDirection: "row", gap: 2 },
-  dotHit: { flex: 1, minWidth: 0, minHeight: 32, alignItems: "center", justifyContent: "center" },
-  dot: { width: 8, height: 8, borderRadius: 99, backgroundColor: "rgba(255,224,138,0.35)" },
-  dotOn: { width: 18, backgroundColor: colors.gold },
-  row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  pageInfo: { flexShrink: 1, gap: 2 },
-  nav: { minHeight: 48, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,224,138,0.48)", flexDirection: "row", alignItems: "center", gap: 2 },
-  navOff: { borderColor: "rgba(245,241,232,0.2)" },
-  ghost: { minHeight: 48, paddingHorizontal: 8, alignItems: "center", justifyContent: "center" },
-  next: { minHeight: 48, paddingHorizontal: 22, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
+  nativeOverlay: { ...StyleSheet.absoluteFill, zIndex: 110 },
+  frame: { flex: 1, width: "100%", alignSelf: "center", minHeight: 0, backgroundColor: colors.stage },
+  chrome: { paddingHorizontal: 16, backgroundColor: colors.stage },
+  progress: { flexDirection: "row", gap: 5, paddingTop: 8 },
+  segment: { height: 2, flex: 1, backgroundColor: colors.inkSoft }, complete: { backgroundColor: colors.gold },
+  toolbar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 },
+  brand: { fontFamily: fonts.displayMedium, fontSize: 21, lineHeight: 28, letterSpacing: 4 },
+  tools: { flexDirection: "row" }, control: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center", paddingHorizontal: 8 },
+  stage: { flex: 1, minHeight: 0, backgroundColor: colors.ink }, stageSmall: { flex: 0.22 },
+  photo: { height: "100%", width: "100%" },
+  zones: { ...StyleSheet.absoluteFill, flexDirection: "row" }, backZone: { flex: 1 }, nextZone: { flex: 2 },
+  panel: { maxHeight: "72%", flexShrink: 1, backgroundColor: colors.stage, borderTopWidth: 1, borderColor: colors.brassSoft },
+  reading: { flex: 1, maxHeight: "88%" }, scroll: { flexGrow: 0, flexShrink: 1, minHeight: 0 },
+  copy: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 12, gap: 16 },
+  compactCopy: { paddingVertical: 10 }, compactGroup: { gap: 6 }, compactTitle: { fontSize: 28, lineHeight: 32 },
+  textGroup: { gap: 9 }, footer: { marginHorizontal: 20, borderTopWidth: 1, borderColor: colors.inkSoft },
+  detailButton: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  door: { minHeight: 46, justifyContent: "center", borderTopWidth: 1, borderColor: colors.inkSoft, paddingVertical: 8 },
 });

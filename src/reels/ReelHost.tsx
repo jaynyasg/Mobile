@@ -6,7 +6,6 @@ import { TatelExplainer } from "@/components/TatelExplainer";
 import { reels, type Reel, type ReelId } from "@/content/reels";
 import { markGuide } from "@/guide/path";
 import { webTrackStore } from "@/guide/interests";
-import { pulse, prefersReducedMotion } from "@/guide/stamps";
 import {
   introPlayback,
   isExplored,
@@ -78,12 +77,7 @@ export function ReelHost({ children }: { children: ReactNode }) {
   pendingRef.current = pending;
 
   useEffect(() => {
-    const mode = playbackMode(false);
-    if (mode === "skip") return;
-    const src = reelPlaybackSrc("intro");
-    const play = mode === "video" ? playReelNow(src) : undefined;
-    nonce.current += 1;
-    setPending({ id: "intro", mode, src, play, nonce: nonce.current });
+    if (playbackMode(false) !== "skip") setStory(true);
   }, []);
 
   const bumpZone = useCallback((zoneId: string | undefined) => {
@@ -93,14 +87,6 @@ export function ReelHost({ children }: { children: ReactNode }) {
   }, []);
 
   const openStory = useCallback(() => setStory(true), []);
-
-  const replayIntro = useCallback(() => {
-    const mode = playbackMode(true) === "poster" ? "poster" : "video";
-    const src = reelPlaybackSrc("intro");
-    const play = mode === "video" ? playReelNow(src) : undefined;
-    nonce.current += 1;
-    setPending({ id: "intro", mode, src, play, nonce: nonce.current });
-  }, []);
 
   const markZone = useCallback((zoneId: string) => {
     bumpZone(zoneId);
@@ -121,30 +107,22 @@ export function ReelHost({ children }: { children: ReactNode }) {
     const current = pendingRef.current;
     if (!current || current.nonce !== stamp) return;
     const reel = reels[current.id] as Reel;
-    if (reel.kind === "intro") pulse(prefersReducedMotion());
-    if (reel.kind === "intro") {
-      markIntroPlayed(localReelStore());
-      markGuide(webTrackStore(), "welcome");
-      setGuideTick((tick) => tick + 1);
-      setStory(true);
-    } else {
-      markChapterSeen(chapterStore(), reel.id);
-      bumpZone(reel.zoneId);
-    }
+    markChapterSeen(chapterStore(), reel.id);
+    bumpZone(reel.zoneId);
     void reason;
     setPending(null);
   }
 
   const value = useMemo<ReelApi>(() => ({
     openChapter,
-    replayIntro,
+    replayIntro: openStory,
     openStory,
     markZone,
     zoneExplored,
     exploredVersion,
     guideTick,
     reelActive: pending !== null || story,
-  }), [openChapter, replayIntro, openStory, markZone, zoneExplored, exploredVersion, guideTick, pending, story]);
+  }), [openChapter, openStory, markZone, zoneExplored, exploredVersion, guideTick, pending, story]);
 
   return (
     <ReelContext.Provider value={value}>
@@ -160,7 +138,13 @@ export function ReelHost({ children }: { children: ReactNode }) {
             onDone={(reason) => complete(reason, pending.nonce)}
           />
         ) : null}
-        {story ? <TatelExplainer onClose={(intent) => { if (intent) { saveEntryIntent(webStorage(), intent); router.navigate("/"); } setStory(false); }} /> : null}
+        {story ? <TatelExplainer onClose={(intent) => {
+          markIntroPlayed(localReelStore());
+          markGuide(webTrackStore(), "welcome");
+          setGuideTick(tick => tick + 1);
+          if (intent) { saveEntryIntent(webStorage(), intent); router.navigate("/"); }
+          setStory(false);
+        }} /> : null}
       </View>
     </ReelContext.Provider>
   );

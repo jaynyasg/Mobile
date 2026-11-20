@@ -96,7 +96,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       assert.ok(await guide.getByRole("button", { name: /^Save / }).count() > 0);
       await screenshot(page, `${label}-initial-session-matches`);
       await click(page, "Choose a session goal");
-      await click(page, "Build something useful", "checkbox");
+      await click(page, "Build and test a use case", "checkbox");
       await click(page, "Show my session matches");
       await guide.getByRole("button", { name: /^Save / }).first().click();
       assert.deepEqual((await intakeOf(page)).sessionGoals, ["build"]);
@@ -160,7 +160,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await visible(page, "Your sessions");
       await page.goto(base);
       await click(page, "What is TATEL");
-      await click(page, "Pause story");
+      await visible(page, "TATEL is a Technology Mill.");
       await page.evaluate(() => {
         for (const el of document.querySelectorAll("body *")) {
           if (![...el.childNodes].some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())) continue;
@@ -175,6 +175,7 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       assert.ok(next && next.y >= 0 && next.y + next.height <= viewport.height + 1, "Story navigation must stay reachable with larger text");
       await screenshot(page, `${label}-story`);
       await click(page, "Skip");
+      await click(page, "Close");
       await page.goto(`${base}/more`);
       await click(page, "Add to Home Screen");
       await visible(page, "Open as a web app");
