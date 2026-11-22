@@ -6,7 +6,7 @@ import { StampCard } from "@/components/StampCard";
 import { ExperienceGuide } from "@/components/ExperienceGuide";
 import { T } from "@/components/Text";
 import { useContent } from "@/content/provider";
-import { AREA_COPY, ISLANDS_LINE, ISLANDS_NOTE } from "@/logic/tatelStory";
+import { ISLANDS_LINE, ISLANDS_NOTE } from "@/logic/tatelStory";
 import { reels, zoneReelIds, type ReelId } from "@/content/reels";
 import { useReels } from "@/reels/ReelHost";
 import { colors } from "@/theme";
@@ -19,6 +19,8 @@ import { openExternal } from "@/navigation/pwaNav";
 import { nightGlass } from "@/components/nightGlass";
 import { BookingLink } from "@/components/BookingLink";
 import { IslandStory } from "@/components/IslandStory";
+import { IslandTime } from "@/components/IslandTime";
+import { Disclosure } from "@/components/Disclosure";
 import { ShareInvitation } from "@/components/ShareInvitation";
 
 const extras = [
@@ -27,13 +29,6 @@ const extras = [
   { id: "dinner", title: "Good food, great company", line: "Be on Board includes curated lunches and dinners. The team will confirm the dining plans for your charter.", href: "/tickets?tier=vip" },
   { id: "water", title: "More time on the water", line: "Explore trips and watersports with Cruz Bay Watersports on St. John. Check availability and book directly with the operator.", url: "https://bestofusvi.com/usvi-charters/boat/cruz-bay-watersports-usvi/" },
   { id: "intro", title: "See the islands with a local", line: "Ask the Be on Board team about local guides and island experiences when you arrange your charter.", href: "/tickets?tier=vip" },
-];
-
-const islandIdeas = [
-  { title: "Trade your shoes for the shoreline", line: "Let a good session become a long walk, a swim, or a slow afternoon by the sea. Find a beach on St. Thomas or St. John that fits the day you want to have.", url: "https://www.visitusvi.com/explore/beaches/", label: "Explore USVI beaches" },
-  { title: "Get out on the water", line: "Snorkeling, paddling, or a boat outing can turn your free time into a highlight. Find local operators and check conditions, availability, and costs with them.", url: "https://www.visitusvi.com/explore/water-activities/", label: "Find water activities" },
-  { title: "Taste, wander, discover", line: "Explore local food, culture, shopping, and island sights. Leave room for the unexpected conversation or the place you want to linger.", url: "https://www.visitusvi.com/explore/things-to-do/", label: "Explore USVI things to do" },
-  { title: "Discover the islands around Tortola", line: "Get to know this part of the British Virgin Islands. TATEL's Entertainment venue near Tortola and its landing point are being confirmed; plan independent outings around your confirmed transport.", url: "https://www.bvitourism.com/", label: "Explore the British Virgin Islands" },
 ];
 
 export default function ExploreScreen() {
@@ -54,7 +49,7 @@ export default function ExploreScreen() {
           <Image source={{ uri: reels.venues.poster }} style={styles.coverPhoto} resizeMode="cover" accessibilityLabel="The island setting of TATEL" />
           <View style={styles.coverCopy}>
             <T variant="eyebrow" color={colors.gold}>Explore TATEL</T>
-            <T variant="display">Keep up with us</T>
+            <T variant="display">The islands are calling.</T>
             <View style={styles.hubLinks}>
               <Pressable accessibilityRole="button" onPress={() => router.push("/community")} style={styles.hubLink}><T variant="rowTitle" color={colors.gold}>Join the conversation</T></Pressable>
               <Pressable accessibilityRole="button" onPress={() => router.push("/updates")} style={styles.hubLink}><T variant="rowTitle" color={colors.gold}>TATEL updates</T></Pressable>
@@ -70,7 +65,7 @@ export default function ExploreScreen() {
         <IslandStory />
         <View style={styles.intro}>
           <T variant="title">Tell someone about TATEL.</T>
-          <T variant="small">A Technology Mill in the Virgin Islands. Four days to identify a need, build and test an answer, and carry it forward—with extraordinary company along the way.</T>
+          <T variant="small">Good company makes the adventure. Invite someone along.</T>
           <ShareInvitation />
         </View>
         <View style={styles.intro}>
@@ -91,35 +86,8 @@ export default function ExploreScreen() {
           }}
         />
         </View>
-        <View style={styles.kickerWrap}>
-          <T variant="eyebrow" color={colors.gold}>Island by island</T>
-        </View>
-        {forum.pillars.map((pillar) => {
-          const copy = AREA_COPY[pillar.id as keyof typeof AREA_COPY];
-          return (
-            <Pressable
-              key={pillar.id}
-              accessibilityRole="button"
-              accessibilityLabel={`Open ${pillar.name} on ${pillar.island}`}
-              onPress={() => openChapter(pillar.id as ReelId, { pathname: "/pillar/[id]", params: { id: pillar.id } })}
-              style={styles.island}
-            >
-              <Image source={{ uri: reels[pillar.id as ReelId]?.poster }} style={styles.islandPhoto} resizeMode="cover" />
-              <T variant="meta" color={colors.gold}>{pillar.region === "BVI" ? "British Virgin Islands" : "U.S. Virgin Islands"} · {pillar.island}</T>
-              <T variant="rowTitle" color={colors.foam}>{pillar.name}</T>
-              {copy ? <T variant="small" color={colors.gold}>{copy.headline}</T> : null}
-              {copy ? <T variant="small" color={colors.foam}>{copy.body}</T> : null}
-              <View style={styles.pill}><T variant="button" color={colors.ink}>Open this island</T></View>
-            </Pressable>
-          );
-        })}
-        <View onLayout={(event) => { offsets.current.activities = event.nativeEvent.layout.y; }} style={styles.intro}>
-          <T variant="eyebrow" color={colors.gold}>Beyond the sessions</T>
-          <T variant="title">Make room for island time</T>
-          <T variant="small">Follow a great session with a little adventure. Find your beach, get out on the water, or discover a local favorite with these official visitor guides.</T>
-          <T variant="meta">Choose and book independent outings separately; they may cost extra and are not automatically included in your TATEL ticket.</T>
-        </View>
-        {islandIdeas.map((idea) => <View key={idea.title} style={styles.island}><T variant="rowTitle" color={colors.gold}>{idea.title}</T><T variant="small">{idea.line}</T><ExternalLink href={idea.url} label={idea.label}>{idea.label}</ExternalLink></View>)}
+        <View onLayout={(event) => { offsets.current.activities = event.nativeEvent.layout.y; }}><IslandTime /></View>
+        <View style={styles.intro}><Disclosure label="More experiences & charter extras">
         {extras.map((item) => item.url ? <View key={item.id} style={styles.island}><T variant="rowTitle">{item.title}</T><T variant="small">{item.line}</T><BookingLink href={item.url} name={item.title} detail={item.line} label="Explore & book" /></View> : (
           <Pressable
             key={item.id}
@@ -136,6 +104,7 @@ export default function ExploreScreen() {
             {item.url ? <ExternalLink href={item.url} label={item.title}>Operator site</ExternalLink> : <View style={styles.pill}><T variant="button" color={colors.ink}>Open</T></View>}
           </Pressable>
         ))}
+        </Disclosure></View>
       </ScrollView>
     </View>
   );
@@ -144,7 +113,6 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   frame: { flex: 1, minHeight: 0, backgroundColor: "#071421" },
   intro: { marginHorizontal: 16, marginBottom: 12, padding: 14, gap: 8, borderRadius: 18, ...nightGlass },
-  kickerWrap: { alignSelf: "flex-start", marginLeft: 16, marginBottom: 8, marginTop: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 14, ...nightGlass },
   island: { marginHorizontal: 16, marginBottom: 10, padding: 14, gap: 6, borderRadius: 18, ...nightGlass },
   cover: { marginHorizontal: 16, marginBottom: 24, backgroundColor: "#091D2B", borderRadius: 8, overflow: "hidden" },
   coverPhoto: { width: "100%", height: 240 },
@@ -152,6 +120,5 @@ const styles = StyleSheet.create({
   hubLinks: { marginTop: 4 },
   hubLink: { minHeight: 48, paddingVertical: 10, justifyContent: "center", borderTopWidth: 1, borderColor: colors.inkSoft },
   islandsToggle: { minHeight: 44, justifyContent: "center" },
-  islandPhoto: { width: "100%", height: 170, borderRadius: 6, marginBottom: 10 },
   pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });

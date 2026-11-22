@@ -5,7 +5,7 @@ import { useContent } from "@/content/provider";
 import { readIntake, writeIntake } from "@/logic/intake";
 import { useIntake } from "@/logic/useIntake";
 import { availableSubtopics, guidedSessions, SESSION_GOALS, type SessionPreferences } from "@/logic/sessionGuide";
-import { AREA_COPY } from "@/logic/tatelStory";
+import { METHOD } from "@/logic/sessionJourney";
 import { writeTracks, webTrackStore } from "@/guide/interests";
 import { useApp } from "@/store";
 import { webStorage } from "@/welcome";
@@ -15,6 +15,7 @@ import { SessionRow } from "./SessionRow";
 import { T } from "./Text";
 import { availableNeeds } from "@/logic/islandNeeds";
 import { InterestChoices } from "./InterestChoices";
+import { AreaPostcards } from "./AreaPostcards";
 
 export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: () => void; onStepChange: () => void; onMatches: () => void }) {
   const { program } = useContent();
@@ -29,12 +30,16 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
   const [step, setStep] = useState(3);
   const [preferences, setPreferences] = useState(savedPreferences);
   const [limit, setLimit] = useState(4);
+  const [dayId, setDayId] = useState<string | null>(null);
   useEffect(() => {
     setPreferences(savedPreferences);
     setStep(3);
     setLimit(4);
+    setDayId(null);
   }, [savedPreferences]);
   const matches = guidedSessions(program.sessions, preferences);
+  const dayMatches = dayId ? matches.filter(session => session.dayId === dayId) : matches;
+  const day = program.forum.days.find(day => day.id === dayId);
   const saved = state.favoriteIds.filter((id) => program.sessions.some((session) => session.id === id)).length;
   const titles = ["Start with your infrastructure areas", "Find your sub-infrastructure", "What do you want to accomplish?", "Your sessions"];
   function go(step: number) { setStep(step); onStepChange(); }
@@ -74,14 +79,14 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
       {step < 3 ? <T variant="eyebrow" color={colors.gold}>Your session guide · {step + 1} of 3</T> : null}
       <T variant="title">{titles[step]}</T>
       {step === 0 ? <>
-        <T variant="small">TATEL connects five infrastructure areas: Tech, AI, Travel, Entertainment, and Law. Pick the worlds you want to explore. You can choose more than one.</T>
-        {program.forum.pillars.map((pillar) => choice(pillar.id, pillar.name, AREA_COPY[pillar.id as keyof typeof AREA_COPY]?.body ?? `Explore sessions in ${pillar.name}.`, "areas"))}
+        <T variant="small">Choose every area you want to explore.</T>
+        <AreaPostcards pillars={program.forum.pillars} selected={preferences.areas} onToggle={id => toggle("areas", id)} />
       </> : null}
       {step === 1 ? <>
         <InterestChoices sessions={program.sessions} pillars={program.forum.pillars} areas={preferences.areas} selected={preferences.interests} onToggle={id => toggle("interests", id)} />
       </> : null}
       {step === 2 ? <>
-        <T variant="small">Connected sessions progress through four days: identify the problem, shape the solution, build and test, then showcase and expand. Choose where you'd like to contribute, or follow the whole journey.</T>
+        <T variant="small">Identify. Plan. Build. Showcase. Where would you like to contribute?</T>
         {SESSION_GOALS.map((goal) => choice(goal.id, goal.title, goal.line, "goals"))}
       </> : null}
       {step < 3 ? <>
@@ -90,27 +95,35 @@ export function SessionGuide({ onBrowse, onStepChange, onMatches }: { onBrowse: 
         {step > 0 ? <Pressable accessibilityRole="button" onPress={() => go(step - 1)} style={styles.quiet}><T variant="button" color={colors.gold}>Back in session guide</T></Pressable> : null}
       </> : <>
         <T variant="small">{matches.length ? `${matches.length} ${preferences.areas.length || preferences.interests.length || preferences.goals.length ? "matches" : "sessions to explore"}. Tap a heart to save your favorites.` : "No sessions match that combination yet. Change your choices or browse the full program; your saved sessions are still safe."}</T>
-        <Pressable accessibilityRole="button" onPress={() => go(0)} style={styles.quiet}><T variant="button" color={colors.gold}>Change my session choices</T></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => go(0)} style={styles.edit}><T variant="button" color={colors.gold}>Change my session choices</T></Pressable>
       </>}
       {step < 3 || !matches.length ? <Pressable accessibilityRole="button" onPress={onBrowse} style={styles.quiet}><T variant="button" color={colors.gold}>Browse the full program</T></Pressable> : null}
     </View>
     {step === 3 ? <>
-      {matches.slice(0, limit).map((session) => <SessionRow key={session.id} session={session} showOutcome />)}
+      <View style={styles.dayStrip} accessibilityLabel="Explore your matches by day">
+        {[{ id: null, label: "All days" }, ...program.forum.days.map(day => ({ id: day.id, label: `Jan ${day.dayNumber}` }))].map(item => <Pressable key={item.id ?? "all"} accessibilityRole="button" accessibilityLabel={`Matching sessions · ${item.label}`} aria-pressed={dayId === item.id} onPress={() => { setDayId(item.id); setLimit(4); }} style={[styles.day, dayId === item.id && styles.selected]}><T variant="button" color={dayId === item.id ? colors.gold : colors.foam}>{item.label}</T></Pressable>)}
+      </View>
+      {day ? <View style={styles.dayCaption}><T variant="eyebrow" color={colors.gold}>{METHOD.find(step => step.phase === day.phase)?.short ?? day.phase} · {dayMatches.length} matches</T></View> : null}
+      {dayMatches.slice(0, limit).map((session) => <SessionRow key={session.id} session={session} showOutcome />)}
+      {day && !dayMatches.length ? <View style={styles.card}><T variant="small">No matching sessions on this day. Try another day or change your interests.</T></View> : null}
       <View style={styles.card}>
-        {matches.length > limit ? <Pressable accessibilityRole="button" onPress={() => setLimit(limit + 4)} style={styles.quiet}><T variant="button" color={colors.gold}>Show more matching sessions</T></Pressable> : null}
+        {dayMatches.length > limit ? <Pressable accessibilityRole="button" onPress={() => setLimit(limit + 4)} style={styles.quiet}><T variant="button" color={colors.gold}>Show more matching sessions</T></Pressable> : null}
         <Pressable accessibilityRole="button" onPress={() => go(2)} style={styles.quiet}><T variant="button" color={colors.gold}>Choose a session goal</T></Pressable>
         {matches.length ? <Pressable accessibilityRole="button" onPress={onBrowse} style={styles.quiet}><T variant="button" color={colors.gold}>Browse the full program</T></Pressable> : null}
         <Pressable accessibilityRole="button" onPress={() => router.push("/schedule")} style={styles.primary}><T variant="button">Review My schedule · {saved} saved</T></Pressable>
         <T variant="small">Check session times and island connections as you plan. Saving a session does not reserve a seat.</T>
-        <T variant="small">Your ambition has a place in the program. Now find your people and your next adventure. Continue from My schedule to the panelists, Chat, and your island guide in Explore.</T>
+        <T variant="small">Next: meet the panelists, start a conversation, and find your island adventure in Explore.</T>
       </View>
     </> : null}
   </View>;
 }
 
 const styles = StyleSheet.create({
-  card: { marginHorizontal: 16, marginBottom: 16, padding: 18, gap: 12, borderRadius: 20, ...nightGlass },
-  topics: { gap: 12 },
+  card: { marginHorizontal: 16, marginBottom: 12, padding: 16, gap: 8, borderRadius: 20, ...nightGlass },
+  edit: { minHeight: 44, justifyContent: "center" },
+  dayStrip: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginHorizontal: 16, marginBottom: 12 },
+  day: { minHeight: 44, paddingHorizontal: 10, justifyContent: "center", borderWidth: 1, borderColor: colors.inkSoft, borderRadius: 12, backgroundColor: colors.stage },
+  dayCaption: { marginHorizontal: 16, marginBottom: 12 },
   option: { padding: 14, gap: 6, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,224,138,0.3)", backgroundColor: "rgba(7,27,42,0.8)" },
   selected: { borderColor: colors.gold, backgroundColor: "rgba(71,58,28,0.8)" },
   primary: { minHeight: 48, padding: 14, borderRadius: 24, backgroundColor: colors.gold, alignItems: "center", justifyContent: "center" },

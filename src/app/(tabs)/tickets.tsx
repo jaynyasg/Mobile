@@ -11,6 +11,7 @@ import { useContent } from "@/content/provider";
 import { readContactPrefs } from "@/logic/contactPrefs";
 import { notePassPurchased, readIntake, writeIntake } from "@/logic/intake";
 import { ticketGuide } from "@/content/tickets";
+import { Disclosure } from "@/components/Disclosure";
 import { checkoutStartTier } from "@/logic/ticketsRoute";
 import { readOwnedPass, writeOwnedPass } from "@/logic/ownedPass";
 import { CHECKOUT_SOON, confirmedPayment, canEmbedCheckout, passOffer, passTier, type PassTier } from "@/logic/passPay";
@@ -201,20 +202,22 @@ export default function TicketsScreen() {
             const canBook = item.id === "vip" || checkoutReady;
             return (
               <View key={item.id} style={[styles.passCard, item.id === recommended && styles.recommended]} testID={`ticket-${item.id}`}>
+                <Image source={{ uri: item.id === "beach" ? "/reels/venues.jpg" : item.id === "boat" ? "/reels/transport.jpg" : "/reels/pass.jpg" }} style={{ height: 150, width: "100%", borderRadius: 8 }} resizeMode="cover" />
                 {item.id === recommended && !hold.owned ? <T variant="eyebrow" color={colors.gold}>Suggested for your travel style</T> : null}
                 <T variant="title" color={colors.foam}>{guide?.name ?? item.name}</T>
                 {guide ? <T variant="rowTitle" color={colors.gold}>{guide.tagline}</T> : null}
                 <T variant="headline" color={colors.foam}>{item.price} <T variant="small" color={colors.foam}>per guest</T></T>
                 {item.id === "vip" ? <T variant="meta" color={colors.gold}>{offer.guests} · {offer.total} for the full boat</T> : null}
-                <T variant="small" color={colors.foam}>{guide?.description ?? item.paragraphs[0]}</T>
-                {guide ? <>
+                <T variant="small" color={colors.foam}>{item.id === "beach" ? "Land-based sessions. Book your own stay and public ferries for visits to other islands." : item.id === "boat" ? "Travel to sessions by private day charter. Book your own stay ashore and travel to the dock." : "Five days with the yacht as home. Book a full boat for eight, or ask to share."}</T>
+                {guide ? <Disclosure label={`What's included · ${guide.name}`}>
+                  <T variant="small" color={colors.foam}>{guide.description}</T>
                   <T variant="eyebrow" color={colors.gold}>Where you stay</T>
                   <T variant="small" color={colors.foam}>{guide.stay}</T>
                   <T variant="eyebrow" color={colors.gold}>Getting between islands</T>
                   <T variant="small" color={colors.foam}>{guide.travel}</T>
                   <T variant="eyebrow" color={colors.gold}>Before you book</T>
                   <T variant="small" color={colors.foam}>{guide.details}</T>
-                </> : null}
+                </Disclosure> : null}
                 <Pressable
                 key={item.id}
                 accessibilityRole="button"

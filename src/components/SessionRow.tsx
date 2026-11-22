@@ -12,12 +12,14 @@ import { colors, sceneForIsland } from "@/theme";
 import { Icon } from "./Icon";
 import { T } from "./Text";
 import { TopicChip } from "./TopicChip";
+import { useState } from "react";
 
 export function sessionWhen(session: Session, timeZone = getProgram().forum.timezone): string {
   return sessionDateLine(session, getProgram().forum.days, timeZone);
 }
 
 export function SessionRow({ session, showOutcome = false }: { session: Session; showOutcome?: boolean }) {
+  const [outcomeOpen, setOutcomeOpen] = useState(false);
   const { state, dispatch } = useApp();
   const { program } = useContent();
   const favored = state.favoriteIds.includes(session.id);
@@ -51,11 +53,12 @@ export function SessionRow({ session, showOutcome = false }: { session: Session;
         </View>
         <T variant="rowTitle" color={colors.foam} numberOfLines={2}>{displayCopy(session.title)}</T>
         <T variant="meta" color={colors.gold} numberOfLines={2}>{when} · {session.island}</T>
-        {showOutcome && session.outcome ? <><T variant="eyebrow" color={colors.gold}>What you'll work toward</T><T variant="small" color={colors.foam}>{displayCopy(session.outcome)}</T></> : null}
+        {showOutcome && outcomeOpen && session.outcome ? <T variant="small" color={colors.foam}>{displayCopy(session.outcome)}</T> : null}
         <View style={styles.pill}>
           <T variant="button" color={colors.ink}>Open</T>
         </View>
       </View>
+      {showOutcome && session.outcome ? <Pressable accessibilityRole="button" accessibilityLabel={`Session goal: ${session.title}`} aria-expanded={outcomeOpen} onPress={event => { event.stopPropagation(); setOutcomeOpen(!outcomeOpen); }} style={styles.goal}><T variant="button" color={colors.gold}>{outcomeOpen ? "Hide session goal −" : "See session goal +"}</T></Pressable> : null}
     </Pressable>
   );
 }
@@ -71,7 +74,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#071421",
   },
   photo: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  shade: { position: "absolute", left: 0, right: 0, bottom: 0, height: "78%", backgroundColor: "rgba(6,14,24,0.45)" },
+  shade: { position: "absolute", left: 0, right: 0, bottom: 0, height: "100%", backgroundColor: "rgba(6,14,24,0.68)" },
+  goal: { minHeight: 44, paddingHorizontal: 16, paddingBottom: 12, justifyContent: "center", zIndex: 1 },
   heart: { position: "absolute", top: 8, right: 8, zIndex: 3, width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(7,20,33,0.9)", alignItems: "center", justifyContent: "center" },
   copy: { gap: 6, padding: 16, paddingTop: 60, zIndex: 1, width: "100%", minWidth: 0 },
   pill: { alignSelf: "flex-start", minHeight: 40, marginTop: 4, paddingHorizontal: 14, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },

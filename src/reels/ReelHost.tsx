@@ -77,7 +77,12 @@ export function ReelHost({ children }: { children: ReactNode }) {
   pendingRef.current = pending;
 
   useEffect(() => {
-    if (playbackMode(false) !== "skip") setStory(true);
+    const mode = playbackMode(false);
+    if (mode === "skip") return;
+    if (mode === "poster") { setStory(true); return; }
+    const src = reelPlaybackSrc("intro");
+    const play = playReelNow(src);
+    setPending({ id: "intro", mode, src, play, nonce: ++nonce.current });
   }, []);
 
   const bumpZone = useCallback((zoneId: string | undefined) => {
@@ -87,6 +92,13 @@ export function ReelHost({ children }: { children: ReactNode }) {
   }, []);
 
   const openStory = useCallback(() => setStory(true), []);
+  const replayIntro = useCallback(() => {
+    setStory(false);
+    const mode = playbackMode(true) === "poster" ? "poster" : "video";
+    const src = reelPlaybackSrc("intro");
+    const play = mode === "video" ? playReelNow(src) : undefined;
+    setPending({ id: "intro", mode, src, play, nonce: ++nonce.current });
+  }, []);
 
   const markZone = useCallback((zoneId: string) => {
     bumpZone(zoneId);
@@ -107,6 +119,11 @@ export function ReelHost({ children }: { children: ReactNode }) {
     const current = pendingRef.current;
     if (!current || current.nonce !== stamp) return;
     const reel = reels[current.id] as Reel;
+    if (reel.kind === "intro") {
+      setPending(null);
+      setStory(true);
+      return;
+    }
     markChapterSeen(chapterStore(), reel.id);
     bumpZone(reel.zoneId);
     void reason;
@@ -115,14 +132,14 @@ export function ReelHost({ children }: { children: ReactNode }) {
 
   const value = useMemo<ReelApi>(() => ({
     openChapter,
-    replayIntro: openStory,
+    replayIntro,
     openStory,
     markZone,
     zoneExplored,
     exploredVersion,
     guideTick,
     reelActive: pending !== null || story,
-  }), [openChapter, openStory, markZone, zoneExplored, exploredVersion, guideTick, pending, story]);
+  }), [openChapter, replayIntro, openStory, markZone, zoneExplored, exploredVersion, guideTick, pending, story]);
 
   return (
     <ReelContext.Provider value={value}>

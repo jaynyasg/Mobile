@@ -9,6 +9,8 @@ import { type PassTier } from "@/logic/passPay";
 import { availableSubtopics } from "@/logic/sessionGuide";
 import { availableNeeds } from "@/logic/islandNeeds";
 import { InterestChoices } from "./InterestChoices";
+import { AreaPostcards } from "./AreaPostcards";
+import { PlanTrail } from "./PlanTrail";
 import { colors } from "@/theme";
 import { notchPadding } from "./notch";
 import { T } from "./Text";
@@ -33,7 +35,7 @@ export function Questions({ onDone, onSkip, initial, startAt = 0 }: { onDone: (a
   const path = buildPath(answers, program.forum.pillars);
   const nextLabel = step === 3 ? "Next · Find my sub-infrastructure" : step === 4 ? "See my plan" : path[0]?.id === "pass" ? (ticketPreference === "vip" ? "Start my Board booking" : ticketPreference ? "Continue to checkout" : "Compare tickets") : path[0]?.id === "stay" ? "Find my accommodation" : "Choose my sessions";
   const photo = step < 2 ? "/reels/pass.jpg" : step === 2 ? "/reels/stays.jpg" : "/reels/venues.jpg";
-  const titles = ["Your invitation to something extraordinary.", hasPass === "have" ? "Which ticket do you have?" : "How do you want to experience it?", "Where will you wake up?", "What sparks your ambition?", "Where do you want to make waves?", "Your plan for TATEL."];
+  const titles = ["Your way into TATEL.", hasPass === "have" ? "Which ticket do you have?" : "How will you island-hop?", "Where will you wake up?", "What sparks your ambition?", "What would you help change?", "Your plan for TATEL."];
   const toggle = (items: string[], item: string) => items.includes(item) ? items.filter((id) => id !== item) : [...items, item];
   function toggleArea(id: string) {
     const next = toggle(areas, id);
@@ -41,11 +43,13 @@ export function Questions({ onDone, onSkip, initial, startAt = 0 }: { onDone: (a
     setAreas(next);
     setInterests((current) => current.filter((interest) => available.some((topic) => topic.id === interest)));
   }
-  const option = (key: string, title: string, line: string, action: () => void, selected = false, areaLabel?: string) => (
+  const option = (key: string, title: string, line: string, action: () => void, selected = false, image?: string) => (
     <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected }} aria-pressed={step === 3 || step === 4 ? selected : undefined} accessibilityLabel={title} onPress={action} style={[styles.tile, selected && styles.selected]}>
+      {image ? <Image source={{ uri: image }} style={styles.choicePhoto} resizeMode="cover" /> : null}
+      <View style={styles.choiceCopy}>
       <T variant="rowTitle" color={colors.foam}>{title}</T>
-      <T variant="small" color={colors.foam}>{line}</T>
-      {areaLabel ? <T variant="meta" color={colors.gold}>{areaLabel}</T> : null}
+      {line ? <T variant="small" color={colors.foam}>{line}</T> : null}
+      </View>
     </Pressable>
   );
   const sheet = (
@@ -59,37 +63,39 @@ export function Questions({ onDone, onSkip, initial, startAt = 0 }: { onDone: (a
           <Pressable accessibilityRole="button" accessibilityLabel="Plan later" onPress={() => onSkip(answers)} style={styles.ghost}><T variant="button" color={colors.gold}>Plan later</T></Pressable>
         </View>
         <ScrollView key={step} style={styles.scroll} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+          {step === 0 || step === 2 ? <Image source={{ uri: photo }} accessibilityLabel={step === 0 ? "Island life at TATEL" : "A coastal place to stay"} style={styles.scene} resizeMode="cover" /> : null}
           <T variant="eyebrow" color={colors.gold}>Your TATEL, your way</T>
           <T variant="title" color={colors.foam}>{titles[step]}</T>
           {step === 0 ? <>
-            <T variant="small" color={colors.foam}>Bold ideas, beautiful islands, and people you'll want to know. Let's shape your way into it: your ticket, your stay, then sessions with a purpose. Do you already have a TATEL ticket?</T>
-            {option("have", "Yes, I have a ticket", "We'll help with the rest of your visit.", () => { setHasPass("have"); setStep(1); })}
-            {option("not-yet", "I need a ticket", "Find the experience that fits you.", () => { setHasPass("not-yet"); setStep(1); })}
-            {option("unsure", "I'd like to compare first", "See what each ticket offers before deciding.", () => { setHasPass("unsure"); setStep(1); })}
+            <T variant="small" color={colors.foam}>Ticket. Stay. Sessions. A few choices make this adventure yours.</T>
+            {option("have", "Yes, I have a ticket", "", () => { setHasPass("have"); setStep(1); })}
+            {option("not-yet", "I need a ticket", "", () => { setHasPass("not-yet"); setStep(1); })}
+            {option("unsure", "I'd like to compare first", "", () => { setHasPass("unsure"); setStep(1); })}
           </> : null}
           {step === 1 ? <>
-            <T variant="small" color={colors.foam}>{hasPass === "have" ? "Choose the name on your ticket so we can shape the rest of your experience." : "Picture your kind of island life: a beautiful base ashore, days sailing between sessions, or five days with the yacht as home. See the full details and price before booking."}</T>
-            {experiences.map((experience) => option(experience.id, hasPass === "have" ? ticketGuide[experience.id].name : experience.title, `${ticketGuide[experience.id].name} · ${experience.line}`, () => { setTicketPreference(experience.id); setStep(2); }, ticketPreference === experience.id))}
-            {option("compare", "I'm not sure yet", "Keep all three tickets in view.", () => { setTicketPreference(undefined); setStep(2); })}
+            <T variant="small" color={colors.foam}>{hasPass === "have" ? "Choose the name on your ticket." : "Ashore, on the water, or a yacht as home. Review prices and inclusions before booking."}</T>
+            {experiences.map((experience) => option(experience.id, hasPass === "have" ? ticketGuide[experience.id].name : experience.title, experience.line, () => { setTicketPreference(experience.id); setStep(2); }, ticketPreference === experience.id, experience.id === "beach" ? "/reels/venues.jpg" : experience.id === "boat" ? "/reels/transport.jpg" : "/reels/pass.jpg"))}
+            {option("compare", "I'm not sure yet", "", () => { setTicketPreference(undefined); setStep(2); })}
           </> : null}
           {step === 2 ? <>
-            <T variant="small" color={colors.foam}>{ticketPreference === "vip" ? "Be on Board includes an onboard stay. You can still browse hotels for extra nights before or after the charter." : "Beach and day-charter guests arrange their own accommodation. We can help you choose an island and find a hotel or villa."}</T>
-            {option("yes", ticketPreference === "vip" ? "Find a hotel for extra nights" : "Help me find a place", "Browse islands, then book directly with your chosen property.", () => { setNeedsStay("yes"); setStep(3); })}
-            {option("booked", "My stay is already arranged", "I have a booking, live locally, or am staying with someone.", () => { setNeedsStay("booked"); setStep(3); })}
-            {option("browsing", ticketPreference === "vip" ? "I plan to stay aboard" : "I'd like to browse", ticketPreference === "vip" ? "We'll focus on your charter first. Extra hotel nights are optional." : "Explore the options and decide later.", () => { setNeedsStay("browsing"); setStep(3); })}
+            <T variant="small" color={colors.foam}>{ticketPreference === "vip" ? "Board includes your onboard stay. Need extra nights ashore?" : "Beach and Boat tickets need a separate place to stay."}</T>
+            {option("yes", ticketPreference === "vip" ? "Find a hotel for extra nights" : "Help me find a place", "", () => { setNeedsStay("yes"); setStep(3); })}
+            {option("booked", "My stay is already arranged", "Booked, staying with friends, or living locally.", () => { setNeedsStay("booked"); setStep(3); })}
+            {option("browsing", ticketPreference === "vip" ? "I plan to stay aboard" : "I'd like to browse", "", () => { setNeedsStay("browsing"); setStep(3); })}
           </> : null}
           {step === 3 ? <>
-            <T variant="small" color={colors.foam}>Pick the infrastructure areas that excite you. Next, choose the fields within them. We'll use both to suggest islands for your stay and sessions you can save. Leave these blank if you're open to everything.</T>
-            {program.forum.pillars.map((pillar) => option(pillar.id, `${areas.includes(pillar.id) ? "✓ " : ""}${pillar.name}`, `Home area · ${pillar.island}`, () => toggleArea(pillar.id), areas.includes(pillar.id)))}
+            <T variant="small" color={colors.foam}>Tap every area that interests you. We'll connect you with its sessions and islands.</T>
+            <AreaPostcards pillars={program.forum.pillars} selected={areas} onToggle={toggleArea} buttons />
+            <T variant="meta">No picks? Keep every area open.</T>
           </> : null}
           {step === 4 ? <>
             <InterestChoices sessions={program.sessions} pillars={program.forum.pillars} areas={areas} selected={interests} onToggle={id => setInterests(toggle(interests, id))} buttons />
           </> : null}
           {step === 5 ? <>
-            <T variant="small" color={colors.foam}>This is your plan, based on your choices. We'll guide you through these steps in order. Your answers are saved on this device; you can change them from Home.</T>
+            <T variant="small" color={colors.foam}>Your plan, based on your choices. Follow it at your pace; edit it from Home.</T>
             {ticketPreference && hasPass === "have" ? <T variant="rowTitle" color={colors.gold}>Your ticket: {ticketGuide[ticketPreference].name}</T> : null}
             <View testID="opening-step-plan" style={styles.plan}>
-              {path.map((item) => <View key={item.id} style={styles.tile}><T variant="rowTitle" color={colors.foam}>{item.number}. {item.title}</T><T variant="small" color={colors.foam}>{item.line}</T></View>)}
+              <PlanTrail steps={path} />
             </View>
           </> : null}
         </ScrollView>
@@ -110,7 +116,10 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, minHeight: 0 },
   body: { gap: 14, paddingVertical: 12, paddingBottom: 24 },
   plan: { gap: 14 },
-  tile: { padding: 18, gap: 6, borderRadius: 16, backgroundColor: "rgba(7,27,42,0.86)", borderWidth: 1, borderColor: "rgba(255,224,138,0.35)" },
+  tile: { flexDirection: "row", overflow: "hidden", borderRadius: 16, backgroundColor: "rgba(7,27,42,0.86)", borderWidth: 1, borderColor: "rgba(255,224,138,0.35)" },
+  choiceCopy: { flex: 1, minWidth: 0, padding: 16, gap: 6 },
+  choicePhoto: { width: 76, height: "100%", minHeight: 110 },
+  scene: { height: 156, width: "100%", borderRadius: 12 },
   selected: { borderColor: colors.gold, backgroundColor: "rgba(67,58,32,0.9)" },
   next: { minHeight: 52, padding: 14, borderRadius: 28, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
 });

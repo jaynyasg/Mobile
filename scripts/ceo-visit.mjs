@@ -12,6 +12,7 @@ async function checkTouchStory(browser) {
   await page.route("**/api/**", route => route.fulfill({ json: program }));
   try {
     await page.goto(base);
+    await button(page, "Skip intro").click();
     const story = page.getByRole("dialog", { name: "What is TATEL" });
     const heading = story.getByRole("heading");
     await heading.filter({ hasText: "TATEL is a Technology Mill." }).waitFor();
@@ -97,7 +98,7 @@ for (const [name, engine] of [["chromium", chromium], ["webkit", webkit]]) {
       }
       await page.getByTestId("island-story").waitFor();
       for (let i = 0; i < 5; i++) await button(page, "Next island").click();
-      await page.getByTestId("island-story").getByText("St. Croix", { exact: true }).waitFor();
+      await page.getByTestId("island-story").getByText("St. Croix", { exact: true }).last().waitFor();
       assert.match(await page.getByTestId("island-story").innerText(), /not a TATEL program stop/);
       await page.goto(`${base}/work?session=T2-D1`);
       console.log(`${name} ${width}: notebook`);
@@ -105,7 +106,7 @@ for (const [name, engine] of [["chromium", chromium], ["webkit", webkit]]) {
       await button(page, "Save my notebook").click(); await page.getByText("Notebook saved on this device.", { exact: true }).waitFor();
       await page.reload(); assert.equal(await page.getByRole("textbox", { name: "The island need", exact: true }).inputValue(), "Connect local growers with buyers.");
       const download = page.waitForEvent("download"); await button(page, "Export my notebook").click(); assert.match((await download).suggestedFilename(), /TATEL-T2-notebook/);
-      await page.goto(`${base}/program-overview`); await page.getByRole("link", { name: "Explore this day's sessions", exact: true }).nth(2).click();
+      await page.goto(`${base}/program-overview`); await button(page, "January 28").click(); await page.getByRole("link", { name: "Explore this day's sessions", exact: true }).click();
       console.log(`${name} ${width}: daily program`);
       await page.waitForURL(url => url.pathname === "/agenda" && url.searchParams.get("day") === "2027-01-28");
       assert.equal(await page.getByTestId("session-guide").count(), 0);

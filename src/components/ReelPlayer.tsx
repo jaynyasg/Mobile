@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Image, Platform, Pressable, StyleSheet, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, showIntroTitle, type Reel } from "@/content/reels";
+import { REEL_FALLBACK_MP4, REEL_FALLBACK_POSTER, type Reel } from "@/content/reels";
 import { colors } from "@/theme";
 import { armReel, hideReelVideo, reelGeneration, reelVideoElement, showReelFrame } from "@/reels/playback";
 import { nightGlass } from "./nightGlass";
@@ -31,7 +31,8 @@ export function ReelPlayer({
   const [blocked, setBlocked] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
   const onDoneRef = useRef(onDone);
   const finished = useRef(false);
   const motion = useRef({ lastTime: 0, lastMove: 0, advanced: false, retried: false, fellBack: false });
@@ -104,7 +105,7 @@ export function ReelPlayer({
     const attempt = currentSrc === src && play ? play : armReel(video, currentSrc);
     attempt.catch(() => undefined);
     const watch = window.setInterval(() => {
-      if (cancelled) return;
+      if (cancelled || pausedRef.current) return;
       if (video.currentTime > clock.lastTime + 0.01) {
         reveal();
         return;
@@ -137,16 +138,13 @@ export function ReelPlayer({
 
   useEffect(() => {
     if (!playing) return;
-    const started = Date.now();
     const tick = setInterval(() => {
-      const elapsedMs = Date.now() - started;
-      setElapsed(elapsedMs);
+      const elapsedMs = (reelVideoElement()?.currentTime ?? 0) * 1000;
       setProgress(Math.min(1, elapsedMs / reel.durationMs));
+      if (!pausedRef.current && elapsedMs >= reel.durationMs) finish("end");
     }, 100);
-    const end = setTimeout(() => finish("end"), reel.durationMs);
     return () => {
       clearInterval(tick);
-      clearTimeout(end);
     };
   }, [playing, reel.durationMs]);
 
@@ -163,9 +161,25 @@ export function ReelPlayer({
     armReel(video, currentSrc).catch(() => undefined);
   }
 
+  function togglePause() {
+    const video = reelVideoElement();
+    if (!video) return;
+    if (!pausedRef.current) {
+      pausedRef.current = true;
+      setPaused(true);
+      video.pause();
+    } else {
+      pausedRef.current = false;
+      setPaused(false);
+      motion.current.lastMove = Date.now();
+      void video.play().catch(() => { setBlocked(true); setPlaying(false); });
+    }
+  }
+
   const sheet = (
     <View
       accessibilityViewIsModal
+      testID={reel.kind === "intro" ? "welcome-film" : "section-film"}
       style={styles.overlay}
     >
       {!playing ? (
@@ -179,7 +193,8 @@ export function ReelPlayer({
           accessibilityIgnoresInvertColors
         />
       ) : null}
-      <View pointerEvents="none" style={styles.shade} />
+      {reel.kind !== "intro" ? <View pointerEvents="none" style={styles.shade} /> : null}
+      {playing ? <Pressable accessibilityRole="button" accessibilityLabel={paused ? "Resume film" : "Pause film"} onPress={togglePause} style={[styles.skip, { left: 16, right: "auto" }, notchOffset("top", 12, insets.top)]}><T variant="button" color={colors.foam}>{paused ? "Resume" : "Pause"}</T></Pressable> : null}
       {blocked ? (
         <Pressable
           accessibilityRole="button"
@@ -200,11 +215,9 @@ export function ReelPlayer({
       >
         <T variant="button" color={colors.foam}>Skip</T>
       </Pressable>
-      <View style={[styles.copy, { bottom: Math.max(insets.bottom, 16) + 28 }]}>
+      {reel.kind === "chapter" ? <View style={[styles.copy, { bottom: Math.max(insets.bottom, 16) + 28 }]}>
         <T variant="eyebrow" color={colors.gold}>{reel.kicker}</T>
-        {reel.kind !== "intro" || showIntroTitle(elapsed, reel.durationMs) ? (
-          <T variant="title" color={colors.foam}>{reel.title}</T>
-        ) : null}
+        <T variant="title" color={colors.foam}>{reel.title}</T>
         {reel.kind === "chapter" ? (
           <Pressable
             accessibilityRole="button"
@@ -216,7 +229,7 @@ export function ReelPlayer({
             <T variant="button" color={colors.ink}>Enter</T>
           </Pressable>
         ) : null}
-      </View>
+      </View> : null}
       {playing ? (
         <View pointerEvents="none" style={styles.track}>
           <View style={[styles.bar, { width: `${Math.round(progress * 100)}%` }]} />
