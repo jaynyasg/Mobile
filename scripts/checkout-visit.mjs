@@ -82,9 +82,9 @@ for (const [engineName, engine] of [["chromium", chromium], ["webkit", webkit]])
       await click(page, "Next · Find my sub-infrastructure");
       await click(page, "See my plan");
       await page.getByText("Your plan for TATEL.", { exact: true }).waitFor();
-      await page.getByText(/This is your plan, based on your choices/).waitFor();
+      await page.getByText(/Your plan, based on your choices/).waitFor();
       const plan = page.getByTestId("opening-step-plan");
-      assert.equal(await plan.getByText(`1. ${names[tier]}`, { exact: true }).count(), 1);
+      assert.equal(await plan.getByText(names[tier], { exact: true }).count(), 1);
       assert.equal(await plan.getByText(/Choose your ticket/).count(), 0);
       if (width === 320) await page.getByLabel("Plan your TATEL visit", { exact: true }).evaluate(root => {
         for (const element of root.querySelectorAll("*")) {

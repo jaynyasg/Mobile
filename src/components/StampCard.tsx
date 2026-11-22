@@ -40,7 +40,7 @@ export function StampCard({ pillars, onOpen }: { pillars: readonly Pillar[]; onO
       <T variant="eyebrow" color={colors.gold}>Stamp card</T>
       <T variant="title" color={colors.foam}>Island passport</T>
       <T variant="small" color={colors.foam}>
-        Five island stops, a collection of memories. Scan the code posted at each event stop or enter its short code below. Each stamp celebrates a place you've experienced in person. Your card is saved on this device, ready for your next island.
+        Collect a memory at each event stop. Scan its QR code or enter the short code. Your stamps stay on this device.
       </T>
       <T variant="rowTitle" color={colors.foam}>{held} of {pillars.length} island stamps</T>
       <View style={styles.track}>

@@ -65,6 +65,10 @@ Retain the short section films and their existing transitions. Provide pause, sk
 
 ## Voice and guided journey
 
+Carry the story into the menus after the intro: photographic choices, a compact personal itinerary, selectable island stories, and day-by-day session discovery. Show the useful action and a short explanation first; place fuller context behind an explicitly labelled disclosure. Ticket prices, transport distinctions, and booking actions stay visible. Detailed inclusions remain available before booking.
+
+The opening welcome film plays without added editorial copy before the approved five-chapter story. Preserve pause, skip, replay, and reduced-motion/data-saving fallbacks. The November 2026 story guide is a reference for interaction and hierarchy after the intro, not authorization to replace the approved palette, fonts, navigation, or program geography.
+
 Lead with the invitation, then give a concrete action. Explain TATEL's purpose, the five infrastructure areas, the Virgin Islands setting, and how guests can contribute. Pair the vacation with meaningful work without adding unsupported promises.
 
 The journey is ticket → accommodation → saved sessions → Explore. Skip arrangements the guest already has. Opening a page does not complete a step. When the questions identify a ticket, open that ticket's checkout directly (the required booking form for Board). Guests who have not chosen a ticket see the catalog. Within the catalog, present ticket choices before the next-step action. Clearly distinguish Beach, Boat, and the five-day Board stay; explain ferries, local transfers, accommodation, and inclusions.

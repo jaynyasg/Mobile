@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter } from "expo-router";
 import { dockClearance } from "@/components/Dock";
@@ -11,13 +11,14 @@ import { EssentialsDeck } from "@/components/EssentialsDeck";
 import { ExperienceInvitation, ExperiencePreview } from "@/components/ExperienceInvitation";
 import { FeedCard } from "@/components/FeedCard";
 import { InstallHint } from "@/components/InstallHint";
+import { PlanTrail } from "@/components/PlanTrail";
 import { Questions } from "@/components/Questions";
 import { sessionWhen } from "@/components/SessionRow";
 import { T } from "@/components/Text";
 import { useAuth } from "@/community/auth";
 import { useContent } from "@/content/provider";
 import { islandTrackLabel } from "@/content/labels";
-import { reels, zoneReelIds, type ReelId } from "@/content/reels";
+import { zoneReelIds, type ReelId } from "@/content/reels";
 import { readTracks, webTrackStore, writeTracks } from "@/guide/interests";
 import { consumeIntakeRequest, readIntake, writeIntake, type IntakeRecord } from "@/logic/intake";
 import { saveIntakeRemote } from "@/logic/intakeSync";
@@ -30,15 +31,6 @@ import { colors, sceneForIsland } from "@/theme";
 import { webStorage } from "@/welcome";
 import { useApp } from "@/store";
 import { takeEntryIntent, type EntryIntent } from "@/logic/entryIntent";
-
-const stepPhoto: Record<PathStep["id"], string> = {
-  pass: reels.pass.poster,
-  sessions: reels.sessions.poster,
-  stay: reels.stays.poster,
-  route: reels.transport.poster,
-  chat: reels.community.poster,
-  explore: reels.venues.poster,
-};
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -177,33 +169,18 @@ export default function HomeScreen() {
         </View>
         {mode === "you" ? (
           <>
-            <ExperienceInvitation onStory={openStory} />
             <View style={styles.guideHead}>
               <T variant="eyebrow" color={colors.gold}>Your next chapter</T>
-              <T variant="title" color={colors.foam}>Make it yours.</T>
-              <T variant="small" color={colors.foam}>Choose how you'll arrive, where you'll wake up, and what you'll help bring to life. We'll guide the details. You bring the curiosity.</T>
+              <T variant="title" color={colors.foam}>{steps.length ? "Your island itinerary." : "Make it yours."}</T>
+              <T variant="small" color={colors.foam}>Based on your choices. Take your next step when you're ready.</T>
               <View style={styles.pills}>
                 <Pressable accessibilityRole="button" accessibilityLabel="Retake questions" onPress={() => { setEntryIntent(null); setAsking(true); }} style={styles.retake}>
-                  <T variant="button" color={colors.foam}>Reshape my experience</T>
+                  <T variant="button" color={colors.foam}>{intake ? "Edit my plan" : "Plan my visit"}</T>
                 </Pressable>
               </View>
             </View>
-            {steps.map((step) => (
-              <Pressable key={step.id} accessibilityRole="button" accessibilityState={{ checked: step.done }} accessibilityLabel={step.done ? `${step.title}, completed` : step.title} onPress={() => openStep(step)} style={styles.path}>
-                <Image source={{ uri: stepPhoto[step.id] }} style={styles.pathPhoto} resizeMode="cover" accessibilityIgnoresInvertColors />
-                <View style={styles.pathShade} />
-                <View style={styles.pathCopy}>
-                  <T variant="meta" color={colors.gold} style={styles.stepLabel}>{`Chapter ${step.number}`}</T>
-                  <T variant="rowTitle" color={colors.foam} numberOfLines={1} style={styles.stepTitle}>{step.title}</T>
-                  <T variant="meta" color={colors.foam} numberOfLines={1} style={styles.stepLine}>{step.line}</T>
-                </View>
-                {step.done ? (
-                  <View style={styles.doneMark} accessibilityElementsHidden>
-                    <T variant="button" color={colors.ink}>✓</T>
-                  </View>
-                ) : null}
-              </Pressable>
-            ))}
+            <View style={{ marginHorizontal: 16, marginBottom: 16 }}><PlanTrail steps={steps} onOpen={openStep} /></View>
+            <ExperienceInvitation onStory={openStory} />
             <ExperiencePreview />
             {next ? (
               <Pressable
@@ -274,25 +251,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(7,27,42,0.88)",
   },
-  path: { position: "relative", minHeight: 104, marginHorizontal: 16, marginBottom: 10, borderRadius: 8, overflow: "hidden", justifyContent: "center" },
-  pathPhoto: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  pathShade: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(6,14,24,0.62)" },
-  pathCopy: { zIndex: 1, paddingHorizontal: 18, paddingRight: 48, paddingVertical: 18, gap: 5 },
-  doneMark: {
-    position: "absolute",
-    right: 10,
-    top: 18,
-    zIndex: 2,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.gold,
-  },
-  stepLabel: { fontSize: 11, lineHeight: 14 },
-  stepTitle: { fontSize: 16, lineHeight: 20 },
-  stepLine: { fontSize: 15, lineHeight: 21 },
   next: {
     marginHorizontal: 16,
     marginBottom: 14,

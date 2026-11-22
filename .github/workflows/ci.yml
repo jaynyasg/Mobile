@@ -73,3 +73,4 @@ jobs:
           BASE_URL=http://127.0.0.1:4173 node scripts/checkout-visit.mjs
           BASE_URL=http://127.0.0.1:4173 node scripts/personalized-visit.mjs
           BASE_URL=http://127.0.0.1:4173 node scripts/ceo-visit.mjs
+          BASE_URL=http://127.0.0.1:4173 node scripts/story-journey-visit.mjs

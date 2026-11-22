@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { useReels } from "@/reels/ReelHost";
 import { webStorage } from "@/welcome";
 import { colors } from "@/theme";
@@ -8,10 +8,10 @@ import { nightGlass } from "./nightGlass";
 
 const KEY = "tatel.experienceGuide.v1";
 const stops = [
-  { title: "Find the minds that light you up.", line: "Whose work makes you curious? Whose perspective could change your own? Explore the panelists, read their stories, and find their sessions. Turn admiration into a question—and a question into a conversation.", action: "Meet the panelists" },
-  { title: "Break the ice before you arrive.", line: "Your next collaborator might also be your next great dinner conversation. Introduce yourself, share what you're working toward, and make plans with other guests. Sign in, then open Live chat from Community to join in.", action: "Open the community and chat" },
-  { title: "Say yes to a little adventure.", line: "Save the sessions that move your goals forward. Then leave room for a swim, a new flavor, or a sunset with people you've just met. Be curious. Be present. Let the islands be part of what you take home.", action: "Find island experiences" },
-  { title: "Five islands. A story only you can tell.", line: "Make your stamp card a record of the adventure. At each island event stop, scan the posted QR code or enter its short code. Every stamp marks somewhere you've been, something you've discovered, and another chapter of your TATEL.", action: "Show my stamp card" },
+  { title: "Find your people.", photo: "/reels/panelists.jpg", line: "Meet the minds behind the sessions. Find a perspective that sparks yours.", action: "Meet the panelists" },
+  { title: "Start with a hello.", photo: "/reels/community.jpg", line: "Share what you're working on. Sign in and open Live chat to meet other guests.", action: "Open the community and chat" },
+  { title: "Leave room for adventure.", photo: "/reels/venues.jpg", line: "A reef, a beach, a new flavor. Discover the islands between sessions.", action: "Find island experiences" },
+  { title: "Collect your island memories.", photo: "/reels/transport.jpg", line: "Visit an event stop. Scan its code. Add a stamp to your island passport.", action: "Show my stamp card" },
 ];
 
 function savedStep(): number {
@@ -31,9 +31,10 @@ export function ExperienceGuide({ onActivities, onStamps, onStepChange }: { onAc
   }
   const actions = [() => openChapter("panelists", "/speakers"), () => openChapter("community", "/community"), onActivities, onStamps];
   return <View style={styles.card} testID="experience-guide">
+    {current ? <Image source={{ uri: current.photo }} style={{ width: "100%", height: 180, borderRadius: 8 }} resizeMode="cover" /> : null}
     <T variant="eyebrow" color={colors.gold}>{current ? `Your island guide · ${step + 1} of 4` : "Make it your TATEL"}</T>
     <T variant="title">{current?.title ?? "You're ready to explore."}</T>
-    <T variant="small">{current?.line ?? "Bring your ambition. Follow your curiosity. Leave room for a little magic. Your sessions give the trip purpose; the people and the islands make it unforgettable. Your guide is here whenever you need it."}</T>
+    <T variant="small">{current?.line ?? "Your people. Your island moments. Choose where to go next."}</T>
     {step === 1 ? <T variant="meta" color={colors.gold}>Try an introduction: “I'm interested in ___ and would love to meet others working on it.”</T> : null}
     {step === 2 ? <T variant="meta" color={colors.gold}>Island outings may need a separate booking. Leave time for ferries, transfers, and getting back to your stay.</T> : null}
     {current ? <>
